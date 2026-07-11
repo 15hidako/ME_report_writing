@@ -1,0 +1,121 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "visit-record.schema.json",
+  "title": "VisitRecord",
+  "description": "1訪問=1レコード。PWAのlocalStorageに保存され、単体体験談・まとめ・再訪・カタログ記事の生成素材になる。",
+  "type": "object",
+  "required": ["id", "seriesNo", "createdAt", "basic", "ratings", "spec", "flow", "voice", "sales"],
+  "properties": {
+    "id": { "type": "string", "description": "UUID" },
+    "seriesNo": { "type": "integer", "description": "シリーズ通し番号(自動採番)" },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" },
+    "revisitOf": { "type": ["string", "null"], "description": "再訪の場合、初回レコードのid" },
+    "postedUrl": { "type": ["string", "null"], "description": "wakust投稿後の記事URL(カタログ記事・まとめ記事から参照)" },
+
+    "basic": {
+      "type": "object",
+      "required": ["visitDate", "prefecture", "area", "shopName", "therapistName"],
+      "properties": {
+        "visitDate": { "type": "string", "format": "date" },
+        "timeSlot": { "enum": ["morning", "afternoon", "evening", "night"] },
+        "prefecture": { "type": "string", "description": "wakustカテゴリー対応" },
+        "area": { "type": "string", "description": "駅・エリア名(タグ兼用)" },
+        "shopName": { "type": "string", "description": "有料部でのみ開示" },
+        "shopUrl": { "type": "string" },
+        "therapistName": { "type": "string", "description": "有料部でのみ開示" },
+        "therapistProfileUrl": { "type": "string" },
+        "therapistXUrl": { "type": "string" },
+        "age": { "type": ["integer", "null"] },
+        "ageIsEstimate": { "type": "boolean", "default": true },
+        "course": { "type": "string", "description": "例: 80分 18,000円" },
+        "optionSystem": { "type": "string", "description": "例: 3種類(4K・5K・6K)" },
+        "optionChosen": { "type": "string" },
+        "nominationFee": { "type": ["integer", "null"] },
+        "roomType": { "enum": ["mansion", "room", "other"], "description": "部屋番号等は規約2-6により収集しない" },
+        "bookingMethod": { "enum": ["x_dm", "line", "phone", "web"] },
+        "evidenceSaved": { "type": "boolean", "description": "予約スクショ保存済み(規約2-1対策)" }
+      }
+    },
+
+    "ratings": {
+      "type": "object",
+      "description": "評価6軸。stars: 1-5, note: ★の理由一言",
+      "required": ["face", "style", "service", "massage", "ero", "tolerance"],
+      "properties": {
+        "face": { "$ref": "#/$defs/rating" },
+        "style": { "$ref": "#/$defs/rating" },
+        "service": { "$ref": "#/$defs/rating" },
+        "massage": { "$ref": "#/$defs/rating" },
+        "ero": { "$ref": "#/$defs/rating" },
+        "tolerance": { "$ref": "#/$defs/rating" }
+      }
+    },
+
+    "spec": {
+      "type": "object",
+      "description": "チップ選択。タグ・タイトル素材",
+      "properties": {
+        "genre": { "type": "array", "items": { "enum": ["gal", "seiso", "oneesan", "imouto", "jukujo", "model", "genki", "cool"] } },
+        "body": { "type": "array", "items": { "enum": ["petite", "slender", "muchimuchi", "glamour", "tall"] } },
+        "cup": { "type": ["string", "null"], "pattern": "^[A-J]$" },
+        "cupImpression": { "enum": ["as_seen", "padded_suspect", "beyond_expectation", null] },
+        "notes": { "type": "array", "items": { "enum": ["ex_menesu", "newbie", "just_joined", "tattoo", "nail", "tanned"] } },
+        "freeTags": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+
+    "flow": {
+      "type": "object",
+      "description": "施術フロー。checks: 定番要素, note: ハイライト1行",
+      "properties": {
+        "meeting": { "$ref": "#/$defs/phase" },
+        "faceDown": { "$ref": "#/$defs/phase" },
+        "oilSp": { "$ref": "#/$defs/phase" },
+        "faceUp": { "$ref": "#/$defs/phase" },
+        "climax": { "$ref": "#/$defs/phase" },
+        "after": { "$ref": "#/$defs/phase" },
+        "bestMoment": { "type": "string", "description": "一番良かった瞬間(必須・1〜2文)" },
+        "downside": { "type": ["string", "null"], "description": "残念ポイント(正直に)" }
+      },
+      "required": ["bestMoment"]
+    },
+
+    "voice": {
+      "type": "object",
+      "description": "臨場感素材",
+      "properties": {
+        "herLines": { "type": "array", "items": { "type": "string" }, "maxItems": 3 },
+        "innerVoice": { "type": "array", "items": { "type": "string" }, "maxItems": 2 },
+        "titleHook": { "type": "string" },
+        "repeatIntent": { "enum": ["definitely", "yes", "no", "unsure"] }
+      }
+    },
+
+    "sales": {
+      "type": "object",
+      "properties": {
+        "points": { "type": "integer", "default": 100 },
+        "articleType": { "enum": ["single", "revisit"], "default": "single" }
+      }
+    }
+  },
+
+  "$defs": {
+    "rating": {
+      "type": "object",
+      "required": ["stars"],
+      "properties": {
+        "stars": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "note": { "type": "string" }
+      }
+    },
+    "phase": {
+      "type": "object",
+      "properties": {
+        "checks": { "type": "array", "items": { "type": "string" } },
+        "note": { "type": ["string", "null"] }
+      }
+    }
+  }
+}
