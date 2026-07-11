@@ -1,0 +1,11 @@
+{
+  "name": "ME Report Writer",
+  "short_name": "MEレポ",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#12081f",
+  "theme_color": "#12081f",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
