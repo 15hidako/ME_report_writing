@@ -1,12 +1,31 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#12081f"/>
       <stop offset="1" stop-color="#3b1060"/>
     </linearGradient>
+    <linearGradient id="drop" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ff7fae"/>
+      <stop offset="1" stop-color="#ff4d8d"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.35" r="0.75">
+      <stop offset="0" stop-color="#ff4d8d" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#ff4d8d" stop-opacity="0"/>
+    </radialGradient>
   </defs>
-  <rect width="512" height="512" rx="112" fill="url(#g)"/>
-  <text x="256" y="300" font-family="sans-serif" font-size="200" font-weight="900"
-        text-anchor="middle" fill="#ff4d8d">ME</text>
-  <rect x="120" y="352" width="272" height="14" rx="7" fill="#ffc93c"/>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <circle cx="256" cy="230" r="190" fill="url(#glow)"/>
+  <!-- オイルの雫 -->
+  <path d="M256 96
+           C 256 96 356 218 356 296
+           A 100 100 0 1 1 156 296
+           C 156 218 256 96 256 96 Z"
+        fill="url(#drop)"/>
+  <!-- 雫のハイライト -->
+  <path d="M215 250 C 200 275 194 300 199 322"
+        fill="none" stroke="#ffffff" stroke-opacity="0.75"
+        stroke-width="18" stroke-linecap="round"/>
+  <!-- 波紋 -->
+  <path d="M96 420 Q 176 388 256 420 T 416 420"
+        fill="none" stroke="#ffc93c" stroke-width="16" stroke-linecap="round"/>
 </svg>
