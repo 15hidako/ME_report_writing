@@ -3,9 +3,8 @@ import {
   BODY_LABELS, CUP_IMPRESSION_LABELS, FLOW_PHASES, GENRE_LABELS,
   RATING_LABELS, REPEAT_LABELS, SPEC_NOTE_LABELS,
 } from '../types';
+import { localDate } from '../date';
 import { chipGroup, chipValues, esc, starValue, starWidget } from './widgets';
-
-const today = (): string => new Date().toISOString().slice(0, 10);
 
 function input(name: string, label: string, value = '', placeholder = '', type = 'text'): string {
   return `<label class="field"><span>${label}</span>
@@ -46,7 +45,7 @@ export function renderForm(record: VisitRecord | null, revisitOf: VisitRecord | 
 
   <details class="sec" ${isEdit || revisitOf ? '' : 'open'}>
     <summary>A. 基本情報(予約時に事前入力OK)</summary>
-    ${input('visitDate', '訪問日', record?.basic.visitDate ?? today(), '', 'date')}
+    ${input('visitDate', '訪問日', record?.basic.visitDate ?? localDate(), '', 'date')}
     <label class="field"><span>時間帯</span><select name="timeSlot">
       ${(['morning', 'afternoon', 'evening', 'night'] as TimeSlot[]).map((t) => `<option value="${t}" ${(record?.basic.timeSlot ?? 'evening') === t ? 'selected' : ''}>${{ morning: '午前', afternoon: '午後', evening: '夕方', night: '夜' }[t]}</option>`).join('')}
     </select></label>
@@ -144,6 +143,7 @@ export function collectRecord(
 
   const ageStr = val(form, 'age');
   const nomStr = val(form, 'nominationFee');
+  const pointsStr = val(form, 'points');
   const bestMoment = val(form, 'bestMoment');
   if (bestMoment === '') throw new Error('「一番良かった瞬間」は必須です');
   if (val(form, 'prefecture') === '' || val(form, 'area') === '') {
@@ -171,7 +171,7 @@ export function collectRecord(
     revisitOf: base.revisitOf,
     postedUrl: base.postedUrl,
     basic: {
-      visitDate: val(form, 'visitDate') || today(),
+      visitDate: val(form, 'visitDate') || localDate(),
       timeSlot: (val(form, 'timeSlot') || 'evening') as TimeSlot,
       prefecture: val(form, 'prefecture'),
       area: val(form, 'area'),
@@ -215,7 +215,8 @@ export function collectRecord(
       repeatIntent,
     },
     sales: {
-      points: Number(val(form, 'points')) || 100,
+      // 数値の 0 は未入力ではない。空だけ 100 にし、非数は検証側で落とす
+      points: pointsStr === '' ? 100 : Number(pointsStr),
       articleType: base.revisitOf === null ? 'single' : 'revisit',
     },
   };
