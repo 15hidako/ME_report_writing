@@ -1,6 +1,6 @@
 import type { VisitRecord } from './types';
 import { VisitStore } from './storage';
-import { renderForm, collectRecord } from './ui/form';
+import { renderForm, collectRecord, bindCourseFields } from './ui/form';
 import { bindChips, bindStars, copyText, esc, toast } from './ui/widgets';
 import { buildCatalogPrompt, buildMatomePrompt, buildRevisitPrompt, buildSinglePrompt } from './prompt/build-prompt';
 import { specSummary } from './prompt/serialize';
@@ -219,6 +219,7 @@ function mountForm(): void {
   const markDirty = (): void => {
     draft.dirty = true;
   };
+  bindCourseFields(form, markDirty);
   bindStars(form, markDirty);
   bindChips(form, markDirty);
   form.addEventListener('input', markDirty);

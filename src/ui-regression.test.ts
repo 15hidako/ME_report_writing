@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fixtureRecord } from './test-fixtures';
+import type { VisitRecord } from './types';
 
 const button = (name: string): HTMLButtonElement => {
   const match = [...document.querySelectorAll('button')].find((item) => item.textContent?.trim() === name);
@@ -8,10 +9,10 @@ const button = (name: string): HTMLButtonElement => {
   return match;
 };
 
-const field = (name: string): HTMLInputElement => {
-  const input = document.querySelector<HTMLInputElement>(`input[name="${name}"]`);
-  if (!input) throw new Error(`input not found: ${name}`);
-  return input;
+const field = (name: string): HTMLInputElement | HTMLSelectElement => {
+  const control = document.querySelector<HTMLInputElement | HTMLSelectElement>(`input[name="${name}"], select[name="${name}"]`);
+  if (!control) throw new Error(`field not found: ${name}`);
+  return control;
 };
 
 async function start(records: unknown[] = []): Promise<void> {
@@ -34,6 +35,140 @@ afterEach(() => {
 });
 
 describe('起動からの画面操作', () => {
+  it('その他のコース時間と料金選択をタブ移動で保持する', async () => {
+    await start();
+    button('入力').click();
+    field('course').value = 'other';
+    field('course').dispatchEvent(new Event('change', { bubbles: true }));
+    field('courseOther').value = '150分の特別コース';
+    field('courseOther').dispatchEvent(new Event('input', { bubbles: true }));
+    field('courseFee').value = '30000';
+    field('courseFee').dispatchEvent(new Event('change', { bubbles: true }));
+    button('履歴').click();
+    button('入力').click();
+    expect(field('course').value).toBe('other');
+    expect(field('courseOther').value).toBe('150分の特別コース');
+    expect(field('courseOther').closest('[hidden]')).toBeNull();
+    expect(field('courseFee').value).toBe('30000');
+  });
+
+  it.each([['course', '120分'], ['courseFee', '30000']])('%sの選択変更を破棄する前に確認する', async (name, value) => {
+    await start([fixtureRecord()]);
+    button('入力').click();
+    field(name).value = value;
+    field(name).dispatchEvent(new Event('change', { bubbles: true }));
+    button('履歴').click();
+    const confirm = vi.fn(() => false);
+    vi.stubGlobal('confirm', confirm);
+    button('編集').click();
+    expect(confirm).toHaveBeenCalledOnce();
+    button('入力').click();
+    expect(field(name).value).toBe(value);
+  });
+
+  it('費用の内訳を保存し、再編集で0円も含めて保持する', async () => {
+    await start();
+    button('入力').click();
+    field('prefecture').value = '東京都';
+    field('area').value = '動作確認';
+    field('course').value = '90分';
+    field('optionChosen').value = '追加コース';
+    field('courseFee').value = '15000';
+    field('optionFee').value = '0';
+    field('nominationFee').value = '1000';
+    document.querySelector<HTMLTextAreaElement>('textarea[name="bestMoment"]')!.value = '今回の記録';
+    button('保存').click();
+    const saved = JSON.parse(window.localStorage.getItem('me-report-writer/visits/v1') ?? '[]') as VisitRecord[];
+    expect(saved[0]?.basic).toMatchObject({
+      course: '90分', optionChosen: '追加コース',
+      courseFee: 15000, optionFee: 0, nominationFee: 1000,
+    });
+    button('編集').click();
+    expect(field('courseFee').value).toBe('15000');
+    expect(field('optionFee').value).toBe('0');
+    expect(field('nominationFee').value).toBe('1000');
+  });
+
+  it('旧記録の費用は推測せず空欄で開き、元の自由記述と指名料を残す', async () => {
+    const record = fixtureRecord();
+    await start([record]);
+    button('編集').click();
+    expect(field('courseFee').value).toBe('');
+    expect(field('optionFee').value).toBe('');
+    expect(field('course').value).toBe('other');
+    expect(field('courseOther').value).toBe(record.basic.course);
+    expect(field('optionChosen').value).toBe(record.basic.optionChosen);
+    expect(field('nominationFee').value).toBe(String(record.basic.nominationFee));
+    button('保存').click();
+    const saved = JSON.parse(window.localStorage.getItem('me-report-writer/visits/v1') ?? '[]') as VisitRecord[];
+    expect(saved[0]?.basic).toMatchObject({
+      visitDate: record.basic.visitDate,
+      course: record.basic.course,
+      optionSystem: record.basic.optionSystem,
+      optionChosen: record.basic.optionChosen,
+      nominationFee: record.basic.nominationFee,
+      courseFee: null, optionFee: null,
+    });
+  });
+
+  it.each([null, 0])('JSONにある費用%sを別項目の編集で失わない', async (amount) => {
+    const base = fixtureRecord();
+    const record = { ...base, basic: { ...base.basic, courseFee: amount, optionFee: amount, nominationFee: amount } };
+    await start([record]);
+    button('編集').click();
+    const expectedInput = amount === null ? '' : String(amount);
+    expect(field('courseFee').value).toBe(expectedInput);
+    expect(field('optionFee').value).toBe(expectedInput);
+    expect(field('nominationFee').value).toBe(expectedInput);
+    field('area').value = '変更したエリア';
+    button('保存').click();
+    const saved = JSON.parse(window.localStorage.getItem('me-report-writer/visits/v1') ?? '[]') as VisitRecord[];
+    expect(saved[0]?.basic).toMatchObject({ courseFee: amount, optionFee: amount, nominationFee: amount });
+  });
+
+  it('登録済みの金額を空欄に戻すと未確認として保存する', async () => {
+    const base = fixtureRecord();
+    await start([{ ...base, basic: { ...base.basic, courseFee: 15000, optionFee: 3000 } }]);
+    button('編集').click();
+    field('courseFee').value = '';
+    field('optionFee').value = '';
+    field('nominationFee').value = '';
+    button('保存').click();
+    const saved = JSON.parse(window.localStorage.getItem('me-report-writer/visits/v1') ?? '[]') as VisitRecord[];
+    expect(saved[0]?.basic).toMatchObject({ courseFee: null, optionFee: null, nominationFee: null });
+  });
+
+  it('不正な金額を拒否して保存済みデータと入力を残す', async () => {
+    await start([fixtureRecord()]);
+    const before = window.localStorage.getItem('me-report-writer/visits/v1');
+    button('編集').click();
+    field('optionFee').value = '-1';
+    document.querySelector<HTMLFormElement>('#visit-form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    expect(window.localStorage.getItem('me-report-writer/visits/v1')).toBe(before);
+    expect(field('optionFee').value).toBe('-1');
+    expect(document.body.textContent).toMatch(/不正|金額/);
+  });
+
+  it.each(['1.0000000000000001', '9007199254740991.1'])('小数%sを丸めて金額として保存しない', async (raw) => {
+    await start([fixtureRecord()]);
+    const before = window.localStorage.getItem('me-report-writer/visits/v1');
+    button('編集').click();
+    field('optionFee').value = raw;
+    document.querySelector<HTMLFormElement>('#visit-form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    expect(window.localStorage.getItem('me-report-writer/visits/v1')).toBe(before);
+    expect(field('optionFee').value).toBe(raw);
+    expect(document.body.textContent).toMatch(/金額/);
+  });
+
+  it('再訪入力では前回の支払額を今回の金額として引き継がない', async () => {
+    const base = fixtureRecord();
+    await start([{ ...base, basic: { ...base.basic, courseFee: 15000, optionFee: 3000 } }]);
+    button('再訪入力').click();
+    expect(field('courseFee').value).toBe('');
+    expect(field('optionFee').value).toBe('');
+    expect(field('nominationFee').value).toBe('');
+  });
+
   it('入力画面を開き直しても選択が一度ずつ反映される', async () => {
     await start();
     button('入力').click();

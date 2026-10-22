@@ -6,9 +6,41 @@ import {
 import { localDate } from '../date';
 import { chipGroup, chipValues, esc, starValue, starWidget } from './widgets';
 
+const COURSE_TIMES = [70, 80, 90, 100, 110, 120].map((minutes) => `${minutes}分`);
+const COURSE_FEES = Array.from({ length: 21 }, (_, index) => 10000 + index * 1000);
+
 function input(name: string, label: string, value = '', placeholder = '', type = 'text'): string {
   return `<label class="field"><span>${label}</span>
     <input name="${name}" type="${type}" value="${esc(value)}" placeholder="${esc(placeholder)}" /></label>`;
+}
+
+function feeInput(name: string, label: string, value: number | null | undefined): string {
+  return `<label class="field"><span>${label}(円・任意)</span>
+    <input name="${name}" type="number" min="0" max="${Number.MAX_SAFE_INTEGER}" step="1" inputmode="numeric"
+      value="${value === null || value === undefined ? '' : esc(String(value))}" placeholder="未確認は空欄、0円は0" /></label>`;
+}
+
+function courseFields(value: string): string {
+  const other = value !== '' && !COURSE_TIMES.includes(value);
+  return `<label class="field"><span>コース時間</span><select name="course" aria-controls="course-other-field">
+    <option value="" ${value === '' ? 'selected' : ''}>未選択</option>
+    ${COURSE_TIMES.map((time) => `<option value="${time}" ${value === time ? 'selected' : ''}>${time}</option>`).join('')}
+    <option value="other" ${other ? 'selected' : ''}>その他</option>
+  </select></label>
+  <div id="course-other-field" ${other ? '' : 'hidden'}>
+    <label class="field"><span>その他のコース時間</span>
+      <input name="courseOther" type="text" value="${esc(other ? value : '')}" placeholder="例: 150分" ${other ? 'required' : 'disabled'} /></label>
+  </div>`;
+}
+
+function courseFeeSelect(value: number | null | undefined): string {
+  const selected = value === null || value === undefined ? '' : String(value);
+  const legacy = value !== null && value !== undefined && !COURSE_FEES.includes(value);
+  return `<label class="field"><span>コース代(円・任意)</span><select name="courseFee">
+    <option value="" ${selected === '' ? 'selected' : ''}>未確認</option>
+    ${COURSE_FEES.map((fee) => `<option value="${fee}" ${selected === String(fee) ? 'selected' : ''}>${fee.toLocaleString('ja-JP')}円</option>`).join('')}
+    ${legacy ? `<option value="${esc(selected)}" selected>${esc(value.toLocaleString('ja-JP'))}円（既存の値）</option>` : ''}
+  </select></label>`;
 }
 
 function textarea(name: string, label: string, value = '', placeholder = ''): string {
@@ -60,10 +92,12 @@ export function renderForm(record: VisitRecord | null, revisitOf: VisitRecord | 
       ${input('age', '年齢', b?.age === null || b === undefined ? '' : String(b.age), '', 'number')}
       <label class="check"><input type="checkbox" name="ageIsEstimate" ${b?.ageIsEstimate === false ? '' : 'checked'} /> 推定</label>
     </div>
-    ${input('course', 'コース(時間・料金)', record?.basic.course ?? '', '80分 18,000円')}
+    ${courseFields(record?.basic.course ?? '')}
+    ${courseFeeSelect(record?.basic.courseFee)}
     ${input('optionSystem', 'オプション体系', b?.optionSystem ?? '', '3種類(4K・5K・6K)')}
     ${input('optionChosen', '選択したオプション', record?.basic.optionChosen ?? '', '6K')}
-    ${input('nominationFee', '指名料(任意)', record?.basic.nominationFee === null || record === null ? '' : String(record.basic.nominationFee), '', 'number')}
+    ${feeInput('optionFee', 'オプション代', record?.basic.optionFee)}
+    ${feeInput('nominationFee', '指名料', record?.basic.nominationFee)}
     <label class="field"><span>部屋タイプ</span><select name="roomType">
       ${(['mansion', 'room', 'other'] as RoomType[]).map((t) => `<option value="${t}" ${(b?.roomType ?? 'mansion') === t ? 'selected' : ''}>${{ mansion: 'マンション型', room: 'ルーム型', other: 'その他' }[t]}</option>`).join('')}
     </select></label>
@@ -117,6 +151,31 @@ export function renderForm(record: VisitRecord | null, revisitOf: VisitRecord | 
 </form>`;
 }
 
+export function bindCourseFields(root: HTMLElement, onChange: () => void): void {
+  const course = root.querySelector<HTMLSelectElement>('select[name="course"]');
+  const fee = root.querySelector<HTMLSelectElement>('select[name="courseFee"]');
+  const otherField = root.querySelector<HTMLElement>('#course-other-field');
+  const otherInput = root.querySelector<HTMLInputElement>('input[name="courseOther"]');
+  if (course === null || fee === null || otherField === null || otherInput === null) {
+    throw new Error('コースの入力欄が見つかりません');
+  }
+  for (const select of [course, fee]) {
+    select.value = select.querySelector<HTMLOptionElement>('option[selected]')?.value ?? '';
+  }
+  const syncOther = (): void => {
+    const active = course.value === 'other';
+    otherField.hidden = !active;
+    otherInput.disabled = !active;
+    otherInput.required = active;
+  };
+  syncOther();
+  course.addEventListener('change', () => {
+    syncOther();
+    onChange();
+  });
+  fee.addEventListener('change', onChange);
+}
+
 function val(form: HTMLFormElement, name: string): string {
   const el = form.elements.namedItem(name);
   if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement) {
@@ -128,6 +187,18 @@ function val(form: HTMLFormElement, name: string): string {
 function checked(form: HTMLFormElement, name: string): boolean {
   const el = form.elements.namedItem(name);
   return el instanceof HTMLInputElement && el.checked;
+}
+
+function feeValue(form: HTMLFormElement, name: string, label: string): number | null {
+  const field = form.elements.namedItem(name);
+  if (!(field instanceof HTMLInputElement || field instanceof HTMLSelectElement)) throw new Error(`${label}の入力欄が見つかりません`);
+  const raw = field.value.trim();
+  const amount = raw === '' ? null : Number(raw);
+  // 数値変換後だけでは小数が丸められて整数になるため、入力文字列も検証する。
+  if (field.validity.badInput || (amount !== null && (!/^\d+$/.test(raw) || !Number.isSafeInteger(amount)))) {
+    throw new Error(`${label}は0以上の整数の金額を円で入力してください`);
+  }
+  return amount;
 }
 
 const clampStars = (n: number): 1 | 2 | 3 | 4 | 5 =>
@@ -142,8 +213,12 @@ export function collectRecord(
   if (form === null) throw new Error('フォームが見つかりません');
 
   const ageStr = val(form, 'age');
-  const nomStr = val(form, 'nominationFee');
   const pointsStr = val(form, 'points');
+  const selectedCourse = val(form, 'course');
+  const course = selectedCourse === 'other' ? val(form, 'courseOther') : selectedCourse;
+  if (selectedCourse === 'other' && course === '') {
+    throw new Error('その他のコース時間を入力してください');
+  }
   const bestMoment = val(form, 'bestMoment');
   if (bestMoment === '') throw new Error('「一番良かった瞬間」は必須です');
   if (val(form, 'prefecture') === '' || val(form, 'area') === '') {
@@ -182,10 +257,12 @@ export function collectRecord(
       therapistXUrl: val(form, 'therapistXUrl'),
       age: ageStr === '' ? null : Number(ageStr),
       ageIsEstimate: checked(form, 'ageIsEstimate'),
-      course: val(form, 'course'),
+      course,
+      courseFee: feeValue(form, 'courseFee', 'コース代'),
       optionSystem: val(form, 'optionSystem'),
       optionChosen: val(form, 'optionChosen'),
-      nominationFee: nomStr === '' ? null : Number(nomStr),
+      optionFee: feeValue(form, 'optionFee', 'オプション代'),
+      nominationFee: feeValue(form, 'nominationFee', '指名料'),
       roomType: (val(form, 'roomType') || 'mansion') as RoomType,
       bookingMethod: (val(form, 'bookingMethod') || 'x_dm') as BookingMethod,
       evidenceSaved: checked(form, 'evidenceSaved'),
