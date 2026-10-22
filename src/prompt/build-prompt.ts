@@ -1,6 +1,7 @@
 import type { VisitRecord } from '../types';
 import { STYLE_PROFILE, WAKUST_RULES } from './style-profile';
 import { serializeRecord, specSummary, tagCandidates } from './serialize';
+import { countPublishedTherapists, isPublished, SUMMARY_MIN_THERAPISTS, therapistIdentity } from './publication';
 
 const OUTPUT_FORMAT = `## 出力形式(この4ブロックを順に、コードブロックで出力)
 1. タイトル: 【フック】+属性キーワード+展開の匂わせ+【シリーズ#N】。店名・源氏名は入れない
@@ -77,7 +78,8 @@ ${serializeRecord(record)}`;
 
 /** カタログ無料記事(エリア別インデックス)の生成プロンプト */
 export function buildCatalogPrompt(records: readonly VisitRecord[], prefecture: string): string {
-  const targets = records.filter((r) => r.basic.prefecture === prefecture);
+  const targets = records.filter((r) => r.basic.prefecture === prefecture && isPublished(r));
+  if (targets.length === 0) throw new Error('対象の都道府県に投稿済みの記事がありません');
   const data = targets
     .map((r) => `- #${r.seriesNo} ${r.basic.area} / スペック: ${specSummary(r)} / エロ施術★${r.ratings.ero.stars} 寛容度★${r.ratings.tolerance.stars} / 記事URL: ${r.postedUrl ?? '{未投稿}'}`)
     .join('\n');
@@ -100,8 +102,19 @@ ${data}`;
 }
 
 /** まとめ記事(テーマ別N選)の生成プロンプト */
-export function buildMatomePrompt(records: readonly VisitRecord[], theme: string): string {
-  const data = records.map((r) => serializeRecord(r)).join('\n\n');
+export function buildMatomePrompt(
+  records: readonly VisitRecord[], theme: string, allRecords: readonly VisitRecord[] = records,
+): string {
+  if (countPublishedTherapists(allRecords) < SUMMARY_MIN_THERAPISTS) {
+    throw new Error('まとめ記事は異なる6人の個別体験談を投稿した後に生成できます');
+  }
+  if (records.length === 0 || records.some((r) => !isPublished(r))) {
+    throw new Error('まとめ記事の対象には投稿済みの記事を選んでください');
+  }
+  const identities = records.map(therapistIdentity);
+  if (identities.includes(null)) throw new Error('まとめ記事の対象には店名とセラピスト名が必要です');
+  if (new Set(identities).size !== identities.length) throw new Error('同じセラピストの記事は1件だけ選んでください');
+  const data = records.map((r) => `${serializeRecord(r)}\n- 元記事URL: ${r.postedUrl}`).join('\n\n');
   return `${header(`テーマ「${theme}」のまとめ記事(N選形式)`)}
 
 ## 記事構成(まとめ記事)

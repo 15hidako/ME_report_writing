@@ -2,9 +2,13 @@
 
 export function starWidget(name: string, value = 3): string {
   const btns = [1, 2, 3, 4, 5]
-    .map((n) => `<button type="button" class="star${n <= value ? ' on' : ''}" data-n="${n}">★</button>`)
+    .map((n) => {
+      const on = n <= value;
+      const label = `${n}つ星`;
+      return `<button type="button" class="star${on ? ' on' : ''}" data-n="${esc(String(n))}" aria-pressed="${on ? 'true' : 'false'}" aria-label="${esc(label)}">★</button>`;
+    })
     .join('');
-  return `<div class="stars" data-star="${name}" data-value="${value}">${btns}</div>`;
+  return `<div class="stars" data-star="${esc(name)}" data-value="${esc(String(value))}">${btns}</div>`;
 }
 
 export function bindStars(root: HTMLElement, onChange: () => void): void {
@@ -16,7 +20,9 @@ export function bindStars(root: HTMLElement, onChange: () => void): void {
     const n = Number(btn.getAttribute('data-n'));
     wrap.setAttribute('data-value', String(n));
     wrap.querySelectorAll('button.star').forEach((b) => {
-      b.classList.toggle('on', Number(b.getAttribute('data-n')) <= n);
+      const pressed = Number(b.getAttribute('data-n')) <= n;
+      b.classList.toggle('on', pressed);
+      b.setAttribute('aria-pressed', pressed ? 'true' : 'false');
     });
     onChange();
   });
@@ -24,9 +30,12 @@ export function bindStars(root: HTMLElement, onChange: () => void): void {
 
 export function chipGroup(name: string, items: readonly { value: string; label: string }[], selected: readonly string[] = [], multi = true): string {
   const chips = items
-    .map(({ value, label }) => `<button type="button" class="chip${selected.includes(value) ? ' on' : ''}" data-value="${value}">${label}</button>`)
+    .map(({ value, label }) => {
+      const on = selected.includes(value);
+      return `<button type="button" class="chip${on ? ' on' : ''}" data-value="${esc(value)}" aria-pressed="${on ? 'true' : 'false'}">${esc(label)}</button>`;
+    })
     .join('');
-  return `<div class="chips" data-chips="${name}" data-multi="${multi ? '1' : '0'}">${chips}</div>`;
+  return `<div class="chips" data-chips="${esc(name)}" data-multi="${multi ? '1' : '0'}">${chips}</div>`;
 }
 
 export function bindChips(root: HTMLElement, onChange: () => void): void {
@@ -37,10 +46,17 @@ export function bindChips(root: HTMLElement, onChange: () => void): void {
     if (wrap === null) return;
     if (wrap.getAttribute('data-multi') === '0') {
       const wasOn = chip.classList.contains('on');
-      wrap.querySelectorAll('button.chip').forEach((c) => c.classList.remove('on'));
-      if (!wasOn) chip.classList.add('on');
+      wrap.querySelectorAll('button.chip').forEach((c) => {
+        c.classList.remove('on');
+        c.setAttribute('aria-pressed', 'false');
+      });
+      if (!wasOn) {
+        chip.classList.add('on');
+        chip.setAttribute('aria-pressed', 'true');
+      }
     } else {
-      chip.classList.toggle('on');
+      const pressed = chip.classList.toggle('on');
+      chip.setAttribute('aria-pressed', pressed ? 'true' : 'false');
     }
     onChange();
   });
@@ -75,16 +91,25 @@ export async function copyText(text: string): Promise<void> {
   try {
     await navigator.clipboard.writeText(text);
     toast('コピーしました');
+    return;
   } catch {
     // クリップボードAPI不可の環境(非https等)向けフォールバック
-    const ta = document.createElement('textarea');
+  }
+
+  let ta: HTMLTextAreaElement | undefined;
+  let copied = false;
+  try {
+    ta = document.createElement('textarea');
     ta.value = text;
     document.body.appendChild(ta);
     ta.select();
-    document.execCommand('copy');
-    ta.remove();
-    toast('コピーしました(fallback)');
+    copied = document.execCommand('copy');
+  } catch {
+    copied = false;
+  } finally {
+    if (ta !== undefined) ta.remove();
   }
+  toast(copied ? 'コピーしました(fallback)' : 'コピーに失敗しました');
 }
 
 export function esc(s: string): string {
