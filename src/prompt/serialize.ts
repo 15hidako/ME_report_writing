@@ -89,6 +89,7 @@ ${specSummary(record)}
 ${ratingsBlock(record.ratings)}
 
 [施術フロー]
+観察候補は入力・保存上の並びです。旧記録の押下順は不明で、施術の実際の順序や時刻を示すものではありません。
 ${flowBlock(record)}
 - 一番良かった瞬間: ${record.flow.bestMoment}
 ${record.flow.downside.trim() !== '' ? `- 残念ポイント: ${record.flow.downside}` : ''}

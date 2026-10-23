@@ -320,6 +320,96 @@ describe('Bの評価メモ候補', () => {
 });
 
 describe('Dの段階別候補', () => {
+  it('定番チェックと追加候補を押した順に収集し、保存後の無操作再保存でも順番を保つ', () => {
+    const root = mount();
+    completeRequired(root);
+    bindChips(root, vi.fn());
+    const extra = candidate(root, 'focus_06', '[data-chips="flow_faceDown"]');
+    const standard = root.querySelector<HTMLButtonElement>('[data-chips="flow_faceDown"] [data-value="指圧"]')!;
+    extra.click();
+    standard.click();
+    const expected = [extra.dataset.value!, '指圧'];
+    expect(collectRecord(root, base).flow.faceDown.checks).toEqual(expected);
+    const order = root.querySelector('[data-chips="flow_faceDown"] .selection-order');
+    expect([...order!.querySelectorAll('li')].map((item) => item.textContent)).toEqual(expected);
+
+    const store = new VisitStore(new MemoryStore());
+    store.save(collectRecord(root, base));
+    const reloaded = mount(store.get(base.id)!);
+    expect(collectRecord(reloaded, base).flow.faceDown.checks).toEqual(expected);
+    store.save(collectRecord(reloaded, base));
+    expect(store.get(base.id)!.flow.faceDown.checks).toEqual(expected);
+  });
+
+  it('途中の解除で残った順番を変えず、再選択は末尾へ追加し、全解除も保存できる', () => {
+    const root = mount();
+    completeRequired(root);
+    const changed = vi.fn();
+    bindChips(root, changed);
+    const wrap = root.querySelector('[data-chips="flow_faceDown"]')!;
+    const first = candidate(root, 'focus_06', '[data-chips="flow_faceDown"]');
+    const middle = wrap.querySelector<HTMLButtonElement>('[data-value="圧弱め"]')!;
+    const last = wrap.querySelector<HTMLButtonElement>('[data-value="指圧"]')!;
+    first.click();
+    middle.click();
+    last.click();
+    middle.click();
+    expect(collectRecord(root, base).flow.faceDown.checks).toEqual([first.dataset.value, '指圧']);
+    middle.click();
+    expect(collectRecord(root, base).flow.faceDown.checks).toEqual([first.dataset.value, '指圧', '圧弱め']);
+    for (const chip of [first, middle, last]) chip.click();
+    const collected = collectRecord(root, base);
+    const store = new VisitStore(new MemoryStore());
+    store.save(collected);
+    expect(store.get(base.id)!.flow.faceDown.checks).toEqual([]);
+    expect(wrap.querySelector<HTMLElement>('.selection-order')!.hidden).toBe(true);
+    expect(changed).toHaveBeenCalledTimes(8);
+  });
+
+  it('旧値の保存順と空文字を保持し、追加しても旧順が確認済みの経過にはならない', () => {
+    const legacy = '旧い観察 <& "引用">';
+    const selected = [legacy, '', '圧弱め', '指圧'];
+    const source = fixtureRecord({ flow: { ...fixtureRecord().flow, faceDown: { checks: selected, note: '' } } });
+    const root = mount(source);
+    const wrap = root.querySelector('[data-chips="flow_faceDown"]')!;
+    expect(collectRecord(root, base).flow.faceDown.checks).toEqual(selected);
+    expect([...wrap.querySelectorAll('.selection-order li')].map((item) => item.textContent))
+      .toEqual([legacy, '（空の保存値）', '圧弱め', '指圧']);
+    expect(wrap.querySelector('.selection-order')!.textContent).toContain('旧記録は保存された並び');
+    expect(wrap.querySelector('.selection-order script, .selection-order [onclick]')).toBeNull();
+    const store = new VisitStore(new MemoryStore());
+    store.save(collectRecord(root, base));
+    const reloaded = mount(store.get(base.id)!);
+    store.save(collectRecord(reloaded, base));
+    expect(store.get(base.id)!.flow.faceDown.checks).toEqual(selected);
+    bindChips(root, vi.fn());
+    candidate(root, 'focus_06', '[data-chips="flow_faceDown"]').click();
+    expect(collectRecord(root, base).flow.faceDown.checks.slice(0, 4)).toEqual(selected);
+    const empty = wrap.querySelector<HTMLButtonElement>('[data-value=""]')!;
+    empty.click();
+    expect(collectRecord(root, base).flow.faceDown.checks).not.toContain('');
+    empty.click();
+    expect(collectRecord(root, base).flow.faceDown.checks.at(-1)).toBe('');
+  });
+
+  it('二つの段階の同じ語を独立した順番で保持する', () => {
+    const root = mount();
+    completeRequired(root);
+    bindChips(root, vi.fn());
+    const down = candidate(root, 'focus_06', '[data-chips="flow_faceDown"]');
+    const oil = candidate(root, 'focus_06', '[data-chips="flow_oilSp"]');
+    const downStandard = root.querySelector<HTMLButtonElement>('[data-chips="flow_faceDown"] [data-value="指圧"]')!;
+    const oilStandard = root.querySelector<HTMLButtonElement>('[data-chips="flow_oilSp"] [data-value="SPPN"]')!;
+    down.click();
+    downStandard.click();
+    oilStandard.click();
+    oil.click();
+    expect(collectRecord(root, base).flow.faceDown.checks).toEqual([down.dataset.value, '指圧']);
+    expect(collectRecord(root, base).flow.oilSp.checks).toEqual(['SPPN', oil.dataset.value]);
+    down.click();
+    expect(collectRecord(root, base).flow.oilSp.checks).toEqual(['SPPN', oil.dataset.value]);
+  });
+
   it('同じ候補を二つの段階で独立に選択・解除できる', () => {
     const root = mount();
     completeRequired(root);

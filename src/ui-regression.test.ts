@@ -35,6 +35,25 @@ afterEach(() => {
 });
 
 describe('起動からの画面操作', () => {
+  it('観察の選択順だけが変わっても未保存確認し、タブ切替で順番を保つ', async () => {
+    const source = fixtureRecord({ flow: { ...fixtureRecord().flow, faceDown: { checks: ['指圧', '圧弱め'], note: '' } } });
+    await start([source]);
+    button('編集').click();
+    button('指圧').click();
+    button('指圧').click();
+    button('履歴').click();
+    const confirm = vi.fn(() => false);
+    vi.stubGlobal('confirm', confirm);
+    button('+ 新規入力').click();
+    expect(confirm).toHaveBeenCalledOnce();
+    button('入力').click();
+    expect([...document.querySelectorAll('[data-chips="flow_faceDown"] .selection-order li')]
+      .map((item) => item.textContent)).toEqual(['圧弱め', '指圧']);
+    button('保存').click();
+    const saved = JSON.parse(window.localStorage.getItem('me-report-writer/visits/v1')!) as VisitRecord[];
+    expect(saved[0]!.flow.faceDown.checks).toEqual(['圧弱め', '指圧']);
+  });
+
   it('その他のコース時間と料金選択をタブ移動で保持する', async () => {
     await start();
     button('入力').click();

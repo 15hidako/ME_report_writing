@@ -2,7 +2,7 @@ import { CANDIDATE_LABELS, DOWNSIDE_SUGGESTIONS, NOTE_SUGGESTIONS, PHASE_NOTE_SU
 import type { CandidateGroup } from '../questionnaire-options';
 import { FLOW_PHASES, RATING_LABELS } from '../types';
 import type { Ratings } from '../types';
-import { chipButton, esc } from './widgets';
+import { chipButton, chipOrderItems, esc } from './widgets';
 
 function renderPhraseSuggestions(groups: readonly CandidateGroup[] | undefined, target: string, targetLabel: string, description: string): string {
   if (groups === undefined) return '';
@@ -41,7 +41,7 @@ export function renderFlowChecks(phase: keyof typeof FLOW_PHASES, selected: read
   const known = new Set<string>([...defaults, ...candidates.map((id) => CANDIDATE_LABELS[id])]);
   const legacy = [...new Set(selected)].filter((value) => !known.has(value));
   const expanded = candidates.some((id) => selected.includes(CANDIDATE_LABELS[id]));
-  return `<div class="chips" data-chips="flow_${phase}" data-multi="1">
+  return `<div class="chips" data-chips="flow_${phase}" data-multi="1" data-selection-order="${esc(JSON.stringify(selected))}">
     ${defaults.map((value) => chipButton({ value, label: value }, selected.includes(value))).join('')}
     ${candidates.length === 0 ? '' : `<details class="candidate-details" ${expanded ? 'open' : ''}>
       <summary>観察候補を開く（${candidates.length}）</summary>
@@ -55,6 +55,11 @@ export function renderFlowChecks(phase: keyof typeof FLOW_PHASES, selected: read
       <p class="legacy-caption">保存済みの観察（現在の候補にない表現も保持。押すと解除）</p>
       <div class="chips">${legacy.map((value) => chipButton({ value, label: value === '' ? '（空の保存値）' : value }, true)).join('')}</div>
     </div>`}
+    <div class="selection-order" role="status" aria-live="polite" ${selected.length === 0 ? 'hidden' : ''}>
+      <p class="selection-order-caption">選択順（旧記録は保存された並び）</p>
+      <ol>${chipOrderItems(selected)}</ol>
+      <p class="selection-order-caption">新しく選んだ語は末尾に追加します。旧記録の押下順は不明です。施術の実際の順序や時刻を示すものではありません。</p>
+    </div>
   </div>`;
 }
 
