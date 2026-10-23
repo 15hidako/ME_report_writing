@@ -1,0 +1,21 @@
+﻿id,group,proposed_label,proposed_value,target,semantic_kind,adoption_status,origin,original_candidate_id,original_source_meaning_checked,original_evidence_ids,original_evidence_basis,condition
+c_genre_natural,genre,自然な雰囲気,natural,spec.genre,subjective_appearance_impression,implemented,existing_research_candidate,appearance_02,True,ME-676632,自然な印象と受け止めた。,外見の印象として選ぶ。素顔、化粧の有無、清楚さ、性格を補わない。
+c_genre_flashy_impression,genre,華やかな雰囲気,flashy_impression,spec.genre,subjective_appearance_impression,implemented,existing_research_candidate,appearance_03,True,ME-694023,華やかなメイクと雰囲気を記した。,外見やメイクによる本人の印象。ギャル、派手な性格、接客の積極性へ自動変換しない。
+c_genre_calm_impression,genre,落ち着いた雰囲気,calm_impression,spec.genre,subjective_appearance_impression,implemented,existing_research_candidate,appearance_04,True,ME-701966 | ME-680085,落ち着いた雰囲気と感じた。,外見の雰囲気として使う場合に限る。会話や応対の理由ならBに記録し、年齢や性格を確定しない。
+c_genre_friendly_impression,genre,親しみやすい雰囲気,friendly_impression,spec.genre,subjective_appearance_impression,implemented,existing_research_candidate,appearance_05,True,ME-693779 | ME-624755,明るく親しみやすい印象を記した。,外見から受けた雰囲気として使う場合だけ。話しやすい応対という意味ならBの既存候補を使う。
+c_genre_sporty,genre,スポーティーな印象,sporty,spec.genre,subjective_appearance_impression,implemented,existing_research_candidate,appearance_06,True,ME-693779,健康的で運動部のような印象と記した。,外見や装いへの印象。運動歴、筋肉量、元気系との同一性を補わない。
+c_body_average_build,body,標準的な体格,average_build,spec.body,subjective_body_impression,implemented,researcher_design_proposal,,False,,,本人が見た体格への主観。統計上の平均、身長・体重・BMIの測定結果にはしない。
+c_body_delicate_impression,body,華奢な印象,delicate_impression,spec.body,subjective_body_impression,implemented,researcher_design_proposal,,False,,,骨格や体格を華奢と受け止めた場合の語。細身の意味だけなら既存のスレンダーを使い、健康状態を推定しない。
+c_body_long_limbs_impression,body,手足が長い印象,long_limbs_impression,spec.body,subjective_body_impression,implemented,researcher_design_proposal,,False,,,本人が見た比率への印象。身長、測定値、モデル歴は補わない。
+c_notes_short_hair,notes,ショートヘア,short_hair,spec.notes,observed_appearance,implemented,researcher_design_proposal,,False,,,今回本人が見た髪型や髪色として選ぶ。写真だけから今回の状態を補わず、地毛・染髪・パーマの有無を断定しない。
+c_notes_bob_hair,notes,ボブ,bob_hair,spec.notes,observed_appearance,implemented,researcher_design_proposal,,False,,,今回本人が見た髪型や髪色として選ぶ。写真だけから今回の状態を補わず、地毛・染髪・パーマの有無を断定しない。
+c_notes_medium_hair,notes,ミディアムヘア,medium_hair,spec.notes,observed_appearance,implemented,researcher_design_proposal,,False,,,今回本人が見た髪型や髪色として選ぶ。写真だけから今回の状態を補わず、地毛・染髪・パーマの有無を断定しない。
+c_notes_long_hair,notes,ロングヘア,long_hair,spec.notes,observed_appearance,implemented,researcher_design_proposal,,False,,,今回本人が見た髪型や髪色として選ぶ。写真だけから今回の状態を補わず、地毛・染髪・パーマの有無を断定しない。
+c_notes_black_hair,notes,黒髪,black_hair,spec.notes,observed_appearance,implemented,researcher_design_proposal,,False,,,今回本人が見た髪型や髪色として選ぶ。写真だけから今回の状態を補わず、地毛・染髪・パーマの有無を断定しない。
+c_notes_brown_hair,notes,茶髪,brown_hair,spec.notes,observed_appearance,implemented,researcher_design_proposal,,False,,,今回本人が見た髪型や髪色として選ぶ。写真だけから今回の状態を補わず、地毛・染髪・パーマの有無を断定しない。
+c_notes_light_hair_color,notes,明るい髪色,light_hair_color,spec.notes,observed_appearance,implemented,researcher_design_proposal,,False,,,今回本人が見た髪型や髪色として選ぶ。写真だけから今回の状態を補わず、地毛・染髪・パーマの有無を断定しない。
+c_notes_straight_hair,notes,ストレートヘア,straight_hair,spec.notes,observed_appearance,implemented,researcher_design_proposal,,False,,,今回本人が見た髪型や髪色として選ぶ。写真だけから今回の状態を補わず、地毛・染髪・パーマの有無を断定しない。
+c_notes_wavy_hair,notes,ウェーブヘア,wavy_hair,spec.notes,observed_appearance,implemented,researcher_design_proposal,,False,,,今回本人が見た髪型や髪色として選ぶ。写真だけから今回の状態を補わず、地毛・染髪・パーマの有無を断定しない。
+c_notes_light_makeup,notes,薄めのメイク,light_makeup,spec.notes,subjective_appearance_observation,implemented,researcher_design_proposal,,False,,,今回見たメイクへの印象。すっぴんや写真加工の有無を断定しない。写真より薄いという比較だけで常に薄いとも扱わない。
+c_notes_flashy_makeup,notes,華やかなメイク,flashy_makeup,spec.notes,subjective_appearance_observation,implemented,researcher_design_proposal,,False,,,今回見たメイクへの印象。原appearance_03に関連する語だが、この新しい候補IDを個別照合済みに昇格しない。
+c_notes_glasses,notes,眼鏡,glasses,spec.notes,observed_appearance,implemented,researcher_design_proposal,,False,,,今回本人が身につけているのを見た場合。常用、視力、職業は補わない。

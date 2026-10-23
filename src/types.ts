@@ -5,10 +5,31 @@ export type RoomType = 'mansion' | 'room' | 'other';
 export type BookingMethod = 'x_dm' | 'line' | 'phone' | 'web';
 export type Genre =
   | 'gal' | 'seiso' | 'oneesan' | 'imouto'
-  | 'jukujo' | 'model' | 'genki' | 'cool';
-export type BodyType = 'petite' | 'slender' | 'muchimuchi' | 'glamour' | 'tall';
+  | 'jukujo' | 'model' | 'genki' | 'cool'
+  | 'natural'
+  | 'flashy_impression'
+  | 'calm_impression'
+  | 'friendly_impression'
+  | 'sporty';
+export type BodyType =
+  | 'petite' | 'slender' | 'muchimuchi' | 'glamour' | 'tall'
+  | 'average_build'
+  | 'delicate_impression'
+  | 'long_limbs_impression';
 export type SpecNote =
-  | 'ex_menesu' | 'newbie' | 'just_joined' | 'tattoo' | 'nail' | 'tanned';
+  | 'ex_menesu' | 'newbie' | 'just_joined' | 'tattoo' | 'nail' | 'tanned'
+  | 'short_hair'
+  | 'bob_hair'
+  | 'medium_hair'
+  | 'long_hair'
+  | 'black_hair'
+  | 'brown_hair'
+  | 'light_hair_color'
+  | 'straight_hair'
+  | 'wavy_hair'
+  | 'light_makeup'
+  | 'flashy_makeup'
+  | 'glasses';
 export type CupImpression = 'as_seen' | 'padded_suspect' | 'beyond_expectation';
 export type RepeatIntent = 'definitely' | 'yes' | 'no' | 'unsure';
 export type ArticleType = 'single' | 'revisit';
@@ -114,16 +135,36 @@ export const RATING_LABELS: Record<keyof Ratings, string> = {
 export const GENRE_LABELS: Record<Genre, string> = {
   gal: 'ギャル', seiso: '清楚', oneesan: 'お姉さん', imouto: '妹系',
   jukujo: '熟女', model: 'モデル系', genki: '元気系', cool: 'クール',
+  natural: '自然な雰囲気',
+  flashy_impression: '華やかな雰囲気',
+  calm_impression: '落ち着いた雰囲気',
+  friendly_impression: '親しみやすい雰囲気',
+  sporty: 'スポーティーな印象',
 };
 
 export const BODY_LABELS: Record<BodyType, string> = {
   petite: '小柄', slender: 'スレンダー', muchimuchi: 'ムチムチ',
   glamour: 'グラマー', tall: '長身',
+  average_build: '標準的な体格',
+  delicate_impression: '華奢な印象',
+  long_limbs_impression: '手足が長い印象',
 };
 
 export const SPEC_NOTE_LABELS: Record<SpecNote, string> = {
   ex_menesu: '元メンエス経験者', newbie: '新人', just_joined: '入店したて',
   tattoo: 'タトゥー', nail: 'ネイル', tanned: '日焼け',
+  short_hair: 'ショートヘア',
+  bob_hair: 'ボブ',
+  medium_hair: 'ミディアムヘア',
+  long_hair: 'ロングヘア',
+  black_hair: '黒髪',
+  brown_hair: '茶髪',
+  light_hair_color: '明るい髪色',
+  straight_hair: 'ストレートヘア',
+  wavy_hair: 'ウェーブヘア',
+  light_makeup: '薄めのメイク',
+  flashy_makeup: '華やかなメイク',
+  glasses: '眼鏡',
 };
 
 export const CUP_IMPRESSION_LABELS: Record<CupImpression, string> = {

@@ -1,0 +1,844 @@
+{
+  "version": 1,
+  "date": "2026-10-23",
+  "baseline_commit": "e33c331",
+  "status": "implemented_and_verified",
+  "scope": "C existing category vocabulary enrichment; D order feature already implemented separately",
+  "execution": {
+    "models": "GPT only",
+    "external_model_calls": false,
+    "new_article_fetch": false
+  },
+  "counts": {
+    "current_genre": 13,
+    "current_body": 8,
+    "current_notes": 18,
+    "proposed_genre": 5,
+    "proposed_body": 3,
+    "proposed_notes": 12,
+    "proposed_total": 20,
+    "original_source_checked_parent_candidates": 5,
+    "new_design_proposals_outside_original332": 15,
+    "new_c_buttons_implemented": 20,
+    "baseline_genre": 8,
+    "baseline_body": 5,
+    "baseline_notes": 6
+  },
+  "original_research_counts_unchanged": {
+    "total": 332,
+    "individual_meaning_checked": 184,
+    "not_individually_checked": 148
+  },
+  "candidates": [
+    {
+      "id": "c_genre_natural",
+      "group": "genre",
+      "proposed_value": "natural",
+      "proposed_label": "自然な雰囲気",
+      "target": "spec.genre",
+      "semantic_kind": "subjective_appearance_impression",
+      "adoption_status": "implemented",
+      "review_priority": "source_linked",
+      "origin": "existing_research_candidate",
+      "original_candidate_id": "appearance_02",
+      "original_label": "自然な雰囲気",
+      "original_grounding": "individual_meaning_checked_against_full_source_in_60_review_subset",
+      "original_source_meaning_checked": true,
+      "original_evidence_ids": [
+        "ME-676632"
+      ],
+      "original_evidence_basis": "自然な印象と受け止めた。",
+      "c_mapping_independently_source_verified": false,
+      "confirmed_profile_fact": false,
+      "condition": "外見の印象として選ぶ。素顔、化粧の有無、清楚さ、性格を補わない。",
+      "implemented_value": "natural",
+      "implemented_label": "自然な雰囲気"
+    },
+    {
+      "id": "c_genre_flashy_impression",
+      "group": "genre",
+      "proposed_value": "flashy_impression",
+      "proposed_label": "華やかな雰囲気",
+      "target": "spec.genre",
+      "semantic_kind": "subjective_appearance_impression",
+      "adoption_status": "implemented",
+      "review_priority": "source_linked",
+      "origin": "existing_research_candidate",
+      "original_candidate_id": "appearance_03",
+      "original_label": "華やかな雰囲気",
+      "original_grounding": "individual_meaning_checked_against_full_source_in_60_review_subset",
+      "original_source_meaning_checked": true,
+      "original_evidence_ids": [
+        "ME-694023"
+      ],
+      "original_evidence_basis": "華やかなメイクと雰囲気を記した。",
+      "c_mapping_independently_source_verified": false,
+      "confirmed_profile_fact": false,
+      "condition": "外見やメイクによる本人の印象。ギャル、派手な性格、接客の積極性へ自動変換しない。",
+      "implemented_value": "flashy_impression",
+      "implemented_label": "華やかな雰囲気"
+    },
+    {
+      "id": "c_genre_calm_impression",
+      "group": "genre",
+      "proposed_value": "calm_impression",
+      "proposed_label": "落ち着いた雰囲気",
+      "target": "spec.genre",
+      "semantic_kind": "subjective_appearance_impression",
+      "adoption_status": "implemented",
+      "review_priority": "meaning_boundary_review",
+      "origin": "existing_research_candidate",
+      "original_candidate_id": "appearance_04",
+      "original_label": "落ち着いた雰囲気",
+      "original_grounding": "individual_meaning_checked_against_full_source_in_60_review_subset",
+      "original_source_meaning_checked": true,
+      "original_evidence_ids": [
+        "ME-701966",
+        "ME-680085"
+      ],
+      "original_evidence_basis": "落ち着いた雰囲気と感じた。",
+      "c_mapping_independently_source_verified": false,
+      "confirmed_profile_fact": false,
+      "condition": "外見の雰囲気として使う場合に限る。会話や応対の理由ならBに記録し、年齢や性格を確定しない。",
+      "implemented_value": "calm_impression",
+      "implemented_label": "落ち着いた雰囲気"
+    },
+    {
+      "id": "c_genre_friendly_impression",
+      "group": "genre",
+      "proposed_value": "friendly_impression",
+      "proposed_label": "親しみやすい雰囲気",
+      "target": "spec.genre",
+      "semantic_kind": "subjective_appearance_impression",
+      "adoption_status": "implemented",
+      "review_priority": "meaning_boundary_review",
+      "origin": "existing_research_candidate",
+      "original_candidate_id": "appearance_05",
+      "original_label": "親しみやすい雰囲気",
+      "original_grounding": "individual_meaning_checked_against_full_source_in_60_review_subset",
+      "original_source_meaning_checked": true,
+      "original_evidence_ids": [
+        "ME-693779",
+        "ME-624755"
+      ],
+      "original_evidence_basis": "明るく親しみやすい印象を記した。",
+      "c_mapping_independently_source_verified": false,
+      "confirmed_profile_fact": false,
+      "condition": "外見から受けた雰囲気として使う場合だけ。話しやすい応対という意味ならBの既存候補を使う。",
+      "implemented_value": "friendly_impression",
+      "implemented_label": "親しみやすい雰囲気"
+    },
+    {
+      "id": "c_genre_sporty",
+      "group": "genre",
+      "proposed_value": "sporty",
+      "proposed_label": "スポーティーな印象",
+      "target": "spec.genre",
+      "semantic_kind": "subjective_appearance_impression",
+      "adoption_status": "implemented",
+      "review_priority": "source_linked",
+      "origin": "existing_research_candidate",
+      "original_candidate_id": "appearance_06",
+      "original_label": "スポーティーな印象",
+      "original_grounding": "individual_meaning_checked_against_full_source_in_60_review_subset",
+      "original_source_meaning_checked": true,
+      "original_evidence_ids": [
+        "ME-693779"
+      ],
+      "original_evidence_basis": "健康的で運動部のような印象と記した。",
+      "c_mapping_independently_source_verified": false,
+      "confirmed_profile_fact": false,
+      "condition": "外見や装いへの印象。運動歴、筋肉量、元気系との同一性を補わない。",
+      "implemented_value": "sporty",
+      "implemented_label": "スポーティーな印象"
+    },
+    {
+      "id": "c_body_average_build",
+      "group": "body",
+      "proposed_value": "average_build",
+      "proposed_label": "標準的な体格",
+      "target": "spec.body",
+      "semantic_kind": "subjective_body_impression",
+      "adoption_status": "implemented",
+      "review_priority": "proposed",
+      "origin": "researcher_design_proposal",
+      "original_candidate_id": null,
+      "original_label": null,
+      "original_grounding": null,
+      "original_source_meaning_checked": false,
+      "original_evidence_ids": [],
+      "original_evidence_basis": null,
+      "c_mapping_independently_source_verified": false,
+      "confirmed_profile_fact": false,
+      "condition": "本人が見た体格への主観。統計上の平均、身長・体重・BMIの測定結果にはしない。",
+      "implemented_value": "average_build",
+      "implemented_label": "標準的な体格"
+    },
+    {
+      "id": "c_body_delicate_impression",
+      "group": "body",
+      "proposed_value": "delicate_impression",
+      "proposed_label": "華奢な印象",
+      "target": "spec.body",
+      "semantic_kind": "subjective_body_impression",
+      "adoption_status": "implemented",
+      "review_priority": "proposed",
+      "origin": "researcher_design_proposal",
+      "original_candidate_id": null,
+      "original_label": null,
+      "original_grounding": null,
+      "original_source_meaning_checked": false,
+      "original_evidence_ids": [],
+      "original_evidence_basis": null,
+      "c_mapping_independently_source_verified": false,
+      "confirmed_profile_fact": false,
+      "condition": "骨格や体格を華奢と受け止めた場合の語。細身の意味だけなら既存のスレンダーを使い、健康状態を推定しない。",
+      "implemented_value": "delicate_impression",
+      "implemented_label": "華奢な印象"
+    },
+    {
+      "id": "c_body_long_limbs_impression",
+      "group": "body",
+      "proposed_value": "long_limbs_impression",
+      "proposed_label": "手足が長い印象",
+      "target": "spec.body",
+      "semantic_kind": "subjective_body_impression",
+      "adoption_status": "implemented",
+      "review_priority": "proposed",
+      "origin": "researcher_design_proposal",
+      "original_candidate_id": null,
+      "original_label": null,
+      "original_grounding": null,
+      "original_source_meaning_checked": false,
+      "original_evidence_ids": [],
+      "original_evidence_basis": null,
+      "c_mapping_independently_source_verified": false,
+      "confirmed_profile_fact": false,
+      "condition": "本人が見た比率への印象。身長、測定値、モデル歴は補わない。",
+      "implemented_value": "long_limbs_impression",
+      "implemented_label": "手足が長い印象"
+    },
+    {
+      "id": "c_notes_short_hair",
+      "group": "notes",
+      "proposed_value": "short_hair",
+      "proposed_label": "ショートヘア",
+      "target": "spec.notes",
+      "semantic_kind": "observed_appearance",
+      "adoption_status": "implemented",
+      "review_priority": "proposed",
+      "origin": "researcher_design_proposal",
+      "original_candidate_id": null,
+      "original_label": null,
+      "original_grounding": null,
+      "original_source_meaning_checked": false,
+      "original_evidence_ids": [],
+      "original_evidence_basis": null,
+      "c_mapping_independently_source_verified": false,
+      "confirmed_profile_fact": false,
+      "condition": "今回本人が見た髪型や髪色として選ぶ。写真だけから今回の状態を補わず、地毛・染髪・パーマの有無を断定しない。",
+      "implemented_value": "short_hair",
+      "implemented_label": "ショートヘア"
+    },
+    {
+      "id": "c_notes_bob_hair",
+      "group": "notes",
+      "proposed_value": "bob_hair",
+      "proposed_label": "ボブ",
+      "target": "spec.notes",
+      "semantic_kind": "observed_appearance",
+      "adoption_status": "implemented",
+      "review_priority": "proposed",
+      "origin": "researcher_design_proposal",
+      "original_candidate_id": null,
+      "original_label": null,
+      "original_grounding": null,
+      "original_source_meaning_checked": false,
+      "original_evidence_ids": [],
+      "original_evidence_basis": null,
+      "c_mapping_independently_source_verified": false,
+      "confirmed_profile_fact": false,
+      "condition": "今回本人が見た髪型や髪色として選ぶ。写真だけから今回の状態を補わず、地毛・染髪・パーマの有無を断定しない。",
+      "implemented_value": "bob_hair",
+      "implemented_label": "ボブ"
+    },
+    {
+      "id": "c_notes_medium_hair",
+      "group": "notes",
+      "proposed_value": "medium_hair",
+      "proposed_label": "ミディアムヘア",
+      "target": "spec.notes",
+      "semantic_kind": "observed_appearance",
+      "adoption_status": "implemented",
+      "review_priority": "proposed",
+      "origin": "researcher_design_proposal",
+      "original_candidate_id": null,
+      "original_label": null,
+      "original_grounding": null,
+      "original_source_meaning_checked": false,
+      "original_evidence_ids": [],
+      "original_evidence_basis": null,
+      "c_mapping_independently_source_verified": false,
+      "confirmed_profile_fact": false,
+      "condition": "今回本人が見た髪型や髪色として選ぶ。写真だけから今回の状態を補わず、地毛・染髪・パーマの有無を断定しない。",
+      "implemented_value": "medium_hair",
+      "implemented_label": "ミディアムヘア"
+    },
+    {
+      "id": "c_notes_long_hair",
+      "group": "notes",
+      "proposed_value": "long_hair",
+      "proposed_label": "ロングヘア",
+      "target": "spec.notes",
+      "semantic_kind": "observed_appearance",
+      "adoption_status": "implemented",
+      "review_priority": "proposed",
+      "origin": "researcher_design_proposal",
+      "original_candidate_id": null,
+      "original_label": null,
+      "original_grounding": null,
+      "original_source_meaning_checked": false,
+      "original_evidence_ids": [],
+      "original_evidence_basis": null,
+      "c_mapping_independently_source_verified": false,
+      "confirmed_profile_fact": false,
+      "condition": "今回本人が見た髪型や髪色として選ぶ。写真だけから今回の状態を補わず、地毛・染髪・パーマの有無を断定しない。",
+      "implemented_value": "long_hair",
+      "implemented_label": "ロングヘア"
+    },
+    {
+      "id": "c_notes_black_hair",
+      "group": "notes",
+      "proposed_value": "black_hair",
+      "proposed_label": "黒髪",
+      "target": "spec.notes",
+      "semantic_kind": "observed_appearance",
+      "adoption_status": "implemented",
+      "review_priority": "proposed",
+      "origin": "researcher_design_proposal",
+      "original_candidate_id": null,
+      "original_label": null,
+      "original_grounding": null,
+      "original_source_meaning_checked": false,
+      "original_evidence_ids": [],
+      "original_evidence_basis": null,
+      "c_mapping_independently_source_verified": false,
+      "confirmed_profile_fact": false,
+      "condition": "今回本人が見た髪型や髪色として選ぶ。写真だけから今回の状態を補わず、地毛・染髪・パーマの有無を断定しない。",
+      "implemented_value": "black_hair",
+      "implemented_label": "黒髪"
+    },
+    {
+      "id": "c_notes_brown_hair",
+      "group": "notes",
+      "proposed_value": "brown_hair",
+      "proposed_label": "茶髪",
+      "target": "spec.notes",
+      "semantic_kind": "observed_appearance",
+      "adoption_status": "implemented",
+      "review_priority": "proposed",
+      "origin": "researcher_design_proposal",
+      "original_candidate_id": null,
+      "original_label": null,
+      "original_grounding": null,
+      "original_source_meaning_checked": false,
+      "original_evidence_ids": [],
+      "original_evidence_basis": null,
+      "c_mapping_independently_source_verified": false,
+      "confirmed_profile_fact": false,
+      "condition": "今回本人が見た髪型や髪色として選ぶ。写真だけから今回の状態を補わず、地毛・染髪・パーマの有無を断定しない。",
+      "implemented_value": "brown_hair",
+      "implemented_label": "茶髪"
+    },
+    {
+      "id": "c_notes_light_hair_color",
+      "group": "notes",
+      "proposed_value": "light_hair_color",
+      "proposed_label": "明るい髪色",
+      "target": "spec.notes",
+      "semantic_kind": "observed_appearance",
+      "adoption_status": "implemented",
+      "review_priority": "proposed",
+      "origin": "researcher_design_proposal",
+      "original_candidate_id": null,
+      "original_label": null,
+      "original_grounding": null,
+      "original_source_meaning_checked": false,
+      "original_evidence_ids": [],
+      "original_evidence_basis": null,
+      "c_mapping_independently_source_verified": false,
+      "confirmed_profile_fact": false,
+      "condition": "今回本人が見た髪型や髪色として選ぶ。写真だけから今回の状態を補わず、地毛・染髪・パーマの有無を断定しない。",
+      "implemented_value": "light_hair_color",
+      "implemented_label": "明るい髪色"
+    },
+    {
+      "id": "c_notes_straight_hair",
+      "group": "notes",
+      "proposed_value": "straight_hair",
+      "proposed_label": "ストレートヘア",
+      "target": "spec.notes",
+      "semantic_kind": "observed_appearance",
+      "adoption_status": "implemented",
+      "review_priority": "proposed",
+      "origin": "researcher_design_proposal",
+      "original_candidate_id": null,
+      "original_label": null,
+      "original_grounding": null,
+      "original_source_meaning_checked": false,
+      "original_evidence_ids": [],
+      "original_evidence_basis": null,
+      "c_mapping_independently_source_verified": false,
+      "confirmed_profile_fact": false,
+      "condition": "今回本人が見た髪型や髪色として選ぶ。写真だけから今回の状態を補わず、地毛・染髪・パーマの有無を断定しない。",
+      "implemented_value": "straight_hair",
+      "implemented_label": "ストレートヘア"
+    },
+    {
+      "id": "c_notes_wavy_hair",
+      "group": "notes",
+      "proposed_value": "wavy_hair",
+      "proposed_label": "ウェーブヘア",
+      "target": "spec.notes",
+      "semantic_kind": "observed_appearance",
+      "adoption_status": "implemented",
+      "review_priority": "proposed",
+      "origin": "researcher_design_proposal",
+      "original_candidate_id": null,
+      "original_label": null,
+      "original_grounding": null,
+      "original_source_meaning_checked": false,
+      "original_evidence_ids": [],
+      "original_evidence_basis": null,
+      "c_mapping_independently_source_verified": false,
+      "confirmed_profile_fact": false,
+      "condition": "今回本人が見た髪型や髪色として選ぶ。写真だけから今回の状態を補わず、地毛・染髪・パーマの有無を断定しない。",
+      "implemented_value": "wavy_hair",
+      "implemented_label": "ウェーブヘア"
+    },
+    {
+      "id": "c_notes_light_makeup",
+      "group": "notes",
+      "proposed_value": "light_makeup",
+      "proposed_label": "薄めのメイク",
+      "target": "spec.notes",
+      "semantic_kind": "subjective_appearance_observation",
+      "adoption_status": "implemented",
+      "review_priority": "proposed",
+      "origin": "researcher_design_proposal",
+      "original_candidate_id": null,
+      "original_label": null,
+      "original_grounding": null,
+      "original_source_meaning_checked": false,
+      "original_evidence_ids": [],
+      "original_evidence_basis": null,
+      "c_mapping_independently_source_verified": false,
+      "confirmed_profile_fact": false,
+      "condition": "今回見たメイクへの印象。すっぴんや写真加工の有無を断定しない。写真より薄いという比較だけで常に薄いとも扱わない。",
+      "implemented_value": "light_makeup",
+      "implemented_label": "薄めのメイク"
+    },
+    {
+      "id": "c_notes_flashy_makeup",
+      "group": "notes",
+      "proposed_value": "flashy_makeup",
+      "proposed_label": "華やかなメイク",
+      "target": "spec.notes",
+      "semantic_kind": "subjective_appearance_observation",
+      "adoption_status": "implemented",
+      "review_priority": "proposed",
+      "origin": "researcher_design_proposal",
+      "original_candidate_id": null,
+      "original_label": null,
+      "original_grounding": null,
+      "original_source_meaning_checked": false,
+      "original_evidence_ids": [],
+      "original_evidence_basis": null,
+      "c_mapping_independently_source_verified": false,
+      "confirmed_profile_fact": false,
+      "condition": "今回見たメイクへの印象。原appearance_03に関連する語だが、この新しい候補IDを個別照合済みに昇格しない。",
+      "related_original_candidate_ids": [
+        "appearance_03"
+      ],
+      "implemented_value": "flashy_makeup",
+      "implemented_label": "華やかなメイク"
+    },
+    {
+      "id": "c_notes_glasses",
+      "group": "notes",
+      "proposed_value": "glasses",
+      "proposed_label": "眼鏡",
+      "target": "spec.notes",
+      "semantic_kind": "observed_appearance",
+      "adoption_status": "implemented",
+      "review_priority": "proposed",
+      "origin": "researcher_design_proposal",
+      "original_candidate_id": null,
+      "original_label": null,
+      "original_grounding": null,
+      "original_source_meaning_checked": false,
+      "original_evidence_ids": [],
+      "original_evidence_basis": null,
+      "c_mapping_independently_source_verified": false,
+      "confirmed_profile_fact": false,
+      "condition": "今回本人が身につけているのを見た場合。常用、視力、職業は補わない。",
+      "implemented_value": "glasses",
+      "implemented_label": "眼鏡"
+    }
+  ],
+  "aliases": [
+    {
+      "input": "細身",
+      "existing_value": "spec.body.slender",
+      "existing_label": "スレンダー",
+      "action": "reuse_existing_no_duplicate_button"
+    },
+    {
+      "input": "高身長",
+      "existing_value": "spec.body.tall",
+      "existing_label": "長身",
+      "action": "reuse_existing_no_duplicate_button"
+    },
+    {
+      "input": "小さい体格",
+      "existing_value": "spec.body.petite",
+      "existing_label": "小柄",
+      "action": "reuse_existing_if_same_meaning"
+    }
+  ],
+  "keep_in_B_or_D": [
+    "写真との印象差",
+    "会話量",
+    "清潔さや香りの評価",
+    "希望への対応",
+    "施術の強さや手技",
+    "再訪理由"
+  ],
+  "original_pending_not_promoted": [
+    "appearance_01",
+    "photo_match_04"
+  ],
+  "do_not_auto_merge": [
+    "自然な雰囲気と清楚",
+    "華やかな雰囲気とギャル",
+    "スポーティーな印象と元気系",
+    "落ち着いた雰囲気とクール"
+  ],
+  "derived_reading_hints_not_new_source_verification": [
+    {
+      "source_id": "ME-660936",
+      "file": "deep-read/pages-002-011-021.json",
+      "finding": "写真より化粧が薄かったという相対比較",
+      "limit": "薄めのメイク一般の直接根拠にはしない"
+    },
+    {
+      "source_id": "ME-643412",
+      "file": "deep-read/pages-041-141-241.json",
+      "finding": "写真から髪型が変わっていた",
+      "limit": "実際の髪の長さや髪型は確認できない"
+    },
+    {
+      "source_id": "ME-637274",
+      "file": "deep-read/pages-041-141-241.json",
+      "finding": "写真から想像した髪色と違った",
+      "limit": "具体的な髪色の直接根拠にはしない"
+    },
+    {
+      "source_id": "ME-117747",
+      "file": "deep-read/pages-341-381-401.json",
+      "finding": "未経験というプロフィール記載",
+      "limit": "実際の職歴の独立確認ではない"
+    }
+  ],
+  "output_routes_at_baseline": {
+    "spec.genre": {
+      "specSummary_body": true,
+      "tagCandidates": true
+    },
+    "spec.body": {
+      "specSummary_body": true,
+      "tagCandidates": false
+    },
+    "spec.notes": {
+      "specSummary_body": true,
+      "tagCandidates": true
+    },
+    "spec.freeTags": {
+      "specSummary_body": false,
+      "tagCandidates": true
+    }
+  },
+  "implementation_proposal": {
+    "preferred": "implemented: additive_stable_values_in_existing_genre_body_notes_types_labels_and_schema",
+    "alternative": "freeTags_quick_buttons_require_separate_manual_tag_sync_and_body_output_decision",
+    "new_question_groups": 0,
+    "D_order_changes": false,
+    "adopted_BD87_changes": false,
+    "fixed_option_selection": "preserve_current_multi_select",
+    "cup_selection": "preserve_current_single_select",
+    "automatic_profile_inference": false
+  },
+  "document": "../../../09-questionnaire-c-vocabulary-plan.md",
+  "baseline_c_options": {
+    "genre": [
+      {
+        "value": "gal",
+        "label": "ギャル"
+      },
+      {
+        "value": "seiso",
+        "label": "清楚"
+      },
+      {
+        "value": "oneesan",
+        "label": "お姉さん"
+      },
+      {
+        "value": "imouto",
+        "label": "妹系"
+      },
+      {
+        "value": "jukujo",
+        "label": "熟女"
+      },
+      {
+        "value": "model",
+        "label": "モデル系"
+      },
+      {
+        "value": "genki",
+        "label": "元気系"
+      },
+      {
+        "value": "cool",
+        "label": "クール"
+      }
+    ],
+    "body": [
+      {
+        "value": "petite",
+        "label": "小柄"
+      },
+      {
+        "value": "slender",
+        "label": "スレンダー"
+      },
+      {
+        "value": "muchimuchi",
+        "label": "ムチムチ"
+      },
+      {
+        "value": "glamour",
+        "label": "グラマー"
+      },
+      {
+        "value": "tall",
+        "label": "長身"
+      }
+    ],
+    "notes": [
+      {
+        "value": "ex_menesu",
+        "label": "元メンエス経験者"
+      },
+      {
+        "value": "newbie",
+        "label": "新人"
+      },
+      {
+        "value": "just_joined",
+        "label": "入店したて"
+      },
+      {
+        "value": "tattoo",
+        "label": "タトゥー"
+      },
+      {
+        "value": "nail",
+        "label": "ネイル"
+      },
+      {
+        "value": "tanned",
+        "label": "日焼け"
+      }
+    ]
+  },
+  "current_c_options": {
+    "genre": [
+      {
+        "value": "gal",
+        "label": "ギャル"
+      },
+      {
+        "value": "seiso",
+        "label": "清楚"
+      },
+      {
+        "value": "oneesan",
+        "label": "お姉さん"
+      },
+      {
+        "value": "imouto",
+        "label": "妹系"
+      },
+      {
+        "value": "jukujo",
+        "label": "熟女"
+      },
+      {
+        "value": "model",
+        "label": "モデル系"
+      },
+      {
+        "value": "genki",
+        "label": "元気系"
+      },
+      {
+        "value": "cool",
+        "label": "クール"
+      },
+      {
+        "value": "natural",
+        "label": "自然な雰囲気"
+      },
+      {
+        "value": "flashy_impression",
+        "label": "華やかな雰囲気"
+      },
+      {
+        "value": "calm_impression",
+        "label": "落ち着いた雰囲気"
+      },
+      {
+        "value": "friendly_impression",
+        "label": "親しみやすい雰囲気"
+      },
+      {
+        "value": "sporty",
+        "label": "スポーティーな印象"
+      }
+    ],
+    "body": [
+      {
+        "value": "petite",
+        "label": "小柄"
+      },
+      {
+        "value": "slender",
+        "label": "スレンダー"
+      },
+      {
+        "value": "muchimuchi",
+        "label": "ムチムチ"
+      },
+      {
+        "value": "glamour",
+        "label": "グラマー"
+      },
+      {
+        "value": "tall",
+        "label": "長身"
+      },
+      {
+        "value": "average_build",
+        "label": "標準的な体格"
+      },
+      {
+        "value": "delicate_impression",
+        "label": "華奢な印象"
+      },
+      {
+        "value": "long_limbs_impression",
+        "label": "手足が長い印象"
+      }
+    ],
+    "notes": [
+      {
+        "value": "ex_menesu",
+        "label": "元メンエス経験者"
+      },
+      {
+        "value": "newbie",
+        "label": "新人"
+      },
+      {
+        "value": "just_joined",
+        "label": "入店したて"
+      },
+      {
+        "value": "tattoo",
+        "label": "タトゥー"
+      },
+      {
+        "value": "nail",
+        "label": "ネイル"
+      },
+      {
+        "value": "tanned",
+        "label": "日焼け"
+      },
+      {
+        "value": "short_hair",
+        "label": "ショートヘア"
+      },
+      {
+        "value": "bob_hair",
+        "label": "ボブ"
+      },
+      {
+        "value": "medium_hair",
+        "label": "ミディアムヘア"
+      },
+      {
+        "value": "long_hair",
+        "label": "ロングヘア"
+      },
+      {
+        "value": "black_hair",
+        "label": "黒髪"
+      },
+      {
+        "value": "brown_hair",
+        "label": "茶髪"
+      },
+      {
+        "value": "light_hair_color",
+        "label": "明るい髪色"
+      },
+      {
+        "value": "straight_hair",
+        "label": "ストレートヘア"
+      },
+      {
+        "value": "wavy_hair",
+        "label": "ウェーブヘア"
+      },
+      {
+        "value": "light_makeup",
+        "label": "薄めのメイク"
+      },
+      {
+        "value": "flashy_makeup",
+        "label": "華やかなメイク"
+      },
+      {
+        "value": "glasses",
+        "label": "眼鏡"
+      }
+    ]
+  },
+  "adoption_basis": "Cの既存項目の語彙拡充という利用者の作業依頼に基づく。元記事に照合した原候補への参照と、新しい設計語の採用を区別する。",
+  "implementation": {
+    "method": "additive_existing_enum_values",
+    "files": [
+      "src/types.ts",
+      "schema/visit-record.schema.json"
+    ],
+    "new_data_fields": 0,
+    "storage_keys_changed": false,
+    "freeTags_body_output_changed": false,
+    "BD87_and_D_order_changed": false,
+    "cup_single_select_changed": false
+  },
+  "validation_record": "c-vocabulary-validation.json"
+}
