@@ -1,0 +1,701 @@
+{
+  "record_role": "historical_planning_snapshot_superseded_by_user_decision",
+  "latest_decision_record": "adoption58-decision.json",
+  "subsequent_user_decision": {
+    "date": "2026-10-23",
+    "additional58": "accepted_and_implemented",
+    "current_implemented_count": 87,
+    "new_question_groups10": "all_rejected",
+    "original_classifications_and_evidence_preserved": true
+  },
+  "purpose": "質問票から一人称の訪問記事を豊かにするための意味上の優先順位。実装仕様や画面設計ではない。",
+  "status": "editorial_proposal_not_implemented",
+  "sources_read": {
+    "candidate_file": "docs/research/men-esthe-2026-10-23/option-candidates.json",
+    "candidate_labels": 332,
+    "findings_file": "docs/research/men-esthe-2026-10-23/findings.md",
+    "questionnaire_file": "docs/01-questionnaire.md",
+    "article_template_file": "docs/02-article-templates.md",
+    "deep_read_files": [
+      "docs/research/men-esthe-2026-10-23/deep-read/pages-002-011-021.json",
+      "docs/research/men-esthe-2026-10-23/deep-read/pages-041-141-241.json",
+      "docs/research/men-esthe-2026-10-23/deep-read/pages-341-381-401.json"
+    ],
+    "deep_read_records": 166,
+    "evidence_scope": "既存の候補別根拠と166件の派生精読メモを照合した。今回、外部ページや元の全文は再取得していない。"
+  },
+  "editorial_judgment": {
+    "recommendation": "優先候補は16ラベルを8つの意味単位にまとめる。ラベル数の増加より、具体的な出来事、自分の感じ方、評価・再訪判断の理由がつながることを重視する。",
+    "article_material_contract": [
+      "選択された言葉だけで出来事の詳細や台詞を作らず、本人の訪問メモがある範囲で使う。",
+      "出来事と感想を分ける。会話が多い、圧が強いという観察だけでは良否を決めない。",
+      "星の理由、最良の場面、残念だった場面、再訪理由に同じ出来事を関連付け、別々の理由を捏造しない。",
+      "予約・設備の細目は、その訪問の経緯や評価理由になった時に記事素材として扱う。店舗評価の網羅を目的にしない。"
+    ],
+    "excluded_decisions": [
+      "画面構成",
+      "初期表示",
+      "表示の優先順位",
+      "操作方法",
+      "レイアウト",
+      "ビジュアル",
+      "アプリやスキーマの変更"
+    ]
+  },
+  "priority_groups": [
+    {
+      "theme": "visit_choice",
+      "editorial_value": "なぜこの日にこの店・担当者になったかを導入に書ける。事前期待の根拠にもなる。",
+      "article_slots": [
+        "導入",
+        "ご対面前の経緯"
+      ],
+      "existing_overlap": "Aの予約方法は経路であり選定理由ではない。Fの初回・再訪という記事種別とも異なる。",
+      "candidates": [
+        {
+          "id": "selection_reason_01",
+          "label": "写真が気になった",
+          "why": "写真のどこに関心を持ったかと、会った時の印象をつなぐ起点になる。写真の真偽を断定する材料にはしない。",
+          "existing_individual_evidence_ids": [
+            "ME-693774",
+            "ME-702159"
+          ],
+          "deep_note_evidence_ids": [
+            "ME-97803",
+            "ME-419842"
+          ],
+          "evidence_caution": "後二件のメモは写真からの期待や比較の限界を示す。選定理由そのものの追加根拠とは区別する。"
+        },
+        {
+          "id": "selection_reason_02",
+          "label": "口コミを見て選んだ",
+          "why": "前評判から持った期待と、自分が実際に確認した体験との差を書ける。",
+          "existing_individual_evidence_ids": [
+            "ME-694759",
+            "ME-690955"
+          ],
+          "deep_note_evidence_ids": [
+            "ME-687393",
+            "ME-109586"
+          ],
+          "evidence_caution": "評判の内容を自分の体験として書かない。"
+        },
+        {
+          "id": "selection_reason_05",
+          "label": "空いている枠で選んだ",
+          "why": "偶然の選択、第一希望からの変更、当日の空き時間という訪問の事情を残せる。",
+          "existing_individual_evidence_ids": [
+            "ME-694759",
+            "ME-680085"
+          ],
+          "deep_note_evidence_ids": [
+            "ME-117753",
+            "ME-116757",
+            "ME-625630"
+          ],
+          "evidence_caution": "代替選択だった事実から、期待が低かったと自動で推論しない。"
+        }
+      ],
+      "material_needed": "選んだきっかけと、その時点で期待していた具体的な点。"
+    },
+    {
+      "theme": "welcome_and_emotion",
+      "editorial_value": "接客の形容だけでなく、到着後に自分の気持ちがどう変わったかを書ける。",
+      "article_slots": [
+        "ご対面",
+        "接客の星の理由",
+        "心の声"
+      ],
+      "existing_overlap": "Dの対面時の出来事、Eの心の声、Bの接客コメントを補う。新しい評価軸は不要。",
+      "candidates": [
+        {
+          "id": "welcome_07",
+          "label": "緊張がほぐれた",
+          "why": "笑顔や声かけが自分に与えた効果を残せるため、単なる親切だったという総評より場面が伝わる。",
+          "existing_individual_evidence_ids": [
+            "ME-677219"
+          ],
+          "deep_note_evidence_ids": [
+            "ME-108576",
+            "ME-63484"
+          ],
+          "evidence_caution": "緊張とその変化を本人が感じた場合に限る。笑顔を見たという情報だけでは感情を補わない。"
+        }
+      ],
+      "material_needed": "緊張が変わったきっかけとなる動作や会話。実際の発言を覚えていなければ台詞にしない。"
+    },
+    {
+      "theme": "request_response_and_pressure_fit",
+      "editorial_value": "何が上手だったか、なぜ自分には心地よかったかを、施術前後の小さな出来事で説明できる。",
+      "article_slots": [
+        "マッサージ技術の星の理由",
+        "施術中の流れ",
+        "ハイライト"
+      ],
+      "existing_overlap": "Dに圧強め・圧弱めと指圧があり、Bにも圧の例文がある。強さの再追加ではなく、自分との適合と希望反映が追加価値。",
+      "candidates": [
+        {
+          "id": "assessment_07",
+          "label": "相談内容が施術に反映された",
+          "why": "事前の希望または途中の要望と、その後の対応を結び付けられ、接客と技術の評価理由が具体的になる。",
+          "existing_individual_evidence_ids": [
+            "ME-691394"
+          ],
+          "deep_note_evidence_ids": [
+            "ME-52641",
+            "ME-98737",
+            "ME-116757",
+            "ME-108576"
+          ],
+          "evidence_caution": "希望を尋ねられたこと、希望を伝えたこと、実際に反映されたことは別の出来事。ME-535574の調整可能性は実際の依頼結果ではない。"
+        },
+        {
+          "id": "pressure_08",
+          "label": "強さはちょうどよかった",
+          "why": "強い・弱いという観察を、その人の快適さに接続できる。部位ごとに違う評価も残せる。",
+          "existing_individual_evidence_ids": [
+            "ME-604702",
+            "ME-687360",
+            "ME-688337"
+          ],
+          "deep_note_evidence_ids": [
+            "ME-603095",
+            "ME-426485"
+          ],
+          "evidence_caution": "ME-603095は脚では痛く背中では適切、ME-426485は強い施術自体が苦手という対照。どちらも一律の技術不良を示さない。"
+        }
+      ],
+      "material_needed": "部位、元の圧、自分の感じ方、希望を伝えたか、伝えた後の変化。"
+    },
+    {
+      "theme": "conversation_and_personal_fit",
+      "editorial_value": "会話の多寡だけで接客を評価せず、相手の働きかけと自分の好みから場面と理由を書ける。",
+      "article_slots": [
+        "接客の星の理由",
+        "施術中の会話",
+        "総評"
+      ],
+      "existing_overlap": "Dの会話が弾んだとEの台詞に接続する。既存の会話が弾んだを言い換えて増やすだけにはしない。",
+      "candidates": [
+        {
+          "id": "conversation_style_02",
+          "label": "話題を広げてくれた",
+          "why": "担当者側の働きかけを観察として残せる。共通の話題が見つかった経緯など、会話場面の足場になる。",
+          "existing_individual_evidence_ids": [
+            "ME-697480",
+            "ME-701966"
+          ],
+          "deep_note_evidence_ids": [
+            "ME-65780",
+            "ME-642956",
+            "ME-509759"
+          ],
+          "evidence_caution": "話題の具体例や発言は、本人が覚えているものだけを使う。"
+        },
+        {
+          "id": "conversation_fit_01",
+          "label": "会話が好みに合った",
+          "why": "多く話したことと楽しかったことを分け、星の理由や再訪理由に必要な主観を残せる。",
+          "existing_individual_evidence_ids": [
+            "ME-697480",
+            "ME-694759"
+          ],
+          "deep_note_evidence_ids": [
+            "ME-687357",
+            "ME-117747",
+            "ME-114983"
+          ],
+          "evidence_caution": "ME-687357は多い会話が合わず、ME-117747は静かでも受け答えが成立。静かさを事務的と同一視しない。"
+        }
+      ],
+      "material_needed": "会話量、話題や受け答え、話したい・静かにしたいという自分の希望、合った理由。"
+    },
+    {
+      "theme": "time_allocation_and_subjective_length",
+      "editorial_value": "前半・後半の流れと不満をつなぎ、予定より短い体験と、楽しくて長く受けたかった体験を区別できる。",
+      "article_slots": [
+        "訪問の時系列",
+        "残念ポイント",
+        "次回の希望"
+      ],
+      "existing_overlap": "Aはコース分数、Dは手順中心で、体感の長さや配分は十分に残らない。",
+      "candidates": [
+        {
+          "id": "pace_of_time_04",
+          "label": "後半が駆け足だった",
+          "why": "準備や前半に時間を使った結果、後半をどう受け止めたかが書ける。単なる短かったより経緯を説明できる。",
+          "existing_individual_evidence_ids": [
+            "ME-611571"
+          ],
+          "deep_note_evidence_ids": [
+            "ME-517869",
+            "ME-688810"
+          ],
+          "required_semantic_revision": "後半の配分を短く感じた、など実際の観察に合わせる。根拠が短めだっただけなら、施術速度が速かったと断定しない。",
+          "evidence_caution": "ME-688810は施術前の長い会話の例であり、後半の速度そのものの証拠ではない。"
+        },
+        {
+          "id": "value_06",
+          "label": "短時間では物足りなかった",
+          "why": "短いコースではもっと受けたかったという体感を、時間未消化や早期終了という不満と分けて残せる。",
+          "existing_individual_evidence_ids": [],
+          "deep_note_evidence_ids": [
+            "ME-94606",
+            "ME-108576"
+          ],
+          "new_support_status": "候補ファイルでは個別未検証。派生精読メモで意味に近い体験を追加確認した段階。",
+          "evidence_caution": "ME-94606は50分を短く感じた例、ME-108576は90分でももっと長く受けたかった例。予定時間不足を示さない。"
+        }
+      ],
+      "material_needed": "予約枠、確認できた開始・終了、準備や会話が占めた部分、本人の体感。概算か時計確認かも区別する。"
+    },
+    {
+      "theme": "expectation_and_value_reason",
+      "editorial_value": "良かった・高かっただけで終えず、事前の基準と体験後の判断を対比できる。",
+      "article_slots": [
+        "星の理由",
+        "全体ハイライト",
+        "残念ポイント",
+        "総評"
+      ],
+      "existing_overlap": "Cの写真に関する実感だけでは技術や接客への期待との差を扱えない。Aに実額はあるが納得の理由はない。",
+      "candidates": [
+        {
+          "id": "satisfaction_06",
+          "label": "期待以上の内容だった",
+          "why": "事前期待と、実際に良いと感じた出来事の差が記事の小さな発見になる。",
+          "existing_individual_evidence_ids": [
+            "ME-694759",
+            "ME-702434"
+          ],
+          "deep_note_evidence_ids": [
+            "ME-117747",
+            "ME-66229"
+          ],
+          "evidence_caution": "何への期待がどう変わったかが必要。良い驚きがない訪問に展開を作らない。"
+        },
+        {
+          "id": "value_02",
+          "label": "料金相応に感じた",
+          "why": "実額に対し、どの体験が納得感を作ったかを書ける。金額の高低とは別の総評材料になる。",
+          "existing_individual_evidence_ids": [
+            "ME-685554",
+            "ME-676632"
+          ],
+          "deep_note_evidence_ids": [
+            "ME-646476",
+            "ME-647875"
+          ],
+          "evidence_caution": "ME-646476は店の費用と担当者の技術を別評価し、ME-647875は技術を認めても追加費用に不満。同額なら誰も納得するという意味ではない。"
+        }
+      ],
+      "material_needed": "比較した基準、支払額、納得または迷いにつながった具体的な出来事。"
+    },
+    {
+      "theme": "repeat_target_reason_and_condition",
+      "editorial_value": "再訪の有無を記事の結論として説明し、店舗への再訪と同じ担当者への再指名を混同しない。",
+      "article_slots": [
+        "総評",
+        "再訪記事への接続"
+      ],
+      "existing_overlap": "Eのリピート意向4段階は結論を記録できるが、対象と理由を十分に分けない。",
+      "candidates": [
+        {
+          "id": "repeat_reason_02",
+          "label": "会話の相性が良かった",
+          "why": "会話への満足が再訪判断につながった時、結論に因果の筋道を付けられる。",
+          "existing_individual_evidence_ids": [
+            "ME-697480",
+            "ME-624755"
+          ],
+          "deep_note_evidence_ids": [
+            "ME-108576"
+          ],
+          "evidence_caution": "会話が好みに合ったという評価を再利用できるが、それを本人が再訪理由としない限り因果に変換しない。"
+        },
+        {
+          "id": "repeat_reason_04",
+          "label": "料金との釣り合いが良かった",
+          "why": "価格への納得が実際の再訪判断を支えた場合に、コース分数や支払額だけでは書けない理由を残せる。",
+          "existing_individual_evidence_ids": [
+            "ME-701966"
+          ],
+          "deep_note_evidence_ids": [
+            "ME-113261",
+            "ME-114983"
+          ],
+          "evidence_caution": "料金に納得したことと再訪することは同義ではない。ME-615850は割安でも好みを理由に再訪予定がない。"
+        },
+        {
+          "id": "revisit_store_02",
+          "label": "別の担当者も試したい",
+          "why": "今回の担当者への満足と店の選択を分け、否定一色でも再訪確定でもない総評を書ける。",
+          "existing_individual_evidence_ids": [],
+          "equivalent_candidate_evidence": {
+            "candidate_id": "repeat_reason_08",
+            "evidence_ids": [
+              "ME-671629"
+            ]
+          },
+          "deep_note_evidence_ids": [
+            "ME-113261",
+            "ME-111685",
+            "ME-507212"
+          ],
+          "new_support_status": "同義候補repeat_reason_08には個別根拠があり、派生精読メモにも直接の対象区別がある。",
+          "evidence_caution": "他担当者への関心を、今回の担当者への不満と自動で読み替えない。"
+        }
+      ],
+      "material_needed": "再訪の対象、理由になった体験、予約・予算・日程など本人が述べた条件。"
+    },
+    {
+      "theme": "comparison_with_a_previous_visit",
+      "editorial_value": "再訪記事を初回と同じ内容の繰り返しにせず、変わった点とその受け止め方で書ける。",
+      "article_slots": [
+        "再訪記事",
+        "今回の総評"
+      ],
+      "existing_overlap": "Fの再訪種別とテンプレート4は差分を求めるが、何を基準に何が変わったかの素材は別途必要。",
+      "candidates": [
+        {
+          "id": "comparison_03",
+          "label": "前回より物足りない",
+          "why": "前回との違いを、今回の評価理由として説明する起点になる。否定的な変化にも率直に書ける。",
+          "existing_individual_evidence_ids": [
+            "ME-687360"
+          ],
+          "deep_note_evidence_ids": [
+            "ME-67846",
+            "ME-691373"
+          ],
+          "evidence_caution": "ME-67846は前回より笑顔が多く使用剤も変更、ME-691373は追加料金の変化という比較軸の例。両者は物足りないというラベルの直接根拠ではない。"
+        }
+      ],
+      "material_needed": "比較対象となる訪問、同じ担当者か、コース・追加内容・時間の違い、実際に変わった点と今回の感想。"
+    }
+  ],
+  "candidate_merges_and_reuse": [
+    {
+      "candidate_ids": [
+        "pressure_02",
+        "pressure_08"
+      ],
+      "proposal": "ほどよい圧と本人にちょうどよい強さは同じ意味の候補として整理する。",
+      "preserve_distinction": "強い・軽いという圧の観察と、本人の快適さは統合しない。"
+    },
+    {
+      "candidate_ids": [
+        "assessment_04",
+        "assessment_07",
+        "pressure_05"
+      ],
+      "proposal": "同じ調整の出来事を重ねて記録する場合は、希望と実際の反映結果としてまとめる。",
+      "preserve_distinction": "確認、希望を伝えた事実、実際の調整結果は異なる。圧以外の相談内容も失わない。"
+    },
+    {
+      "candidate_ids": [
+        "conversation_fit_01",
+        "conversation_fit_08",
+        "satisfaction_03",
+        "repeat_reason_02"
+      ],
+      "proposal": "会話の適合を説明する同じ出来事を、評価・ハイライト・再訪理由で参照できるよう意味を整理する。",
+      "preserve_distinction": "楽しかったことが再訪理由に直結するとは限らず、無理なく話せたことと盛り上がったことも完全な同義ではない。"
+    },
+    {
+      "candidate_ids": [
+        "comfort_distance_02",
+        "comfort_distance_04"
+      ],
+      "proposal": "落ち着けた・リラックスできたは同義性が高い。",
+      "preserve_distinction": "welcome_07の緊張から安心への変化は、最初から落ち着けた状態と区別する。"
+    },
+    {
+      "candidate_ids": [
+        "revisit_store_02",
+        "repeat_reason_08"
+      ],
+      "proposal": "別担当者を試したいという同じ意向なので統合候補。",
+      "preserve_distinction": "店舗への意向、同担当者への意向、それぞれの理由は保つ。"
+    },
+    {
+      "candidate_ids": [
+        "satisfaction_07",
+        "upsell_07",
+        "value_02",
+        "repeat_reason_04"
+      ],
+      "proposal": "料金への納得を一つの出来事・理由として重複なく整理する。",
+      "preserve_distinction": "総額への納得、追加費用への納得、料金相応という評価、それが再訪理由になったかは文脈として残す。完全な同義として一括置換しない。"
+    },
+    {
+      "candidate_ids": [
+        "method_04",
+        "medium_02",
+        "method_03",
+        "medium_01"
+      ],
+      "proposal": "パウダー使用の重複など、同じ体験を二重に選ぶ語を整理する。",
+      "preserve_distinction": "施術方法と使用剤は概念が異なるため、語が似ているという理由だけで全項目を統合しない。Dには既に指圧・パウダー・オイルの流れがある。"
+    },
+    {
+      "candidate_ids": [
+        "room_facility_04",
+        "comfort_07"
+      ],
+      "proposal": "部屋に余裕と十分な広さは同義性が高く、個別の設問を増やす必要性は低い。",
+      "preserve_distinction": "広さ、設備の古さ、清潔さ、本人の快適さを同一評価にはしない。"
+    }
+  ],
+  "holds": [
+    {
+      "candidate_ids": [
+        "booking_response_01",
+        "booking_response_02",
+        "booking_flow_02",
+        "booking_flow_03",
+        "access_01",
+        "cleanliness_01"
+      ],
+      "reason": "支持がある候補も含むが、全訪問の記事を豊かにする中心素材ではない。訪問の障害、印象の転換、評価理由になる場合の素材として保持する。",
+      "not_a_claim_of_absence": true
+    },
+    {
+      "candidate_ids": [
+        "visit_context_01",
+        "visit_context_03",
+        "fee_components_04",
+        "room_facility_01",
+        "method_02",
+        "method_03",
+        "method_04"
+      ],
+      "reason": "現行A・D・Fに基本情報、施術種別、初回・再訪がある。内容の重複追加より既存記録を記事へ正しく使う方を優先する。"
+    },
+    {
+      "candidate_ids": [
+        "downside_02",
+        "pace_of_time_05",
+        "pace_of_time_06",
+        "value_06"
+      ],
+      "reason": "時間不足という総称で統合するのは保留。予定より早い退出、準備による配分減、もっと受けたかったという体感、時間後の会話は異なる。",
+      "evidence_ids": [
+        "ME-688337",
+        "ME-611571",
+        "ME-108576",
+        "ME-689417"
+      ],
+      "caution": "ME-689417は予約枠後の会話の根拠であり、施術が延長された根拠ではない。"
+    },
+    {
+      "candidate_ids": [
+        "comparison_01",
+        "comparison_02",
+        "comparison_04",
+        "comparison_06"
+      ],
+      "reason": "元候補では個別未検証。今回メモにある笑顔や使用剤の変化を、総合満足向上、同じ印象、手順変更、部屋変更の根拠へ拡張しない。",
+      "evidence_ids": [
+        "ME-67846"
+      ]
+    },
+    {
+      "candidate_ids": [
+        "downside_08",
+        "cleanliness_07",
+        "uncertainty_01"
+      ],
+      "reason": "本文やメモに言及がないことから、問題なし、意識しなかった、明瞭に覚えていると補うことはできない。自身の訪問記録でも、未回答をこれらへ変換しない。"
+    },
+    {
+      "candidate_ids": [
+        "noise_01",
+        "noise_02",
+        "amenities_04",
+        "scent_02",
+        "room_facility_06"
+      ],
+      "reason": "場面を特徴付ける場合には使えるが、一般的な設備チェックを網羅すると記事の核心から離れる。今回の小さな優先集合には入れない。未検証を不存在と解釈しない。"
+    }
+  ],
+  "missing_article_material_themes": [
+    {
+      "theme": "visit_goal_and_personal_baseline",
+      "gap": "選んだ理由とは別に、今回何を求めていたか、普段どんな施術・会話を好むかが候補群では弱い。",
+      "article_use": "導入の動機と総評の判断基準を一致させ、技術が良いのに再訪しない理由も説明できる。",
+      "evidence": [
+        {
+          "id": "ME-637274",
+          "support": "蓄積した疲れに対してしっかりした施術を求め、その目的が満たされた。"
+        },
+        {
+          "id": "ME-426485",
+          "support": "強いマッサージが得意でないという本人の前提が評価に関わる。"
+        },
+        {
+          "id": "ME-644708",
+          "support": "苦手な姿勢を避けるため、専用コースを選んだ。"
+        },
+        {
+          "id": "ME-115953",
+          "support": "会話とマッサージを楽しむという目的を明示する。"
+        }
+      ],
+      "proposed_semantic_material": "訪問前の目的、本人の好み、今回は特に重視した点。新しい固定ラベルの出典があるという主張ではない。"
+    },
+    {
+      "theme": "specific_expectation_gap",
+      "gap": "期待以上という好評と写真との差はあるが、期待の出所、期待していた要素、実際に違った点、その受け止め方を一続きには残しにくい。",
+      "article_use": "前評判を紹介するだけでなく、自分が確認した発見として書ける。",
+      "evidence": [
+        {
+          "id": "ME-117747",
+          "support": "未経験という記載からの予想に対して、施術は思ったより上手だった。"
+        },
+        {
+          "id": "ME-117753",
+          "support": "掲示板の清掃評と自分の利用時の印象が異なった。"
+        },
+        {
+          "id": "ME-638604",
+          "support": "写真から静かな性格を想像したが、実際は明るい接客で好意的に受け止めた。"
+        }
+      ],
+      "caution": "写真から性格を予測した部分は本人の想像。第三者情報が誤りだったと断定せず、訪問時点や条件の違いも不明とする。"
+    },
+    {
+      "theme": "emotional_turning_point_during_visit",
+      "gap": "手技の切替や会話量の変化は候補にあるが、同じ訪問の中で印象がどう変わったかの素材は弱い。",
+      "article_use": "対面から施術、退出へと気持ちが動く経緯を書ける。",
+      "evidence": [
+        {
+          "id": "ME-669488",
+          "support": "迎え入れ時には気になる点があったが、共通の話題で印象が改善した。"
+        },
+        {
+          "id": "ME-479744",
+          "support": "初めの控えめな印象から、施術中に打ち解けた。"
+        },
+        {
+          "id": "ME-509759",
+          "support": "出迎えや会話、施術は高評価だが、見送りは事務的に感じた。"
+        }
+      ],
+      "caution": "変化がなかった体験に転換点を作らない。出来事から担当者の内心を推定しない。"
+    },
+    {
+      "theme": "time_fact_versus_time_feeling",
+      "gap": "時間の候補自体は多いが、予約枠、実際に分かる時間、配分、本人の体感を混ぜやすい。",
+      "article_use": "残念だった理由や次は長いコースにしたい理由を、誤った時間不足の指摘にせず書ける。",
+      "evidence": [
+        {
+          "id": "ME-688337",
+          "support": "予約時間より約20分早く退出したという記述。原因は不明。"
+        },
+        {
+          "id": "ME-611571",
+          "support": "準備や入浴で前半を使い、後の施術を短く感じた。"
+        },
+        {
+          "id": "ME-108576",
+          "support": "90分利用後にもっと長いコースを選びたかったとする。"
+        },
+        {
+          "id": "ME-109630",
+          "support": "技術を評価する指圧でも、本人には時間が長かった。"
+        }
+      ],
+      "caution": "概数は正確な時間へ変換しない。早期退出だけで店の意図や施術時間の不足分を確定しない。"
+    },
+    {
+      "theme": "mixed_evaluation_with_a_decisive_reason",
+      "gap": "満足・不満の項目はあるが、何を評価しながら何が最終判断を分けたかという重み付けはラベルだけでは残らない。",
+      "article_use": "ハイライトと残念ポイントを並べるだけでなく、なぜその星や再訪判断になったか説明できる。",
+      "evidence": [
+        {
+          "id": "ME-645755",
+          "support": "技術は高評価でも、会話や営業でくつろげず再訪しない。"
+        },
+        {
+          "id": "ME-109628",
+          "support": "施術には満足しても個人の好みから当面は再訪しない。"
+        },
+        {
+          "id": "ME-615850",
+          "support": "費用には満足しても個人の好みから再訪予定がない。"
+        }
+      ],
+      "proposed_semantic_material": "良かった点、気になった点、今回の自分の判断でより重かった点。"
+    },
+    {
+      "theme": "comparison_target_axis_and_conditions",
+      "gap": "前回・他店との比較ラベルはあるが、同じ担当者か、何を比較したか、コースや追加内容の違いが残りにくい。",
+      "article_use": "再訪記事の具体的な差分や、相対的な価格・施術の好みを書ける。",
+      "evidence": [
+        {
+          "id": "ME-67846",
+          "support": "同じ担当者の前回はオイル、今回は希望したパウダーで、笑顔にも違いを感じた。"
+        },
+        {
+          "id": "ME-677231",
+          "support": "同店の他担当者と比べた費用満足を再訪理由にしている。"
+        },
+        {
+          "id": "ME-687360",
+          "support": "同担当者の移籍前と今回を、体験や価格の観点で比較する。"
+        }
+      ],
+      "caution": "条件が違う比較を担当者の成長や低下の証拠にしない。自分の記憶の範囲での比較とする。"
+    },
+    {
+      "theme": "knowledge_and_memory_provenance",
+      "gap": "候補には情報源と曖昧さがあるが、記事素材にひも付かなければ、他人の経験や推測が本人の体験へ変わり得る。",
+      "article_use": "一人称の記事で何を断言し、何を説明・印象・概算と書くか判断できる。記事の場面そのものを増やす目的ではない。",
+      "related_candidate_ids": [
+        "knowledge_source_01",
+        "knowledge_source_02",
+        "knowledge_source_04",
+        "knowledge_source_05",
+        "knowledge_source_06",
+        "uncertainty_02",
+        "uncertainty_03",
+        "uncertainty_05",
+        "uncertainty_08"
+      ],
+      "evidence": [
+        {
+          "id": "ME-693774",
+          "support": "他の口コミで懸念された待ち時間を、自分は経験していない。"
+        },
+        {
+          "id": "ME-464827",
+          "support": "電話未利用なのに便宜的に中間点を付けたと説明する。"
+        },
+        {
+          "id": "ME-52641",
+          "support": "未利用の追加項目の価格を曖昧な記憶として記す。"
+        },
+        {
+          "id": "ME-117747",
+          "support": "退職の可能性を、店についての個人的な印象から推測する。"
+        }
+      ],
+      "caution": "未選択を未提供に、中間点を普通の実体験に、断片的な記憶を詳細な台詞や時系列に変換しない。"
+    }
+  ],
+  "evidence_gaps": [
+    "候補332件のうち個別の意味を元の全文と照合済みなのは184件。分類ごとの語の検出IDを候補別の直接根拠として流用しない。",
+    "今回追加した根拠IDは派生精読メモとの照合であり、未検証候補の元データを自動的に照合済みに更新するものではない。",
+    "pace_of_time_04は、既存根拠の後半が短めという意味と、駆け足という速度表現にずれがある。意味の修正または元文の限定確認が必要。",
+    "value_06とrevisit_store_02には今回の精読メモや同義候補に根拠があるが、候補ファイル本体のindividual_option_evidence_idsは空のまま。",
+    "期待の具体的な内容、評価理由の優先順位、比較条件は短い精読メモに省略されていることがある。メモにない内容を補って新しい選択肢の実証としない。",
+    "この調査から、追加候補が本人の記事の具体性を実際に増やすか、記入負荷がどれだけ変わるかは検証できない。本人の訪問記録と生成された記事で確認する必要がある。",
+    "記事用の台詞、心の声、具体的な出来事は他人の口コミから移植しない。本人が記録していない素材の不足は、選択肢だけでは解決できない。"
+  ],
+  "recommended_completion_evidence_for_later_evaluation": [
+    "同じ本人の訪問メモから、導入の動機、星の理由、施術の経緯、良かった場面、残念な場面、再訪理由が矛盾なく説明できるかを見る。",
+    "選択語だけを言い換えた一般的な文章が増える場合は、その候補より具体的な出来事や理由の素材を優先する。",
+    "情報源不明の断言、未体験項目の評価、実測でない分数、記録のない台詞が増えていないかを確認する。"
+  ]
+}

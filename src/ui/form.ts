@@ -5,6 +5,7 @@ import {
 } from '../types';
 import { localDate } from '../date';
 import { chipGroup, chipValues, esc, starValue, starWidget } from './widgets';
+import { renderDownsideSuggestions, renderFlowChecks, renderNoteSuggestions, renderPhaseNoteSuggestions } from './questionnaire-candidates';
 
 const COURSE_TIMES = [70, 80, 90, 100, 110, 120].map((minutes) => `${minutes}分`);
 const COURSE_FEES = Array.from({ length: 21 }, (_, index) => 10000 + index * 1000);
@@ -58,7 +59,8 @@ export function renderForm(record: VisitRecord | null, revisitOf: VisitRecord | 
     .map((k) => `<div class="rating-row">
       <span class="rating-label">${RATING_LABELS[k]}</span>
       ${starWidget(k, record?.ratings[k].stars ?? 3)}
-      <input name="note_${k}" placeholder="★の理由を一言" value="${esc(record?.ratings[k].note ?? '')}" />
+      <input name="note_${k}" aria-label="${RATING_LABELS[k]}の評価理由" placeholder="★の理由を一言" value="${esc(record?.ratings[k].note ?? '')}" />
+      ${renderNoteSuggestions(k)}
     </div>`).join('');
 
   const flowRows = (Object.keys(FLOW_PHASES) as (keyof typeof FLOW_PHASES)[])
@@ -67,8 +69,9 @@ export function renderForm(record: VisitRecord | null, revisitOf: VisitRecord | 
       const sel = record?.flow[k].checks ?? [];
       return `<div class="phase">
         <h4>${def.label}</h4>
-        ${chipGroup(`flow_${k}`, def.checks.map((c) => ({ value: c, label: c })), sel)}
-        <input name="flownote_${k}" placeholder="ハイライトメモ(任意)" value="${esc(record?.flow[k].note ?? '')}" />
+        ${renderFlowChecks(k, sel)}
+        <input name="flownote_${k}" aria-label="${def.label}のハイライトメモ" placeholder="ハイライトメモ(任意)" value="${esc(record?.flow[k].note ?? '')}" />
+        ${renderPhaseNoteSuggestions(k)}
       </div>`;
     }).join('');
 
@@ -127,6 +130,7 @@ export function renderForm(record: VisitRecord | null, revisitOf: VisitRecord | 
     ${flowRows}
     ${textarea('bestMoment', '一番良かった瞬間【必須】', record?.flow.bestMoment ?? '', '1〜2文で')}
     ${textarea('downside', '残念ポイント(正直に・任意)', record?.flow.downside ?? '')}
+    ${renderDownsideSuggestions()}
   </details>
 
   <details class="sec" open>

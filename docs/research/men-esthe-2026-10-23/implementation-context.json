@@ -1,0 +1,181 @@
+{
+  "snapshot_date_jst": "2026-10-23",
+  "scope": "read_only_source_investigation_and_derived_research_artifacts; no application implementation",
+  "local_files_examined": [
+    "docs/01-questionnaire.md",
+    "docs/03-style-profile.md",
+    "src/types.ts",
+    "src/ui/form.ts",
+    "src/ui/widgets.ts",
+    "src/prompt/serialize.ts",
+    "schema/visit-record.schema.json"
+  ],
+  "existing_constraints": [
+    {
+      "constraint": "入力は片手・訪問直後5分が目標。自由記述を少なくする。",
+      "source": "docs/01-questionnaire.md:3"
+    },
+    {
+      "constraint": "建物名、階数、部屋番号は収集しない。アクセスの良否や案内の明瞭さにとどめる。",
+      "source": "docs/01-questionnaire.md:28"
+    },
+    {
+      "constraint": "既存の6評価軸と、来店から終了まで6段階の記録がある。",
+      "source": "src/types.ts:105"
+    },
+    {
+      "constraint": "再訪意向は現在4段階で、店と担当者の別は持たない。",
+      "source": "src/types.ts:134"
+    }
+  ],
+  "field_map": [
+    {
+      "research_dimensions": [
+        "conversation_amount",
+        "conversation_style",
+        "conversation_fit",
+        "professionalism"
+      ],
+      "current_fields": [
+        "ratings.service.note",
+        "flow.*.checks",
+        "flow.*.note"
+      ],
+      "source": "src/ui/form.ts:57",
+      "gap": "会話の量・話し方・好みとの一致を独立して選ぶ専用項目はない。"
+    },
+    {
+      "research_dimensions": [
+        "photo_match",
+        "appearance"
+      ],
+      "current_fields": [
+        "spec.genre",
+        "spec.body",
+        "spec.cupImpression",
+        "ratings.face.note",
+        "ratings.style.note"
+      ],
+      "source": "src/types.ts:114",
+      "gap": "写真との差と外見の好みを区別する専用項目はない。"
+    },
+    {
+      "research_dimensions": [
+        "pressure",
+        "technique",
+        "assessment",
+        "pace",
+        "focus"
+      ],
+      "current_fields": [
+        "ratings.massage.note",
+        "flow.faceDown.checks",
+        "flow.faceDown.note"
+      ],
+      "source": "src/types.ts:143",
+      "gap": "強め・弱め以外の圧の適合、部位別調整、要望確認は専用項目がない。"
+    },
+    {
+      "research_dimensions": [
+        "price_clarity",
+        "fee_components",
+        "upsell",
+        "value"
+      ],
+      "current_fields": [
+        "basic.courseFee",
+        "basic.optionFee",
+        "basic.nominationFee",
+        "basic.optionSystem",
+        "basic.optionChosen"
+      ],
+      "source": "src/types.ts:42",
+      "gap": "金額欄と説明の納得感は別。総額確認時点や費用への納得は専用項目がない。"
+    },
+    {
+      "research_dimensions": [
+        "booking_response",
+        "booking_flow",
+        "access"
+      ],
+      "current_fields": [
+        "basic.bookingMethod",
+        "flow.meeting.note"
+      ],
+      "source": "src/ui/form.ts:104",
+      "gap": "予約方法はあるが、返信や入室案内への評価は専用項目がない。"
+    },
+    {
+      "research_dimensions": [
+        "cleanliness",
+        "comfort",
+        "shower",
+        "scent",
+        "noise",
+        "amenities"
+      ],
+      "current_fields": [
+        "basic.roomType",
+        "flow.meeting.note",
+        "flow.after.note"
+      ],
+      "source": "src/ui/form.ts:101",
+      "gap": "部屋タイプ以外は主に自由記述になる。"
+    },
+    {
+      "research_dimensions": [
+        "revisit_store",
+        "revisit_therapist",
+        "repeat_reason"
+      ],
+      "current_fields": [
+        "voice.repeatIntent",
+        "flow.bestMoment",
+        "flow.downside"
+      ],
+      "source": "src/ui/form.ts:138",
+      "gap": "店と担当者を分けた再訪意向や条件がない。"
+    },
+    {
+      "research_dimensions": [
+        "uncertainty",
+        "knowledge_source"
+      ],
+      "current_fields": [
+        "basic.ageIsEstimate",
+        "flow.*.note"
+      ],
+      "source": "src/types.ts:39",
+      "gap": "年齢の推定以外に、金額・時間・伝聞の確かさを示す共通項目がない。"
+    }
+  ],
+  "handoff_risks": [
+    {
+      "type": "serialization_gap",
+      "source": "src/prompt/serialize.ts:79",
+      "finding": "コース代、オプション代、指名料、予約方法、証跡保存フラグはserializeRecordの出力に含まれない。",
+      "next_check": "選択肢を保存しても生成素材に渡らなければ記事に反映されないため、将来実装時に保存・読込・直列化の経路を一緒に確認する。",
+      "implemented": false
+    },
+    {
+      "type": "schema_compatibility",
+      "source": "schema/visit-record.schema.json",
+      "finding": "flow各段階のchecksは文字列配列。一方、genreやbodyなどは列挙型。",
+      "next_check": "checksへの候補追加と新しい列挙値や構造化項目の追加を同じ変更として扱わず、型・検証・既存保存データの互換性を確認する。",
+      "implemented": false
+    }
+  ],
+  "next_session": [
+    "記事執筆用質問票の拡充案と332候補の評価表を読む。",
+    "先行29候補は意味と保存先の提案。画面や選択操作はGrok4.7の検討結果が未取得のため未決。",
+    "実装段階では、旧値を編集後も失わないことと、保存された料金を記事素材へ渡すことを先に確認する。",
+    "追加の保存項目は型・検証・編集復元・保存・記事素材出力を合わせて対応する。"
+  ],
+  "external_rewrite_boundary": "このローカル実装の点検情報は機械可読メモとして保持し、外部リライトには渡していない。",
+  "planning_documents": [
+    "../../05-questionnaire-enrichment.md",
+    "planning/candidate-disposition.csv",
+    "planning/implementation-review.json",
+    "planning/ui-delegation-status.json"
+  ]
+}

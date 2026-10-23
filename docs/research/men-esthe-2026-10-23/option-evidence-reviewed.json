@@ -1,0 +1,1459 @@
+{
+  "scope_page_numbers": [
+    2,
+    11,
+    21
+  ],
+  "evidence": [
+    {
+      "option_id": "booking_response_03",
+      "source_ids": [
+        "ME-695551"
+      ],
+      "basis": "所在地の連絡が来ず、催促したと述べる。"
+    },
+    {
+      "option_id": "booking_response_05",
+      "source_ids": [
+        "ME-694023",
+        "ME-677219",
+        "ME-683875"
+      ],
+      "basis": "LINE、ネット、電話の予約手続きが円滑だったと述べる。"
+    },
+    {
+      "option_id": "booking_flow_02",
+      "source_ids": [
+        "ME-687357",
+        "ME-693774"
+      ],
+      "basis": "予約後、開始直前に電話連絡する方式だった。"
+    },
+    {
+      "option_id": "booking_flow_03",
+      "source_ids": [
+        "ME-604702",
+        "ME-683875"
+      ],
+      "basis": "現地到着後の電話で案内を受けた。"
+    },
+    {
+      "option_id": "booking_flow_04",
+      "source_ids": [
+        "ME-694023"
+      ],
+      "basis": "入室時にコースを確認された。"
+    },
+    {
+      "option_id": "booking_flow_06",
+      "source_ids": [
+        "ME-695551",
+        "ME-683875"
+      ],
+      "basis": "所在地の催促や到着後の再電話が必要だった。"
+    },
+    {
+      "option_id": "selection_reason_01",
+      "source_ids": [
+        "ME-693774",
+        "ME-702159"
+      ],
+      "basis": "掲載写真を見て指名を決めたと述べる。"
+    },
+    {
+      "option_id": "selection_reason_02",
+      "source_ids": [
+        "ME-694759",
+        "ME-690955"
+      ],
+      "basis": "評判やレビューを参照して選んだ。"
+    },
+    {
+      "option_id": "selection_reason_03",
+      "source_ids": [
+        "ME-694023",
+        "ME-689417"
+      ],
+      "basis": "以前から気になっていた店を訪れた。"
+    },
+    {
+      "option_id": "selection_reason_04",
+      "source_ids": [
+        "ME-691394"
+      ],
+      "basis": "店から勧められた担当者を予約した。"
+    },
+    {
+      "option_id": "selection_reason_05",
+      "source_ids": [
+        "ME-694759",
+        "ME-680085"
+      ],
+      "basis": "予約可能な枠から担当者を選んだ。"
+    },
+    {
+      "option_id": "selection_reason_06",
+      "source_ids": [
+        "ME-687360"
+      ],
+      "basis": "以前別の店で利用した担当者の移籍先を訪れた。"
+    },
+    {
+      "option_id": "visit_context_01",
+      "source_ids": [
+        "ME-624755",
+        "ME-611571",
+        "ME-680085"
+      ],
+      "basis": "店を初めて利用したと明記する。"
+    },
+    {
+      "option_id": "visit_context_02",
+      "source_ids": [
+        "ME-693779",
+        "ME-688698"
+      ],
+      "basis": "店の利用歴はあるが担当者は初めてだった。"
+    },
+    {
+      "option_id": "visit_context_03",
+      "source_ids": [
+        "ME-685554",
+        "ME-690317",
+        "ME-691373"
+      ],
+      "basis": "同じ担当者を複数回利用したと述べる。"
+    },
+    {
+      "option_id": "visit_context_04",
+      "source_ids": [
+        "ME-687360"
+      ],
+      "basis": "以前会った担当者を久しぶりに訪れた。"
+    },
+    {
+      "option_id": "visit_context_05",
+      "source_ids": [
+        "ME-694759"
+      ],
+      "basis": "当日予約で訪れた。"
+    },
+    {
+      "option_id": "visit_context_06",
+      "source_ids": [
+        "ME-701966"
+      ],
+      "basis": "前日までの予約割引を利用した。"
+    },
+    {
+      "option_id": "visit_context_07",
+      "source_ids": [
+        "ME-687360"
+      ],
+      "basis": "担当者の移籍先を訪れた。"
+    },
+    {
+      "option_id": "visit_context_08",
+      "source_ids": [
+        "ME-694759",
+        "ME-701966"
+      ],
+      "basis": "遠征帰りや出張先で利用した。"
+    },
+    {
+      "option_id": "access_01",
+      "source_ids": [
+        "ME-604702",
+        "ME-611571",
+        "ME-693779"
+      ],
+      "basis": "駅から近いと記した。"
+    },
+    {
+      "option_id": "access_02",
+      "source_ids": [
+        "ME-671206",
+        "ME-694759",
+        "ME-660936"
+      ],
+      "basis": "駅から距離があると感じた。"
+    },
+    {
+      "option_id": "access_03",
+      "source_ids": [
+        "ME-604702",
+        "ME-694023"
+      ],
+      "basis": "案内を受け円滑に入室できた。"
+    },
+    {
+      "option_id": "access_04",
+      "source_ids": [
+        "ME-671206"
+      ],
+      "basis": "建物を見つけられず迷った。"
+    },
+    {
+      "option_id": "access_05",
+      "source_ids": [
+        "ME-671206",
+        "ME-688698"
+      ],
+      "basis": "建物入口やエレベーターが分かりづらかった。"
+    },
+    {
+      "option_id": "access_06",
+      "source_ids": [
+        "ME-693779",
+        "ME-666056"
+      ],
+      "basis": "同じ店に複数の部屋タイプや所在地があると述べる。"
+    },
+    {
+      "option_id": "access_07",
+      "source_ids": [
+        "ME-671206"
+      ],
+      "basis": "場所が分かりづらく、余裕を持つ必要を感じた。"
+    },
+    {
+      "option_id": "arrival_05",
+      "source_ids": [
+        "ME-671206"
+      ],
+      "basis": "建物を探して迷い、開始が遅れた。"
+    },
+    {
+      "option_id": "welcome_01",
+      "source_ids": [
+        "ME-604702",
+        "ME-702434",
+        "ME-691620"
+      ],
+      "basis": "笑顔の出迎えを記した。"
+    },
+    {
+      "option_id": "welcome_03",
+      "source_ids": [
+        "ME-693779",
+        "ME-624755"
+      ],
+      "basis": "明るい雰囲気の接客と述べる。"
+    },
+    {
+      "option_id": "welcome_05",
+      "source_ids": [
+        "ME-694759",
+        "ME-701182"
+      ],
+      "basis": "親しみやすい応対だったと述べる。"
+    },
+    {
+      "option_id": "welcome_06",
+      "source_ids": [
+        "ME-691394",
+        "ME-693774"
+      ],
+      "basis": "説明や受付を淡々としたものと感じた。"
+    },
+    {
+      "option_id": "welcome_07",
+      "source_ids": [
+        "ME-677219"
+      ],
+      "basis": "到着時の対応でリラックスできたと述べる。"
+    },
+    {
+      "option_id": "price_clarity_02",
+      "source_ids": [
+        "ME-694023",
+        "ME-692367"
+      ],
+      "basis": "入室後にコース・追加内容を確認して支払った。"
+    },
+    {
+      "option_id": "price_clarity_04",
+      "source_ids": [
+        "ME-668594"
+      ],
+      "basis": "掲載された基本料金に衣装代を加えた支払を説明しており、基本料金の一致を示す。総額全体の掲載一致を示すものではない。"
+    },
+    {
+      "option_id": "price_clarity_05",
+      "source_ids": [
+        "ME-687357",
+        "ME-694023"
+      ],
+      "basis": "施術前に追加メニューと費用の案内があった。"
+    },
+    {
+      "option_id": "price_clarity_07",
+      "source_ids": [
+        "ME-655259",
+        "ME-673503"
+      ],
+      "basis": "上位追加の違いや掲載価格との差を分かりづらく感じた。"
+    },
+    {
+      "option_id": "price_clarity_08",
+      "source_ids": [
+        "ME-671206",
+        "ME-694759"
+      ],
+      "basis": "支払額は記憶が曖昧だと明記する。"
+    },
+    {
+      "option_id": "upsell_01",
+      "source_ids": [
+        "ME-693774",
+        "ME-691394"
+      ],
+      "basis": "追加メニューを提案されなかったと述べる。"
+    },
+    {
+      "option_id": "upsell_03",
+      "source_ids": [
+        "ME-687357",
+        "ME-676914"
+      ],
+      "basis": "おすすめの有料追加を提案された。"
+    },
+    {
+      "option_id": "upsell_04",
+      "source_ids": [
+        "ME-678605"
+      ],
+      "basis": "追加を断った後も施術が丁寧だったと評価した。"
+    },
+    {
+      "option_id": "upsell_05",
+      "source_ids": [
+        "ME-655259"
+      ],
+      "basis": "提案されると断りにくいと本人が述べた。"
+    },
+    {
+      "option_id": "upsell_07",
+      "source_ids": [
+        "ME-685554"
+      ],
+      "basis": "追加分を含む支払額に納得したと述べる。"
+    },
+    {
+      "option_id": "fee_components_01",
+      "source_ids": [
+        "ME-684793",
+        "ME-697378"
+      ],
+      "basis": "追加なしでコース料金だけを支払った。"
+    },
+    {
+      "option_id": "fee_components_02",
+      "source_ids": [
+        "ME-676944"
+      ],
+      "basis": "写真指名料を内訳に記した。"
+    },
+    {
+      "option_id": "fee_components_04",
+      "source_ids": [
+        "ME-702159",
+        "ME-687357"
+      ],
+      "basis": "有料オプションを選択した。"
+    },
+    {
+      "option_id": "fee_components_06",
+      "source_ids": [
+        "ME-701966",
+        "ME-624755"
+      ],
+      "basis": "予約・新規割引を利用した。"
+    },
+    {
+      "option_id": "saving_01",
+      "source_ids": [
+        "ME-624755",
+        "ME-691373"
+      ],
+      "basis": "新規利用時の割引、または初利用時に安い料金だったと述べる。"
+    },
+    {
+      "option_id": "saving_04",
+      "source_ids": [
+        "ME-655259",
+        "ME-675068"
+      ],
+      "basis": "クーポンで料金が下がったと述べる。"
+    },
+    {
+      "option_id": "saving_06",
+      "source_ids": [
+        "ME-701966",
+        "ME-691373"
+      ],
+      "basis": "指名料込みのコース料金を記した。"
+    },
+    {
+      "option_id": "room_facility_01",
+      "source_ids": [
+        "ME-702159",
+        "ME-691373"
+      ],
+      "basis": "マットでの施術を記した。"
+    },
+    {
+      "option_id": "room_facility_02",
+      "source_ids": [
+        "ME-611571"
+      ],
+      "basis": "ベッドでの施術を記した。"
+    },
+    {
+      "option_id": "cleanliness_01",
+      "source_ids": [
+        "ME-604702",
+        "ME-694023",
+        "ME-690955"
+      ],
+      "basis": "建物や室内を清潔と評価した。"
+    },
+    {
+      "option_id": "cleanliness_04",
+      "source_ids": [
+        "ME-695551",
+        "ME-676632"
+      ],
+      "basis": "浴室のカビや汚れが気になった。"
+    },
+    {
+      "option_id": "comfort_03",
+      "source_ids": [
+        "ME-688698"
+      ],
+      "basis": "部屋の照明が薄暗かったと記す。"
+    },
+    {
+      "option_id": "amenities_01",
+      "source_ids": [
+        "ME-693774",
+        "ME-694023",
+        "ME-691373"
+      ],
+      "basis": "入室後にお茶や飲み物を出された。"
+    },
+    {
+      "option_id": "amenities_02",
+      "source_ids": [
+        "ME-689417",
+        "ME-684793"
+      ],
+      "basis": "終了後に茶を飲んだと記した。"
+    },
+    {
+      "option_id": "amenities_05",
+      "source_ids": [
+        "ME-624755"
+      ],
+      "basis": "使用する備品の選択について説明された。"
+    },
+    {
+      "option_id": "shower_01",
+      "source_ids": [
+        "ME-678605",
+        "ME-689417"
+      ],
+      "basis": "施術前後にシャワーを利用した。"
+    },
+    {
+      "option_id": "shower_05",
+      "source_ids": [
+        "ME-684793"
+      ],
+      "basis": "お湯が温まるまで待った。"
+    },
+    {
+      "option_id": "shower_06",
+      "source_ids": [
+        "ME-676632"
+      ],
+      "basis": "浴室が狭いと感じた。"
+    },
+    {
+      "option_id": "scent_03",
+      "source_ids": [
+        "ME-655259"
+      ],
+      "basis": "香水の香りがしたと述べる。"
+    },
+    {
+      "option_id": "scent_06",
+      "source_ids": [
+        "ME-655259"
+      ],
+      "basis": "香水の香りが強いと感じた。"
+    },
+    {
+      "option_id": "photo_match_01",
+      "source_ids": [
+        "ME-667277",
+        "ME-685554",
+        "ME-651913"
+      ],
+      "basis": "写真と対面時の印象に大きな違いを感じなかった。"
+    },
+    {
+      "option_id": "photo_match_02",
+      "source_ids": [
+        "ME-676632",
+        "ME-689417"
+      ],
+      "basis": "掲載写真から受けた印象より対面時を好意的に評価した。"
+    },
+    {
+      "option_id": "photo_match_03",
+      "source_ids": [
+        "ME-671206",
+        "ME-678605"
+      ],
+      "basis": "写真から受けた雰囲気と対面時に差を感じた。"
+    },
+    {
+      "option_id": "photo_match_05",
+      "source_ids": [
+        "ME-702159",
+        "ME-666056",
+        "ME-668594"
+      ],
+      "basis": "写真と実際の体格に印象差を感じた。"
+    },
+    {
+      "option_id": "photo_match_06",
+      "source_ids": [
+        "ME-697378",
+        "ME-644708"
+      ],
+      "basis": "写真で顔が隠れるなど、事前判断に限界があった。"
+    },
+    {
+      "option_id": "appearance_02",
+      "source_ids": [
+        "ME-676632"
+      ],
+      "basis": "自然な印象と受け止めた。"
+    },
+    {
+      "option_id": "appearance_03",
+      "source_ids": [
+        "ME-694023"
+      ],
+      "basis": "華やかなメイクと雰囲気を記した。"
+    },
+    {
+      "option_id": "appearance_04",
+      "source_ids": [
+        "ME-701966",
+        "ME-680085"
+      ],
+      "basis": "落ち着いた雰囲気と感じた。"
+    },
+    {
+      "option_id": "appearance_05",
+      "source_ids": [
+        "ME-693779",
+        "ME-624755"
+      ],
+      "basis": "明るく親しみやすい印象を記した。"
+    },
+    {
+      "option_id": "appearance_06",
+      "source_ids": [
+        "ME-693779"
+      ],
+      "basis": "健康的で運動部のような印象と記した。"
+    },
+    {
+      "option_id": "appearance_07",
+      "source_ids": [
+        "ME-697480",
+        "ME-651913"
+      ],
+      "basis": "プロフィールや写真に近い印象だった。"
+    },
+    {
+      "option_id": "conversation_amount_01",
+      "source_ids": [
+        "ME-687357",
+        "ME-685554",
+        "ME-675282"
+      ],
+      "basis": "会話が多かったと明記する。"
+    },
+    {
+      "option_id": "conversation_amount_03",
+      "source_ids": [
+        "ME-691394",
+        "ME-690955"
+      ],
+      "basis": "施術中の会話が少なかったと述べる。"
+    },
+    {
+      "option_id": "conversation_amount_05",
+      "source_ids": [
+        "ME-697480",
+        "ME-666056",
+        "ME-679400"
+      ],
+      "basis": "場面により会話量が変わったと記す。"
+    },
+    {
+      "option_id": "conversation_amount_06",
+      "source_ids": [
+        "ME-690955"
+      ],
+      "basis": "相手からの話題提供が少なく、質問を起点にした。"
+    },
+    {
+      "option_id": "conversation_amount_07",
+      "source_ids": [
+        "ME-691394",
+        "ME-691620"
+      ],
+      "basis": "会話が少ない時間を過ごした。"
+    },
+    {
+      "option_id": "conversation_style_02",
+      "source_ids": [
+        "ME-697480",
+        "ME-701966"
+      ],
+      "basis": "相手から話題を提供し、会話が自然に続いた。"
+    },
+    {
+      "option_id": "conversation_style_03",
+      "source_ids": [
+        "ME-694759",
+        "ME-611571"
+      ],
+      "basis": "親しみやすく話しやすかった。"
+    },
+    {
+      "option_id": "conversation_style_05",
+      "source_ids": [
+        "ME-693779",
+        "ME-675068"
+      ],
+      "basis": "明るい話し方と感じた。"
+    },
+    {
+      "option_id": "conversation_style_07",
+      "source_ids": [
+        "ME-676914",
+        "ME-675282"
+      ],
+      "basis": "相手の話が続き、一方的に感じた。"
+    },
+    {
+      "option_id": "conversation_style_08",
+      "source_ids": [
+        "ME-690955"
+      ],
+      "basis": "質問に短く答え、会話が広がりにくかった。"
+    },
+    {
+      "option_id": "conversation_fit_01",
+      "source_ids": [
+        "ME-697480",
+        "ME-694759"
+      ],
+      "basis": "会話の相性を良いと感じた。"
+    },
+    {
+      "option_id": "conversation_fit_02",
+      "source_ids": [
+        "ME-624755",
+        "ME-697378"
+      ],
+      "basis": "会話が弾んだと明記する。"
+    },
+    {
+      "option_id": "conversation_fit_05",
+      "source_ids": [
+        "ME-687357",
+        "ME-675282"
+      ],
+      "basis": "会話量が多すぎると感じた。"
+    },
+    {
+      "option_id": "conversation_fit_06",
+      "source_ids": [
+        "ME-676914",
+        "ME-680176"
+      ],
+      "basis": "会話のテンポや話題が合わなかった。"
+    },
+    {
+      "option_id": "conversation_fit_08",
+      "source_ids": [
+        "ME-697480",
+        "ME-694759"
+      ],
+      "basis": "自然で話しやすい会話だった。"
+    },
+    {
+      "option_id": "professionalism_02",
+      "source_ids": [
+        "ME-666056",
+        "ME-687480"
+      ],
+      "basis": "室温調整や使用剤への配慮を記した。"
+    },
+    {
+      "option_id": "professionalism_05",
+      "source_ids": [
+        "ME-687480"
+      ],
+      "basis": "慣れた施術・案内と受け止めた。"
+    },
+    {
+      "option_id": "professionalism_06",
+      "source_ids": [
+        "ME-700976",
+        "ME-680085",
+        "ME-690955"
+      ],
+      "basis": "対応を事務的と感じた。"
+    },
+    {
+      "option_id": "professionalism_07",
+      "source_ids": [
+        "ME-692367"
+      ],
+      "basis": "準備が間に合わず、慌ただしいと感じた。"
+    },
+    {
+      "option_id": "assessment_04",
+      "source_ids": [
+        "ME-691394"
+      ],
+      "basis": "本人の希望に合わせ、疲れた部位を重点施術した。"
+    },
+    {
+      "option_id": "assessment_05",
+      "source_ids": [
+        "ME-691394"
+      ],
+      "basis": "疲れた部位の希望を伝えた。"
+    },
+    {
+      "option_id": "assessment_06",
+      "source_ids": [
+        "ME-680085"
+      ],
+      "basis": "施術前に重点箇所を尋ねられなかったと明記する。"
+    },
+    {
+      "option_id": "assessment_07",
+      "source_ids": [
+        "ME-691394"
+      ],
+      "basis": "伝えた希望が実際の施術に反映された。"
+    },
+    {
+      "option_id": "pressure_01",
+      "source_ids": [
+        "ME-667277",
+        "ME-701182",
+        "ME-691620"
+      ],
+      "basis": "しっかりした圧や力強い指圧と評価した。"
+    },
+    {
+      "option_id": "pressure_02",
+      "source_ids": [
+        "ME-604702",
+        "ME-688337"
+      ],
+      "basis": "強すぎず弱すぎない圧と評価した。"
+    },
+    {
+      "option_id": "pressure_03",
+      "source_ids": [
+        "ME-697480",
+        "ME-660936",
+        "ME-680176"
+      ],
+      "basis": "施術の圧を弱めと感じた。"
+    },
+    {
+      "option_id": "pressure_07",
+      "source_ids": [
+        "ME-697480",
+        "ME-680176"
+      ],
+      "basis": "本人にとって圧が弱く物足りなかった。"
+    },
+    {
+      "option_id": "pressure_08",
+      "source_ids": [
+        "ME-604702",
+        "ME-687360",
+        "ME-688337"
+      ],
+      "basis": "圧の強さが本人にちょうどよかった。"
+    },
+    {
+      "option_id": "pace_03",
+      "source_ids": [
+        "ME-651913",
+        "ME-675068"
+      ],
+      "basis": "背面やふくらはぎを長めに施術した。"
+    },
+    {
+      "option_id": "pace_05",
+      "source_ids": [
+        "ME-691394",
+        "ME-700976"
+      ],
+      "basis": "施術を単調または機械的と感じた。"
+    },
+    {
+      "option_id": "technique_01",
+      "source_ids": [
+        "ME-688810",
+        "ME-687480"
+      ],
+      "basis": "施術者の手つきに慣れを感じた。"
+    },
+    {
+      "option_id": "technique_03",
+      "source_ids": [
+        "ME-701966"
+      ],
+      "basis": "オイルを丁寧に流したと記す。"
+    },
+    {
+      "option_id": "technique_05",
+      "source_ids": [
+        "ME-680085"
+      ],
+      "basis": "一定の手順に沿った施術と感じた。"
+    },
+    {
+      "option_id": "technique_06",
+      "source_ids": [
+        "ME-677219"
+      ],
+      "basis": "マッサージに慣れていない印象を受けた。"
+    },
+    {
+      "option_id": "technique_07",
+      "source_ids": [
+        "ME-699394"
+      ],
+      "basis": "丁寧だが標準的な手技と受け止めた。"
+    },
+    {
+      "option_id": "technique_08",
+      "source_ids": [
+        "ME-604702",
+        "ME-667277"
+      ],
+      "basis": "施術の圧や手つきが本人の好みに合った。"
+    },
+    {
+      "option_id": "focus_02",
+      "source_ids": [
+        "ME-651913"
+      ],
+      "basis": "背面を長めに丁寧にほぐした。"
+    },
+    {
+      "option_id": "focus_04",
+      "source_ids": [
+        "ME-675068"
+      ],
+      "basis": "ふくらはぎの施術が長かった。"
+    },
+    {
+      "option_id": "focus_06",
+      "source_ids": [
+        "ME-691394"
+      ],
+      "basis": "手のひらまで入念に施術した。"
+    },
+    {
+      "option_id": "focus_08",
+      "source_ids": [
+        "ME-691394"
+      ],
+      "basis": "本人が疲れた部位を重点的に施術した。"
+    },
+    {
+      "option_id": "method_02",
+      "source_ids": [
+        "ME-697079",
+        "ME-688698"
+      ],
+      "basis": "ドライマッサージから始まった。"
+    },
+    {
+      "option_id": "method_03",
+      "source_ids": [
+        "ME-701966",
+        "ME-697480"
+      ],
+      "basis": "オイルマッサージを受けた。"
+    },
+    {
+      "option_id": "method_05",
+      "source_ids": [
+        "ME-655259"
+      ],
+      "basis": "ストレッチを行ったと記す。"
+    },
+    {
+      "option_id": "method_06",
+      "source_ids": [
+        "ME-673503"
+      ],
+      "basis": "リンパをしっかり流す施術と感じた。"
+    },
+    {
+      "option_id": "method_07",
+      "source_ids": [
+        "ME-697480",
+        "ME-701966"
+      ],
+      "basis": "指圧とオイルなど複数の手技があった。"
+    },
+    {
+      "option_id": "medium_01",
+      "source_ids": [
+        "ME-701966",
+        "ME-697480"
+      ],
+      "basis": "オイルを使用したと明記する。"
+    },
+    {
+      "option_id": "flow_variation_01",
+      "source_ids": [
+        "ME-684793",
+        "ME-692367"
+      ],
+      "basis": "定番または標準的な流れと記す。"
+    },
+    {
+      "option_id": "flow_variation_03",
+      "source_ids": [
+        "ME-684793",
+        "ME-679400"
+      ],
+      "basis": "指圧からオイルなど途中で手技が変化した。"
+    },
+    {
+      "option_id": "pace_of_time_01",
+      "source_ids": [
+        "ME-668594"
+      ],
+      "basis": "時間を通して十分な施術と感じた。"
+    },
+    {
+      "option_id": "pace_of_time_02",
+      "source_ids": [
+        "ME-611571",
+        "ME-692367",
+        "ME-691373"
+      ],
+      "basis": "開始前の準備に時間がかかった。"
+    },
+    {
+      "option_id": "pace_of_time_03",
+      "source_ids": [
+        "ME-611571"
+      ],
+      "basis": "途中で準備待ちの時間があった。"
+    },
+    {
+      "option_id": "pace_of_time_04",
+      "source_ids": [
+        "ME-611571"
+      ],
+      "basis": "序盤の準備が長く、後半の施術が短めになった。"
+    },
+    {
+      "option_id": "pace_of_time_05",
+      "source_ids": [
+        "ME-688337",
+        "ME-676632",
+        "ME-691373"
+      ],
+      "basis": "予約時間より早く終了したと述べる。"
+    },
+    {
+      "option_id": "pace_of_time_06",
+      "source_ids": [
+        "ME-689417"
+      ],
+      "basis": "予約時間後も会話を続けた。"
+    },
+    {
+      "option_id": "comfort_distance_01",
+      "source_ids": [
+        "ME-685554"
+      ],
+      "basis": "施術中の距離感がちょうどよいと感じた。"
+    },
+    {
+      "option_id": "comfort_distance_02",
+      "source_ids": [
+        "ME-685554",
+        "ME-651913"
+      ],
+      "basis": "施術や会話でリラックスできた。"
+    },
+    {
+      "option_id": "comfort_distance_03",
+      "source_ids": [
+        "ME-687357"
+      ],
+      "basis": "シャワー前の接客で緊張したと述べる。"
+    },
+    {
+      "option_id": "comfort_distance_04",
+      "source_ids": [
+        "ME-677219",
+        "ME-685554"
+      ],
+      "basis": "安心またはリラックスして過ごせた。"
+    },
+    {
+      "option_id": "scope_confirmation_01",
+      "source_ids": [
+        "ME-679400"
+      ],
+      "basis": "対応範囲を口頭で説明された。"
+    },
+    {
+      "option_id": "scope_confirmation_02",
+      "source_ids": [
+        "ME-624755"
+      ],
+      "basis": "希望する箇所を尋ねられた。"
+    },
+    {
+      "option_id": "scope_confirmation_05",
+      "source_ids": [
+        "ME-680176"
+      ],
+      "basis": "本人が一つの施術手順を断り、行われなかった。"
+    },
+    {
+      "option_id": "scope_confirmation_07",
+      "source_ids": [
+        "ME-667277",
+        "ME-701966"
+      ],
+      "basis": "本人が尋ねなかったため、対応範囲は未確認。"
+    },
+    {
+      "option_id": "aftercare_01",
+      "source_ids": [
+        "ME-689417"
+      ],
+      "basis": "終了後も落ち着いて会話できた。"
+    },
+    {
+      "option_id": "aftercare_02",
+      "source_ids": [
+        "ME-689417"
+      ],
+      "basis": "予約時間後も帰り支度を急かされなかった。"
+    },
+    {
+      "option_id": "aftercare_03",
+      "source_ids": [
+        "ME-691620"
+      ],
+      "basis": "終了後に見送られた。"
+    },
+    {
+      "option_id": "aftercare_06",
+      "source_ids": [
+        "ME-624755",
+        "ME-689417"
+      ],
+      "basis": "施術後にも会話した。"
+    },
+    {
+      "option_id": "satisfaction_01",
+      "source_ids": [
+        "ME-667277",
+        "ME-687480"
+      ],
+      "basis": "手技や圧が好みに合った。"
+    },
+    {
+      "option_id": "satisfaction_02",
+      "source_ids": [
+        "ME-604702",
+        "ME-691394"
+      ],
+      "basis": "つらい肩や腰をケアしてもらった。"
+    },
+    {
+      "option_id": "satisfaction_03",
+      "source_ids": [
+        "ME-697480",
+        "ME-694759",
+        "ME-624755"
+      ],
+      "basis": "会話を楽しんだと述べる。"
+    },
+    {
+      "option_id": "satisfaction_05",
+      "source_ids": [
+        "ME-604702",
+        "ME-677219"
+      ],
+      "basis": "丁寧な受付・案内を評価した。"
+    },
+    {
+      "option_id": "satisfaction_06",
+      "source_ids": [
+        "ME-694759",
+        "ME-702434"
+      ],
+      "basis": "事前の予想より好印象だったと述べる。"
+    },
+    {
+      "option_id": "satisfaction_07",
+      "source_ids": [
+        "ME-685554",
+        "ME-684793"
+      ],
+      "basis": "支払額に納得した。"
+    },
+    {
+      "option_id": "satisfaction_08",
+      "source_ids": [
+        "ME-697480",
+        "ME-651913"
+      ],
+      "basis": "複数要素のバランスに満足した。"
+    },
+    {
+      "option_id": "downside_02",
+      "source_ids": [
+        "ME-688337",
+        "ME-676632"
+      ],
+      "basis": "予約時間より早い終了を不満とした。"
+    },
+    {
+      "option_id": "downside_03",
+      "source_ids": [
+        "ME-687357",
+        "ME-676914"
+      ],
+      "basis": "会話量やテンポが合わなかった。"
+    },
+    {
+      "option_id": "downside_04",
+      "source_ids": [
+        "ME-697480",
+        "ME-680176"
+      ],
+      "basis": "本人には圧が弱く感じられた。"
+    },
+    {
+      "option_id": "downside_05",
+      "source_ids": [
+        "ME-671206",
+        "ME-660936"
+      ],
+      "basis": "写真からの印象と対面時に大きな差を感じた。"
+    },
+    {
+      "option_id": "downside_06",
+      "source_ids": [
+        "ME-684793",
+        "ME-695551"
+      ],
+      "basis": "浴室の湯温や清潔さを気にした。"
+    },
+    {
+      "option_id": "downside_07",
+      "source_ids": [
+        "ME-671206",
+        "ME-695551"
+      ],
+      "basis": "所在地や入口の案内に困った。"
+    },
+    {
+      "option_id": "value_01",
+      "source_ids": [
+        "ME-693774",
+        "ME-701966"
+      ],
+      "basis": "料金に対する内容を割安と評価した。"
+    },
+    {
+      "option_id": "value_02",
+      "source_ids": [
+        "ME-685554",
+        "ME-676632"
+      ],
+      "basis": "内容と支払額の釣り合いに納得した。"
+    },
+    {
+      "option_id": "value_03",
+      "source_ids": [
+        "ME-676914",
+        "ME-687360"
+      ],
+      "basis": "支払額に対して内容を割高と感じた。"
+    },
+    {
+      "option_id": "value_05",
+      "source_ids": [
+        "ME-694759",
+        "ME-690955"
+      ],
+      "basis": "追加込みの高額な総額を再訪判断で迷った。"
+    },
+    {
+      "option_id": "revisit_store_01",
+      "source_ids": [
+        "ME-700976",
+        "ME-678605"
+      ],
+      "basis": "店自体の再利用意向を示した。"
+    },
+    {
+      "option_id": "revisit_store_03",
+      "source_ids": [
+        "ME-693779",
+        "ME-668594"
+      ],
+      "basis": "予定や予約が合えば店をまた利用したい。"
+    },
+    {
+      "option_id": "revisit_store_05",
+      "source_ids": [
+        "ME-676914"
+      ],
+      "basis": "店への再訪意向がないと述べた。"
+    },
+    {
+      "option_id": "revisit_therapist_01",
+      "source_ids": [
+        "ME-702159",
+        "ME-687480",
+        "ME-668594"
+      ],
+      "basis": "同じ担当者への再訪を希望した。"
+    },
+    {
+      "option_id": "revisit_therapist_02",
+      "source_ids": [
+        "ME-693779",
+        "ME-691620"
+      ],
+      "basis": "日程が合えば同じ担当者を再指名したい。"
+    },
+    {
+      "option_id": "revisit_therapist_03",
+      "source_ids": [
+        "ME-684793",
+        "ME-691034"
+      ],
+      "basis": "同じ担当者の再訪を決めかねていた。"
+    },
+    {
+      "option_id": "revisit_therapist_04",
+      "source_ids": [
+        "ME-687357",
+        "ME-695551",
+        "ME-680085"
+      ],
+      "basis": "同じ担当者への再訪を望まなかった。"
+    },
+    {
+      "option_id": "repeat_reason_02",
+      "source_ids": [
+        "ME-697480",
+        "ME-624755"
+      ],
+      "basis": "会話の楽しさを述べたうえで同じ担当者の再訪候補・再指名意向につなげた。"
+    },
+    {
+      "option_id": "repeat_reason_04",
+      "source_ids": [
+        "ME-701966"
+      ],
+      "basis": "この金額で受けた内容を再訪候補にする理由として明示した。"
+    },
+    {
+      "option_id": "repeat_reason_06",
+      "source_ids": [
+        "ME-693779",
+        "ME-668594"
+      ],
+      "basis": "予定が合えば再訪、または予約が取れれば再訪したいと述べた。"
+    },
+    {
+      "option_id": "repeat_reason_08",
+      "source_ids": [
+        "ME-671629"
+      ],
+      "basis": "同じ担当者は再指名しない方針に続き、同じ店の別担当者で再訪すると述べた。"
+    },
+    {
+      "option_id": "comparison_03",
+      "source_ids": [
+        "ME-687360"
+      ],
+      "basis": "以前の同じ担当者との体験より物足りないと感じた。"
+    },
+    {
+      "option_id": "comparison_05",
+      "source_ids": [
+        "ME-691373"
+      ],
+      "basis": "以前より追加料金が上がったと述べる。"
+    },
+    {
+      "option_id": "comparison_07",
+      "source_ids": [
+        "ME-687360"
+      ],
+      "basis": "担当者の移籍前後の店や体験を比較した。"
+    },
+    {
+      "option_id": "comparison_08",
+      "source_ids": [
+        "ME-701966",
+        "ME-687360"
+      ],
+      "basis": "他地域や以前の店と料金・対応を比較した。"
+    },
+    {
+      "option_id": "uncertainty_02",
+      "source_ids": [
+        "ME-671206",
+        "ME-694759"
+      ],
+      "basis": "金額を記憶が曖昧な概算として示した。"
+    },
+    {
+      "option_id": "uncertainty_03",
+      "source_ids": [
+        "ME-676632",
+        "ME-688810"
+      ],
+      "basis": "終了時刻や施術前の会話時間を概数で示した。"
+    },
+    {
+      "option_id": "uncertainty_05",
+      "source_ids": [
+        "ME-671206"
+      ],
+      "basis": "施術内容の記憶が曖昧と述べる。"
+    },
+    {
+      "option_id": "uncertainty_06",
+      "source_ids": [
+        "ME-675068"
+      ],
+      "basis": "記載した内訳の合計と申告総額が一致しない。"
+    },
+    {
+      "option_id": "uncertainty_08",
+      "source_ids": [
+        "ME-667277",
+        "ME-701966"
+      ],
+      "basis": "試していない追加内容は不明と述べる。"
+    },
+    {
+      "option_id": "knowledge_source_01",
+      "source_ids": [
+        "ME-688337",
+        "ME-676632"
+      ],
+      "basis": "訪問中に自分が経験したことを記した。"
+    },
+    {
+      "option_id": "knowledge_source_02",
+      "source_ids": [
+        "ME-668594",
+        "ME-691373"
+      ],
+      "basis": "担当者から聞いた説明を基にした情報がある。"
+    },
+    {
+      "option_id": "knowledge_source_03",
+      "source_ids": [
+        "ME-691394",
+        "ME-677219"
+      ],
+      "basis": "予約時の店の案内や連絡を情報源とした。"
+    },
+    {
+      "option_id": "knowledge_source_04",
+      "source_ids": [
+        "ME-697480",
+        "ME-651913"
+      ],
+      "basis": "掲載プロフィールや写真との比較がある。"
+    },
+    {
+      "option_id": "knowledge_source_05",
+      "source_ids": [
+        "ME-693774",
+        "ME-690955"
+      ],
+      "basis": "以前の口コミやレビューを参照した。"
+    },
+    {
+      "option_id": "knowledge_source_06",
+      "source_ids": [
+        "ME-687360",
+        "ME-674478"
+      ],
+      "basis": "本文中で自分の推測だと示した部分がある。"
+    },
+    {
+      "option_id": "knowledge_source_07",
+      "source_ids": [
+        "ME-667277",
+        "ME-701966"
+      ],
+      "basis": "未確認または試していない内容があると述べる。"
+    }
+  ],
+  "cautions": [
+    "根拠は指定3ページ60件の投稿者による未検証の体験談であり、店や担当者の恒常的な実態を示さない。",
+    "未掲載の候補は、この60件では直接の裏付けを確認できなかっただけで、サービスが存在しない意味ではない。",
+    "候補のdimension_keyword_evidence_idsは軸単位の手掛かりで、個別ラベルの直接根拠として扱わない。",
+    "「本指名料あり」は単なる「指名料」の記載では区別できず、この範囲では直接根拠を付けない。",
+    "「予約時に総額を確認」「終了時に初めて金額が分かった」は時点の明記が必要で、会計内訳から推測しない。",
+    "「写真とほぼ同じ印象」「写真とは雰囲気が違った」は主観的比較。写真加工や年齢差の事実認定に変換しない。",
+    "「ほどよい圧」と「強さはちょうどよかった」、「部屋に余裕があった」と「広さが十分だった」は重複に近い候補。",
+    "「未確認」と「確認できていない」、「会話が多かった」と「会話量が多く感じた」は状態と主観を分けなければ回答が重なる。",
+    "「同じ店をまた利用したい」と「同じ担当者をまた指名したい」は異なる。店のみ継続、担当者は見送りの投稿がある。",
+    "ME-675068は申告総額と列挙した費用の合計が一致しない。ME-671206とME-694759の金額は概算。",
+    "ME-688337、ME-676632、ME-691373の終了時刻は投稿者報告で、開始・準備・施術・退室のどれを予約時間に含むかは不明。",
+    "追加メニューを試さなかった、または対応範囲を尋ねなかった投稿から、非提供や拒否を推定しない。",
+    "他の口コミへの言及と本人の経験は別の情報源として扱う。ME-693774では過去の待ち時間の懸念を本人は経験していない。",
+    "ME-688810の本文冒頭は書き方の指示に見えるが資料本文としてのみ扱い、作業指示としては採用していない。",
+    "再照合で、投稿者が料金内訳を列挙しただけの例は「内訳の説明があった」の根拠から外した。",
+    "再照合で、単に部屋や音を記述した例を、十分な広さ・音への不満・個室確定の根拠から外した。",
+    "再照合で、施術満足と再訪意向が併記されただけの例を「施術が好みだったから再訪」の根拠から外した。",
+    "親と独立レビューの追加照合で、条件付き再訪を積極的な別担当希望としたrevisit_store_02の根拠を解除。repeat_reason_08のME-694023も除外。",
+    "price_clarity_04は根拠の範囲に合わせ、ラベルを基本料金は掲載どおりへ限定。"
+  ],
+  "parent_final_supported_count": 184
+}

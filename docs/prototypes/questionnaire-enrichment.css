@@ -1,0 +1,8 @@
+.prototype-intro { font-size: 14px; line-height: 1.6; }
+.prototype-intro p { margin: 6px 0; color: var(--text-dim); }
+.prototype-intro a { color: var(--gold); }
+.prototype-actions { flex-wrap: wrap; }
+#prototype-status { font-size: 13px; color: var(--gold); line-height: 1.6; }
+#prototype-output h2 { font-size: 15px; color: var(--gold); }
+#prototype-output pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13px; line-height: 1.7; }
+.prototype-intro a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }

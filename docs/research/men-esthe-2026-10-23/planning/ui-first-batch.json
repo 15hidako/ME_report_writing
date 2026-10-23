@@ -1,0 +1,422 @@
+{
+  "status": "integrated_into_questionnaire",
+  "production_implemented": true,
+  "unique_candidates": 29,
+  "note_button_instances": 27,
+  "phase_button_instances": 9,
+  "default_disclosures": "closed_except_selected_phase_candidates",
+  "candidates": [
+    {
+      "id": "welcome_01",
+      "label": "笑顔で迎えられた",
+      "original_label": "笑顔で迎えられた",
+      "source_evidence_ids": [
+        "ME-604702",
+        "ME-702434",
+        "ME-691620"
+      ]
+    },
+    {
+      "id": "welcome_07",
+      "label": "緊張がほぐれた",
+      "original_label": "緊張がほぐれた",
+      "source_evidence_ids": [
+        "ME-677219"
+      ]
+    },
+    {
+      "id": "photo_match_01",
+      "label": "写真とほぼ同じ印象",
+      "original_label": "写真とほぼ同じ印象",
+      "source_evidence_ids": [
+        "ME-667277",
+        "ME-685554",
+        "ME-651913"
+      ]
+    },
+    {
+      "id": "photo_match_02",
+      "label": "写真より好印象",
+      "original_label": "写真より好印象",
+      "source_evidence_ids": [
+        "ME-676632",
+        "ME-689417"
+      ]
+    },
+    {
+      "id": "photo_match_03",
+      "label": "写真とは雰囲気が違った",
+      "original_label": "写真とは雰囲気が違った",
+      "source_evidence_ids": [
+        "ME-671206",
+        "ME-678605"
+      ]
+    },
+    {
+      "id": "photo_match_05",
+      "label": "体型の印象が違った",
+      "original_label": "体型の印象が違った",
+      "source_evidence_ids": [
+        "ME-702159",
+        "ME-666056",
+        "ME-668594"
+      ]
+    },
+    {
+      "id": "photo_match_06",
+      "label": "写真だけでは判断できなかった",
+      "original_label": "写真だけでは判断できなかった",
+      "source_evidence_ids": [
+        "ME-697378",
+        "ME-644708"
+      ]
+    },
+    {
+      "id": "conversation_style_02",
+      "label": "話題を広げてくれた",
+      "original_label": "話題を広げてくれた",
+      "source_evidence_ids": [
+        "ME-697480",
+        "ME-701966"
+      ]
+    },
+    {
+      "id": "conversation_style_03",
+      "label": "話しやすかった",
+      "original_label": "話しやすかった",
+      "source_evidence_ids": [
+        "ME-694759",
+        "ME-611571"
+      ]
+    },
+    {
+      "id": "conversation_style_07",
+      "label": "一方的に話す印象",
+      "original_label": "一方的に話す印象",
+      "source_evidence_ids": [
+        "ME-676914",
+        "ME-675282"
+      ]
+    },
+    {
+      "id": "conversation_style_08",
+      "label": "受け答えは短め",
+      "original_label": "受け答えは短め",
+      "source_evidence_ids": [
+        "ME-690955"
+      ]
+    },
+    {
+      "id": "conversation_fit_01",
+      "label": "会話が好みに合った",
+      "original_label": "会話が好みに合った",
+      "source_evidence_ids": [
+        "ME-697480",
+        "ME-694759"
+      ]
+    },
+    {
+      "id": "conversation_fit_05",
+      "label": "会話量が多く感じた",
+      "original_label": "会話量が多く感じた",
+      "source_evidence_ids": [
+        "ME-687357",
+        "ME-675282"
+      ]
+    },
+    {
+      "id": "conversation_fit_06",
+      "label": "話題が合わなかった",
+      "original_label": "話題が合わなかった",
+      "source_evidence_ids": [
+        "ME-676914",
+        "ME-680176"
+      ]
+    },
+    {
+      "id": "professionalism_02",
+      "label": "気配りがあった",
+      "original_label": "気配りがあった",
+      "source_evidence_ids": [
+        "ME-666056",
+        "ME-687480"
+      ]
+    },
+    {
+      "id": "professionalism_06",
+      "label": "事務的に感じた",
+      "original_label": "事務的に感じた",
+      "source_evidence_ids": [
+        "ME-700976",
+        "ME-680085",
+        "ME-690955"
+      ]
+    },
+    {
+      "id": "assessment_06",
+      "label": "重点的にケアする部位の確認はなかった",
+      "original_label": "特に確認はなかった",
+      "source_evidence_ids": [
+        "ME-680085"
+      ]
+    },
+    {
+      "id": "assessment_07",
+      "label": "相談内容が施術に反映された",
+      "original_label": "相談内容が施術に反映された",
+      "source_evidence_ids": [
+        "ME-691394"
+      ]
+    },
+    {
+      "id": "pressure_07",
+      "label": "自分には弱かった",
+      "original_label": "自分には弱かった",
+      "source_evidence_ids": [
+        "ME-697480",
+        "ME-680176"
+      ]
+    },
+    {
+      "id": "pressure_08",
+      "label": "強さはちょうどよかった",
+      "original_label": "強さはちょうどよかった",
+      "source_evidence_ids": [
+        "ME-604702",
+        "ME-687360",
+        "ME-688337"
+      ]
+    },
+    {
+      "id": "pace_05",
+      "label": "単調に感じた",
+      "original_label": "単調に感じた",
+      "source_evidence_ids": [
+        "ME-691394",
+        "ME-700976"
+      ]
+    },
+    {
+      "id": "technique_01",
+      "label": "手つきが慣れていた",
+      "original_label": "手つきが慣れていた",
+      "source_evidence_ids": [
+        "ME-688810",
+        "ME-687480"
+      ]
+    },
+    {
+      "id": "technique_03",
+      "label": "丁寧に流してくれた",
+      "original_label": "丁寧に流してくれた",
+      "source_evidence_ids": [
+        "ME-701966"
+      ]
+    },
+    {
+      "id": "technique_06",
+      "label": "手つきに不慣れさがあった",
+      "original_label": "手つきに不慣れさがあった",
+      "source_evidence_ids": [
+        "ME-677219"
+      ]
+    },
+    {
+      "id": "technique_07",
+      "label": "丁寧だが技術は普通",
+      "original_label": "丁寧だが技術は普通",
+      "source_evidence_ids": [
+        "ME-699394"
+      ]
+    },
+    {
+      "id": "technique_08",
+      "label": "自分の好みに合った",
+      "original_label": "自分の好みに合った",
+      "source_evidence_ids": [
+        "ME-604702",
+        "ME-667277"
+      ]
+    },
+    {
+      "id": "focus_06",
+      "label": "手のひらまでケア",
+      "original_label": "手のひらまでケア",
+      "source_evidence_ids": [
+        "ME-691394"
+      ]
+    },
+    {
+      "id": "method_05",
+      "label": "ストレッチあり",
+      "original_label": "ストレッチあり",
+      "source_evidence_ids": [
+        "ME-655259"
+      ]
+    },
+    {
+      "id": "aftercare_03",
+      "label": "見送りがあった",
+      "original_label": "見送りがあった",
+      "source_evidence_ids": [
+        "ME-691620"
+      ]
+    }
+  ],
+  "notes": [
+    {
+      "rating": "face",
+      "groups": [
+        {
+          "label": "写真との印象",
+          "ids": [
+            "photo_match_01",
+            "photo_match_02",
+            "photo_match_03",
+            "photo_match_06"
+          ]
+        }
+      ],
+      "ids": [
+        "photo_match_01",
+        "photo_match_02",
+        "photo_match_03",
+        "photo_match_06"
+      ]
+    },
+    {
+      "rating": "style",
+      "groups": [
+        {
+          "label": "写真との印象",
+          "ids": [
+            "photo_match_01",
+            "photo_match_02",
+            "photo_match_05",
+            "photo_match_06"
+          ]
+        }
+      ],
+      "ids": [
+        "photo_match_01",
+        "photo_match_02",
+        "photo_match_05",
+        "photo_match_06"
+      ]
+    },
+    {
+      "rating": "service",
+      "groups": [
+        {
+          "label": "話し方と働きかけ",
+          "ids": [
+            "conversation_style_02",
+            "conversation_style_03",
+            "conversation_style_07",
+            "conversation_style_08"
+          ]
+        },
+        {
+          "label": "自分との相性",
+          "ids": [
+            "conversation_fit_01",
+            "conversation_fit_05",
+            "conversation_fit_06"
+          ]
+        },
+        {
+          "label": "接客の受け止め方",
+          "ids": [
+            "professionalism_02",
+            "professionalism_06"
+          ]
+        }
+      ],
+      "ids": [
+        "conversation_style_02",
+        "conversation_style_03",
+        "conversation_style_07",
+        "conversation_style_08",
+        "conversation_fit_01",
+        "conversation_fit_05",
+        "conversation_fit_06",
+        "professionalism_02",
+        "professionalism_06"
+      ]
+    },
+    {
+      "rating": "massage",
+      "groups": [
+        {
+          "label": "希望と強さ",
+          "ids": [
+            "assessment_07",
+            "assessment_06",
+            "pressure_08",
+            "pressure_07"
+          ]
+        },
+        {
+          "label": "手技の受け止め方",
+          "ids": [
+            "technique_01",
+            "technique_03",
+            "technique_06",
+            "technique_07",
+            "technique_08",
+            "pace_05"
+          ]
+        }
+      ],
+      "ids": [
+        "assessment_07",
+        "assessment_06",
+        "pressure_08",
+        "pressure_07",
+        "technique_01",
+        "technique_03",
+        "technique_06",
+        "technique_07",
+        "technique_08",
+        "pace_05"
+      ]
+    }
+  ],
+  "phases": [
+    {
+      "phase": "meeting",
+      "ids": [
+        "welcome_01",
+        "welcome_07"
+      ]
+    },
+    {
+      "phase": "faceDown",
+      "ids": [
+        "focus_06",
+        "method_05"
+      ]
+    },
+    {
+      "phase": "oilSp",
+      "ids": [
+        "focus_06",
+        "method_05"
+      ]
+    },
+    {
+      "phase": "faceUp",
+      "ids": [
+        "focus_06",
+        "method_05"
+      ]
+    },
+    {
+      "phase": "after",
+      "ids": [
+        "aftercare_03"
+      ]
+    }
+  ],
+  "implementation_source": "src/questionnaire-options.ts"
+}

@@ -1,0 +1,29 @@
+{
+  "model": "gemini-3.8-flash-high",
+  "cli": "Antigravity CLI",
+  "route": "direct; Orca unavailable",
+  "exit_code": 0,
+  "status": "SUCCESS",
+  "num_turns": 1,
+  "duration_seconds": 86.9234427,
+  "draft_comparison": {
+    "links_equal": true,
+    "numbers_equal": true,
+    "inline_code_equal": true,
+    "candidate_labels_preserved": true
+  },
+  "parent_review_completed": true,
+  "parent_corrections": [
+    "restore plain Japanese where rewrite made it stiffer",
+    "clarify unknown phase: no forced assignment and shared memo deferred",
+    "append local browser verification only after external rewrite",
+    "GPT-only production integration and verification status updated at user request; no external rewrite used for this update",
+    "GPT-only next adoption organization linked; original research counts and app29 unchanged",
+    "GPT-only user decision applied: 58 additional candidates accepted, 87 total; all 10 new question groups rejected. Historical results retained; no external rewrite for this update."
+  ],
+  "original_document": "ui-original.md",
+  "rewrite_document": "ui-gemini.md",
+  "final_document": "../../../../06-questionnaire-ui.md",
+  "final_sha256": "6b975f94bc1e3bbd81e44d83af3bc1b2cbd956157adf10fe77156000c7bf7339",
+  "no_private_records_source_code_or_local_browser_evidence_sent": true
+}

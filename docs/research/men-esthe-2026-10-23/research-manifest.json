@@ -1,0 +1,71 @@
+{
+  "date_jst": "2026-10-23",
+  "status": "research_complete_no_application_changes",
+  "entry_url": "https://men-esthe.jp/list-allopen.php",
+  "pagination": {
+    "parameter": "p",
+    "zero_based": true,
+    "observed_last_page_number": 401,
+    "all_pages_investigated": false,
+    "selected_page_count": 50,
+    "unfetched_page_count": 351
+  },
+  "article_count": 986,
+  "unique_review_id_count": 986,
+  "normalized_body_characters": 756143,
+  "body_character_definition": "HTML tags removed, entities decoded, whitespace runs collapsed; full bodies not retained",
+  "unique_prefecture_label_count": 32,
+  "unique_salon_name_label_count": 567,
+  "salon_names_entity_resolved": false,
+  "deep_read_article_count": 166,
+  "deep_read_page_numbers": [
+    2,
+    11,
+    21,
+    41,
+    141,
+    241,
+    341,
+    381,
+    401
+  ],
+  "deep_read_method": "full_text_semantic_read_by_agents; short original neutral summaries, max4observations",
+  "dimension_count": 45,
+  "option_count": 332,
+  "individually_supported_options": 184,
+  "not_yet_individually_supported_options": 148,
+  "individual_support_scope_review_count": 60,
+  "response_state_candidate_count": 6,
+  "full_source_bodies_retained_in_final_artifacts": false,
+  "site_images_downloaded": false,
+  "publication_performed": false,
+  "source_star_values": "preserved as observed counts of star-full images; not proof that each item was experienced",
+  "reported_total_score_semantics": "site displayed number preserved; weighting not inferred",
+  "source_dates_available": "not extracted; no inference from article ID or list position",
+  "limitations": [
+    "publisher-curated, purposive page selection, no random sampling",
+    "source reports not independently verified",
+    "keyword matches do not determine sentiment, prevalence, service existence or option support",
+    "no shop/person identity resolution; historical terms may differ",
+    "review links saved, not individually access-checked",
+    "individual option support reviewed in 60 articles only; other deep-read notes remain available for further mapping"
+  ],
+  "raw_source_temporary_cleanup": "completed",
+  "final_validation_status": "pass",
+  "editorial_rewrite": {
+    "model": "gemini-3.8-flash-high",
+    "route": "Antigravity CLI direct; Orca runtime unavailable",
+    "status": "SUCCESS",
+    "parent_compared_and_finished": true
+  },
+  "purpose": "enrich questionnaire answer options for article writing",
+  "questionnaire_application_evaluation": {
+    "document": "../../05-questionnaire-enrichment.md",
+    "disposition_table": "planning/candidate-disposition.csv",
+    "status": "editorial_and_data_review_complete_ui_pending",
+    "all_candidates_considered": 332,
+    "first_batch_content_candidates": 29,
+    "ui_specification_completed": false,
+    "application_implemented": false
+  }
+}

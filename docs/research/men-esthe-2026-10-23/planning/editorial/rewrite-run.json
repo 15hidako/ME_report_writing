@@ -1,0 +1,31 @@
+{
+  "model": "gemini-3.8-flash-high",
+  "route": "Antigravity CLI direct; Orca not running",
+  "status": "SUCCESS",
+  "process_exit_code": 0,
+  "draft_comparison": {
+    "status": "SUCCESS",
+    "num_turns": 1,
+    "duration_seconds": 122.5889457,
+    "link_targets_equal": true,
+    "article_id_counts_equal": true,
+    "numeric_tokens_equal": true
+  },
+  "parent_review_completed": true,
+  "parent_corrections": [
+    "aftercare_06 reused existing after-phase 会話; first29/reuse4",
+    "assessment_06 narrowed to targeted area inquiry",
+    "actual UI delegation status appended without external rewrite",
+    "Current task user explicitly authorized GPT UI; updated status and links to concrete UI proposal/prototype",
+    "GPT-only production integration and verification status updated at user request; no external rewrite used for this update",
+    "GPT-only next adoption organization linked; original research counts and app29 unchanged",
+    "GPT-only user decision applied: 58 additional candidates accepted, 87 total; all 10 new question groups rejected. Historical results retained; no external rewrite for this update."
+  ],
+  "final_document": "../../../../05-questionnaire-enrichment.md",
+  "final_sha256": "4f3241e1c5ae326e005939e73a7df6fd20ebe667cc2daf46417795031a9db6f3",
+  "historical_snapshots": [
+    "original-plan.md",
+    "gemini-plan.md"
+  ],
+  "no_original_review_bodies_or_private_records_sent": true
+}

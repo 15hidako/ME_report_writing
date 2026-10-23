@@ -1,0 +1,123 @@
+{
+  "scope": "具体的に気づいた例。全986件の誤記を網羅する検査ではない。",
+  "issues": [
+    {
+      "id": "ME-675068",
+      "kind": "inconsistent_total_and_breakdown",
+      "reported_total_token": "1,8000円",
+      "component_amounts_yen": [
+        14000,
+        1000,
+        2000,
+        2000
+      ],
+      "component_sum_yen": 19000,
+      "action": "総額を推定修正しない。内訳と総額の不一致として保持。",
+      "page_number": 21,
+      "list_url": "https://men-esthe.jp/list-allopen.php?p=20",
+      "review_url": "https://men-esthe.jp/therapist.php?id=322969#kid-675068",
+      "verification": "parent_checked_against_full_source_body_during_research",
+      "source_claim_verified_externally": false
+    },
+    {
+      "id": "ME-689222",
+      "kind": "suspected_unit_typo",
+      "reported_total_token": "20000万円",
+      "component_amounts_yen": [
+        13000,
+        1000,
+        6000
+      ],
+      "component_sum_yen": 20000,
+      "action": "万円を円へ自動変換しない。原典を再確認するまで金額集計から除外。",
+      "page_number": 6,
+      "list_url": "https://men-esthe.jp/list-allopen.php?p=5",
+      "review_url": "https://men-esthe.jp/therapist.php?id=229236#kid-689222",
+      "verification": "parent_checked_against_full_source_body_during_research",
+      "source_claim_verified_externally": false
+    },
+    {
+      "id": "ME-667128",
+      "kind": "suspected_duration_typo",
+      "reported_duration_token": "10000分",
+      "action": "100分などへ推測で置換しない。時間集計から除外。",
+      "page_number": 6,
+      "list_url": "https://men-esthe.jp/list-allopen.php?p=5",
+      "review_url": "https://men-esthe.jp/therapist.php?id=353606#kid-667128",
+      "verification": "parent_checked_against_full_source_body_during_research",
+      "source_claim_verified_externally": false
+    },
+    {
+      "id": "ME-642956",
+      "kind": "price_unit_requires_confirmation",
+      "action": "k表記の追加料金の桁に疑問が残る。金額を推測修正しない。",
+      "page_number": 141,
+      "list_url": "https://men-esthe.jp/list-allopen.php?p=140",
+      "review_url": "https://men-esthe.jp/therapist.php?id=291308#kid-642956",
+      "verification": "parent_checked_against_full_source_body_during_research",
+      "source_claim_verified_externally": false
+    },
+    {
+      "id": "ME-702434",
+      "kind": "total_changed_after_additional_choices",
+      "action": "当初の総額と最終支払を別の時点として保持。同じ数値で上書きしない。",
+      "page_number": 2,
+      "list_url": "https://men-esthe.jp/list-allopen.php?p=1",
+      "review_url": "https://men-esthe.jp/therapist.php?id=338899#kid-702434",
+      "verification": "parent_checked_against_full_source_body_during_research",
+      "source_claim_verified_externally": false
+    },
+    {
+      "id": "ME-693774",
+      "kind": "hearsay_not_observed_in_own_visit",
+      "action": "他の口コミが述べた待ち時間の問題を、この投稿者自身が経験したことにしない。",
+      "page_number": 2,
+      "list_url": "https://men-esthe.jp/list-allopen.php?p=1",
+      "review_url": "https://men-esthe.jp/therapist.php?id=356179#kid-693774",
+      "verification": "parent_checked_against_full_source_body_during_research",
+      "source_claim_verified_externally": false
+    },
+    {
+      "id": "ME-464827",
+      "kind": "rating_without_use_of_rated_channel",
+      "reported_rating": {
+        "電話対応": 3
+      },
+      "action": "ネット予約で電話を利用していないという本文と星3を分けて保持。星3を普通の電話対応と解釈しない。",
+      "page_number": 241,
+      "list_url": "https://men-esthe.jp/list-allopen.php?p=240",
+      "review_url": "https://men-esthe.jp/therapist.php?id=237359#kid-464827",
+      "verification": "parent_checked_against_full_source_body_during_research",
+      "source_claim_verified_externally": false
+    },
+    {
+      "id": "ME-502673",
+      "kind": "possible_total_and_breakdown_difference",
+      "reported_total_yen": 30000,
+      "component_amounts_yen": [
+        23000,
+        1000,
+        -1000,
+        3000,
+        3000
+      ],
+      "component_sum_if_discount_applied_yen": 29000,
+      "action": "割引が合計にどう適用されたかや未記載費用は不明。総額を勝手に修正しない。",
+      "page_number": 241,
+      "list_url": "https://men-esthe.jp/list-allopen.php?p=240",
+      "review_url": "https://men-esthe.jp/therapist.php?id=136330#kid-502673",
+      "verification": "parent_checked_against_full_source_body_during_research",
+      "source_claim_verified_externally": false
+    }
+  ],
+  "interpretation_rules": [
+    "記述がないことと、サービスや説明がなかったことは異なる。",
+    "写真との差と好みの不一致を混同しない。",
+    "施術の強さと、その強さへの満足を混同しない。",
+    "会話の多さと、その量への満足を混同しない。",
+    "店の再訪意向と同じ担当者の再指名意向は区別する。",
+    "本人体験・担当者からの説明・プロフィール・他人の口コミ・推測を分ける。",
+    "単一体験を店全体の固定方針と見なさない。",
+    "掲載順や記事IDから訪問日・投稿日を推測しない。"
+  ]
+}

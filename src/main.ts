@@ -2,6 +2,7 @@ import type { VisitRecord } from './types';
 import { VisitStore } from './storage';
 import { renderForm, collectRecord, bindCourseFields } from './ui/form';
 import { bindChips, bindStars, copyText, esc, toast } from './ui/widgets';
+import { bindNoteSuggestions } from './ui/questionnaire-candidates';
 import { buildCatalogPrompt, buildMatomePrompt, buildRevisitPrompt, buildSinglePrompt } from './prompt/build-prompt';
 import { specSummary } from './prompt/serialize';
 import { drawThumbnail, downloadCanvasPng, PALETTES } from './thumbnail';
@@ -222,6 +223,7 @@ function mountForm(): void {
   bindCourseFields(form, markDirty);
   bindStars(form, markDirty);
   bindChips(form, markDirty);
+  bindNoteSuggestions(form);
   form.addEventListener('input', markDirty);
   form.addEventListener('submit', (event) => submitForm(event, draft));
   formCache = draft;

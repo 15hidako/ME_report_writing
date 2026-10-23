@@ -1,0 +1,58 @@
+{
+  "purpose": "本文の選択肢332語とは別に扱う、回答の確かさや対象との関係。画面の設計・実装はしていない。",
+  "evidence": [
+    {
+      "id": "ME-464827",
+      "finding": "電話未利用でも電話対応に星3。未利用と中立評価を分ける必要。"
+    },
+    {
+      "id": "ME-671206",
+      "finding": "金額や詳細の記憶が曖昧。"
+    },
+    {
+      "id": "ME-667277",
+      "finding": "尋ねていない範囲は未確認。"
+    }
+  ],
+  "states": [
+    {
+      "id": "observed",
+      "label": "体験・確認済み",
+      "origin": "researcher_proposal",
+      "meaning": "自分の体験か明示的な確認に基づく回答。"
+    },
+    {
+      "id": "not_checked",
+      "label": "未確認",
+      "origin": "source_supported",
+      "meaning": "質問・確認しておらず判断できない。"
+    },
+    {
+      "id": "not_used",
+      "label": "利用なし",
+      "origin": "source_supported",
+      "meaning": "対象の予約手段やサービスを利用していない。",
+      "source_ids": [
+        "ME-464827"
+      ]
+    },
+    {
+      "id": "not_recalled",
+      "label": "覚えていない",
+      "origin": "source_supported",
+      "meaning": "体験はしたが思い出せない。"
+    },
+    {
+      "id": "not_applicable",
+      "label": "該当なし",
+      "origin": "researcher_proposal_not_source_validated",
+      "meaning": "今回の訪問では質問が当てはまらない。"
+    },
+    {
+      "id": "unanswered",
+      "label": "未回答",
+      "origin": "researcher_proposal_not_source_validated",
+      "meaning": "まだ入力していない。肯定・否定・未確認に変換しない。"
+    }
+  ]
+}

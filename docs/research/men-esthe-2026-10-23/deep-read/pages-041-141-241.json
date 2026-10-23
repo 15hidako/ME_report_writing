@@ -1,0 +1,1639 @@
+{
+  "records": [
+    {
+      "id": "ME-675287",
+      "page_number": 41,
+      "summary": "指圧は評価したが、清掃や施術準備、終了時の慌ただしさに不満があり再訪は消極的。",
+      "observations": [
+        {
+          "dimension": "hygiene",
+          "note": "シャワー付近と施術場所付近のごみの残りを指摘。"
+        },
+        {
+          "dimension": "massage_skill",
+          "note": "脚への指圧の強さと押す位置を高く評価。"
+        },
+        {
+          "dimension": "service_flow",
+          "note": "施術途中にオイル準備で退室し、終了後も片付けが早いと感じた。"
+        },
+        {
+          "dimension": "therapist_repeat",
+          "note": "総額と段取りへの不満も挙げ、担当者への再訪を見送る意向。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "退室の理由は記載されるが、意欲の有無は投稿者の推測。"
+      ]
+    },
+    {
+      "id": "ME-671034",
+      "page_number": 41,
+      "summary": "予約直前の担当変更後に利用。会計後の追加料金案内で費用への納得感が下がった。",
+      "observations": [
+        {
+          "dimension": "reservation",
+          "note": "希望していた担当者に間に合わず、別の担当者へ変更されたと記す。"
+        },
+        {
+          "dimension": "photo_impression",
+          "note": "掲載写真ほどではないが、対面の印象自体は良いとした。"
+        },
+        {
+          "dimension": "price_clarity",
+          "note": "開始時の会計後、施術途中でさらに料金を案内され戸惑った。"
+        },
+        {
+          "dimension": "value_repeat",
+          "note": "費用に対する満足が低く、同じ担当者への再訪に否定的。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "初回会計や選択肢の金額は概数・記憶表現。"
+      ]
+    },
+    {
+      "id": "ME-634303",
+      "page_number": 41,
+      "summary": "直前のネット予約は成立したが、強い指圧と時間配分が好みに合わず再訪は消極的。",
+      "observations": [
+        {
+          "dimension": "reservation",
+          "note": "利用約30分前のネット予約で住所が届いた。通常は1時間前の確認連絡が必要と説明。"
+        },
+        {
+          "dimension": "welcome",
+          "note": "対面時にやや話しかけにくい雰囲気を感じた。"
+        },
+        {
+          "dimension": "pressure",
+          "note": "肩と首の施術を強く痛いと感じた。"
+        },
+        {
+          "dimension": "pacing_expectation",
+          "note": "ドライ施術を長いと感じ、予約の埋まり方から抱いた期待には届かなかった。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "人見知りという理由付けは推測。",
+        "通常の予約手順は投稿時点の説明。"
+      ]
+    },
+    {
+      "id": "ME-684116",
+      "page_number": 41,
+      "summary": "話しやすさと写真との一致は評価したが、水回りや施術内容、費用に不満が残った。",
+      "observations": [
+        {
+          "dimension": "conversation",
+          "note": "反応が良く、対人距離も心地よく話しやすいと評価。"
+        },
+        {
+          "dimension": "photo_impression",
+          "note": "プロフィール写真と対面の印象に大きな差を感じなかった。"
+        },
+        {
+          "dimension": "hygiene",
+          "note": "シャワー室の清潔さと排水の詰まりやすさを問題視。"
+        },
+        {
+          "dimension": "value_repeat",
+          "note": "施術の特徴を十分感じず、同額なら別の店を選びたいとして再訪は消極的。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。"
+      ]
+    },
+    {
+      "id": "ME-676733",
+      "page_number": 41,
+      "summary": "室内の暗さを指摘する一方、迎え入れや会話を好意的に受け止め、再訪を考えている。",
+      "observations": [
+        {
+          "dimension": "welcome",
+          "note": "入室後にお茶が出され、開始前に隣で短く会話した。"
+        },
+        {
+          "dimension": "room_lighting",
+          "note": "部屋がかなり暗く、相手の様子を見分けにくいと感じた。"
+        },
+        {
+          "dimension": "massage_flow",
+          "note": "指圧からオイルへ進む流れが体勢変更後も繰り返されたと記す。"
+        },
+        {
+          "dimension": "conversation_repeat",
+          "note": "初対面でも会話が弾み、同じ担当者への再訪を予定。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。"
+      ]
+    },
+    {
+      "id": "ME-683903",
+      "page_number": 41,
+      "summary": "早い案内を条件に予約。会話が長く施術は短縮されたが、親しみやすさから再訪に前向き。",
+      "observations": [
+        {
+          "dimension": "reservation",
+          "note": "電話で早めに案内できる担当者を紹介され利用。"
+        },
+        {
+          "dimension": "profile_accuracy",
+          "note": "プロフィールの一部について担当者も店へ修正を求めていると聞いた。"
+        },
+        {
+          "dimension": "pacing",
+          "note": "開始前のやり取りで時間を使い、マッサージは短くなったと記す。"
+        },
+        {
+          "dimension": "repeat_scope",
+          "note": "担当者への再訪は前向きだが、他の在籍者は噂を理由に迷っている。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "施術が短く、投稿者自身も技術の評価は難しいとしている。",
+        "プロフィール修正の話は担当者から聞いた内容。他の在籍者の噂は未確認。"
+      ]
+    },
+    {
+      "id": "ME-644794",
+      "page_number": 41,
+      "summary": "写真との大きな差を感じず、施術中の調整や技術を評価し再訪に前向き。",
+      "observations": [
+        {
+          "dimension": "photo_impression",
+          "note": "公式ページに加えSNSも確認でき、対面と写真の差は小さいとした。"
+        },
+        {
+          "dimension": "price",
+          "note": "イベント料金の120分コースに追加選択を付けた利用額を示す。"
+        },
+        {
+          "dimension": "massage_skill",
+          "note": "力加減や心地よさの調整が上手く、施術技術を高く評価。"
+        },
+        {
+          "dimension": "therapist_repeat",
+          "note": "施術の良さを再訪理由に挙げる。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "別の提供内容に関する記述には推測表現が含まれるため一般化できない。"
+      ]
+    },
+    {
+      "id": "ME-658509",
+      "page_number": 41,
+      "summary": "適度な会話で親しみやすさを感じたが、個人の好みから再訪は見送る意向。",
+      "observations": [
+        {
+          "dimension": "photo_impression",
+          "note": "写真と対面の印象に大きな落差は感じなかった。"
+        },
+        {
+          "dimension": "conversation",
+          "note": "マッサージ中にほどよく会話でき、親しみやすいと評価。"
+        },
+        {
+          "dimension": "price_clarity",
+          "note": "施術途中に選択した追加内容の料金が案内された。"
+        },
+        {
+          "dimension": "therapist_repeat",
+          "note": "対応への一定の評価とは別に、個人の好みを理由に再訪を見送る。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "プロフィールとの一部の差は投稿者の目測。"
+      ]
+    },
+    {
+      "id": "ME-597005",
+      "page_number": 41,
+      "summary": "丁寧で積極的な会話を評価。施術の時間配分には単調さも感じたが継続利用に前向き。",
+      "observations": [
+        {
+          "dimension": "welcome_conversation",
+          "note": "笑顔で迎えられ、担当者からも積極的に会話してくれると記す。"
+        },
+        {
+          "dimension": "pacing",
+          "note": "会話が弾んだ影響か、同じ姿勢の時間が長く単調に感じた。"
+        },
+        {
+          "dimension": "price_uncertainty",
+          "note": "追加選択や延長の料金を記憶に基づく概数として示す。"
+        },
+        {
+          "dimension": "therapist_repeat",
+          "note": "個々の客へのSNS対応も丁寧と評価し、継続して指名したい意向。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "料金には記憶表現がある。",
+        "選択肢変更の理由は担当者から聞いた説明。"
+      ]
+    },
+    {
+      "id": "ME-655595",
+      "page_number": 41,
+      "summary": "マッサージ技術は認めたが、時間配分や期待との違いから再訪は見送る意向。",
+      "observations": [
+        {
+          "dimension": "price",
+          "note": "90分コースと追加選択の合計を26,000円と記す。"
+        },
+        {
+          "dimension": "massage_skill",
+          "note": "マッサージ自体は上手いと評価。"
+        },
+        {
+          "dimension": "pacing",
+          "note": "肩から始まる施術や各姿勢に使う時間を長いと感じた。"
+        },
+        {
+          "dimension": "therapist_repeat",
+          "note": "技術への評価がありながら、総合的には再訪に否定的。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "体勢ごとの時間評価には文面上の揺れがあり、正確な配分は不明。"
+      ]
+    },
+    {
+      "id": "ME-633675",
+      "page_number": 41,
+      "summary": "部屋の場所に少し迷ったが会話とオイル施術は落ち着いて受けられた。店と担当者の再訪意向は異なる。",
+      "observations": [
+        {
+          "dimension": "access",
+          "note": "住宅街の小規模な建物で部屋番号が見当たらず迷った。"
+        },
+        {
+          "dimension": "photo_impression",
+          "note": "公式写真と実際の印象には違いを感じた。"
+        },
+        {
+          "dimension": "massage_conversation",
+          "note": "指圧はほぼなくオイルから始まり、しっかりした力と続く会話でくつろげた。"
+        },
+        {
+          "dimension": "repeat_scope",
+          "note": "担当者への再訪は消極的だが、店には別の機会に行ってみたい意向。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "利用額と追加料金は過去の記憶による概数。"
+      ]
+    },
+    {
+      "id": "ME-669488",
+      "page_number": 41,
+      "summary": "迎えのスマートフォン対応は気になったが、会話が進むと印象が改善。脚の施術効果を評価した。",
+      "observations": [
+        {
+          "dimension": "welcome",
+          "note": "迎え入れ時にスマートフォンを見ながら対応されたと記す。"
+        },
+        {
+          "dimension": "conversation",
+          "note": "会話が進むにつれ明るさを感じ、共通の話題で話しやすくなった。"
+        },
+        {
+          "dimension": "massage_pressure",
+          "note": "指の圧力が合い、施術後は脚が楽になったとした。"
+        },
+        {
+          "dimension": "upsell",
+          "note": "後半に追加内容の提案を受け、所持金を尋ねられたと記す。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "担当者の意欲に関する評価は投稿者の受け止め。"
+      ]
+    },
+    {
+      "id": "ME-677231",
+      "page_number": 41,
+      "summary": "利用経験のある店で、マッサージと費用への満足を理由に同じ担当者への再訪に前向き。",
+      "observations": [
+        {
+          "dimension": "photo_expectation",
+          "note": "店の写真に加工があるという前提で利用していたと記す。"
+        },
+        {
+          "dimension": "massage_skill",
+          "note": "マッサージがしっかりしていたと評価。"
+        },
+        {
+          "dimension": "value",
+          "note": "他の担当者と比べて費用への満足が高いとした。"
+        },
+        {
+          "dimension": "therapist_repeat",
+          "note": "同じ担当者を再び指名したい意向。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "写真加工に関する店全体の評価は独立に確認していない。"
+      ]
+    },
+    {
+      "id": "ME-635143",
+      "page_number": 41,
+      "summary": "迎え入れと会話、手慣れた施術を評価。水温調整は難しく感じたが店の仕組みから再訪を考えている。",
+      "observations": [
+        {
+          "dimension": "welcome_conversation",
+          "note": "応答の声や落ち着いた振る舞いを好意的に受け止め、会話にもすぐなじめた。"
+        },
+        {
+          "dimension": "room_equipment",
+          "note": "シャワーの温度調整がしにくかった。"
+        },
+        {
+          "dimension": "massage_skill",
+          "note": "オイル施術の手つきに慣れを感じ、眠くなるほど落ち着けた。"
+        },
+        {
+          "dimension": "shop_repeat",
+          "note": "料金は高めと感じたが、店の仕組みが好みに合い間を空けて再訪したい意向。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "以前の職歴は伝聞、設備の古さは投稿者の推測。"
+      ]
+    },
+    {
+      "id": "ME-682969",
+      "page_number": 41,
+      "summary": "指名料がかからない点を評価して複数回利用したが、期待が続かなくなり再訪を見送る意向。",
+      "observations": [
+        {
+          "dimension": "price",
+          "note": "再指名にも指名料がかからないと記す。"
+        },
+        {
+          "dimension": "repeat_motive",
+          "note": "現状の満足だけでなく、次回への期待が複数回利用の理由だったと説明。"
+        },
+        {
+          "dimension": "massage_comfort",
+          "note": "施術に際立つ良さは感じず、一部で痛みを感じた。"
+        },
+        {
+          "dimension": "therapist_repeat",
+          "note": "今後の期待を持てなくなったとして再訪を見送る。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "年齢、私生活、客ごとの対応差に関する記述には目測・伝聞・推測が含まれる。"
+      ]
+    },
+    {
+      "id": "ME-647875",
+      "page_number": 41,
+      "summary": "通常料金の案内後、自分から追加内容を尋ねた。技術は評価したが追加費用への納得感が低い。",
+      "observations": [
+        {
+          "dimension": "price_clarity",
+          "note": "60分8,000円の案内後、質問すると追加選択の説明があった。"
+        },
+        {
+          "dimension": "value",
+          "note": "総額は約20,000円となり、追加部分を高いと感じた。"
+        },
+        {
+          "dimension": "massage_skill",
+          "note": "施術技術自体は上手いと評価。"
+        },
+        {
+          "dimension": "expectation",
+          "note": "技術や対面印象への評価と、追加内容への不満が併存。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "総額は概数。"
+      ]
+    },
+    {
+      "id": "ME-614633",
+      "page_number": 41,
+      "summary": "予約時の丁寧な対応と店の印象は良かったが、対面の雰囲気が好みと違い担当者は変えたい意向。",
+      "observations": [
+        {
+          "dimension": "reservation",
+          "note": "公式ページから申し込み、SMSのやり取りで予約が確定。店の対応を丁寧と評価。"
+        },
+        {
+          "dimension": "access_price",
+          "note": "店が紹介したホテルを使い、部屋代は約3,000円と記す。"
+        },
+        {
+          "dimension": "photo_impression",
+          "note": "SNSから抱いた印象と当日の服装や話し方の印象が異なった。"
+        },
+        {
+          "dimension": "repeat_scope",
+          "note": "同じ担当者の再指名は予定しないが、店には別の担当者で再訪したい意向。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "服装が印象差を生んだ可能性は投稿者の推測。",
+        "ホテル代は概数。"
+      ]
+    },
+    {
+      "id": "ME-615850",
+      "page_number": 41,
+      "summary": "丁寧な所作、落ち着く声と話しやすさを評価。費用にも満足したが個人の好みから再訪は消極的。",
+      "observations": [
+        {
+          "dimension": "presentation",
+          "note": "所作が丁寧で声の調子も心地よく、穏やかな印象を受けた。"
+        },
+        {
+          "dimension": "price_choices",
+          "note": "複数の追加選択を提案され、不要なものは断って利用した。"
+        },
+        {
+          "dimension": "boundaries",
+          "note": "断られた希望は無理に進めず、マナーを守るべきだと述べる。"
+        },
+        {
+          "dimension": "value_repeat",
+          "note": "総額17,000円を割安と評価した一方、個人の好みを理由に再訪予定はない。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "年齢や兼業状況に関する記述は推定または伝聞。"
+      ]
+    },
+    {
+      "id": "ME-636587",
+      "page_number": 41,
+      "summary": "連休で希望の予約が取れず初めての担当者を利用。丁寧な脚の施術は長く、会話と期待には不満。",
+      "observations": [
+        {
+          "dimension": "reservation",
+          "note": "連休期間で予約が取りにくく、初めての担当者を選んだ。"
+        },
+        {
+          "dimension": "upsell",
+          "note": "多くの客が選ぶと説明され、2,000円の追加選択を付けた。"
+        },
+        {
+          "dimension": "pacing",
+          "note": "脚を丁寧にほぐす時間が長いと感じた。"
+        },
+        {
+          "dimension": "conversation_repeat",
+          "note": "話題を出しても短い応答にとどまり、総合的には再訪に消極的。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "他の客が選ぶ割合は店側の説明で未確認。"
+      ]
+    },
+    {
+      "id": "ME-684166",
+      "page_number": 41,
+      "summary": "予約案内、自然な会話、施術の強さを評価。総合的な満足は高いが費用から再訪を迷っている。",
+      "observations": [
+        {
+          "dimension": "reservation_access",
+          "note": "ネット予約後、建物付近からメッセージを送り部屋番号を受け取る案内が円滑だった。"
+        },
+        {
+          "dimension": "conversation",
+          "note": "初対面でも気を遣いすぎず自然に会話できた。"
+        },
+        {
+          "dimension": "massage_pressure",
+          "note": "力加減が強すぎず弱すぎず、好みに合った。"
+        },
+        {
+          "dimension": "value_repeat",
+          "note": "担当者への評価は高いが、総額約38,000円を理由に再訪を検討中。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "追加選択の内訳や総額は記憶表現。"
+      ]
+    },
+    {
+      "id": "ME-630521",
+      "page_number": 141,
+      "summary": "駅南の新しい建物で指圧とオイル技術を評価。駐車場がない点を不便に感じ、時折の再訪を想定。",
+      "observations": [
+        {
+          "dimension": "access",
+          "note": "駅南口の比較的新しい建物に案内されたが、駐車場がなかった。"
+        },
+        {
+          "dimension": "photo_impression",
+          "note": "写真で抱いた印象と対面の雰囲気が異なった。"
+        },
+        {
+          "dimension": "massage_skill",
+          "note": "指圧とオイル施術の両方を上手いと評価。"
+        },
+        {
+          "dimension": "price_clarity",
+          "note": "コースと複数の追加選択の金額に加え、後半の追加支払いも記す。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "31,000円という記載と、さらに10,000円という記載があり総額の範囲が曖昧。"
+      ]
+    },
+    {
+      "id": "ME-625630",
+      "page_number": 141,
+      "summary": "急な空き探しで利用。丁寧な説明は評価したが、有料延長が期待に届かず担当者の再訪は保留。",
+      "observations": [
+        {
+          "dimension": "reservation_access",
+          "note": "別の予約が当日中止となり、すぐ入れる担当者を探して利用。駅近くのきれいな建物だった。"
+        },
+        {
+          "dimension": "welcome",
+          "note": "飲み物の提供と落ち着いた話し方、丁寧なコース説明を評価。"
+        },
+        {
+          "dimension": "extension_value",
+          "note": "30分10,000円の延長を提案され期待して承諾したが、延長部分の満足は低かった。"
+        },
+        {
+          "dimension": "repeat_scope",
+          "note": "担当者への再訪は保留、店は別の合いそうな担当者がいれば再訪する意向。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "施術方法の理由や経歴に関する推定は未確認。",
+        "基本利用額は概数。"
+      ]
+    },
+    {
+      "id": "ME-645692",
+      "page_number": 141,
+      "summary": "開始時に追加選択の説明を受けた。写真の比較は難しく、全体の満足は低く再訪を見送る意向。",
+      "observations": [
+        {
+          "dimension": "photo_comparability",
+          "note": "掲載写真の加工で比較しにくいと述べる。"
+        },
+        {
+          "dimension": "price_clarity",
+          "note": "コース、指名、着替え、割引、個別の追加選択を含め22,000円と記す。"
+        },
+        {
+          "dimension": "upsell",
+          "note": "個別の追加内容が開始時から提案された。"
+        },
+        {
+          "dimension": "therapist_repeat",
+          "note": "施術への期待が満たされず、担当者への再訪に否定的。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "写真加工の程度は投稿者の見方。",
+        "年齢と外見を結び付けた判断は採用しない。"
+      ]
+    },
+    {
+      "id": "ME-634780",
+      "page_number": 141,
+      "summary": "再指名で利用し、笑顔の迎えとしっかりした施術を評価。全体の満足と費用への納得感が高い。",
+      "observations": [
+        {
+          "dimension": "welcome",
+          "note": "いつもの手順で予約し、笑顔で迎えられた。"
+        },
+        {
+          "dimension": "price",
+          "note": "120分コース、指名、複数の追加選択を含め26,000円と記す。"
+        },
+        {
+          "dimension": "massage_skill",
+          "note": "軽い指圧から始まり、オイルで脚を入念に施術したと評価。"
+        },
+        {
+          "dimension": "value",
+          "note": "利用全体に満足し、費用に対する評価も良好。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "他の担当者全般の変化に関する印象は限定された経験。"
+      ]
+    },
+    {
+      "id": "ME-628888",
+      "page_number": 141,
+      "summary": "水の提供はあったが準備への配慮は薄く感じた。全体のテンポが遅く、期待との差から再訪は消極的。",
+      "observations": [
+        {
+          "dimension": "price_clarity",
+          "note": "コース確認後に追加選択の希望を尋ねられ、合計21,000円を支払った。"
+        },
+        {
+          "dimension": "hospitality",
+          "note": "水は出たがシャワーの事前準備がなく、配慮は少なめと感じた。"
+        },
+        {
+          "dimension": "pacing",
+          "note": "指圧からオイルへ進む施術全体のテンポが遅いとした。"
+        },
+        {
+          "dimension": "expectation_repeat",
+          "note": "施術内容と個人の希望が合わず、担当者への再訪を考えていない。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。"
+      ]
+    },
+    {
+      "id": "ME-603095",
+      "page_number": 141,
+      "summary": "室内の清潔さは評価したが、寒い脱衣所や部位ごとの圧の違い、期待との差に不満が残った。",
+      "observations": [
+        {
+          "dimension": "room",
+          "note": "共用部分には古さを感じた一方、室内はきれいと評価。"
+        },
+        {
+          "dimension": "temperature_hospitality",
+          "note": "水の提供はあったが脱衣所が寒く、シャワーも準備されていないと感じた。"
+        },
+        {
+          "dimension": "pressure",
+          "note": "強めの指圧はふくらはぎには痛く、背中にはちょうどよかった。"
+        },
+        {
+          "dimension": "expectation",
+          "note": "久しぶりの店への期待が大きく、追加選択を含む実際の内容には落胆。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。"
+      ]
+    },
+    {
+      "id": "ME-643412",
+      "page_number": 141,
+      "summary": "終始楽しく会話できたと評価。選択肢や予算の制約はあったが、次は長いコースで再訪したい意向。",
+      "observations": [
+        {
+          "dimension": "photo_impression",
+          "note": "写真とは髪型が変わっていたと記す。"
+        },
+        {
+          "dimension": "option_availability",
+          "note": "着替えの種類は案内上複数あるが、実際に選べるものは限られていた。"
+        },
+        {
+          "dimension": "conversation",
+          "note": "施術中も親しみやすい会話が続き、楽しく過ごせた。"
+        },
+        {
+          "dimension": "budget_repeat",
+          "note": "追加内容は予算の都合で見送り、次回は時間を延ばして利用したい意向。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "見送った追加内容の金額は尋ねておらず不明。"
+      ]
+    },
+    {
+      "id": "ME-639308",
+      "page_number": 141,
+      "summary": "費用への満足は低いとしながら対面の好みを理由に再利用。施術を手慣れているが事務的と感じた。",
+      "observations": [
+        {
+          "dimension": "repeat_motive",
+          "note": "費用への不満を承知しながら、担当者の対面印象が好みで二度目の利用。"
+        },
+        {
+          "dimension": "price",
+          "note": "90分コースと一式の追加選択に30,000円、さらに追加選択を利用したと記す。"
+        },
+        {
+          "dimension": "service_tone",
+          "note": "手技に慣れを感じる一方、事務的な雰囲気とも受け止めた。"
+        },
+        {
+          "dimension": "therapist_repeat",
+          "note": "費用に不満が残るが、もう一度の再訪を予定。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "再訪後の対応が変わるという期待は未確認。"
+      ]
+    },
+    {
+      "id": "ME-635613",
+      "page_number": 141,
+      "summary": "以前の予約キャンセルを責めず歓迎された点を高く評価し、出勤が少なくても再訪に前向き。",
+      "observations": [
+        {
+          "dimension": "welcome",
+          "note": "以前の直前キャンセルを覚えていたが責められず、来店を歓迎された。"
+        },
+        {
+          "dimension": "price",
+          "note": "コース、指名、追加パックで30,000円に加え、別の追加選択も利用。"
+        },
+        {
+          "dimension": "availability",
+          "note": "担当者の出勤が少ないと記す。"
+        },
+        {
+          "dimension": "therapist_repeat",
+          "note": "接し方を好意的に評価し、担当者への再訪を予定。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "今後の提供内容に関する期待は投稿者の推測。",
+        "追加料金の一部に誤記らしき表現があり、精密な総額は確定しない。"
+      ]
+    },
+    {
+      "id": "ME-646824",
+      "page_number": 141,
+      "summary": "人気で予約に苦労した担当者を利用。料金の分かりやすさと指圧、終了後の気配りを評価。",
+      "observations": [
+        {
+          "dimension": "reservation",
+          "note": "何度か予約できず、今回は前日に電話で予約して当日住所を受け取った。"
+        },
+        {
+          "dimension": "price_clarity",
+          "note": "90分10,000円で追加選択はなく、店内共通の料金と説明。"
+        },
+        {
+          "dimension": "massage_skill",
+          "note": "指圧で眠りそうになるほど心地よく感じた。"
+        },
+        {
+          "dimension": "aftercare_repeat",
+          "note": "終了後に余った時間で再びマッサージを受け、予約できれば再訪したい意向。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "店内共通の料金や他の担当者との違いは投稿者の経験・説明に基づく。"
+      ]
+    },
+    {
+      "id": "ME-644798",
+      "page_number": 141,
+      "summary": "新人紹介を見て指名。強めの圧が好みに合い、追加料金のない仕組みも評価して再訪に前向き。",
+      "observations": [
+        {
+          "dimension": "selection_source",
+          "note": "店のスタッフによる新人紹介が指名のきっかけ。"
+        },
+        {
+          "dimension": "photo_comparability",
+          "note": "顔写真が隠されているため対面との差を比較しにくいと記す。"
+        },
+        {
+          "dimension": "massage_pressure",
+          "note": "強めのマッサージが自身には心地よかった。"
+        },
+        {
+          "dimension": "price_repeat",
+          "note": "90分10,000円で追加の提案や支払いがなく、再訪に前向き。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "店内で接客方針が統一されているとの記述は推測。"
+      ]
+    },
+    {
+      "id": "ME-642410",
+      "page_number": 141,
+      "summary": "会話量は多く好みが分かれるとしたが、シャワー後の気配りや残り時間の施術を評価。",
+      "observations": [
+        {
+          "dimension": "reservation",
+          "note": "普段予約が取りにくい担当者に問い合わせ、空きがあり予約できた。"
+        },
+        {
+          "dimension": "conversation_preference",
+          "note": "気遣いのある多くの会話を評価する一方、静かに受けたい人には合わない可能性を挙げる。"
+        },
+        {
+          "dimension": "hospitality",
+          "note": "シャワー後に待っていて拭く手助けをしてくれた点が嬉しかった。"
+        },
+        {
+          "dimension": "time_use",
+          "note": "終了近くの余った時間も施術に使ってくれたと評価。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "外見の年齢差は投稿者の推定。"
+      ]
+    },
+    {
+      "id": "ME-637712",
+      "page_number": 141,
+      "summary": "会話が続く良い雰囲気と施術を評価。追加選択なしで利用し、出勤と予定が合えば再訪したい意向。",
+      "observations": [
+        {
+          "dimension": "price",
+          "note": "利用額は14,000円で追加選択はなかったと記す。"
+        },
+        {
+          "dimension": "massage_comfort",
+          "note": "指圧からオイルへ進み、施術はおおむね心地よかった。"
+        },
+        {
+          "dimension": "conversation",
+          "note": "会話が途切れず雰囲気が良かったとした。"
+        },
+        {
+          "dimension": "availability_repeat",
+          "note": "再訪したいが出勤が少なく、日程が合うことが条件。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "会話が雰囲気に与えた影響は話題や相性によると本人も留保。"
+      ]
+    },
+    {
+      "id": "ME-602434",
+      "page_number": 141,
+      "summary": "直前予約と準備への配慮は評価したが、施術の圧や摩擦、清拭への要望も記した。",
+      "observations": [
+        {
+          "dimension": "reservation",
+          "note": "開始15分前の予約にも対応し、100分13,000円で利用できた。"
+        },
+        {
+          "dimension": "welcome_preparation",
+          "note": "迎え入れと声かけに安心し、シャワー準備も円滑だった。"
+        },
+        {
+          "dimension": "pressure_pacing",
+          "note": "指圧は強く長めで効いた一方、後の施術には摩擦の痛みを感じた。"
+        },
+        {
+          "dimension": "hygiene_request",
+          "note": "施術途中の清拭と手洗いをしてから再開してほしいと望んだ。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "経験年数は担当者から聞いた内容。",
+        "指圧の長さは投稿者の概数で、時計等で検証していない。"
+      ]
+    },
+    {
+      "id": "ME-645331",
+      "page_number": 141,
+      "summary": "担当者お任せで利用。強めの脚の施術や会話、表情が合わず、店は評価しつつ同じ担当者の再訪は見送る。",
+      "observations": [
+        {
+          "dimension": "reservation_selection",
+          "note": "担当者を指定しない予約で今回の担当者になった。"
+        },
+        {
+          "dimension": "pressure_pacing",
+          "note": "脚への強めのマッサージが多いと感じた。"
+        },
+        {
+          "dimension": "conversation_tone",
+          "note": "担当者自身の話や不満の話題が多く、その後の無言の時間も過ごしにくいと感じた。"
+        },
+        {
+          "dimension": "repeat_scope",
+          "note": "店自体への評価と、同じ担当者を再指名しない判断を分けている。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "クーポン後の金額と合計には端数処理らしき差がある。"
+      ]
+    },
+    {
+      "id": "ME-642956",
+      "page_number": 141,
+      "summary": "電話対応と担当者からの話題提供を評価。駅からの遠さを指摘し、近くに来る機会があれば再訪する意向。",
+      "observations": [
+        {
+          "dimension": "reservation_access",
+          "note": "電話予約の応対は丁寧だったが、駅から離れており車が便利と感じた。"
+        },
+        {
+          "dimension": "photo_impression",
+          "note": "掲載写真どおりの対面印象だった。"
+        },
+        {
+          "dimension": "conversation",
+          "note": "担当者が話題を出し、互いに話して和やかに過ごせた。"
+        },
+        {
+          "dimension": "price_negotiation",
+          "note": "担当者から追加選択の提案があり、一部の料金交渉に応じてもらった。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "総額20,000円と追加部分の単位表記が整合しない可能性があり、内訳は確定しない。"
+      ]
+    },
+    {
+      "id": "ME-646476",
+      "page_number": 141,
+      "summary": "追加内容の料金を開始前に明確に説明され、力強い指圧と円滑な電話対応を評価。店にも担当者にも再訪したい意向。",
+      "observations": [
+        {
+          "dimension": "price_clarity",
+          "note": "施術前に追加内容と料金が明示され、追加選択込みの90分で17,000円と記す。"
+        },
+        {
+          "dimension": "massage_pressure",
+          "note": "力強い指圧が心地よく、マッサージ技術を高く評価。"
+        },
+        {
+          "dimension": "phone_service",
+          "note": "電話での案内が円滑だった。"
+        },
+        {
+          "dimension": "repeat_scope",
+          "note": "店の費用面と担当者の技術を別々に評価し、両方への再訪に前向き。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。"
+      ]
+    },
+    {
+      "id": "ME-638604",
+      "page_number": 141,
+      "summary": "写真から想像したより明るい接客。流す施術が中心で、強い圧への期待やタイマー音には不満が残った。",
+      "observations": [
+        {
+          "dimension": "reservation",
+          "note": "LINEで空きを確認して予約し、今回は横浜の部屋へ案内された。"
+        },
+        {
+          "dimension": "photo_impression",
+          "note": "写真から落ち着いた性格を想像したが、対面では明るく感じ好意的に受け止めた。"
+        },
+        {
+          "dimension": "massage_style",
+          "note": "指圧よりもオイルで流す施術が中心で、強いマッサージを求める場合には物足りないとした。"
+        },
+        {
+          "dimension": "room_sound",
+          "note": "終了を知らせるタイマーの音が大きく、気分が下がった。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "写真から性格を想像した点や年齢からの期待は根拠の確認がない。"
+      ]
+    },
+    {
+      "id": "ME-637274",
+      "page_number": 141,
+      "summary": "予約時刻の柔軟な対応と、狙った箇所をしっかり押す施術を評価。疲労を和らげたい目的は満たされた。",
+      "observations": [
+        {
+          "dimension": "reservation_flexibility",
+          "note": "電話予約で出勤時刻より15分早い案内が可能と連絡され、柔軟な対応を評価。"
+        },
+        {
+          "dimension": "expectation",
+          "note": "蓄積した疲れのため、しっかりしたマッサージを主な目的に利用。"
+        },
+        {
+          "dimension": "photo_impression",
+          "note": "写真から想像した髪色と対面では違いがあったが、悪い差とは捉えていない。"
+        },
+        {
+          "dimension": "massage_skill",
+          "note": "各部位の押さえる位置が的確で、疲れが軽くなったと評価。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "技術の学習量に関する記述は投稿者の推測。"
+      ]
+    },
+    {
+      "id": "ME-645755",
+      "page_number": 141,
+      "summary": "施術技術は高く評価したが、不満の話題や延長・次回予約の営業でくつろげず、再訪は見送る意向。",
+      "observations": [
+        {
+          "dimension": "massage_skill",
+          "note": "脚・背中・腕をしっかり施術し、経験を感じる技術だった。"
+        },
+        {
+          "dimension": "conversation_tone",
+          "note": "前の客についての不満が長く続き、気を遣う雰囲気になった。"
+        },
+        {
+          "dimension": "upsell",
+          "note": "終盤に30分6,000円の延長を提案され、断った後は次回予約の提案が続いた。"
+        },
+        {
+          "dimension": "therapist_repeat",
+          "note": "技術への評価は高いが営業と会話内容が気になり、再訪はしない意向。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "前の客の行動は担当者が話した内容で独立に未確認。",
+        "次回予約はその場では完了していないと記す。"
+      ]
+    },
+    {
+      "id": "ME-517869",
+      "page_number": 241,
+      "summary": "割引料金には満足したが、写真からの期待と会話の相性、施術時間の配分が合わず再訪は見送る意向。",
+      "observations": [
+        {
+          "dimension": "photo_expectation",
+          "note": "顔の見えない写真から抱いた対面イメージと実際の印象が異なった。"
+        },
+        {
+          "dimension": "price_value",
+          "note": "新人割の100分12,000円という料金自体には満足。"
+        },
+        {
+          "dimension": "pacing",
+          "note": "背中などに時間をかけ、後半の施術が短くなったと感じた。"
+        },
+        {
+          "dimension": "conversation_repeat",
+          "note": "会話の相性が合わず、担当者への再訪に否定的。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "実際の施術配分と、投稿者が望む配分の差を述べたもので客観的な不備は未確認。"
+      ]
+    },
+    {
+      "id": "ME-507212",
+      "page_number": 241,
+      "summary": "指圧は心地よかったが担当者との好みが合わず、店の再訪と担当者の再指名を分けて判断。",
+      "observations": [
+        {
+          "dimension": "option_presentation",
+          "note": "着替えを勧められ、種類を選ぶ形の案内だったと記す。"
+        },
+        {
+          "dimension": "massage_skill",
+          "note": "軽い会話をしながら施術が進み、指圧は心地よかった。"
+        },
+        {
+          "dimension": "price",
+          "note": "90分コースと着替えの利用額を16,000円と記す。"
+        },
+        {
+          "dimension": "repeat_scope",
+          "note": "店は引き続き気に入って再訪するが、同じ担当者は選ばない意向。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "外見の好みを理由とした評価を他の客に一般化できない。",
+        "試していない内容については投稿者自身も判断できないとしている。"
+      ]
+    },
+    {
+      "id": "ME-518727",
+      "page_number": 241,
+      "summary": "出張時に店舗型の店を利用。施術技術への評価は中程度だが再訪に前向きで別の担当者にも関心。",
+      "observations": [
+        {
+          "dimension": "access",
+          "note": "大通り沿いの雑居ビル2階で、人目から入りにくさを少し感じた。"
+        },
+        {
+          "dimension": "reception_flow",
+          "note": "受付で支払い、待合室で待った後に別室で着替えて施術室へ移動。"
+        },
+        {
+          "dimension": "option_information",
+          "note": "受付で追加選択の説明は特になかったと記す。"
+        },
+        {
+          "dimension": "massage_repeat",
+          "note": "マッサージは標準的と感じたが、再訪や別の担当者の利用には前向き。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "説明がなかったことから、選択肢自体の不存在は判断できない。"
+      ]
+    },
+    {
+      "id": "ME-495198",
+      "page_number": 241,
+      "summary": "着替えの提案は強めに感じたが、明るい会話と最後まで元気な対応を評価し再訪に前向き。",
+      "observations": [
+        {
+          "dimension": "photo_impression",
+          "note": "写真と対面の印象はおおむね一致するとした。"
+        },
+        {
+          "dimension": "upsell",
+          "note": "店側が着替えの追加選択を積極的に勧めたと記す。"
+        },
+        {
+          "dimension": "conversation_service",
+          "note": "よく話しかけてくれ、終了まで明るく対応してくれたと評価。"
+        },
+        {
+          "dimension": "shop_repeat",
+          "note": "店員も気さくで不快感はなく、店と担当者の再利用に前向き。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "施術者が疲れていたかどうかは投稿者の推測。"
+      ]
+    },
+    {
+      "id": "ME-532199",
+      "page_number": 241,
+      "summary": "当日の電話予約で人気担当者を確保。暗さや設備の古さはあるが、技術と前後の気配りを評価。",
+      "observations": [
+        {
+          "dimension": "reservation",
+          "note": "当日の電話受付のみとの案内で予約。受付開始時刻について公式以外の情報と実際の受付に差があると記す。"
+        },
+        {
+          "dimension": "payment_price",
+          "note": "60分と指名にクーポンを使い9,000円、現金のみの案内だった。"
+        },
+        {
+          "dimension": "room_privacy",
+          "note": "室内は暗く、仕切り上部が隣室とつながる構造。大きめの音楽で隣の会話は聞こえなかった。"
+        },
+        {
+          "dimension": "hospitality_skill",
+          "note": "オイルの希望を丁寧に確認し、強めの施術と終了後の飲み物・会話を評価。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "受付開始時刻の一部は非公式なネット情報で、公式ルールは確定しない。",
+        "施術時間の内訳は投稿者の概数。"
+      ]
+    },
+    {
+      "id": "ME-431300",
+      "page_number": 241,
+      "summary": "写真との一致、シャワー準備、強めの施術と終了後の接客を評価。店にも担当者にも再訪したい意向。",
+      "observations": [
+        {
+          "dimension": "photo_room",
+          "note": "清潔に感じる部屋で、担当者の対面印象は掲載写真と大きく変わらなかった。"
+        },
+        {
+          "dimension": "preparation",
+          "note": "シャワーが準備されており好印象だった。"
+        },
+        {
+          "dimension": "massage_pressure",
+          "note": "しっかり強めのマッサージが心地よかった。"
+        },
+        {
+          "dimension": "aftercare_repeat",
+          "note": "終了後も感じよく対応され、同じ担当者や今後の新人も利用したい意向。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "店全体への高評価は投稿者の過去の経験に基づく。"
+      ]
+    },
+    {
+      "id": "ME-522232",
+      "page_number": 241,
+      "summary": "料金と備品の説明が円滑で、丁寧な指圧とオイル施術に満足。再訪を明言している。",
+      "observations": [
+        {
+          "dimension": "price_clarity",
+          "note": "短い会話の後に料金説明があり、90分と追加選択・指名を含め26,000円だった。"
+        },
+        {
+          "dimension": "amenity_information",
+          "note": "シャワーへ案内する際に備品の使い方を一通り説明された。"
+        },
+        {
+          "dimension": "massage_skill",
+          "note": "指圧が丁寧で、オイル施術とともに疲れが和らいだと感じた。"
+        },
+        {
+          "dimension": "satisfaction_repeat",
+          "note": "自身の重視する体験として満足が高く、再訪したいと記す。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "疲労が和らいだという評価は本人の実感。"
+      ]
+    },
+    {
+      "id": "ME-497143",
+      "page_number": 241,
+      "summary": "写真との一致と明るく丁寧な会話、適度な指圧を評価。終始楽しく過ごせて再訪に前向き。",
+      "observations": [
+        {
+          "dimension": "presentation_conversation",
+          "note": "身だしなみが整い、丁寧さと気さくさのある話し方で明るく迎えられた。"
+        },
+        {
+          "dimension": "price_clarity",
+          "note": "90分14,000円で指名料と追加選択なし、延長料金は別に示される。"
+        },
+        {
+          "dimension": "massage_pressure",
+          "note": "背中から脚まで、強すぎず弱すぎない指圧が好みに合った。"
+        },
+        {
+          "dimension": "therapist_repeat",
+          "note": "終始良い雰囲気で楽しく過ごせたため再予約する意向。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "試していない内容は不明とし、相性で変わる可能性も本人が留保。"
+      ]
+    },
+    {
+      "id": "ME-515751",
+      "page_number": 241,
+      "summary": "予約返信と説明が丁寧で会話も続いたが、一部の施術姿勢は負担を感じた。再訪には前向き。",
+      "observations": [
+        {
+          "dimension": "reservation_access",
+          "note": "公式ページの予約にすぐ返信があり、指定場所に着いて電話すると部屋番号を教えられた。"
+        },
+        {
+          "dimension": "room_conversation",
+          "note": "建物も部屋もきれいで、丁寧な説明と途切れにくい世間話があった。"
+        },
+        {
+          "dimension": "massage_comfort",
+          "note": "圧のある施術を受けたが、肩甲骨付近では体重がかかり重く疲れたと感じた。"
+        },
+        {
+          "dimension": "option_timing",
+          "note": "施術の途中で追加内容を提案され、承諾して合計27,000円になった。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "店の宣伝表現との差や年齢に関する記述は投稿者の見方・推定。"
+      ]
+    },
+    {
+      "id": "ME-464827",
+      "page_number": 241,
+      "summary": "隣室の音や外からのにおいは気になったが施術の加減は合い、出勤と予定が合えば再指名したい意向。",
+      "observations": [
+        {
+          "dimension": "rating_source",
+          "note": "ネット予約で電話を使っていないため、電話対応の評価は便宜的に中間点を付けたと説明。"
+        },
+        {
+          "dimension": "room_environment",
+          "note": "隣室の音や近隣飲食店のにおいが入り気になった。"
+        },
+        {
+          "dimension": "massage_pressure",
+          "note": "マッサージの強さが好みに合い、しっかり受けられた。"
+        },
+        {
+          "dimension": "availability_repeat",
+          "note": "出勤は少ないと聞いたが、予定が合えば再指名したい意向。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "電話対応の点数は実際の応対を観察した評価ではない。",
+        "職歴や出勤頻度は会話で聞いた情報。",
+        "料金追加の意図を過去の会話と結び付けた部分は推測。"
+      ]
+    },
+    {
+      "id": "ME-509759",
+      "page_number": 241,
+      "summary": "前日予約で希望枠を確保。笑顔と共通の話題、的確な施術を評価したが、見送りは事務的に感じた。",
+      "observations": [
+        {
+          "dimension": "reservation",
+          "note": "前日に電話して希望どおりの時間を予約できた。"
+        },
+        {
+          "dimension": "welcome_conversation",
+          "note": "笑顔で迎えられ、旅行や食事など共通の話題で盛り上がれると感じた。"
+        },
+        {
+          "dimension": "massage_skill",
+          "note": "肩、手、背中、ふくらはぎの施術は圧と押す位置が合い、満足が高かった。"
+        },
+        {
+          "dimension": "aftercare",
+          "note": "最後のシャワーと着替えは自分で行い、見送りは事務的に感じた。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "通常料金、端数を上乗せした支払い、後半の交渉による追加が別に記される。"
+      ]
+    },
+    {
+      "id": "ME-488287",
+      "page_number": 241,
+      "summary": "写真以上に良い対面印象で、見えない姿勢でも会話を楽しめた。手際の良さを評価し継続利用に前向き。",
+      "observations": [
+        {
+          "dimension": "photo_impression",
+          "note": "写真より対面の印象を高く評価した。"
+        },
+        {
+          "dimension": "price",
+          "note": "60分コースと写真指名で12,000円だったと記す。"
+        },
+        {
+          "dimension": "conversation",
+          "note": "相手の顔を見ない姿勢でも会話が上手く、十分楽しめた。"
+        },
+        {
+          "dimension": "skill_repeat",
+          "note": "手際が良いと感じ、今後も利用したい意向。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "経験を多く積んでいるという評価は手際からの推測。",
+        "出身地と外見を結び付ける記述は採用しない。"
+      ]
+    },
+    {
+      "id": "ME-469519",
+      "page_number": 241,
+      "summary": "仕切りや古いシャワーを承知で短時間の割引コースを選択。受付と費用を評価し旅行時の再訪に前向き。",
+      "observations": [
+        {
+          "dimension": "course_choice",
+          "note": "簡易な仕切りでゆっくり話しにくい環境を知っており、40分の短いコースを選んだ。"
+        },
+        {
+          "dimension": "hygiene_equipment",
+          "note": "シャワー室を古く狭く清潔感も高くないとしたが、自身は許容できた。"
+        },
+        {
+          "dimension": "reception",
+          "note": "受付の応対を感じよく受け止め、支払い後にシャワー、担当者の案内と進んだ。"
+        },
+        {
+          "dimension": "value_repeat",
+          "note": "担当者指定なしの割引40分4,800円に満足し、旅行の機会に再訪したい意向。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "期間限定のキャンペーン料金で通常料金とは限らない。"
+      ]
+    },
+    {
+      "id": "ME-535574",
+      "page_number": 241,
+      "summary": "希望担当者の出勤前に受付から別の担当者を紹介され利用。丁寧な施術と気配りに満足し再訪に前向き。",
+      "observations": [
+        {
+          "dimension": "reservation_substitution",
+          "note": "希望担当者が出勤前のため別の担当者を紹介され、丁寧な受付とSMS案内を評価。"
+        },
+        {
+          "dimension": "consultation_pressure",
+          "note": "気になる箇所を確認しながら丁寧に施術。指圧はやや強く感じた。"
+        },
+        {
+          "dimension": "aftercare",
+          "note": "終了後はお茶を飲みながら短く会話して退出した。"
+        },
+        {
+          "dimension": "availability_repeat",
+          "note": "再訪したいが主に昼の出勤と聞き、予定を合わせにくいと感じた。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "希望すれば圧を調整してくれるという部分は、実際に依頼した結果ではなく期待。",
+        "追加内容がないという一部の判断は雰囲気からの推測。"
+      ]
+    },
+    {
+      "id": "ME-511983",
+      "page_number": 241,
+      "summary": "担当者お任せで予約し会話は楽しめたが、望む内容とは異なった。追加内容の不存在は担当者から説明を受けた。",
+      "observations": [
+        {
+          "dimension": "reservation_price",
+          "note": "担当者を指定せず100分18,000円のコースで予約した。"
+        },
+        {
+          "dimension": "preparation",
+          "note": "支払いと同意書記入後、シャワーが準備された。"
+        },
+        {
+          "dimension": "conversation",
+          "note": "会話は途切れず、良い雰囲気で進んだ。"
+        },
+        {
+          "dimension": "policy_information",
+          "note": "追加選択を複数回尋ねて提供していないと説明され、室内カメラも案内されたと記す。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "店の方針や過去の退職事例は担当者から聞いた内容で独立に未確認。",
+        "カメラの実際の運用や閲覧状況は不明。"
+      ]
+    },
+    {
+      "id": "ME-419842",
+      "page_number": 241,
+      "summary": "顔が見えにくい写真からの期待と対面印象に差があった。施術には満足しつつ担当者の再指名は見送る。",
+      "observations": [
+        {
+          "dimension": "photo_expectation",
+          "note": "公式ページやSNSの顔が十分見えない写真から、実際とは異なる印象を想像していた。"
+        },
+        {
+          "dimension": "option_eligibility",
+          "note": "一部の着替えは3回目以降の客が対象と説明された。"
+        },
+        {
+          "dimension": "service_satisfaction",
+          "note": "施術は積極的な進め方で、終了時の満足は得られたと記す。"
+        },
+        {
+          "dimension": "repeat_scope",
+          "note": "店には再訪する意向だが、同じ担当者の再指名はしない。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "顔が十分写っていない写真について、本人が想像した印象との差。"
+      ]
+    },
+    {
+      "id": "ME-426485",
+      "page_number": 241,
+      "summary": "電話応対と清潔な部屋は評価したが、長めで強い指圧が好みに合わず、同じ担当者の再訪は消極的。",
+      "observations": [
+        {
+          "dimension": "phone_access",
+          "note": "電話対応を丁寧と感じ、駅から徒歩約5分の建物へ案内された。"
+        },
+        {
+          "dimension": "room",
+          "note": "ワンルームは非常にきれいと評価。"
+        },
+        {
+          "dimension": "pressure_preference",
+          "note": "しっかりした指圧を長めに感じ、自身は強いマッサージが得意でないと説明。"
+        },
+        {
+          "dimension": "therapist_repeat",
+          "note": "穏やかな話し方は評価したが、自分の好みではなく再訪は見送る意向。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "揉み返しについては投稿者の一般的な苦手意識で、今回発生したとは記されない。"
+      ]
+    },
+    {
+      "id": "ME-479744",
+      "page_number": 241,
+      "summary": "SNSを見て指名。最初は控えめな印象でも施術中に打ち解けたが、追加選択への期待には差があった。",
+      "observations": [
+        {
+          "dimension": "selection_access",
+          "note": "SNS投稿がきっかけで指名し、二駅の中間付近の建物へ案内された。"
+        },
+        {
+          "dimension": "conversation_progress",
+          "note": "最初は親しみやすさが少なかったが、施術中にかなり打ち解けた。"
+        },
+        {
+          "dimension": "price_uncertainty",
+          "note": "90分と複数の追加選択を含め約23,000円だったと記憶している。"
+        },
+        {
+          "dimension": "option_expectation",
+          "note": "着替えを選んだが、想像した衣装との違いがあった。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "料金は記憶による概数。",
+        "性格や衣装選択の理由、地域ごとの客層は投稿者の推測。",
+        "自身が確認していない対応については不明としている。"
+      ]
+    },
+    {
+      "id": "ME-502673",
+      "page_number": 241,
+      "summary": "SNSからの印象と明るい迎え、熱心な施術を評価。会話を楽しむ体験として満足している。",
+      "observations": [
+        {
+          "dimension": "photo_impression",
+          "note": "SNSでは顔全体が見えないが、対面でも想像した雰囲気を感じた。"
+        },
+        {
+          "dimension": "price",
+          "note": "120分、指名、事前割引、複数の追加選択で30,000円と記す。"
+        },
+        {
+          "dimension": "welcome_effort",
+          "note": "元気に迎えられ、施術にも熱心さを感じた。"
+        },
+        {
+          "dimension": "satisfaction",
+          "note": "会話を好む担当者との時間として満足し、再利用の余地を感じている。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "技術の勉強量、親しくなった場合の選択肢、再訪後の変化は推測。",
+        "料金の内訳を厳密に合算すると記載総額と1,000円差がある。"
+      ]
+    },
+    {
+      "id": "ME-524469",
+      "page_number": 241,
+      "summary": "予約と時間どおりの案内は良かったが、要望説明、力加減の確認、接客に不満があり再訪は消極的。",
+      "observations": [
+        {
+          "dimension": "reservation_reception",
+          "note": "予約は円滑で当日も定刻に案内され、受付や店内の清潔感に問題は感じなかった。"
+        },
+        {
+          "dimension": "consultation",
+          "note": "要望を伝えても施術方法の具体的説明はなく、形式的な確認に感じた。"
+        },
+        {
+          "dimension": "pressure_adjustment",
+          "note": "力加減の確認は開始時のみで、その後の調整の声かけが乏しいと感じた。"
+        },
+        {
+          "dimension": "service_tone",
+          "note": "施術中の複数回のあくびと短い終了応対から流れ作業の印象を受けた。"
+        }
+      ],
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "担当者の疲労は推測で、店全体にも一般化していない。",
+        "施術部位ごとの時間は投稿者の概数。"
+      ]
+    }
+  ]
+}

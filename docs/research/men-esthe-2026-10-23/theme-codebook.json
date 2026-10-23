@@ -1,0 +1,485 @@
+{
+  "version": 1,
+  "purpose": "Neutral research dimensions for future questionnaire vocabulary. Regex matches are unverified mentions, not confirmed positive/negative outcomes.",
+  "themes": [
+    {
+      "id": "booking_response",
+      "label": "予約返信",
+      "priority": "P1",
+      "existing_or_proposed_fields": [
+        "追加項目候補"
+      ],
+      "detection_regex": "予約|返信|返事|レス|電話対応|スムーズ",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "booking_flow",
+      "label": "予約から入室までの手順",
+      "priority": "P1",
+      "existing_or_proposed_fields": [
+        "basic.bookingMethod",
+        "flow.meeting"
+      ],
+      "detection_regex": "予約|当日|前日|電話|LINE|SMS|ショートメール",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "selection_reason",
+      "label": "店や担当者を選んだ理由",
+      "priority": "P2",
+      "existing_or_proposed_fields": [
+        "追加項目候補"
+      ],
+      "detection_regex": "口コミ|評判|写真|ランキング|紹介|気にな|オススメ|おすすめ",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "visit_context",
+      "label": "訪問時の条件",
+      "priority": "P2",
+      "existing_or_proposed_fields": [
+        "basic.visitDate",
+        "追加項目候補"
+      ],
+      "detection_regex": "初めて|初回|再訪|何度|久しぶり|遠征|出張|当日予約",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "access",
+      "label": "アクセスと案内",
+      "priority": "P1",
+      "existing_or_proposed_fields": [
+        "flow.meeting"
+      ],
+      "detection_regex": "駅|徒歩|迷|道|場所|入り口|入口|案内",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "arrival",
+      "label": "開始時の待ち時間",
+      "priority": "P2",
+      "existing_or_proposed_fields": [
+        "flow.meeting"
+      ],
+      "detection_regex": "待た|待ち|遅れ|時間通り|時間ちょうど|早め|開始",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "welcome",
+      "label": "迎え方と第一印象",
+      "priority": "P1",
+      "existing_or_proposed_fields": [
+        "flow.meeting",
+        "ratings.service"
+      ],
+      "detection_regex": "笑顔|愛嬌|挨拶|出迎|迎え|人当たり|緊張",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "price_clarity",
+      "label": "料金説明と明朗さ",
+      "priority": "P1",
+      "existing_or_proposed_fields": [
+        "basic.courseFee",
+        "basic.optionFee",
+        "追加項目候補"
+      ],
+      "detection_regex": "料金|金額|支払|総額|会計|説明|明朗",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "upsell",
+      "label": "追加提案への印象",
+      "priority": "P1",
+      "existing_or_proposed_fields": [
+        "追加項目候補"
+      ],
+      "detection_regex": "オプション|オプ|追加料金|課金|提案|勧|営業",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "fee_components",
+      "label": "費用の内訳",
+      "priority": "P2",
+      "existing_or_proposed_fields": [
+        "basic.courseFee",
+        "basic.optionFee",
+        "basic.nominationFee"
+      ],
+      "detection_regex": "指名料|延長|追加|基本|衣装|オプション|総額",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "saving",
+      "label": "割引やクーポン",
+      "priority": "P2",
+      "existing_or_proposed_fields": [
+        "追加項目候補"
+      ],
+      "detection_regex": "割引|クーポン|昼割|早割|リピ割|キャンペーン|割引券",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "room_facility",
+      "label": "部屋と設備",
+      "priority": "P2",
+      "existing_or_proposed_fields": [
+        "basic.roomType",
+        "追加項目候補"
+      ],
+      "detection_regex": "マンション|ルーム|部屋|ベッド|マット|ワンルーム",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "cleanliness",
+      "label": "清潔さ",
+      "priority": "P1",
+      "existing_or_proposed_fields": [
+        "追加項目候補"
+      ],
+      "detection_regex": "清潔|綺麗な部屋|きれいな部屋|汚|清掃|掃除|衛生",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "comfort",
+      "label": "室内の快適さ",
+      "priority": "P1",
+      "existing_or_proposed_fields": [
+        "追加項目候補"
+      ],
+      "detection_regex": "広い|狭い|広さ|寒|暑|空調|温度|照明|明る|暗|落ち着|雰囲気",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "noise",
+      "label": "音とプライバシー",
+      "priority": "P2",
+      "existing_or_proposed_fields": [
+        "追加項目候補"
+      ],
+      "detection_regex": "騒音|物音|隣|生活音|声|静か|防音|音楽|BGM",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "amenities",
+      "label": "備品と飲み物",
+      "priority": "P2",
+      "existing_or_proposed_fields": [
+        "flow.meeting",
+        "flow.after"
+      ],
+      "detection_regex": "水を|お水|お茶|飲み物|ドリンク|タオル|アメニティ|ドライヤー",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "shower",
+      "label": "シャワーと準備",
+      "priority": "P2",
+      "existing_or_proposed_fields": [
+        "flow.meeting",
+        "flow.after"
+      ],
+      "detection_regex": "シャワー|浴室|お風呂|湯|シャンプー|ボディソープ",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "scent",
+      "label": "香りやにおい",
+      "priority": "P2",
+      "existing_or_proposed_fields": [
+        "追加項目候補"
+      ],
+      "detection_regex": "匂い|臭い|におい|香り|タバコ|煙草|香水|アロマ",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "photo_match",
+      "label": "掲載写真との印象差",
+      "priority": "P1",
+      "existing_or_proposed_fields": [
+        "spec",
+        "ratings.face",
+        "ratings.style"
+      ],
+      "detection_regex": "写真|パネル|加工|実物|HP|ホームページ",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "appearance",
+      "label": "外見の観察",
+      "priority": "P2",
+      "existing_or_proposed_fields": [
+        "spec.genre",
+        "spec.body",
+        "spec.notes"
+      ],
+      "detection_regex": "小柄|長身|高身長|スレンダー|モデル|黒髪|茶髪|ネイル|清楚",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "conversation_amount",
+      "label": "会話の量",
+      "priority": "P1",
+      "existing_or_proposed_fields": [
+        "flow",
+        "ratings.service"
+      ],
+      "detection_regex": "会話|トーク|喋|しゃべ|無言|口数|静か",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "conversation_style",
+      "label": "話し方と聞き方",
+      "priority": "P1",
+      "existing_or_proposed_fields": [
+        "ratings.service",
+        "flow"
+      ],
+      "detection_regex": "聞き上手|話し上手|聞いて|話しやす|フレンドリー|明る|丁寧|会話|トーク",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "conversation_fit",
+      "label": "会話の相性",
+      "priority": "P1",
+      "existing_or_proposed_fields": [
+        "ratings.service",
+        "flow"
+      ],
+      "detection_regex": "気まず|緊張|話|会話|トーク|落ち着|楽しい|楽しく",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "professionalism",
+      "label": "接客の丁寧さ",
+      "priority": "P1",
+      "existing_or_proposed_fields": [
+        "ratings.service"
+      ],
+      "detection_regex": "丁寧|愛想|淡々|事務的|対応|接客|親切|気遣|心遣",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "assessment",
+      "label": "要望や体調の確認",
+      "priority": "P1",
+      "existing_or_proposed_fields": [
+        "flow.faceDown",
+        "ratings.massage"
+      ],
+      "detection_regex": "力加減|強さ|凝|こり|コリ|疲れ|要望|リクエスト|希望|確認",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "pressure",
+      "label": "施術の強さ",
+      "priority": "P1",
+      "existing_or_proposed_fields": [
+        "flow.faceDown.checks",
+        "ratings.massage"
+      ],
+      "detection_regex": "圧|強揉|強め|弱め|力加減|力強|ソフト|痛",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "pace",
+      "label": "施術の速さとリズム",
+      "priority": "P2",
+      "existing_or_proposed_fields": [
+        "flow",
+        "ratings.massage"
+      ],
+      "detection_regex": "ゆっくり|じっくり|テンポ|単調|リズム|緩急|スピード|スロー",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "technique",
+      "label": "手技への評価",
+      "priority": "P1",
+      "existing_or_proposed_fields": [
+        "ratings.massage",
+        "flow.faceDown"
+      ],
+      "detection_regex": "上手|うまい|巧い|丁寧|技術|慣れ|指圧|マッサージ|適当|雑",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "focus",
+      "label": "ケアした部位",
+      "priority": "P2",
+      "existing_or_proposed_fields": [
+        "flow.faceDown",
+        "flow.faceUp"
+      ],
+      "detection_regex": "肩|首|背中|腰|ふくらはぎ|足裏|足の裏|手のひら|デコルテ|全身",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "method",
+      "label": "施術の種類",
+      "priority": "P2",
+      "existing_or_proposed_fields": [
+        "flow.faceDown",
+        "flow.oilSp"
+      ],
+      "detection_regex": "指圧|もみほぐ|揉み|ドライ|パウダー|オイル|ストレッチ|リンパ",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "medium",
+      "label": "使用剤の感触",
+      "priority": "P2",
+      "existing_or_proposed_fields": [
+        "flow.oilSp"
+      ],
+      "detection_regex": "オイル|パウダー|さらさら|サラサラ|とろとろ|トロトロ|粘度|温か|冷た",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "flow_variation",
+      "label": "施術の流れと変化",
+      "priority": "P2",
+      "existing_or_proposed_fields": [
+        "flow"
+      ],
+      "detection_regex": "流れ|順番|うつ伏せ|仰向け|体勢|流れ作業|ルーティン|ワンパターン",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "pace_of_time",
+      "label": "時間配分",
+      "priority": "P1",
+      "existing_or_proposed_fields": [
+        "flow",
+        "追加項目候補"
+      ],
+      "detection_regex": "時間|配分|短い|短か|長い|長め|巻|延長|タイマー|待た",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "comfort_distance",
+      "label": "施術中の距離感",
+      "priority": "P2",
+      "existing_or_proposed_fields": [
+        "ratings.service",
+        "flow"
+      ],
+      "detection_regex": "距離|密着|リラックス|心地|緊張|自然|落ち着",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "scope_confirmation",
+      "label": "対応範囲と意思確認",
+      "priority": "P1",
+      "existing_or_proposed_fields": [
+        "flow",
+        "追加項目候補"
+      ],
+      "detection_regex": "確認|断|NG|ＮＧ|希望|お願い|無理|嫌|対応",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "aftercare",
+      "label": "終了後の対応",
+      "priority": "P2",
+      "existing_or_proposed_fields": [
+        "flow.after"
+      ],
+      "detection_regex": "見送り|お見送|シャワー|拭|会話|次回|名刺|連絡先|ドリンク",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "satisfaction",
+      "label": "満足した理由",
+      "priority": "P1",
+      "existing_or_proposed_fields": [
+        "flow.bestMoment",
+        "ratings"
+      ],
+      "detection_regex": "満足|良かった|よかった|癒|気持ち|楽しか|楽しく|軽く|ほぐ",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "downside",
+      "label": "気になった点",
+      "priority": "P1",
+      "existing_or_proposed_fields": [
+        "flow.downside"
+      ],
+      "detection_regex": "残念|不満|微妙|気にな|物足り|期待外|がっかり|マイナス",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "value",
+      "label": "料金と満足の釣り合い",
+      "priority": "P1",
+      "existing_or_proposed_fields": [
+        "追加項目候補"
+      ],
+      "detection_regex": "コスパ|割高|割安|高い|高め|安い|安く|値段|価格|料金|費用",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "revisit_store",
+      "label": "店への再訪",
+      "priority": "P1",
+      "existing_or_proposed_fields": [
+        "追加項目候補"
+      ],
+      "detection_regex": "店.*再訪|お店.*リピ|店舗.*再訪|別の.*セラピスト|他の.*セラピスト|気になる人",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "revisit_therapist",
+      "label": "担当者への再指名",
+      "priority": "P1",
+      "existing_or_proposed_fields": [
+        "voice.repeatIntent"
+      ],
+      "detection_regex": "再訪|リピ|再指名|本指名|また会|次も|次回",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "repeat_reason",
+      "label": "再訪の条件と理由",
+      "priority": "P1",
+      "existing_or_proposed_fields": [
+        "voice.repeatIntent",
+        "追加項目候補"
+      ],
+      "detection_regex": "再訪|リピ|予算|高い|料金|予約|相性|次は|次回",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "comparison",
+      "label": "以前との比較",
+      "priority": "P2",
+      "existing_or_proposed_fields": [
+        "revisitOf",
+        "追加項目候補"
+      ],
+      "detection_regex": "前回|以前|前の|初回|移籍|再訪|変わ|前より|他店",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "uncertainty",
+      "label": "記憶や情報の確かさ",
+      "priority": "P1",
+      "existing_or_proposed_fields": [
+        "追加項目候補"
+      ],
+      "detection_regex": "うろ覚え|覚えて|記憶|曖昧|あいまい|おそらく|多分|たぶん|かと思|くらい|位|ほど",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    },
+    {
+      "id": "knowledge_source",
+      "label": "観察と伝聞の区別",
+      "priority": "P1",
+      "existing_or_proposed_fields": [
+        "追加項目候補"
+      ],
+      "detection_regex": "曰く|らしい|聞いた|とのこと|だそう|との事|プロフィール|ホームページ|HP",
+      "match_semantics": "keyword_mention_only_not_a_fact_or_sentiment_judgment"
+    }
+  ]
+}

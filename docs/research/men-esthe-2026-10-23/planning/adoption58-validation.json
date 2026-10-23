@@ -1,0 +1,212 @@
+{
+  "date": "2026-10-23",
+  "status": "pass",
+  "decision_record": "adoption58-decision.json",
+  "scope": "58 additional existing-field candidates adopted; all 10 new question groups rejected",
+  "execution": {
+    "models": "GPT only",
+    "external_model_calls": false,
+    "new_source_article_fetch": false
+  },
+  "counts": {
+    "previously_implemented": 29,
+    "added": 58,
+    "current_implemented": 87,
+    "rejected_question_groups": 10,
+    "rejected_optional_subquestions": 33,
+    "research_candidates": 332,
+    "source_meaning_checked": 184,
+    "not_individually_checked": 148
+  },
+  "placement_instance_counts": {
+    "rating_note_buttons": 52,
+    "phase_check_buttons": 65,
+    "phase_note_buttons": 27,
+    "downside_buttons": 13
+  },
+  "checks": {
+    "previous29_preserved_plus_exact58": true,
+    "all87_unique_ids_labels_and_rendered": true,
+    "all58_original_source_meaning_checked": true,
+    "display_difference_from_snapshot_explicitly_recorded": true,
+    "actual_phase_price_explanation_available_in_five_phases": true,
+    "all10_new_question_groups_and33_questions_rejected": true,
+    "no_new_questions_or_storage_fields_implemented": true,
+    "original332_labels_evidence_and148_pending_status_preserved": true,
+    "historical_csv_json_exported_fields_match": true,
+    "history_markers_point_to_current_decision": true,
+    "local_document_links_valid": true,
+    "local_links_checked": 77,
+    "current_document_hash_metadata_matches": true,
+    "changed_file_whitespace_check": true
+  },
+  "commands": [
+    {
+      "command": "npm test -- src/questionnaire-enrichment.test.ts",
+      "exit_code": 0,
+      "result": "14 tests passed after review corrections"
+    },
+    {
+      "command": "npm test",
+      "exit_code": 0,
+      "result": "9 files, 140 tests passed after review corrections"
+    },
+    {
+      "command": "npm run build",
+      "exit_code": 0,
+      "result": "TypeScript noEmit and Vite production build passed"
+    }
+  ],
+  "source_comparison": {
+    "baseline_files": 29,
+    "current_files": 29,
+    "changed_files": [
+      "src/questionnaire-enrichment.test.ts",
+      "src/questionnaire-options.ts",
+      "src/ui/form.ts",
+      "src/ui/questionnaire-candidates.ts"
+    ],
+    "schema_types_storage_keys_dependencies_styles_unchanged": true,
+    "unchanged_contract_files": [
+      "src/types.ts",
+      "schema/visit-record.schema.json",
+      "src/record-validation.ts",
+      "src/storage.ts",
+      "src/main.ts",
+      "src/styles.css",
+      "src/ui/widgets.ts",
+      "src/prompt/serialize.ts",
+      "package.json",
+      "package-lock.json"
+    ]
+  },
+  "source_hashes": {
+    "package-lock.json": "9d3ea6db8fd1d114c7f2cfef7f19e06888c9b85779e05a8cdc15ba8d971c1d5b",
+    "package.json": "62ebe7850a74cccc2ef094d48b741a19ffc9438240316893d65e620b14680e88",
+    "schema/visit-record.schema.json": "d262ef498afb3730e81ac96f5181cbab37373ad67fb57d8dcd3bb212f4aa4385",
+    "src/clipboard.test.ts": "d967b47a28a5e37f216f2a3af4125cf45d80dc6743e936d89323e89937888688",
+    "src/cost-storage.test.ts": "4f6b5f9c9a7eb9559a89b89a0bff6c3f5ffd1f4e63670e978c57f1fcde04d1e7",
+    "src/course-selection.test.ts": "7df3c893c148f9342c7916aea0d3a1490277a9fb463cfbc2362874c47dd72fdb",
+    "src/date.test.ts": "d641e7190ff0adcdb37d7b2dec9696fd696e1657f10e844ba381cb991d538a9c",
+    "src/date.ts": "05f600191d818ae7fd36722ca88f42d5d183f7893ba005a6797ff7fc3234c390",
+    "src/main.ts": "f83edd5f5d40c88543907f96c15e0bae4711c7d4bbb1d51c8501dc973921b61c",
+    "src/prompt/build-prompt.test.ts": "039cbf7f0403e7c73b08be93581ad174de3f5e08434249c2e5369416896474c2",
+    "src/prompt/build-prompt.ts": "25ff9e5482979539ea5e378f380c731cc351155829fe4ffcffbb445e3e26b517",
+    "src/prompt/publication.test.ts": "c981779890ff531580a57c799721d74e00d30bffcc510955a61b0422a56dd772",
+    "src/prompt/publication.ts": "8b0778a840ec03fcb87ffacab8a29aa8172c0ccc56ca63bbb1c32af84357af15",
+    "src/prompt/serialize.ts": "687f982fce40b61115f99a91c16c0a0f070ca3a6cbc57c51b15bdd59c390275e",
+    "src/prompt/style-profile.ts": "36c3bb96895570f8637a51a90789c9f2b9d01336856af98abd1cb39fb6889e16",
+    "src/questionnaire-enrichment.test.ts": "cefe24199dc3aec29a9e5d02c406cfa1c3d51a07dbc11b10d2fc8c696f16e3ea",
+    "src/questionnaire-options.ts": "64acaa4197fb60070a4f709ee7f76e5562723fe06ee2a884a59672914b96e301",
+    "src/record-validation.ts": "3232d4901ee40ee3cb10736c099316c9e308276c20ba562320924e51a278eb78",
+    "src/storage.test.ts": "3b7648802b3cfe2a76d7b1d6f9b5a2e1f070e618f64603741dee7f17c5d9938a",
+    "src/storage.ts": "95323b84fd2d917a22250605471e48df1fe17fa6be98382ff9cb9421ba3bab5d",
+    "src/styles.css": "b01251d2e4c63ea692fe0b5820be21d22aabdac5d9e1068118614adb28288d48",
+    "src/test-fixtures.ts": "b05e737b5d392dae5e01d9561e575b3567ae974b94be0334fd8080114b434367",
+    "src/thumbnail.ts": "3d1b87839a58d6528c705bfbdb912923c8abc4ca1a92021a6d4dca6358322edc",
+    "src/types.ts": "2bf611a03649f556acbe24998795fd7a853246b76c19f7bdcdb6e0614b490ac5",
+    "src/ui/form.ts": "ac0b8fdcc716879fe26a9a462238b0799d3845a2d253432b91d5bc4c936d08d5",
+    "src/ui/questionnaire-candidates.ts": "c505f75f0d87b2ff5ed8f18bb47f8c95369d804bf7c6890a42bd851de6749656",
+    "src/ui/widgets.ts": "ac6f65a898ee5437fdb5695bafa5794b10e7a6d5fcae00021c99cb085c8f7536",
+    "src/ui-regression.test.ts": "fb62da83ea93465521e95215d0f12d087c99a651a22bf604467a47fa861f1d72",
+    "src/url.ts": "afb2dd4bffd3e4535a0b4274a57d1c67b766c56b2c777d3d9e35bda49955ec20"
+  },
+  "verified_regressions": [
+    "all 58 labels and exact target groups",
+    "downside keeps manual text and newlines",
+    "only target note receives append and dirty input event",
+    "Japanese comma and ASCII comma lists do not gain exact duplicates",
+    "negated partial phrases not treated as exact matches",
+    "phase note and checkbox output preserved through save/export/import/serialize",
+    "legacy unknown and empty selected checks remain until deselected",
+    "phase toggles independent; re-visits do not copy prior observations",
+    "candidate-only edits trigger unsaved-draft confirmation"
+  ],
+  "browser": {
+    "tool": "cua_repl in-app browser",
+    "url": "http://127.0.0.1:5190/",
+    "isolation": "separate localhost origin with initially empty record list; synthetic record only",
+    "verified": [
+      "form save -> list -> page reload -> edit restores face note, phase note, downside newlines and two selected phase checks",
+      "keyboard Enter append then duplicate no-op",
+      "keyboard Space deselects one phase; other phase remains selected",
+      "save and edit preserves independent deselection",
+      "87 unique IDs and 157 rendered candidate button instances",
+      "all 6 stars remain 3",
+      "console errors empty"
+    ],
+    "viewport_results": [
+      {
+        "width": 1280,
+        "height": 900,
+        "horizontal_overflow": false
+      },
+      {
+        "width": 390,
+        "height": 844,
+        "horizontal_overflow": false,
+        "candidate_min_height": 44,
+        "candidate_right_overflow_count": 0
+      },
+      {
+        "width": 320,
+        "height": 740,
+        "horizontal_overflow": false,
+        "candidate_min_height": 44,
+        "candidate_right_overflow_count": 0
+      }
+    ],
+    "temporary_viewport_reset": true,
+    "test_tab_closed": true,
+    "test_servers_stopped": true,
+    "main_app_url": "http://127.0.0.1:5187/",
+    "main_existing_server": "port already in use; left running and did not replace or reload user tab",
+    "screenshots": [
+      "screenshots/adoption58-desktop.png",
+      "screenshots/adoption58-mobile-390.png",
+      "screenshots/adoption58-mobile-320.png"
+    ]
+  },
+  "reviews": [
+    {
+      "agent": "adoption58_code_review",
+      "role": "code_reviewer",
+      "status": "pass_after_corrections",
+      "resolved": [
+        "actual-phase mapping for price_clarity_05",
+        "Japanese/ASCII comma duplicate detection"
+      ],
+      "unresolved": []
+    },
+    {
+      "agent": "adoption58_ts_review",
+      "role": "typescript_reviewer",
+      "status": "pass_after_corrections",
+      "resolved": [
+        "Japanese/ASCII comma duplicate detection"
+      ],
+      "unresolved": []
+    }
+  ],
+  "not_verified": [
+    "real article drafting quality or actual author input time; only implementation behavior verified"
+  ],
+  "git": {
+    "commit": false,
+    "push": false
+  },
+  "artifact_sha256": {
+    "docs/research/men-esthe-2026-10-23/planning/adoption58-decision.json": "93fb7ba071bfde66cdcaae6e0ca8e6bd5c921ada4dfc8dcb8b364ed7643ad428",
+    "docs/research/men-esthe-2026-10-23/planning/next-question-groups.json": "cb01166a4844f872b675d209311beae80760f3a34019cdaaa56e083ac824efd4",
+    "docs/research/men-esthe-2026-10-23/planning/next-adoption-ledger.json": "7a34cc57a24715a9aec417b9449307255e213946924e135aaf628d4245089543",
+    "docs/research/men-esthe-2026-10-23/planning/next-adoption-ledger.csv": "23d3b6e5ed44b68792bbc70cef7887100d0369451f23ff8b4afd18548b820b52",
+    "docs/01-questionnaire.md": "47b2e07b13ae7da464e9f61003bc4cc9a38f6e6fa66af3e7ff5d9c53f7d4cd80",
+    "docs/05-questionnaire-enrichment.md": "4f3241e1c5ae326e005939e73a7df6fd20ebe667cc2daf46417795031a9db6f3",
+    "docs/06-questionnaire-ui.md": "6b975f94bc1e3bbd81e44d83af3bc1b2cbd956157adf10fe77156000c7bf7339",
+    "docs/07-questionnaire-next-options.md": "107897009acc691f28b793a18b29e75187b82b4d9485b40d1ee26f871af3a372",
+    "docs/research/men-esthe-2026-10-23/README.md": "78664226f6669f04135aa343108f567170038e2d38d8679593f3878ad725c71f",
+    "docs/research/men-esthe-2026-10-23/planning/screenshots/adoption58-desktop.png": "2c6adbc13084cd0ac2d6c0944aa0fe739741bf7a0f489ca277e13df826e2b12a",
+    "docs/research/men-esthe-2026-10-23/planning/screenshots/adoption58-mobile-390.png": "f90227e93ae1a72c75b3c2a16b4346166ad1e86d608ce6ab4772b0f0931ae84c",
+    "docs/research/men-esthe-2026-10-23/planning/screenshots/adoption58-mobile-320.png": "9d27a65202faf454797de68520b14a6a541cdfd75cf08416517b3defc28f1fd2"
+  }
+}

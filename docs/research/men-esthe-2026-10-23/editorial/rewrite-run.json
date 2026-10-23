@@ -1,0 +1,44 @@
+{
+  "status": "SUCCESS",
+  "duration_seconds": 163.3717925,
+  "num_turns": 1,
+  "model": "gemini-3.8-flash-high",
+  "route": "direct Antigravity CLI because Orca runtime not running",
+  "process_exit_code": 0,
+  "input_files": [
+    "README.md",
+    "findings.md"
+  ],
+  "input_excluded": [
+    "article bodies",
+    "local user records",
+    "application source code",
+    "settings and authentication",
+    "machine screenshots or other private evidence"
+  ],
+  "parent_comparison_pending": false,
+  "parent_review": {
+    "all_rewrite_differences_read": true,
+    "rewrite_preserved_link_targets": true,
+    "rewrite_preserved_source_id_counts": true,
+    "rewrite_preserved_number_counts": true,
+    "parent_finish_applied": "stop-ai-slop-jp",
+    "parent_final_edits": [
+      "removed added quotation marks around ordinary descriptions",
+      "clarified timing of new requests and first-page cache timestamp",
+      "limited two findings sentences to directly cited scope",
+      "updated supported184/unverified148 after independent semantic QA"
+    ],
+    "final_markdown_sha256": {
+      "README.md": "da06f9fb38a7782a3ed3879ab0f33eb7875a1efd75e8753ee6ff9d80048280f3",
+      "findings.md": "efba83bdd1966750de5e1ddb6a95572f9c98641d14718dfdd699aa1ca9ad0e2d"
+    }
+  },
+  "subsequent_user_scope_update": {
+    "purpose": "article-writing questionnaire enrichment",
+    "current_documents_updated": true,
+    "original_and_rewrite_snapshots_retained_as_history": true,
+    "rewrite_not_repeated_for_minor_follow_up_edit": true
+  },
+  "questionnaire_plan_navigation_added": true
+}
