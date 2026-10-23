@@ -163,6 +163,19 @@
         "optionChosen": {
           "type": "string"
         },
+        "options": {
+          "type": "array",
+          "maxItems": 10,
+          "items": {
+            "type": "object",
+            "required": ["type", "detail", "price"],
+            "properties": {
+              "type": { "type": "string" },
+              "detail": { "type": "string" },
+              "price": { "$ref": "#/$defs/fee" }
+            }
+          }
+        },
         "optionFee": {
           "$ref": "#/$defs/fee"
         },
@@ -364,6 +377,13 @@
       "type": "object",
       "description": "臨場感素材",
       "properties": {
+        "speechTopics": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": ["welcome", "preference_check", "conversation", "aftercare"]
+          }
+        },
         "herLines": {
           "type": "array",
           "items": {

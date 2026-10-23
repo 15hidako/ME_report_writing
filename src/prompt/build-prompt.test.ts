@@ -42,6 +42,26 @@ describe('specSummary / tagCandidates', () => {
 });
 
 describe('buildSinglePrompt', () => {
+  it('会話の話題だけがある場合はセリフの引用を求めず、未記録の言葉を省く', () => {
+    const record = fixtureRecord({ voice: { herLines: [], innerVoice: [], titleHook: '', repeatIntent: 'unsure', speechTopics: ['welcome'] } });
+    const prompt = buildSinglePrompt(record);
+    expect(prompt).toContain('会話の話題は発言の引用ではありません');
+    expect(prompt).toContain('実際のセリフ欄が空なら引用は省いてください');
+    expect(prompt).toContain('未入力のセリフ・内心は省く');
+    expect(prompt).toContain('セリフ・心の声は記録がある場合だけ使い');
+    expect(prompt).toContain('会話の話題（発言の引用ではない）: 出迎え・あいさつ');
+    expect(prompt).toContain('彼女のセリフ: なし');
+    expect(prompt).not.toContain('(セリフ+心の声を入れる)');
+  });
+
+  it('構造化オプションと旧形式の補足を両方残し、今回の入力を優先する', () => {
+    const base = fixtureRecord();
+    const record = fixtureRecord({ basic: { ...base.basic, optionSystem: '衣装以外の補足メモ', options: [{ type: 'costume', detail: '選べる衣装', price: 4000 }] } });
+    const prompt = buildSinglePrompt(record);
+    expect(prompt).toContain('衣装変更（選べる衣装）: 4,000円');
+    expect(prompt).toContain('旧形式メモ（上の入力と食い違う場合は上を優先）: 衣装以外の補足メモ');
+  });
+
   it('文体ルール・規約・構成・データを含む', () => {
     const p = buildSinglePrompt(fixtureRecord());
     expect(p).toContain('文体ルール');

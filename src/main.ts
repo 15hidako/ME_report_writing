@@ -1,6 +1,6 @@
 import type { VisitRecord } from './types';
 import { VisitStore } from './storage';
-import { renderForm, collectRecord, bindCourseFields } from './ui/form';
+import { renderForm, collectRecord, bindCourseFields, bindOptionFields } from './ui/form';
 import { bindChips, bindStars, copyText, esc, toast } from './ui/widgets';
 import { bindNoteSuggestions } from './ui/questionnaire-candidates';
 import { buildCatalogPrompt, buildMatomePrompt, buildRevisitPrompt, buildSinglePrompt } from './prompt/build-prompt';
@@ -221,6 +221,7 @@ function mountForm(): void {
     draft.dirty = true;
   };
   bindCourseFields(form, markDirty);
+  bindOptionFields(form, markDirty);
   bindStars(form, markDirty);
   bindChips(form, markDirty);
   bindNoteSuggestions(form);

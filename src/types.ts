@@ -44,6 +44,12 @@ export interface Phase {
   readonly note: string;
 }
 
+export interface VisitOption {
+  readonly type: string;
+  readonly detail: string;
+  readonly price: number | null;
+}
+
 export interface BasicInfo {
   readonly visitDate: string;
   readonly timeSlot: TimeSlot;
@@ -59,6 +65,7 @@ export interface BasicInfo {
   readonly course: string;
   readonly courseFee?: number | null;
   readonly optionSystem: string;
+  readonly options?: readonly VisitOption[];
   readonly optionChosen: string;
   readonly optionFee?: number | null;
   readonly nominationFee: number | null;
@@ -96,7 +103,10 @@ export interface Flow {
   readonly downside: string;
 }
 
+export type SpeechTopic = 'welcome' | 'preference_check' | 'conversation' | 'aftercare';
+
 export interface Voice {
+  readonly speechTopics?: readonly SpeechTopic[];
   readonly herLines: readonly string[];
   readonly innerVoice: readonly string[];
   readonly titleHook: string;

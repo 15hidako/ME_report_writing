@@ -3,6 +3,8 @@ import {
   BODY_LABELS, CUP_IMPRESSION_LABELS, FLOW_PHASES, GENRE_LABELS,
   RATING_LABELS, REPEAT_LABELS, SPEC_NOTE_LABELS,
 } from '../types';
+import { optionDescription } from '../options';
+import { SPEECH_TOPIC_LABELS } from '../voice-patterns';
 
 const stars = (n: number): string => '★'.repeat(n) + '☆'.repeat(5 - n);
 
@@ -56,6 +58,17 @@ export function tagCandidates(record: VisitRecord): string[] {
   ].filter((t) => t.trim() !== '');
 }
 
+function optionsBlock(record: VisitRecord): string {
+  const b = record.basic;
+  if (b.options === undefined) return `- オプション体系: ${b.optionSystem} → 選択: ${b.optionChosen}`;
+  const catalog = b.options.length === 0 ? 'なし' : `${b.options.length}種類\n${b.options
+    .map((option, index) => `  - オプション${index + 1}: ${optionDescription(option)}`).join('\n')}`;
+  const total = b.optionFee === null || b.optionFee === undefined ? '未確認' : `${b.optionFee.toLocaleString('ja-JP')}円`;
+  return `- オプション体系（メニューと設定価格）: ${catalog}
+${b.optionSystem.trim() === '' ? '' : `- オプション体系の旧形式メモ（上の入力と食い違う場合は上を優先）: ${b.optionSystem}\n`}- 今回選択したオプション: ${b.optionChosen || '未入力'}
+- 今回のオプション代合計: ${total}`;
+}
+
 /** 訪問レコード → プロンプトに埋め込む入力データテキスト */
 export function serializeRecord(record: VisitRecord, opts: { withIdentity: boolean } = { withIdentity: true }): string {
   const b = record.basic;
@@ -71,6 +84,9 @@ export function serializeRecord(record: VisitRecord, opts: { withIdentity: boole
   const age = b.age === null ? '不明' : `${b.age}歳${b.ageIsEstimate ? '(推定)' : ''}`;
   const herLines = v.herLines.filter((l) => l.trim() !== '').map((l) => `「${l}」`).join(' / ');
   const inner = v.innerVoice.filter((l) => l.trim() !== '').map((l) => `(${l})`).join(' / ');
+  const topics = v.speechTopics?.length
+    ? `- 会話の話題（発言の引用ではない）: ${v.speechTopics.map((topic) => SPEECH_TOPIC_LABELS[topic]).join(' / ')}\n`
+    : '';
 
   return `### 訪問データ #${record.seriesNo}
 [基本情報]
@@ -79,7 +95,7 @@ export function serializeRecord(record: VisitRecord, opts: { withIdentity: boole
 ${identity}
 - 年齢: ${age}
 - コース: ${b.course}
-- オプション体系: ${b.optionSystem} → 選択: ${b.optionChosen}
+${optionsBlock(record)}
 - 部屋タイプ: ${{ mansion: 'マンション型', room: 'ルーム型', other: 'その他' }[b.roomType]}
 
 [スペック]
@@ -95,7 +111,7 @@ ${flowBlock(record)}
 ${record.flow.downside.trim() !== '' ? `- 残念ポイント: ${record.flow.downside}` : ''}
 
 [臨場感素材]
-- 彼女のセリフ: ${herLines || 'なし'}
+${topics}- 彼女のセリフ: ${herLines || 'なし'}
 - 心の声: ${inner || 'なし'}
 - タイトル用フック: ${v.titleHook || 'なし'}
 - リピート意向: ${REPEAT_LABELS[v.repeatIntent]}`;

@@ -35,6 +35,51 @@ afterEach(() => {
 });
 
 describe('起動からの画面操作', () => {
+  it.each(['optionCount', 'speechTopics'])('%sだけの変更もタブ移動で残し、破棄の前に確認する', async (target) => {
+    await start([fixtureRecord()]);
+    button('入力').click();
+    if (target === 'optionCount') {
+      field('optionCount').value = '2';
+      field('optionCount').dispatchEvent(new Event('change', { bubbles: true }));
+    } else {
+      button('出迎え・あいさつ').click();
+    }
+    button('履歴').click();
+    const confirm = vi.fn(() => false);
+    vi.stubGlobal('confirm', confirm);
+    button('編集').click();
+    expect(confirm).toHaveBeenCalledOnce();
+    button('入力').click();
+    if (target === 'optionCount') {
+      expect(field('optionCount').value).toBe('2');
+      expect(document.querySelectorAll('fieldset[data-option-index]:not([hidden])')).toHaveLength(2);
+    } else {
+      expect(button('出迎え・あいさつ').getAttribute('aria-pressed')).toBe('true');
+    }
+  });
+
+  it('種類別オプションと会話の話題を保存して再編集できる', async () => {
+    await start([fixtureRecord()]);
+    button('編集').click();
+    field('optionCount').value = '1';
+    field('optionCount').dispatchEvent(new Event('change', { bubbles: true }));
+    field('optionType_0').value = 'costume';
+    field('optionType_0').dispatchEvent(new Event('change', { bubbles: true }));
+    field('optionDetail_0').value = '衣装の詳細';
+    field('optionPrice_0').value = '0';
+    button('出迎え・あいさつ').click();
+    button('保存').click();
+    const saved = JSON.parse(window.localStorage.getItem('me-report-writer/visits/v1')!) as VisitRecord[];
+    expect(saved[0]?.basic.options).toEqual([{ type: 'costume', detail: '衣装の詳細', price: 0 }]);
+    expect(saved[0]?.voice.speechTopics).toEqual(['welcome']);
+    button('編集').click();
+    expect(field('optionCount').value).toBe('1');
+    expect(field('optionType_0').value).toBe('costume');
+    expect(field('optionDetail_0').value).toBe('衣装の詳細');
+    expect(field('optionPrice_0').value).toBe('0');
+    expect(button('出迎え・あいさつ').getAttribute('aria-pressed')).toBe('true');
+  });
+
   it('観察の選択順だけが変わっても未保存確認し、タブ切替で順番を保つ', async () => {
     const source = fixtureRecord({ flow: { ...fixtureRecord().flow, faceDown: { checks: ['指圧', '圧弱め'], note: '' } } });
     await start([source]);
