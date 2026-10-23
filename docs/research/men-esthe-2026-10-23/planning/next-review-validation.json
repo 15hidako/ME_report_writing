@@ -1,0 +1,109 @@
+{
+  "date": "2026-10-23",
+  "scope": "GPT-only organization of questionnaire candidates and optional question proposals",
+  "status": "pass",
+  "new_app_adoptions": 0,
+  "current_implemented_count": 29,
+  "candidate_count": 332,
+  "remaining_count": 303,
+  "remaining_source_checked": 155,
+  "counts": {
+    "implemented": 29,
+    "next_existing_priority": 35,
+    "next_existing_conditional": 23,
+    "new_question_required": 42,
+    "per_fact_metadata": 14,
+    "optional_context": 9,
+    "reuse_or_manual_detail": 32,
+    "evidence_pending": 148
+  },
+  "evidence_counts": {
+    "source_meaning_checked": 184,
+    "not_individually_checked": 148
+  },
+  "checks": {
+    "candidate_ids_complete_unique": true,
+    "original_labels_dispositions_status_ids_basis_preserved": true,
+    "no_evidence_status_promotions": true,
+    "all_individual_source_ids_exist_in_986_article_index": true,
+    "implemented_ids_match_application_29": true,
+    "next_existing_58_all_source_checked": true,
+    "priority_35_complete_unique": true,
+    "conditional_23": true,
+    "csv_matches_all_exported_json_fields": true,
+    "question_groups_10_optional_subquestions_33": true,
+    "question_candidate_references_193_preserve_original_records": true,
+    "primary_and_related_question_group_references_valid": true,
+    "priority_verification_12_remain_unchecked": true,
+    "local_document_links_valid": true,
+    "local_document_links_checked": 58,
+    "existing_document_final_hash_metadata_matches": true
+  },
+  "source_comparison": {
+    "baseline_files": 29,
+    "current_files": 29,
+    "changed_paths": [],
+    "unchanged": true
+  },
+  "unchanged_application_schema_dependency_file_hashes": {
+    "package-lock.json": "9d3ea6db8fd1d114c7f2cfef7f19e06888c9b85779e05a8cdc15ba8d971c1d5b",
+    "package.json": "62ebe7850a74cccc2ef094d48b741a19ffc9438240316893d65e620b14680e88",
+    "schema/visit-record.schema.json": "d262ef498afb3730e81ac96f5181cbab37373ad67fb57d8dcd3bb212f4aa4385",
+    "src/clipboard.test.ts": "d967b47a28a5e37f216f2a3af4125cf45d80dc6743e936d89323e89937888688",
+    "src/cost-storage.test.ts": "4f6b5f9c9a7eb9559a89b89a0bff6c3f5ffd1f4e63670e978c57f1fcde04d1e7",
+    "src/course-selection.test.ts": "7df3c893c148f9342c7916aea0d3a1490277a9fb463cfbc2362874c47dd72fdb",
+    "src/date.test.ts": "d641e7190ff0adcdb37d7b2dec9696fd696e1657f10e844ba381cb991d538a9c",
+    "src/date.ts": "05f600191d818ae7fd36722ca88f42d5d183f7893ba005a6797ff7fc3234c390",
+    "src/main.ts": "f83edd5f5d40c88543907f96c15e0bae4711c7d4bbb1d51c8501dc973921b61c",
+    "src/prompt/build-prompt.test.ts": "039cbf7f0403e7c73b08be93581ad174de3f5e08434249c2e5369416896474c2",
+    "src/prompt/build-prompt.ts": "25ff9e5482979539ea5e378f380c731cc351155829fe4ffcffbb445e3e26b517",
+    "src/prompt/publication.test.ts": "c981779890ff531580a57c799721d74e00d30bffcc510955a61b0422a56dd772",
+    "src/prompt/publication.ts": "8b0778a840ec03fcb87ffacab8a29aa8172c0ccc56ca63bbb1c32af84357af15",
+    "src/prompt/serialize.ts": "687f982fce40b61115f99a91c16c0a0f070ca3a6cbc57c51b15bdd59c390275e",
+    "src/prompt/style-profile.ts": "36c3bb96895570f8637a51a90789c9f2b9d01336856af98abd1cb39fb6889e16",
+    "src/questionnaire-enrichment.test.ts": "c5029c2c7c3c65843704aad358af8363b3184b985487bf7f72d60fa5d1639777",
+    "src/questionnaire-options.ts": "f35fdaf8104e39e3fd123e5d0606c662850641c33766939e33e041edd5b01608",
+    "src/record-validation.ts": "3232d4901ee40ee3cb10736c099316c9e308276c20ba562320924e51a278eb78",
+    "src/storage.test.ts": "3b7648802b3cfe2a76d7b1d6f9b5a2e1f070e618f64603741dee7f17c5d9938a",
+    "src/storage.ts": "95323b84fd2d917a22250605471e48df1fe17fa6be98382ff9cb9421ba3bab5d",
+    "src/styles.css": "b01251d2e4c63ea692fe0b5820be21d22aabdac5d9e1068118614adb28288d48",
+    "src/test-fixtures.ts": "b05e737b5d392dae5e01d9561e575b3567ae974b94be0334fd8080114b434367",
+    "src/thumbnail.ts": "3d1b87839a58d6528c705bfbdb912923c8abc4ca1a92021a6d4dca6358322edc",
+    "src/types.ts": "2bf611a03649f556acbe24998795fd7a853246b76c19f7bdcdb6e0614b490ac5",
+    "src/ui/form.ts": "30fb92f9daa96dbe62617af13d244f3510fd9a5b38dabb1e051b7ad10cbb5aa1",
+    "src/ui/questionnaire-candidates.ts": "d2114c9289d07e8e87b1c294f996282fab0094875f1c8a1b23629f200e6afef0",
+    "src/ui/widgets.ts": "ac6f65a898ee5437fdb5695bafa5794b10e7a6d5fcae00021c99cb085c8f7536",
+    "src/ui-regression.test.ts": "fb62da83ea93465521e95215d0f12d087c99a651a22bf604467a47fa861f1d72",
+    "src/url.ts": "afb2dd4bffd3e4535a0b4274a57d1c67b766c56b2c777d3d9e35bda49955ec20"
+  },
+  "independent_review": {
+    "agent": "next_options_final_review",
+    "role": "read-only data, meaning and document consistency review",
+    "status": "pass",
+    "resolved_findings": [
+      "saving_04 display proposal narrowed to coupon use; official issuer not inferred and original label retained",
+      "arrival_05, price_clarity_08 and scope_confirmation_07 primary group references synchronized bidirectionally",
+      "conversation example narrowed to low conversation quantity; pleasant rest not inferred"
+    ],
+    "unresolved_findings": []
+  },
+  "not_performed": {
+    "new_source_article_fetch": false,
+    "external_model_calls": false,
+    "app_code_schema_dependency_edits": false,
+    "tests_or_build_rerun": false,
+    "test_reason": "Documentation and planning data only; all 29 application/schema/dependency file hashes unchanged from this task baseline. Earlier test/build results are retained in integration-validation.json and are not claimed as rerun.",
+    "commit_or_push": false
+  },
+  "authoritative_next_adoption_ledger": "next-adoption-ledger.json",
+  "original_first_pass_classification_retained": true,
+  "artifact_sha256": {
+    "docs/07-questionnaire-next-options.md": "4f4f7942d09af375807d68ea1ba43c6167dccce460691b882c725056f78d96be",
+    "docs/research/men-esthe-2026-10-23/planning/next-adoption-ledger.json": "cd451e0ac8ccb7f4ac804b104734bc1282bd4584d29298f35fe7f83fa59e5a72",
+    "docs/research/men-esthe-2026-10-23/planning/next-adoption-ledger.csv": "23d3b6e5ed44b68792bbc70cef7887100d0369451f23ff8b4afd18548b820b52",
+    "docs/research/men-esthe-2026-10-23/planning/next-existing-review.json": "2b2c3d5749d00da109b208254b608c166362defb0ec81a756eb97cc2241f7ee9",
+    "docs/research/men-esthe-2026-10-23/planning/next-question-groups.json": "e8318569df470c29c212c17f0503d25049af73f42c489b0567e49b817129e267",
+    "docs/research/men-esthe-2026-10-23/option-candidates.json": "91c811c90389615c069c34d96ba271b625ac97304cbd57c2003132f45848a03e",
+    "docs/research/men-esthe-2026-10-23/option-evidence-reviewed.json": "3b9b0f0ee57daf1e14627acdce9bd4363bc94fa0e55bf927f49d3723c9e41014"
+  }
+}

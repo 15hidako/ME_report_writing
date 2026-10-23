@@ -1,0 +1,143 @@
+{
+  "status": "pass",
+  "date": "2026-10-23",
+  "scope": "production integration of first29 into existing rating notes and phase checks",
+  "execution": {
+    "models": "GPT parent plus GPT test/review agents",
+    "external_model_calls": false,
+    "grok_calls": 0,
+    "gemini_calls": 0,
+    "user_explicitly_requested_gpt_only": true
+  },
+  "candidate_counts": {
+    "unique": 29,
+    "note_button_instances": 27,
+    "phase_button_instances": 9
+  },
+  "data_contract": {
+    "record_type_schema_storage_keys_unchanged": true,
+    "no_research_data_imported_by_runtime": true,
+    "notes": "append preserving user text; duplicate only exact delimited phrase; existing collector trims edges",
+    "phase_checks": "set of selected literal observations scoped to phase; exact duplicates normalized and visual order used; original duplicates/order not preserved",
+    "legacy_strings": "distinct strings including empty and HTML special chars kept in original phase until deselection",
+    "revisit": "previous subjective notes/checks not preselected"
+  },
+  "checks": {
+    "red_regression": "unknown phase value lost on pre-change render/collect; expected 指圧+旧い観察, received 指圧",
+    "focused_regression": "7/7 pass",
+    "full_tests": {
+      "command": "npm test",
+      "files": 9,
+      "tests": 133,
+      "passed": 133,
+      "exit_code": 0
+    },
+    "build": {
+      "command": "npm run build",
+      "exit_code": 0
+    },
+    "prototype_explicit_strict_tsc": {
+      "exit_code": 0
+    },
+    "git_diff_check": {
+      "exit_code": 0
+    }
+  },
+  "verified_regressions": [
+    "typed note preserved and only target note appended",
+    "exact duplicate and longer negative sentence distinguished",
+    "input event integrates with main dirty/discard guard",
+    "star value unaffected by note action",
+    "phase selections independent across same label",
+    "legacy unsafe chars/empty retained through collect/store save/load/export/import/render/collect/serialize",
+    "explicit deselection works",
+    "new revisit does not copy prior subjective notes/checks"
+  ],
+  "browser": {
+    "tool": "cua_repl in-app browser",
+    "url": "http://127.0.0.1:5188/",
+    "isolation": "separate localhost port with initially empty storage; synthetic record only",
+    "real_ui_verified": [
+      "new form -> notes/phase selections -> Save -> list",
+      "page reload -> Edit restores note and both selected phase candidates",
+      "deselect one phase -> Save -> Edit leaves other phase selected",
+      "Enter note append and Space phase toggle",
+      "note count27 and phase candidate count9",
+      "console errors empty"
+    ],
+    "viewports": [
+      {
+        "width": 1280,
+        "height": 900,
+        "horizontal_overflow": false
+      },
+      {
+        "width": 390,
+        "height": 844,
+        "horizontal_overflow": false,
+        "visible_candidate_min_height": 44
+      },
+      {
+        "width": 320,
+        "height": 740,
+        "horizontal_overflow": false,
+        "long_candidate_height": 58
+      }
+    ],
+    "viewport_reset": true
+  },
+  "reviews": {
+    "test_design": "independent GPT tdd_guide; new test file only",
+    "code_reviewer": "no production correctness/security findings; outdated docs subsequently updated",
+    "typescript_reviewer": "no remaining findings after clarifying set semantics; earlier duplicate/order concern withdrawn under approved contract"
+  },
+  "source_hashes": {
+    "src/questionnaire-options.ts": "f35fdaf8104e39e3fd123e5d0606c662850641c33766939e33e041edd5b01608",
+    "src/ui/questionnaire-candidates.ts": "d2114c9289d07e8e87b1c294f996282fab0094875f1c8a1b23629f200e6afef0",
+    "src/ui/widgets.ts": "ac6f65a898ee5437fdb5695bafa5794b10e7a6d5fcae00021c99cb085c8f7536",
+    "src/ui/form.ts": "30fb92f9daa96dbe62617af13d244f3510fd9a5b38dabb1e051b7ad10cbb5aa1",
+    "src/main.ts": "f83edd5f5d40c88543907f96c15e0bae4711c7d4bbb1d51c8501dc973921b61c",
+    "src/styles.css": "b01251d2e4c63ea692fe0b5820be21d22aabdac5d9e1068118614adb28288d48",
+    "src/questionnaire-enrichment.test.ts": "c5029c2c7c3c65843704aad358af8363b3184b985487bf7f72d60fa5d1639777",
+    "docs/prototypes/questionnaire-enrichment.ts": "5680122f79fc1c6e61305781ee4ffb58b13240afdace85ab96193cfec0036834",
+    "docs/prototypes/questionnaire-enrichment.css": "e2d7d4aa92d7576d1178969bd53c1f7ff9e6d99c00afdb55e1534f74bfa308c9"
+  },
+  "screenshots": [
+    {
+      "path": "docs/prototypes/screenshots/integrated-desktop-1280.jpg",
+      "sha256": "93b6998c83b48085b5578879c1560032d029fd6a4f10ddf77781e20d0184b666"
+    },
+    {
+      "path": "docs/prototypes/screenshots/integrated-mobile-390.jpg",
+      "sha256": "7042b7bc22b2a955586babe26f9d52d0a6a4c935f0a82f40134f3c725f52cd06"
+    },
+    {
+      "path": "docs/prototypes/screenshots/integrated-mobile-320.jpg",
+      "sha256": "eff3b7c140b15dafc237ed982a6e58d423295f350e50ae6d3c679801724a81e4"
+    }
+  ],
+  "not_verified": [
+    "actual visit completion time",
+    "actual-device one-handed use",
+    "screen-reader output",
+    "article specificity with actual visit notes"
+  ],
+  "git": {
+    "commit_created": false,
+    "push_performed": false
+  },
+  "remaining_work": [
+    "実際の訪問メモで入力時間と記事素材の具体性を評価",
+    "実機の片手操作とスクリーンリーダーによる確認",
+    "来店理由・総評理由など、追加の保存項目を別途検討"
+  ],
+  "final_consistency_checks": {
+    "332_csv_json_equal": true,
+    "only29_implemented": true,
+    "approved_label_and_placement_match": true,
+    "document_links_resolve": true,
+    "document_hashes_match": true,
+    "verified_source_hashes_unchanged": true,
+    "default_app_opened_on_5187": true
+  }
+}

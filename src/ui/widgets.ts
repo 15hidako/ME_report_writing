@@ -28,14 +28,20 @@ export function bindStars(root: HTMLElement, onChange: () => void): void {
   });
 }
 
+export function chipButton(item: { value: string; label: string; candidateId?: string }, selected = false): string {
+  const candidate = item.candidateId === undefined ? '' : ` data-candidate="${esc(item.candidateId)}"`;
+  return `<button type="button" class="chip${selected ? ' on' : ''}" data-value="${esc(item.value)}"${candidate} aria-pressed="${selected ? 'true' : 'false'}">${esc(item.label)}</button>`;
+}
+
 export function chipGroup(name: string, items: readonly { value: string; label: string }[], selected: readonly string[] = [], multi = true): string {
   const chips = items
-    .map(({ value, label }) => {
-      const on = selected.includes(value);
-      return `<button type="button" class="chip${on ? ' on' : ''}" data-value="${esc(value)}" aria-pressed="${on ? 'true' : 'false'}">${esc(label)}</button>`;
-    })
+    .map((item) => chipButton(item, selected.includes(item.value)))
     .join('');
   return `<div class="chips" data-chips="${esc(name)}" data-multi="${multi ? '1' : '0'}">${chips}</div>`;
+}
+
+export function chipOrderItems(values: readonly string[]): string {
+  return values.map((value) => `<li>${esc(value === '' ? '（空の保存値）' : value)}</li>`).join('');
 }
 
 export function bindChips(root: HTMLElement, onChange: () => void): void {
@@ -58,6 +64,21 @@ export function bindChips(root: HTMLElement, onChange: () => void): void {
       const pressed = chip.classList.toggle('on');
       chip.setAttribute('aria-pressed', pressed ? 'true' : 'false');
     }
+    const order = wrap.getAttribute('data-selection-order');
+    const value = chip.getAttribute('data-value');
+    if (order !== null && value !== null) {
+      const selected = JSON.parse(order) as string[];
+      const next = chip.classList.contains('on')
+        ? [...selected, value]
+        : selected.filter((item) => item !== value);
+      wrap.setAttribute('data-selection-order', JSON.stringify(next));
+      const display = wrap.querySelector<HTMLElement>('.selection-order');
+      const list = display?.querySelector('ol');
+      if (display && list) {
+        list.innerHTML = chipOrderItems(next);
+        display.hidden = next.length === 0;
+      }
+    }
     onChange();
   });
 }
@@ -65,9 +86,13 @@ export function bindChips(root: HTMLElement, onChange: () => void): void {
 export function chipValues(root: HTMLElement, name: string): string[] {
   const wrap = root.querySelector(`[data-chips="${name}"]`);
   if (wrap === null) return [];
+  const order = wrap.getAttribute('data-selection-order');
+  if (order !== null) return JSON.parse(order) as string[];
   return [...wrap.querySelectorAll('button.chip.on')]
-    .map((c) => c.getAttribute('data-value') ?? '')
-    .filter((v) => v !== '');
+    .flatMap((c) => {
+      const value = c.getAttribute('data-value');
+      return value === null ? [] : [value];
+    });
 }
 
 export function starValue(root: HTMLElement, name: string): number {

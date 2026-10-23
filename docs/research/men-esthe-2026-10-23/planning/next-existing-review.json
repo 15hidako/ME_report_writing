@@ -1,0 +1,2947 @@
+{
+  "record_role": "historical_planning_snapshot_superseded_by_user_decision",
+  "latest_decision_record": "adoption58-decision.json",
+  "subsequent_user_decision": {
+    "date": "2026-10-23",
+    "additional58": "accepted_and_implemented",
+    "current_implemented_count": 87,
+    "new_question_groups10": "all_rejected",
+    "original_classifications_and_evidence_preserved": true
+  },
+  "purpose": "29候補の次に検討できる、既存入力欄へ意味を保って収まる候補の再評価",
+  "scope": "planning_only_existing_fields_no_app_or_schema_changes_no_web_fetch_no_external_model",
+  "reviewed_on": "2026-10-23",
+  "recommendation_status": "candidate_pool_for_parent_integration_not_an_implementation_order",
+  "sources": [
+    "planning/candidate-disposition.json",
+    "option-evidence-reviewed.json",
+    "src/questionnaire-options.ts",
+    "src/types.ts",
+    "src/ui/form.ts",
+    "src/ui/questionnaire-candidates.ts",
+    "src/prompt/serialize.ts"
+  ],
+  "counts": {
+    "all_candidates_reviewed": 332,
+    "source_meaning_checked": 184,
+    "already_integrated_first_batch": 29,
+    "next_ready_existing_field_pool": 58,
+    "reuse_existing_or_merge_no_new_option": 39,
+    "held_supported_context_or_metadata": 58,
+    "not_individually_checked_not_promoted": 148
+  },
+  "key_findings": [
+    "retain_as_contextやpropose_later_structured_materialという既存区分だけで除外せず、意味を保って既存note・downside・実際の段階へ収まる候補を再評価した。",
+    "next-readyは原典の意味照合済み候補のみ。原典の未検証の体験談は、その店や担当者の恒常的な実態や本人の訪問の事実を保証しない。",
+    "候補プール全体を一度に常設追加する判断ではない。特にphase依存候補は実際の段階を選ぶ設計と意味を限定する説明が必要。",
+    "spec.freeTagsは現行serializeRecordのスペック本文には入らずtagCandidatesだけに使われるため、印象や出来事の本文到達先として単独で推奨しない。",
+    "来店前の問題や価値への不満は既存flow.downsideへ自然に入る。中立の予約方式や肯定的な価格評価を残念ポイントへ押し込まない。",
+    "scope_confirmation_02、comfort_distance_03、aftercare_01、pace_of_time_04等は原典basisに合わせて表示範囲を限定した。",
+    "既存会話・圧強め/弱め・シャワー、初回29、具体的な次候補と重なるものを新しい追加件数へ含めない。"
+  ],
+  "global_acceptance_constraints": [
+    "本人が実際の訪問で経験・観察・感じたことだけを任意に選ぶ。調査記事の事実・段階・数値・台詞を本人の訪問へ転用しない。",
+    "ratings.noteは対応する星の理由に限り、外見はface/style、応対はservice、手技・圧・施術時間の体感はmassageへ置く。ero/toleranceへ曖昧な候補を自動割当しない。",
+    "flow.<actual phase>は記憶にある実際の段階だけ。部位・手技・記事の順序からphaseを決めない。段階不明なら該当星の理由かdownsideへ自然に収まる場合を除き固定チェックへ追加しない。",
+    "対面前の出来事をmeetingへ格納しない。flow.downsideは段階ではない既存の全体的な残念ポイント欄として使える。",
+    "意味が近い候補を同時選択した際に同じ事実を増幅しない。手入力した理由を保持し、類似表現の統合は本人の意味を変えずに行う。",
+    "不在・未確認・断った・提案だけ・説明だけ・実施済みを区別する。拒否されなかったことを恒常的な寛容度へ一般化しない。",
+    "選択肢を将来実装する場合も保存・再編集・出力経路の確認が必要。既存の未知チェック値は現在renderFlowChecksで保持されるため、この保持動作を壊さない。"
+  ],
+  "next_ready_candidate_ids": [
+    "booking_flow_04",
+    "welcome_03",
+    "welcome_05",
+    "price_clarity_02",
+    "price_clarity_05",
+    "price_clarity_07",
+    "upsell_01",
+    "upsell_03",
+    "upsell_04",
+    "upsell_05",
+    "room_facility_01",
+    "room_facility_02",
+    "cleanliness_01",
+    "cleanliness_04",
+    "comfort_03",
+    "amenities_01",
+    "amenities_02",
+    "amenities_05",
+    "shower_05",
+    "shower_06",
+    "scent_03",
+    "scent_06",
+    "appearance_02",
+    "appearance_03",
+    "appearance_04",
+    "appearance_06",
+    "conversation_amount_01",
+    "conversation_amount_03",
+    "conversation_amount_05",
+    "conversation_amount_06",
+    "professionalism_05",
+    "professionalism_07",
+    "assessment_05",
+    "technique_05",
+    "focus_02",
+    "focus_04",
+    "focus_08",
+    "method_02",
+    "method_03",
+    "pace_of_time_01",
+    "pace_of_time_02",
+    "pace_of_time_03",
+    "pace_of_time_04",
+    "pace_of_time_05",
+    "comfort_distance_01",
+    "comfort_distance_02",
+    "comfort_distance_03",
+    "scope_confirmation_01",
+    "scope_confirmation_02",
+    "scope_confirmation_05",
+    "aftercare_02",
+    "satisfaction_05",
+    "booking_response_03",
+    "access_02",
+    "access_04",
+    "downside_07",
+    "value_03",
+    "comparison_03"
+  ],
+  "next_ready_existing_fields": [
+    {
+      "candidate_id": "booking_flow_04",
+      "original_label": "予約内容の再確認があった",
+      "display_label": "入室後にコースの確認があった",
+      "semantic_revision": "入室後にコースの確認があった",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "flow.meeting.checks",
+      "article_useful_reason": "導入で何を確認してから始まったかを具体化できる。",
+      "acceptance_constraints": [
+        "入室後の確認を本人が経験した時だけ。予約前の連絡を対面の出来事にしない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-694023"
+      ],
+      "original_evidence_basis": "入室時にコースを確認された。"
+    },
+    {
+      "candidate_id": "welcome_03",
+      "original_label": "明るい対応だった",
+      "display_label": "明るい応対だった",
+      "semantic_revision": "明るい応対だった",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "ratings.service.note",
+      "article_useful_reason": "接客の明るさを、会話の相性と分けて星の理由にできる。",
+      "acceptance_constraints": [
+        "担当者の実際の応対への印象に限る。性格が常に明るいとの断定にしない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-693779",
+        "ME-624755"
+      ],
+      "original_evidence_basis": "明るい雰囲気の接客と述べる。"
+    },
+    {
+      "candidate_id": "welcome_05",
+      "original_label": "親しみやすかった",
+      "display_label": "親しみやすい応対だった",
+      "semantic_revision": "親しみやすい応対だった",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "ratings.service.note",
+      "article_useful_reason": "話しやすさだけでは捉えない、迎え方や距離感への好印象を記録できる。",
+      "acceptance_constraints": [
+        "会話のしやすさだけを言いたい場合は既存conversation_style_03を使い、同義語を二重に入れない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-694759",
+        "ME-701182"
+      ],
+      "original_evidence_basis": "親しみやすい応対だったと述べる。"
+    },
+    {
+      "candidate_id": "price_clarity_02",
+      "original_label": "入室後に総額を確認",
+      "display_label": "入室後にコース・追加内容を確認して支払った",
+      "semantic_revision": "入室後にコース・追加内容を確認して支払った",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "flow.meeting.checks",
+      "article_useful_reason": "支払と施術の順序を導入の事実として残せる。",
+      "acceptance_constraints": [
+        "原典basisはコース・追加内容の確認と支払。総額を明示して確認したとまでは自動補完しない。"
+      ],
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-694023",
+        "ME-692367"
+      ],
+      "original_evidence_basis": "入室後にコース・追加内容を確認して支払った。"
+    },
+    {
+      "candidate_id": "price_clarity_05",
+      "original_label": "追加料金を先に説明された",
+      "display_label": "施術前に追加内容と料金の説明があった",
+      "semantic_revision": "施術前に追加内容と料金の説明があった",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "flow.<actual phase>.checks",
+      "article_useful_reason": "何を選ぶ前にどの説明を受けたかを導入や施術の場面に使える。",
+      "acceptance_constraints": [
+        "本人の説明を受けた段階がmeetingならそこへ格納。施術途中の提案なら実際の段階へ。価格の正確さや内訳説明の存在を推定しない。"
+      ],
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-687357",
+        "ME-694023"
+      ],
+      "original_evidence_basis": "施術前に追加メニューと費用の案内があった。"
+    },
+    {
+      "candidate_id": "price_clarity_07",
+      "original_label": "説明が足りなかった",
+      "display_label": "追加内容や料金の説明が分かりにくかった",
+      "semantic_revision": "追加内容や料金の説明が分かりにくかった",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "flow.downside",
+      "article_useful_reason": "金額への不満と説明の分かりにくさを区別できる。",
+      "acceptance_constraints": [
+        "分かりにくかった対象を追記する。単なる高額・掲載との差だけで説明不足を確定しない。"
+      ],
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-655259",
+        "ME-673503"
+      ],
+      "original_evidence_basis": "上位追加の違いや掲載価格との差を分かりづらく感じた。"
+    },
+    {
+      "candidate_id": "upsell_01",
+      "original_label": "追加提案はなかった",
+      "display_label": "追加提案はなかった",
+      "semantic_revision": null,
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "ratings.service.note",
+      "article_useful_reason": "営業の強さを接客評価の理由として記録できる。",
+      "acceptance_constraints": [
+        "提案がなかったという本人の経験だけ。追加メニューの不存在、拒否、対応範囲の狭さを意味させない。接客評価に関係した時だけ使う。"
+      ],
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-693774",
+        "ME-691394"
+      ],
+      "original_evidence_basis": "追加メニューを提案されなかったと述べる。"
+    },
+    {
+      "candidate_id": "upsell_03",
+      "original_label": "おすすめを提案された",
+      "display_label": "有料追加を勧められた",
+      "semantic_revision": "有料追加を勧められた",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "flow.<actual phase>.checks",
+      "article_useful_reason": "施術の分岐や追加を選んだ経緯を場面に戻せる。",
+      "acceptance_constraints": [
+        "提案された段階に限る。選択・支払・実施の有無は別で、提案だけから実施を補わない。"
+      ],
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-687357",
+        "ME-676914"
+      ],
+      "original_evidence_basis": "おすすめの有料追加を提案された。"
+    },
+    {
+      "candidate_id": "upsell_04",
+      "original_label": "断っても対応は変わらなかった",
+      "display_label": "追加を断った後も丁寧だった",
+      "semantic_revision": "追加を断った後も丁寧だった",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "ratings.service.note",
+      "article_useful_reason": "断った後の接し方という具体的な評価理由になる。",
+      "acceptance_constraints": [
+        "原典は断った後も施術が丁寧という評価。前後すべての対応が変わらなかったとの比較には広げない。"
+      ],
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-678605"
+      ],
+      "original_evidence_basis": "追加を断った後も施術が丁寧だったと評価した。"
+    },
+    {
+      "candidate_id": "upsell_05",
+      "original_label": "断りにくく感じた",
+      "display_label": "追加提案を断りにくく感じた",
+      "semantic_revision": "追加提案を断りにくく感じた",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "ratings.service.note",
+      "article_useful_reason": "営業をどう受け止めたかを、強制の事実と分けて書ける。",
+      "acceptance_constraints": [
+        "本人の感情として記録する。威圧、強制、担当者の意図を追加しない。具体的に困った場合はdownsideにも自由記述できるが自動複製しない。"
+      ],
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-655259"
+      ],
+      "original_evidence_basis": "提案されると断りにくいと本人が述べた。"
+    },
+    {
+      "candidate_id": "room_facility_01",
+      "original_label": "マットで施術",
+      "display_label": "マットで施術",
+      "semantic_revision": null,
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "flow.<actual phase>.checks",
+      "article_useful_reason": "姿勢や施術の場面を読者がイメージする手掛かりになる。",
+      "acceptance_constraints": [
+        "実際にマットで施術した段階に限る。部屋全体の設備一覧を各段階へ繰り返し入れない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-702159",
+        "ME-691373"
+      ],
+      "original_evidence_basis": "マットでの施術を記した。"
+    },
+    {
+      "candidate_id": "room_facility_02",
+      "original_label": "ベッドで施術",
+      "display_label": "ベッドで施術",
+      "semantic_revision": null,
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "flow.<actual phase>.checks",
+      "article_useful_reason": "マットとの違いを保ち、施術場面の位置関係を記録できる。",
+      "acceptance_constraints": [
+        "実際にベッドで施術した段階だけ。設備があっただけでは選ばない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-611571"
+      ],
+      "original_evidence_basis": "ベッドでの施術を記した。"
+    },
+    {
+      "candidate_id": "cleanliness_01",
+      "original_label": "部屋が清潔だった",
+      "display_label": "部屋が清潔に感じられた",
+      "semantic_revision": "部屋が清潔に感じられた",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "flow.<actual phase>.note",
+      "article_useful_reason": "対面時の第一印象や居心地の背景を具体化できる。",
+      "acceptance_constraints": [
+        "清潔さに気づいた実際の段階が分かる時だけ。担当者の接客能力の星へ置き換えず、衛生状態の客観検査とも扱わない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-604702",
+        "ME-694023",
+        "ME-690955"
+      ],
+      "original_evidence_basis": "建物や室内を清潔と評価した。"
+    },
+    {
+      "candidate_id": "cleanliness_04",
+      "original_label": "清掃が気になった",
+      "display_label": "浴室の清掃が気になった",
+      "semantic_revision": "浴室の清掃が気になった",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "flow.downside",
+      "article_useful_reason": "漠然と設備が悪いとせず、気になった対象を限定できる。",
+      "acceptance_constraints": [
+        "原典は浴室のカビや汚れ。室内全体や担当者の衛生習慣に広げず、本人が見た状態を補う。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-695551",
+        "ME-676632"
+      ],
+      "original_evidence_basis": "浴室のカビや汚れが気になった。"
+    },
+    {
+      "candidate_id": "comfort_03",
+      "original_label": "照明が控えめ",
+      "display_label": "照明が控えめだった",
+      "semantic_revision": "照明が控えめだった",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "flow.<actual phase>.note",
+      "article_useful_reason": "部屋に入った場面の明るさを描く短い材料になる。",
+      "acceptance_constraints": [
+        "気づいた段階に限る。暗さから雰囲気の良さ、危険性、接客意図を補わない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-688698"
+      ],
+      "original_evidence_basis": "部屋の照明が薄暗かったと記す。"
+    },
+    {
+      "candidate_id": "amenities_01",
+      "original_label": "入室時に飲み物あり",
+      "display_label": "入室後に飲み物が出された",
+      "semantic_revision": "入室後に飲み物が出された",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "flow.meeting.checks",
+      "article_useful_reason": "対面から施術前の会話への流れを具体化できる。",
+      "acceptance_constraints": [
+        "入室後・施術前に本人が受けた提供に限る。飲み物の種類や温度は本人のメモで補う。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-693774",
+        "ME-694023",
+        "ME-691373"
+      ],
+      "original_evidence_basis": "入室後にお茶や飲み物を出された。"
+    },
+    {
+      "candidate_id": "amenities_02",
+      "original_label": "終了後に飲み物あり",
+      "display_label": "終了後に飲み物があった",
+      "semantic_revision": "終了後に飲み物があった",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "flow.after.checks",
+      "article_useful_reason": "施術後の余韻や会話の場面に事実を足せる。",
+      "acceptance_constraints": [
+        "施術後の飲み物に限る。入室時の提供と取り違えない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-689417",
+        "ME-684793"
+      ],
+      "original_evidence_basis": "終了後に茶を飲んだと記した。"
+    },
+    {
+      "candidate_id": "amenities_05",
+      "original_label": "備品の説明あり",
+      "display_label": "備品の選択について説明があった",
+      "semantic_revision": "備品の選択について説明があった",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "flow.<actual phase>.checks",
+      "article_useful_reason": "シャワーや準備の前に何を説明されたかを記録できる。",
+      "acceptance_constraints": [
+        "原典は使用する備品の選択についての説明。備品の場所や全設備の説明へ広げない。実際に説明された段階へ置く。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-624755"
+      ],
+      "original_evidence_basis": "使用する備品の選択について説明された。"
+    },
+    {
+      "candidate_id": "shower_05",
+      "original_label": "お湯が出るまで待った",
+      "display_label": "お湯が温まるまで待った",
+      "semantic_revision": "お湯が温まるまで待った",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "flow.downside",
+      "article_useful_reason": "準備やシャワーで生じた小さな不便を具体化できる。",
+      "acceptance_constraints": [
+        "待ったことを本人が不便に感じた場合に使う。入浴の前後や待ち時間は推測せず必要ならメモする。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-684793"
+      ],
+      "original_evidence_basis": "お湯が温まるまで待った。"
+    },
+    {
+      "candidate_id": "shower_06",
+      "original_label": "浴室が狭かった",
+      "display_label": "浴室が狭く感じられた",
+      "semantic_revision": "浴室が狭く感じられた",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "flow.downside",
+      "article_useful_reason": "設備への不満を本人の体感として限定できる。",
+      "acceptance_constraints": [
+        "本人が実際に使った浴室について。不便がなければ残念ポイントとして強制せず、段階が明確な時のphase.noteでも記録できる。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-676632"
+      ],
+      "original_evidence_basis": "浴室が狭いと感じた。"
+    },
+    {
+      "candidate_id": "scent_03",
+      "original_label": "香水の香り",
+      "display_label": "香水の香りがした",
+      "semantic_revision": "香水の香りがした",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "flow.<actual phase>.note",
+      "article_useful_reason": "対面や近づいた時の感覚を場面描写に使える。",
+      "acceptance_constraints": [
+        "本人が香水と認識した香りに限る。誰の香水か、製品名、好悪や強さは追加しない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-655259"
+      ],
+      "original_evidence_basis": "香水の香りがしたと述べる。"
+    },
+    {
+      "candidate_id": "scent_06",
+      "original_label": "香りが強く感じられた",
+      "display_label": "香水の香りが強く感じられた",
+      "semantic_revision": "香水の香りが強く感じられた",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "flow.downside",
+      "article_useful_reason": "香りの存在と、それを強いと感じた本人の受け止めを分けられる。",
+      "acceptance_constraints": [
+        "原典は香水。強い香りを不快に感じた時だけdownsideへ。全ての室内臭・体臭へ広げない。scent_03との同時追加で同じ文を繰り返さない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-655259"
+      ],
+      "original_evidence_basis": "香水の香りが強いと感じた。"
+    },
+    {
+      "candidate_id": "appearance_02",
+      "original_label": "自然な雰囲気",
+      "display_label": "自然な雰囲気だった",
+      "semantic_revision": "自然な雰囲気だった",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "ratings.face.note",
+      "article_useful_reason": "顔・メイクの印象を、写真との一致だけではない評価理由にできる。",
+      "acceptance_constraints": [
+        "外見についての本人の主観に限る。素顔、加工の有無、性格の自然さを認定しない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-676632"
+      ],
+      "original_evidence_basis": "自然な印象と受け止めた。"
+    },
+    {
+      "candidate_id": "appearance_03",
+      "original_label": "華やかな雰囲気",
+      "display_label": "華やかな雰囲気だった",
+      "semantic_revision": "華やかな雰囲気だった",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "ratings.face.note",
+      "article_useful_reason": "メイクや顔立ちの華やかさを対面印象の材料にできる。",
+      "acceptance_constraints": [
+        "原典は華やかなメイクと雰囲気。衣装・性格・接客の派手さへ自動で広げない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-694023"
+      ],
+      "original_evidence_basis": "華やかなメイクと雰囲気を記した。"
+    },
+    {
+      "candidate_id": "appearance_04",
+      "original_label": "落ち着いた雰囲気",
+      "display_label": "落ち着いた雰囲気だった",
+      "semantic_revision": "落ち着いた雰囲気だった",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "ratings.face.note",
+      "article_useful_reason": "顔の評価理由に、対面時の落ち着いた見た目という別の観点を足せる。",
+      "acceptance_constraints": [
+        "見た目の印象に限る。年齢、経験、話し方、常に落ち着いた性格を推定しない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-701966",
+        "ME-680085"
+      ],
+      "original_evidence_basis": "落ち着いた雰囲気と感じた。"
+    },
+    {
+      "candidate_id": "appearance_06",
+      "original_label": "スポーティーな印象",
+      "display_label": "スポーティーな印象だった",
+      "semantic_revision": "スポーティーな印象だった",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "ratings.style.note",
+      "article_useful_reason": "体型や立ち姿の印象を既存のスレンダー等の体型分類で潰さず記録できる。",
+      "acceptance_constraints": [
+        "運動歴や健康状態の事実ではない。本人が外見から受けた主観的印象として使う。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-693779"
+      ],
+      "original_evidence_basis": "健康的で運動部のような印象と記した。"
+    },
+    {
+      "candidate_id": "conversation_amount_01",
+      "original_label": "会話が多かった",
+      "display_label": "会話が多かった",
+      "semantic_revision": null,
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "ratings.service.note",
+      "article_useful_reason": "多い会話を好む人の好評価にも使え、既存の多すぎたという不満と区別できる。",
+      "acceptance_constraints": [
+        "会話量の観察だけ。会話が多かったことから楽しい・一方的・多すぎたを補わない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-687357",
+        "ME-685554",
+        "ME-675282"
+      ],
+      "original_evidence_basis": "会話が多かったと明記する。"
+    },
+    {
+      "candidate_id": "conversation_amount_03",
+      "original_label": "会話は少なめ",
+      "display_label": "施術中の会話は少なめだった",
+      "semantic_revision": "施術中の会話は少なめだった",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "ratings.service.note",
+      "article_useful_reason": "短い返答という話し方と、施術中全体の会話量を分けられる。",
+      "acceptance_constraints": [
+        "少なさを好悪へ変換しない。気まずさ、無愛想、静かに休めたという満足を推定しない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-691394",
+        "ME-690955"
+      ],
+      "original_evidence_basis": "施術中の会話が少なかったと述べる。"
+    },
+    {
+      "candidate_id": "conversation_amount_05",
+      "original_label": "場面によって会話量が変わった",
+      "display_label": "場面によって会話量が変わった",
+      "semantic_revision": null,
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "ratings.service.note",
+      "article_useful_reason": "対面時と施術中などの変化を記録し、全体を多い・少ないの一語で潰さずに済む。",
+      "acceptance_constraints": [
+        "本人が覚えている場面と増減を短く補足する。原典の場面順を本人の体験へ転用しない。具体化できなければ選択肢の固定追加を急がない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-697480",
+        "ME-666056",
+        "ME-679400"
+      ],
+      "original_evidence_basis": "場面により会話量が変わったと記す。"
+    },
+    {
+      "candidate_id": "conversation_amount_06",
+      "original_label": "こちらから話すことが多かった",
+      "display_label": "こちらから話題を振ることが多かった",
+      "semantic_revision": "こちらから話題を振ることが多かった",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "ratings.service.note",
+      "article_useful_reason": "会話の量だけでなく、誰が起点だったかを評価理由にできる。",
+      "acceptance_constraints": [
+        "相手から話題が少なく本人の質問を起点にした場合。相手が話す意思を持たなかったとは推定しない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-690955"
+      ],
+      "original_evidence_basis": "相手からの話題提供が少なく、質問を起点にした。"
+    },
+    {
+      "candidate_id": "professionalism_05",
+      "original_label": "慣れた対応だった",
+      "display_label": "慣れた対応だった",
+      "semantic_revision": null,
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "ratings.service.note",
+      "article_useful_reason": "手技の熟練とは別に、案内や接し方が円滑だった印象を残せる。",
+      "acceptance_constraints": [
+        "実際の案内・応対への印象として使う。施術の手つきだけを指す場合は既存technique_01を使い、勤続年数や職歴を推定しない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-687480"
+      ],
+      "original_evidence_basis": "慣れた施術・案内と受け止めた。"
+    },
+    {
+      "candidate_id": "professionalism_07",
+      "original_label": "慌ただしく感じた",
+      "display_label": "準備が慌ただしく感じられた",
+      "semantic_revision": "準備が慌ただしく感じられた",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "ratings.service.note",
+      "article_useful_reason": "丁寧か事務的かだけではない、準備時の落ち着かなさを残せる。",
+      "acceptance_constraints": [
+        "原典は準備が間に合わない場面。対応全体がいつも慌ただしいとはしない。長い準備時間とは別の主観で、同一場面の重複記述を避ける。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-692367"
+      ],
+      "original_evidence_basis": "準備が間に合わず、慌ただしいと感じた。"
+    },
+    {
+      "candidate_id": "assessment_05",
+      "original_label": "こちらから希望を伝えた",
+      "display_label": "こちらから希望する部位を伝えた",
+      "semantic_revision": "こちらから希望する部位を伝えた",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "ratings.massage.note",
+      "article_useful_reason": "希望を聞かれた事実、本人が伝えた事実、反映された結果を分けられる。",
+      "acceptance_constraints": [
+        "原典は疲れた部位の希望。伝えただけで確認・調整・満足があったと補わない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-691394"
+      ],
+      "original_evidence_basis": "疲れた部位の希望を伝えた。"
+    },
+    {
+      "candidate_id": "technique_05",
+      "original_label": "手順が一定だった",
+      "display_label": "手順が一定だった",
+      "semantic_revision": null,
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "ratings.massage.note",
+      "article_useful_reason": "一定の手順という観察と、既存の単調に感じたという不満を分けられる。",
+      "acceptance_constraints": [
+        "手順が一定という本人の印象。マニュアルの存在、手抜き、機械的な意図を確定しない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-680085"
+      ],
+      "original_evidence_basis": "一定の手順に沿った施術と感じた。"
+    },
+    {
+      "candidate_id": "focus_02",
+      "original_label": "背中を中心にケア",
+      "display_label": "背中を中心にケア",
+      "semantic_revision": null,
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "flow.<actual phase>.checks",
+      "article_useful_reason": "どの部位に時間をかけたかを施術場面へ具体的に戻せる。",
+      "acceptance_constraints": [
+        "実際の段階が分かる時だけ。うつ伏せ前半と自動決定しない。施術時間の長さや丁寧さはメモで補う。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-651913"
+      ],
+      "original_evidence_basis": "背面を長めに丁寧にほぐした。"
+    },
+    {
+      "candidate_id": "focus_04",
+      "original_label": "ふくらはぎを中心にケア",
+      "display_label": "ふくらはぎを中心にケア",
+      "semantic_revision": null,
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "flow.<actual phase>.checks",
+      "article_useful_reason": "脚全体という曖昧な描写を避け、重点部位を記録できる。",
+      "acceptance_constraints": [
+        "実際に行われた段階だけ。部位から体勢や順番を推測しない。長めだったことは本人の記憶で補う。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-675068"
+      ],
+      "original_evidence_basis": "ふくらはぎの施術が長かった。"
+    },
+    {
+      "candidate_id": "focus_08",
+      "original_label": "疲れた部位を重点的にケア",
+      "display_label": "疲れた部位を重点的にケア",
+      "semantic_revision": null,
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "ratings.massage.note",
+      "article_useful_reason": "本人の疲れへの対応という、手技の好みとは異なる評価理由になる。",
+      "acceptance_constraints": [
+        "重点的にケアされた事実まで。症状が改善した、治療されたという効果は補わない。assessment_07と同じ内容しか増えない場合は併記しない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-691394"
+      ],
+      "original_evidence_basis": "本人が疲れた部位を重点的に施術した。"
+    },
+    {
+      "candidate_id": "method_02",
+      "original_label": "ドライマッサージ",
+      "display_label": "ドライマッサージ",
+      "semantic_revision": null,
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "flow.<actual phase>.checks",
+      "article_useful_reason": "オイル前などの実際の手技の切替を記録できる。",
+      "acceptance_constraints": [
+        "実際にドライで行われた段階だけ。指圧と同義ではないため既存の指圧へ自動統合しない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-697079",
+        "ME-688698"
+      ],
+      "original_evidence_basis": "ドライマッサージから始まった。"
+    },
+    {
+      "candidate_id": "method_03",
+      "original_label": "オイルマッサージ",
+      "display_label": "オイルマッサージ",
+      "semantic_revision": null,
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "flow.<actual phase>.checks",
+      "article_useful_reason": "段階名にオイルと書かれているだけでは分からない、本人が受けた手技の事実を残せる。",
+      "acceptance_constraints": [
+        "実際に受けた段階だけ。オイル使用だけで手技・効果・施術範囲を補わない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-701966",
+        "ME-697480"
+      ],
+      "original_evidence_basis": "オイルマッサージを受けた。"
+    },
+    {
+      "candidate_id": "pace_of_time_01",
+      "original_label": "十分な施術時間",
+      "display_label": "施術時間は十分に感じられた",
+      "semantic_revision": "施術時間は十分に感じられた",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "ratings.massage.note",
+      "article_useful_reason": "短かったという不満と対になる、時間配分への満足を評価理由にできる。",
+      "acceptance_constraints": [
+        "主観的な十分さとして記録し、予約時間すべてが施術時間だったと断定しない。"
+      ],
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-668594"
+      ],
+      "original_evidence_basis": "時間を通して十分な施術と感じた。"
+    },
+    {
+      "candidate_id": "pace_of_time_02",
+      "original_label": "準備時間が長かった",
+      "display_label": "施術前の準備時間が長く感じられた",
+      "semantic_revision": "施術前の準備時間が長く感じられた",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "flow.meeting.note",
+      "article_useful_reason": "施術までの待ちや準備が体験にどう影響したかを書ける。",
+      "acceptance_constraints": [
+        "施術前の準備に限る。本人の体感で、具体的な分数を作らない。長さだけで後半短縮や担当者の不手際を推定しない。"
+      ],
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-611571",
+        "ME-692367",
+        "ME-691373"
+      ],
+      "original_evidence_basis": "開始前の準備に時間がかかった。"
+    },
+    {
+      "candidate_id": "pace_of_time_03",
+      "original_label": "途中で待ち時間があった",
+      "display_label": "途中で準備待ちがあった",
+      "semantic_revision": "途中で準備待ちがあった",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "flow.<actual phase>.checks",
+      "article_useful_reason": "施術が一度止まった箇所をフロー上に記録できる。",
+      "acceptance_constraints": [
+        "実際に待った段階が分かる時だけ。待ち時間やその理由が不明なら補完しない。"
+      ],
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-611571"
+      ],
+      "original_evidence_basis": "途中で準備待ちの時間があった。"
+    },
+    {
+      "candidate_id": "pace_of_time_04",
+      "original_label": "後半が駆け足だった",
+      "display_label": "後半の施術時間を短く感じた",
+      "semantic_revision": "後半の施術時間を短く感じた",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "flow.downside",
+      "article_useful_reason": "元ラベルの駆け足という動作の速さを断定せず、後半の短さを残せる。",
+      "acceptance_constraints": [
+        "原典は序盤準備が長く後半の施術が短め。手技が速かった、急いだ、意図的な短縮だったとはしない。"
+      ],
+      "original_disposition": "revise_semantics_before_use",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-611571"
+      ],
+      "original_evidence_basis": "序盤の準備が長く、後半の施術が短めになった。"
+    },
+    {
+      "candidate_id": "pace_of_time_05",
+      "original_label": "予定より早く終わった",
+      "display_label": "予約時間より早く終わった",
+      "semantic_revision": "予約時間より早く終わった",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "flow.downside",
+      "article_useful_reason": "終わり方の不満を、単なるコース時間の選択と分けて残せる。",
+      "acceptance_constraints": [
+        "本人が予定と終了を比較でき不満だった時。予約時間に準備・施術・退室の何を含むか、開始/終了時刻と概算の区別を補足し、契約違反を自動認定しない。"
+      ],
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-688337",
+        "ME-676632",
+        "ME-691373"
+      ],
+      "original_evidence_basis": "予約時間より早く終了したと述べる。"
+    },
+    {
+      "candidate_id": "comfort_distance_01",
+      "original_label": "自然な距離感",
+      "display_label": "距離感が自分にちょうどよかった",
+      "semantic_revision": "距離感が自分にちょうどよかった",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "ratings.service.note",
+      "article_useful_reason": "会話量や愛想と異なる、接客中の距離感への好印象を記録できる。",
+      "acceptance_constraints": [
+        "本人が心地よいと感じた距離感だけ。親密さ・恋愛感情・性的な許容範囲を推定しない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-685554"
+      ],
+      "original_evidence_basis": "施術中の距離感がちょうどよいと感じた。"
+    },
+    {
+      "candidate_id": "comfort_distance_02",
+      "original_label": "リラックスできた",
+      "display_label": "リラックスできた",
+      "semantic_revision": null,
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "ratings.service.note or ratings.massage.note (select one according to cause)",
+      "article_useful_reason": "本人がどう過ごせたかを、その原因となった評価軸の理由として残せる。",
+      "acceptance_constraints": [
+        "会話・応対が理由ならservice、施術が理由ならmassage。原因を覚えていなければ星の理由へ自動投入せず実際のphase.noteで記録する。両軸へ自動複製しない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-685554",
+        "ME-651913"
+      ],
+      "original_evidence_basis": "施術や会話でリラックスできた。"
+    },
+    {
+      "candidate_id": "comfort_distance_03",
+      "original_label": "近さに緊張した",
+      "display_label": "対面時に緊張した",
+      "semantic_revision": "対面時に緊張した",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "flow.meeting.note",
+      "article_useful_reason": "対面から緊張がほぐれるまでの感情の変化に使える。",
+      "acceptance_constraints": [
+        "原典はシャワー前の接客で緊張した事実。近さが原因、拒否感、性的な緊張とまでは確認できないため元ラベルの因果を外す。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-687357"
+      ],
+      "original_evidence_basis": "シャワー前の接客で緊張したと述べる。"
+    },
+    {
+      "candidate_id": "scope_confirmation_01",
+      "original_label": "対応範囲の説明があった",
+      "display_label": "対応範囲の説明があった",
+      "semantic_revision": null,
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "flow.<actual phase>.checks",
+      "article_useful_reason": "説明を受けてからどう進んだかを場面の事実として記録できる。",
+      "acceptance_constraints": [
+        "本人が口頭説明を受けた段階へ置く。説明された範囲と実施内容を分け、寛容度や追加対応を推測しない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-679400"
+      ],
+      "original_evidence_basis": "対応範囲を口頭で説明された。"
+    },
+    {
+      "candidate_id": "scope_confirmation_02",
+      "original_label": "希望を確認された",
+      "display_label": "希望する施術部位を尋ねられた",
+      "semantic_revision": "希望する施術部位を尋ねられた",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "ratings.massage.note",
+      "article_useful_reason": "希望確認がなかった既存候補と対にでき、重点施術の経緯を説明できる。",
+      "acceptance_constraints": [
+        "原典は希望する箇所の質問。対応範囲・苦手な行為・同意全般の確認に広げない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-624755"
+      ],
+      "original_evidence_basis": "希望する箇所を尋ねられた。"
+    },
+    {
+      "candidate_id": "scope_confirmation_05",
+      "original_label": "断った内容は行われなかった",
+      "display_label": "断った施術手順は行われなかった",
+      "semantic_revision": "断った施術手順は行われなかった",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "ratings.service.note",
+      "article_useful_reason": "本人が断った時の対応を、広い寛容度の評価に変換せず記録できる。",
+      "acceptance_constraints": [
+        "原典は一つの施術手順を断り実施されなかった事実。すべての希望・拒否への対応や、未確認の行為まで一般化しない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-680176"
+      ],
+      "original_evidence_basis": "本人が一つの施術手順を断り、行われなかった。"
+    },
+    {
+      "candidate_id": "aftercare_02",
+      "original_label": "帰り支度を急かされなかった",
+      "display_label": "帰り支度を急かされなかった",
+      "semantic_revision": null,
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "flow.after.checks",
+      "article_useful_reason": "施術後の過ごし方への好印象を、単に会話があった事実と分けられる。",
+      "acceptance_constraints": [
+        "帰り支度の場面の本人の受け止めに限る。施術時間が延長されたとはしない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-689417"
+      ],
+      "original_evidence_basis": "予約時間後も帰り支度を急かされなかった。"
+    },
+    {
+      "candidate_id": "satisfaction_05",
+      "original_label": "丁寧な対応が良かった",
+      "display_label": "受付・案内が丁寧だった",
+      "semantic_revision": "受付・案内が丁寧だった",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "ratings.service.note",
+      "article_useful_reason": "抽象的な満足を、具体的な受付・案内への接客評価へ戻せる。",
+      "acceptance_constraints": [
+        "予約スタッフの応対だけを指す場合は担当者への接客星へ混ぜず、対面時のphase.note等で主体を明記する。"
+      ],
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-604702",
+        "ME-677219"
+      ],
+      "original_evidence_basis": "丁寧な受付・案内を評価した。"
+    },
+    {
+      "candidate_id": "booking_response_03",
+      "original_label": "催促して返信が来た",
+      "display_label": "所在地の連絡を催促した",
+      "semantic_revision": "所在地の連絡を催促した",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "flow.downside",
+      "article_useful_reason": "来店前の困りごとも既存の残念ポイントで記録でき、無理に対面段階へ押し込まずに済む。",
+      "acceptance_constraints": [
+        "原典は所在地の連絡が来ず催促したこと。予約への返信すべてが遅いと広げない。本人が残念に感じた場合だけ使う。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-695551"
+      ],
+      "original_evidence_basis": "所在地の連絡が来ず、催促したと述べる。"
+    },
+    {
+      "candidate_id": "access_02",
+      "original_label": "駅から歩く距離があった",
+      "display_label": "駅から歩く距離があると感じた",
+      "semantic_revision": "駅から歩く距離があると感じた",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "flow.downside",
+      "article_useful_reason": "移動に関する不満を、担当者の評価に混ぜず残せる。",
+      "acceptance_constraints": [
+        "本人が歩いて距離を不便に感じた場合。距離や徒歩分数を補わず、他の部屋や店全体へ一般化しない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-671206",
+        "ME-694759",
+        "ME-660936"
+      ],
+      "original_evidence_basis": "駅から距離があると感じた。"
+    },
+    {
+      "candidate_id": "access_04",
+      "original_label": "場所を探して迷った",
+      "display_label": "場所を探して迷った",
+      "semantic_revision": null,
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "flow.downside",
+      "article_useful_reason": "来店時のつまずきを体験の導入や不満の根拠にできる。",
+      "acceptance_constraints": [
+        "本人が実際に迷ったことに限る。案内の誤り、担当者の落ち度、開始の遅れは追加しない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-671206"
+      ],
+      "original_evidence_basis": "建物を見つけられず迷った。"
+    },
+    {
+      "candidate_id": "downside_07",
+      "original_label": "案内が分かりにくかった",
+      "display_label": "所在地や入口の案内が分かりにくかった",
+      "semantic_revision": "所在地や入口の案内が分かりにくかった",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "flow.downside",
+      "article_useful_reason": "迷ったという結果と、案内のどこが分かりにくいと感じたかを分けられる。",
+      "acceptance_constraints": [
+        "所在地・入口に関する本人の感想として使う。予約内容全般の不一致や説明不足へ拡張しない。access_04と同じ出来事なら一つの記述へまとめる。"
+      ],
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-671206",
+        "ME-695551"
+      ],
+      "original_evidence_basis": "所在地や入口の案内に困った。"
+    },
+    {
+      "candidate_id": "value_03",
+      "original_label": "内容に対して割高",
+      "display_label": "内容に対して割高に感じた",
+      "semantic_revision": "内容に対して割高に感じた",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "flow.downside",
+      "article_useful_reason": "星の6軸にない料金対内容の不満も、現在の残念ポイントで記録できる。",
+      "acceptance_constraints": [
+        "本人の支払額と受けた内容に対する主観。価格の客観的な不当性、他の利用者の支払額を断定しない。"
+      ],
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-676914",
+        "ME-687360"
+      ],
+      "original_evidence_basis": "支払額に対して内容を割高と感じた。"
+    },
+    {
+      "candidate_id": "comparison_03",
+      "original_label": "前回より物足りない",
+      "display_label": "前回より物足りなく感じた",
+      "semantic_revision": "前回より物足りなく感じた",
+      "recommendation": "next_ready_existing_field_pool",
+      "existing_target_proposal": "flow.downside",
+      "article_useful_reason": "再訪記事で前回との変化を残せる。",
+      "acceptance_constraints": [
+        "同じ担当者の実体験との比較であることと比較対象を明記する。他人の口コミや別担当者を前回扱いせず、何が物足りないかは本人のメモで補う。"
+      ],
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-687360"
+      ],
+      "original_evidence_basis": "以前の同じ担当者との体験より物足りないと感じた。"
+    }
+  ],
+  "reuse_or_merge_no_new_option": [
+    {
+      "candidate_id": "welcome_06",
+      "original_label": "淡々とした対応だった",
+      "display_label": "受付は淡々としていた",
+      "semantic_revision": "受付は淡々としていた",
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "ratings.service.note or flow.meeting.note (manual)",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "淡々は中立の観察でもあり、既存professionalism_06の事務的という評価へ自動置換しない。受付時の短い自由記述として残せるため別の常設候補を急がない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-691394",
+        "ME-693774"
+      ],
+      "original_evidence_basis": "説明や受付を淡々としたものと感じた。",
+      "canonical_reuse": "manual_existing_text"
+    },
+    {
+      "candidate_id": "appearance_05",
+      "original_label": "親しみやすい雰囲気",
+      "display_label": "親しみやすい雰囲気だった",
+      "semantic_revision": "親しみやすい雰囲気だった",
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "ratings.service.note",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "実際の応対の親しみやすさならwelcome_05へ統合する。外見だけの雰囲気ならratings.face.noteへ本人が書き、応対を推測しない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-693779",
+        "ME-624755"
+      ],
+      "original_evidence_basis": "明るく親しみやすい印象を記した。",
+      "canonical_reuse": "welcome_05"
+    },
+    {
+      "candidate_id": "appearance_07",
+      "original_label": "プロフィールどおりの印象",
+      "display_label": "プロフィールどおりの印象だった",
+      "semantic_revision": "プロフィールどおりの印象だった",
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "ratings.face.note or ratings.style.note",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "写真との比較だけなら既存photo_match_01を再利用する。掲載プロフィールの他の属性との一致まで写真一致で代用せず、該当箇所を本人が追記する。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-697480",
+        "ME-651913"
+      ],
+      "original_evidence_basis": "プロフィールや写真に近い印象だった。",
+      "canonical_reuse": "photo_match_01"
+    },
+    {
+      "candidate_id": "conversation_amount_07",
+      "original_label": "静かに過ごせた",
+      "display_label": "会話が少ない時間があった",
+      "semantic_revision": "会話が少ない時間があった",
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "ratings.service.note",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "原典は会話が少ない時間。静かさが快適だった・休めたという満足を追加せず、会話量の候補と統合する。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-691394",
+        "ME-691620"
+      ],
+      "original_evidence_basis": "会話が少ない時間を過ごした。",
+      "canonical_reuse": "conversation_amount_03"
+    },
+    {
+      "candidate_id": "conversation_style_05",
+      "original_label": "明るい話し方",
+      "display_label": "明るい話し方だった",
+      "semantic_revision": "明るい話し方だった",
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "ratings.service.note",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "明るい応対の一部として使える。話し方に限定したい場合はwelcome_03の文面を本人が調整し、似たボタンを増やさない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-693779",
+        "ME-675068"
+      ],
+      "original_evidence_basis": "明るい話し方と感じた。",
+      "canonical_reuse": "welcome_03"
+    },
+    {
+      "candidate_id": "conversation_fit_02",
+      "original_label": "会話が弾んだ",
+      "display_label": "会話が弾んだ",
+      "semantic_revision": null,
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "flow.meeting.checks",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "対面中なら既存の同じラベルを使う。施術中や終了後ならその段階のnoteへ記録し、meetingで起きたとは扱わない。"
+      ],
+      "original_disposition": "reuse_existing",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-624755",
+        "ME-697378"
+      ],
+      "original_evidence_basis": "会話が弾んだと明記する。",
+      "canonical_reuse": "FLOW_PHASES.meeting:会話が弾んだ"
+    },
+    {
+      "candidate_id": "conversation_fit_08",
+      "original_label": "無理なく話せた",
+      "display_label": "無理なく話せた",
+      "semantic_revision": null,
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "ratings.service.note",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "話しやすさなら既存conversation_style_03、好みとの一致ならconversation_fit_01を使う。三つの近い好評価を常設追加しない。"
+      ],
+      "original_disposition": "merge_for_planning",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-697480",
+        "ME-694759"
+      ],
+      "original_evidence_basis": "自然で話しやすい会話だった。",
+      "canonical_reuse": "conversation_style_03 or conversation_fit_01"
+    },
+    {
+      "candidate_id": "assessment_04",
+      "original_label": "希望に合わせて調整",
+      "display_label": "希望に合わせて調整された",
+      "semantic_revision": "希望に合わせて調整された",
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "ratings.massage.note",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "伝えた希望が施術へ反映されたという意味で既存候補と重なる。新しい保存値は追加しない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-691394"
+      ],
+      "original_evidence_basis": "本人の希望に合わせ、疲れた部位を重点施術した。",
+      "canonical_reuse": "assessment_07"
+    },
+    {
+      "candidate_id": "pressure_01",
+      "original_label": "しっかりした圧",
+      "display_label": "しっかりした圧だった",
+      "semantic_revision": "しっかりした圧だった",
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "flow.faceDown.checks or ratings.massage.note (manual)",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "うつ伏せ前半で強い圧なら既存圧強めを使う。他の段階・全体の評価なら該当noteへ書く。強い圧から好みに合うとは推定しない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-667277",
+        "ME-701182",
+        "ME-691620"
+      ],
+      "original_evidence_basis": "しっかりした圧や力強い指圧と評価した。",
+      "canonical_reuse": "FLOW_PHASES.faceDown:圧強め"
+    },
+    {
+      "candidate_id": "pressure_02",
+      "original_label": "ほどよい圧",
+      "display_label": "強さはちょうどよかった",
+      "semantic_revision": "強さはちょうどよかった",
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "ratings.massage.note",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "既存pressure_08とほぼ同義。原候補の根拠は独立に保持するが表示候補を増やさない。"
+      ],
+      "original_disposition": "merge_for_planning",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-604702",
+        "ME-688337"
+      ],
+      "original_evidence_basis": "強すぎず弱すぎない圧と評価した。",
+      "canonical_reuse": "pressure_08"
+    },
+    {
+      "candidate_id": "pressure_03",
+      "original_label": "軽めの圧",
+      "display_label": "軽めの圧だった",
+      "semantic_revision": "軽めの圧だった",
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "flow.faceDown.checks or ratings.massage.note (manual)",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "うつ伏せ前半なら既存圧弱めを使う。他の段階は該当noteへ。軽い圧は観察なので、自分には弱かったという既存pressure_07の不満へ自動変換しない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-697480",
+        "ME-660936",
+        "ME-680176"
+      ],
+      "original_evidence_basis": "施術の圧を弱めと感じた。",
+      "canonical_reuse": "FLOW_PHASES.faceDown:圧弱め"
+    },
+    {
+      "candidate_id": "pace_03",
+      "original_label": "じっくり同じ部位をケア",
+      "display_label": "同じ部位をじっくりケアしてもらった",
+      "semantic_revision": "同じ部位をじっくりケアしてもらった",
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "flow.<actual phase>.note or ratings.massage.note",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "原典は背面・ふくらはぎの長めの施術。具体的な重点部位の候補に長めだったと追記すれば足り、同じ場面へ広い同義候補を重ねない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-651913",
+        "ME-675068"
+      ],
+      "original_evidence_basis": "背面やふくらはぎを長めに施術した。",
+      "canonical_reuse": "focus_02 or focus_04"
+    },
+    {
+      "candidate_id": "method_07",
+      "original_label": "複数の手技を組み合わせ",
+      "display_label": "複数の手技があった",
+      "semantic_revision": "複数の手技があった",
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "flow.<actual phase>.checks and note",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "実際に受けた各手技を該当段階で選び、切替はnoteへ書く。複数という抽象的な重複値を新設しない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-697480",
+        "ME-701966"
+      ],
+      "original_evidence_basis": "指圧とオイルなど複数の手技があった。",
+      "canonical_reuse": "method_02 / method_03 / FLOW_PHASES.faceDown:指圧"
+    },
+    {
+      "candidate_id": "medium_01",
+      "original_label": "オイルを使用",
+      "display_label": "オイルを使用",
+      "semantic_revision": null,
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "flow.<actual phase>.checks or note",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "オイルマッサージを受けた意味ならmethod_03へ統合する。剤の使用だけの観察ならnoteへ残し、マッサージの実施を補わない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-701966",
+        "ME-697480"
+      ],
+      "original_evidence_basis": "オイルを使用したと明記する。",
+      "canonical_reuse": "method_03"
+    },
+    {
+      "candidate_id": "flow_variation_03",
+      "original_label": "途中で手技が変化",
+      "display_label": "途中で手技が変わった",
+      "semantic_revision": "途中で手技が変わった",
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "flow.<actual phase>.note",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "実際の手技と切替場面を記録すれば、変化ありという広い候補を別に増やす必要はない。手技の順番は本人が補う。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-684793",
+        "ME-679400"
+      ],
+      "original_evidence_basis": "指圧からオイルなど途中で手技が変化した。",
+      "canonical_reuse": "method_02 / method_03 / FLOW_PHASES.faceDown:指圧"
+    },
+    {
+      "candidate_id": "pace_of_time_06",
+      "original_label": "少し長く対応してくれた",
+      "display_label": "予約時間後も会話が続いた",
+      "semantic_revision": "予約時間後も会話が続いた",
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "flow.after.checks and note",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "原典は予約時間後の会話。施術の無料延長へ拡張せず、既存会話チェックと時間に関するnoteで記録する。"
+      ],
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-689417"
+      ],
+      "original_evidence_basis": "予約時間後も会話を続けた。",
+      "canonical_reuse": "FLOW_PHASES.after:会話"
+    },
+    {
+      "candidate_id": "comfort_distance_04",
+      "original_label": "落ち着いて過ごせた",
+      "display_label": "リラックスできた",
+      "semantic_revision": "リラックスできた",
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "ratings.service.note or ratings.massage.note or flow.<actual phase>.note",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "落ち着いて過ごせたとの近い主観はリラックスできたへ整理する。原因・段階は本人が選び、対面時だけの緊張緩和welcome_07とは区別する。"
+      ],
+      "original_disposition": "merge_for_planning",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-677219",
+        "ME-685554"
+      ],
+      "original_evidence_basis": "安心またはリラックスして過ごせた。",
+      "canonical_reuse": "comfort_distance_02"
+    },
+    {
+      "candidate_id": "aftercare_01",
+      "original_label": "終了後も丁寧だった",
+      "display_label": "終了後も落ち着いて会話できた",
+      "semantic_revision": "終了後も落ち着いて会話できた",
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "flow.after.checks and note",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "原典は終了後の落ち着いた会話。既存会話に落ち着いて話せたと追記し、対応全体が丁寧だったという評価へ広げない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-689417"
+      ],
+      "original_evidence_basis": "終了後も落ち着いて会話できた。",
+      "canonical_reuse": "FLOW_PHASES.after:会話"
+    },
+    {
+      "candidate_id": "aftercare_06",
+      "original_label": "終了後の会話があった",
+      "display_label": "終了後の会話があった",
+      "semantic_revision": null,
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "flow.after.checks",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "既存の終了後の会話と同じ事実。別ラベルを追加しない。"
+      ],
+      "original_disposition": "reuse_existing",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-624755",
+        "ME-689417"
+      ],
+      "original_evidence_basis": "施術後にも会話した。",
+      "canonical_reuse": "FLOW_PHASES.after:会話"
+    },
+    {
+      "candidate_id": "satisfaction_01",
+      "original_label": "施術が好みに合った",
+      "display_label": "施術が好みに合った",
+      "semantic_revision": null,
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "ratings.massage.note",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "施術の圧や手技が好みに合ったという既存候補で表現できる。総合満足や再訪理由まで補わない。"
+      ],
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-667277",
+        "ME-687480"
+      ],
+      "original_evidence_basis": "手技や圧が好みに合った。",
+      "canonical_reuse": "technique_08"
+    },
+    {
+      "candidate_id": "satisfaction_02",
+      "original_label": "疲れた部位をケアできた",
+      "display_label": "疲れた部位をケアしてもらった",
+      "semantic_revision": "疲れた部位をケアしてもらった",
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "ratings.massage.note",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "疲れた部位へのケアという次候補と統合できる。治療効果・疲れの改善は加えない。"
+      ],
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-604702",
+        "ME-691394"
+      ],
+      "original_evidence_basis": "つらい肩や腰をケアしてもらった。",
+      "canonical_reuse": "focus_08"
+    },
+    {
+      "candidate_id": "satisfaction_03",
+      "original_label": "会話を楽しめた",
+      "display_label": "会話を楽しめた",
+      "semantic_revision": null,
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "ratings.service.note",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "会話が好みに合ったとの近い好評価を増やさず、既存候補の編集で表現できる。再訪意向との因果は別に確認する。"
+      ],
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-697480",
+        "ME-694759",
+        "ME-624755"
+      ],
+      "original_evidence_basis": "会話を楽しんだと述べる。",
+      "canonical_reuse": "conversation_fit_01"
+    },
+    {
+      "candidate_id": "downside_02",
+      "original_label": "時間が足りなかった",
+      "display_label": "予約時間より早く終わり、短く感じた",
+      "semantic_revision": "予約時間より早く終わり、短く感じた",
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "flow.downside",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "原典は予約時間より早い終了への不満。短いコースを自分で選んだための物足りなさへ拡張せず、早く終わった候補と統合する。"
+      ],
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-688337",
+        "ME-676632"
+      ],
+      "original_evidence_basis": "予約時間より早い終了を不満とした。",
+      "canonical_reuse": "pace_of_time_05"
+    },
+    {
+      "candidate_id": "downside_03",
+      "original_label": "会話量が合わなかった",
+      "display_label": "会話量やテンポが合わなかった",
+      "semantic_revision": "会話量やテンポが合わなかった",
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "ratings.service.note or flow.downside",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "会話量なら既存fit_05、話題・テンポならfit_06を編集して使える。残念ポイントへも自動複製せず本人が必要な理由だけ残す。"
+      ],
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-687357",
+        "ME-676914"
+      ],
+      "original_evidence_basis": "会話量やテンポが合わなかった。",
+      "canonical_reuse": "conversation_fit_05 / conversation_fit_06"
+    },
+    {
+      "candidate_id": "downside_04",
+      "original_label": "圧の強さが合わなかった",
+      "display_label": "圧が自分には弱く感じられた",
+      "semantic_revision": "圧が自分には弱く感じられた",
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "ratings.massage.note or flow.downside",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "原典は弱く物足りない圧。強すぎた不満まで根拠を広げず、既存pressure_07を使う。"
+      ],
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-697480",
+        "ME-680176"
+      ],
+      "original_evidence_basis": "本人には圧が弱く感じられた。",
+      "canonical_reuse": "pressure_07"
+    },
+    {
+      "candidate_id": "downside_05",
+      "original_label": "写真との印象差が大きかった",
+      "display_label": "写真との印象差が大きかった",
+      "semantic_revision": null,
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "ratings.face.note or ratings.style.note",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "違いが顔・雰囲気ならphoto_match_03、体型ならphoto_match_05を使い、差の大きさは本人が追記する。写真加工や詐称を断定しない。"
+      ],
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-671206",
+        "ME-660936"
+      ],
+      "original_evidence_basis": "写真からの印象と対面時に大きな差を感じた。",
+      "canonical_reuse": "photo_match_03 / photo_match_05"
+    },
+    {
+      "candidate_id": "downside_06",
+      "original_label": "部屋や設備が気になった",
+      "display_label": "浴室の湯温や清掃が気になった",
+      "semantic_revision": "浴室の湯温や清掃が気になった",
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "flow.downside",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "原典で気になった具体的な浴室の点に絞る。部屋や設備全般の不満を独立候補として重ねない。"
+      ],
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-684793",
+        "ME-695551"
+      ],
+      "original_evidence_basis": "浴室の湯温や清潔さを気にした。",
+      "canonical_reuse": "shower_05 / cleanliness_04"
+    },
+    {
+      "candidate_id": "access_05",
+      "original_label": "入口が分かりにくかった",
+      "display_label": "入口が分かりにくかった",
+      "semantic_revision": null,
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "flow.downside",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "入口の分かりにくさは所在地・入口の案内の次候補で記録できる。実際に迷った事実と同一視しない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-671206",
+        "ME-688698"
+      ],
+      "original_evidence_basis": "建物入口やエレベーターが分かりづらかった。",
+      "canonical_reuse": "downside_07"
+    },
+    {
+      "candidate_id": "access_07",
+      "original_label": "時間に余裕が必要だった",
+      "display_label": "場所が分かりにくく時間に余裕が必要と感じた",
+      "semantic_revision": "場所が分かりにくく時間に余裕が必要と感じた",
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "flow.downside",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "原典の経緯を具体的な迷い・案内の記録へ添えれば足りる。他の訪問者全員への一律の行動指示にしない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-671206"
+      ],
+      "original_evidence_basis": "場所が分かりづらく、余裕を持つ必要を感じた。",
+      "canonical_reuse": "access_04 or downside_07"
+    },
+    {
+      "candidate_id": "arrival_05",
+      "original_label": "開始が遅れた",
+      "display_label": "場所を探して迷い、開始が遅れた",
+      "semantic_revision": "場所を探して迷い、開始が遅れた",
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "flow.downside",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "原典は本人が建物を探して迷った経緯。access_04へ実際の開始の遅れを追記できる。店側の遅刻や待たされた話に変えない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-671206"
+      ],
+      "original_evidence_basis": "建物を探して迷い、開始が遅れた。",
+      "canonical_reuse": "access_04"
+    },
+    {
+      "candidate_id": "booking_flow_06",
+      "original_label": "複数回の連絡が必要だった",
+      "display_label": "複数回の連絡が必要だった",
+      "semantic_revision": null,
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "flow.downside (when a regret) or future previsit context",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "催促した話と到着後の電話方式は理由が異なる。本人が困った連絡の具体的な事実へ整理し、複数回だけで悪い接客と認定しない。後者を残す専用欄は将来検討。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-695551",
+        "ME-683875"
+      ],
+      "original_evidence_basis": "所在地の催促や到着後の再電話が必要だった。",
+      "canonical_reuse": "booking_response_03 or booking_flow_03 (context)"
+    },
+    {
+      "candidate_id": "shower_01",
+      "original_label": "最初と最後に利用",
+      "display_label": "施術前後にシャワーを利用した",
+      "semantic_revision": "施術前後にシャワーを利用した",
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "flow.meeting.note and flow.after.checks",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "前後の利用という複合事実を、一つの段階へまとめて入れない。終了後は既存チェック、施術前はmeeting.noteで現在も記録できる。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-678605",
+        "ME-689417"
+      ],
+      "original_evidence_basis": "施術前後にシャワーを利用した。",
+      "canonical_reuse": "FLOW_PHASES.after:シャワー"
+    },
+    {
+      "candidate_id": "fee_components_01",
+      "original_label": "基本コースのみ",
+      "display_label": "基本コースのみ支払った",
+      "semantic_revision": "基本コースのみ支払った",
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "basic.optionChosen / basic.optionFee (confirmed values only)",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "選択オプションなしを現在の自由入力で残せる。オプション代0は確認できた時だけ。指名料や割引を含む総額・内訳を勝手に確定しない。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-684793",
+        "ME-697378"
+      ],
+      "original_evidence_basis": "追加なしでコース料金だけを支払った。",
+      "canonical_reuse": "existing basic option fields"
+    },
+    {
+      "candidate_id": "fee_components_04",
+      "original_label": "選択オプションあり",
+      "display_label": "有料オプションを選択した",
+      "semantic_revision": "有料オプションを選択した",
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "basic.optionChosen and basic.optionFee",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "現在の選択内容と金額で残せる。選択ありという重複フラグは追加しない。数値金額の本文シリアライズは現状未対応。"
+      ],
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-702159",
+        "ME-687357"
+      ],
+      "original_evidence_basis": "有料オプションを選択した。",
+      "canonical_reuse": "existing basic option fields"
+    },
+    {
+      "candidate_id": "visit_context_03",
+      "original_label": "同じ担当者への再訪",
+      "display_label": "同じ担当者への再訪",
+      "semantic_revision": null,
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "revisitOf / sales.articleType",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "対象となる前回記録を結び付けられる時は現在の再訪入力を使う。対象記録がない事実を新規訪問と同一視せず、将来の訪問文脈欄は別途検討する。"
+      ],
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-685554",
+        "ME-690317",
+        "ME-691373"
+      ],
+      "original_evidence_basis": "同じ担当者を複数回利用したと述べる。",
+      "canonical_reuse": "existing revisit record relationship"
+    },
+    {
+      "candidate_id": "revisit_therapist_01",
+      "original_label": "同じ担当者をまた指名したい",
+      "display_label": "同じ担当者をまた指名したい",
+      "semantic_revision": null,
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "voice.repeatIntent",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "同じ担当者への意向は現在のリピート意向で残せる。強さのyes/definitelyは原候補だけで決めず本人が選ぶ。店だけへの意向は別。"
+      ],
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-702159",
+        "ME-687480",
+        "ME-668594"
+      ],
+      "original_evidence_basis": "同じ担当者への再訪を希望した。",
+      "canonical_reuse": "REPEAT_LABELS.yes or definitely (user-selected degree)"
+    },
+    {
+      "candidate_id": "revisit_therapist_03",
+      "original_label": "再指名は迷う",
+      "display_label": "再指名は迷う",
+      "semantic_revision": null,
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "voice.repeatIntent",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "同じ担当者への迷いなら既存の微妙に対応できる。条件付きで再訪したいという肯定とは混同しない。"
+      ],
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-684793",
+        "ME-691034"
+      ],
+      "original_evidence_basis": "同じ担当者の再訪を決めかねていた。",
+      "canonical_reuse": "REPEAT_LABELS.unsure"
+    },
+    {
+      "candidate_id": "revisit_therapist_04",
+      "original_label": "再指名は考えていない",
+      "display_label": "再指名は考えていない",
+      "semantic_revision": null,
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "voice.repeatIntent",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "同じ担当者へ再訪しないという意向は既存なしを使う。店への再訪まで否定したと扱わない。"
+      ],
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-687357",
+        "ME-695551",
+        "ME-680085"
+      ],
+      "original_evidence_basis": "同じ担当者への再訪を望まなかった。",
+      "canonical_reuse": "REPEAT_LABELS.no"
+    },
+    {
+      "candidate_id": "repeat_reason_02",
+      "original_label": "会話の相性が良かった",
+      "display_label": "会話の相性が良く、再訪候補にした",
+      "semantic_revision": "会話の相性が良く、再訪候補にした",
+      "recommendation": "reuse_existing_or_merge_no_new_option",
+      "existing_target_proposal": "ratings.service.note plus voice.repeatIntent (manual causal sentence)",
+      "article_useful_reason": "既存の値または具体的な次候補を再利用し、同じ意味の表示候補を増やさない。",
+      "acceptance_constraints": [
+        "会話の相性の既存候補と再訪意向を再利用できる。両者の併記だけから因果を作らず、本人が理由として明記した場合だけnoteへつなぐ。"
+      ],
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-697480",
+        "ME-624755"
+      ],
+      "original_evidence_basis": "会話の楽しさを述べたうえで同じ担当者の再訪候補・再指名意向につなげた。",
+      "canonical_reuse": "conversation_fit_01 and existing repeat intent"
+    }
+  ],
+  "held_supported_context_or_metadata": [
+    {
+      "candidate_id": "booking_response_05",
+      "original_label": "予約はスムーズだった",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "来店前の手続きの観察。対面後のphaseへ移さず、予約スタッフの応対を担当者の接客星へ混ぜない。導入に使うなら将来の訪問前文脈欄が自然。",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-694023",
+        "ME-677219",
+        "ME-683875"
+      ],
+      "original_evidence_basis": "LINE、ネット、電話の予約手続きが円滑だったと述べる。"
+    },
+    {
+      "candidate_id": "booking_flow_02",
+      "original_label": "到着前に電話が必要",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "来店前の連絡方式。対面後のphaseやbasic.bookingMethodだけでは時点と方式を保持できないため、将来の訪問前文脈欄で扱う。",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-687357",
+        "ME-693774"
+      ],
+      "original_evidence_basis": "予約後、開始直前に電話連絡する方式だった。"
+    },
+    {
+      "candidate_id": "booking_flow_03",
+      "original_label": "到着後に電話が必要",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "来店前の連絡方式。対面後のphaseやbasic.bookingMethodだけでは時点と方式を保持できないため、将来の訪問前文脈欄で扱う。",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-604702",
+        "ME-683875"
+      ],
+      "original_evidence_basis": "現地到着後の電話で案内を受けた。"
+    },
+    {
+      "candidate_id": "selection_reason_01",
+      "original_label": "写真が気になった",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "選んだ理由は記事の導入に役立つ。顔や接客の事後評価、対面後のphaseへ無理に入れず将来の選択経緯欄へ保持する。",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-693774",
+        "ME-702159"
+      ],
+      "original_evidence_basis": "掲載写真を見て指名を決めたと述べる。"
+    },
+    {
+      "candidate_id": "selection_reason_02",
+      "original_label": "口コミを見て選んだ",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "選んだ理由は記事の導入に役立つ。顔や接客の事後評価、対面後のphaseへ無理に入れず将来の選択経緯欄へ保持する。",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-694759",
+        "ME-690955"
+      ],
+      "original_evidence_basis": "評判やレビューを参照して選んだ。"
+    },
+    {
+      "candidate_id": "selection_reason_03",
+      "original_label": "以前から気になっていた",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "選んだ理由は記事の導入に役立つ。顔や接客の事後評価、対面後のphaseへ無理に入れず将来の選択経緯欄へ保持する。",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-694023",
+        "ME-689417"
+      ],
+      "original_evidence_basis": "以前から気になっていた店を訪れた。",
+      "suggested_semantic_revision": "以前から気になっていた店を選んだ",
+      "acceptance_constraints": [
+        "気になっていた対象は店。担当者を以前から追っていたという意味へ広げない。"
+      ]
+    },
+    {
+      "candidate_id": "selection_reason_04",
+      "original_label": "店から紹介された",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "選んだ理由は記事の導入に役立つ。顔や接客の事後評価、対面後のphaseへ無理に入れず将来の選択経緯欄へ保持する。",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-691394"
+      ],
+      "original_evidence_basis": "店から勧められた担当者を予約した。"
+    },
+    {
+      "candidate_id": "selection_reason_05",
+      "original_label": "空いている枠で選んだ",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "選んだ理由は記事の導入に役立つ。顔や接客の事後評価、対面後のphaseへ無理に入れず将来の選択経緯欄へ保持する。",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-694759",
+        "ME-680085"
+      ],
+      "original_evidence_basis": "予約可能な枠から担当者を選んだ。"
+    },
+    {
+      "candidate_id": "selection_reason_06",
+      "original_label": "以前の担当者を追って来店",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "選んだ理由は記事の導入に役立つ。顔や接客の事後評価、対面後のphaseへ無理に入れず将来の選択経緯欄へ保持する。",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-687360"
+      ],
+      "original_evidence_basis": "以前別の店で利用した担当者の移籍先を訪れた。"
+    },
+    {
+      "candidate_id": "visit_context_01",
+      "original_label": "初めての店",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "初訪問・再訪・予約時期・出張等の文脈。現在の日時やrevisitOfから推測せず、将来の訪問文脈欄へ保持する。",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-624755",
+        "ME-611571",
+        "ME-680085"
+      ],
+      "original_evidence_basis": "店を初めて利用したと明記する。"
+    },
+    {
+      "candidate_id": "visit_context_02",
+      "original_label": "同じ店の別の担当者",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "初訪問・再訪・予約時期・出張等の文脈。現在の日時やrevisitOfから推測せず、将来の訪問文脈欄へ保持する。",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-693779",
+        "ME-688698"
+      ],
+      "original_evidence_basis": "店の利用歴はあるが担当者は初めてだった。"
+    },
+    {
+      "candidate_id": "visit_context_04",
+      "original_label": "久しぶりの訪問",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "初訪問・再訪・予約時期・出張等の文脈。現在の日時やrevisitOfから推測せず、将来の訪問文脈欄へ保持する。",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-687360"
+      ],
+      "original_evidence_basis": "以前会った担当者を久しぶりに訪れた。",
+      "suggested_semantic_revision": "久しぶりに同じ担当者を訪問",
+      "acceptance_constraints": [
+        "原典は以前会った担当者への久しぶりの訪問。単なる同店への再訪に広げない。"
+      ]
+    },
+    {
+      "candidate_id": "visit_context_05",
+      "original_label": "当日予約",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "初訪問・再訪・予約時期・出張等の文脈。現在の日時やrevisitOfから推測せず、将来の訪問文脈欄へ保持する。",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-694759"
+      ],
+      "original_evidence_basis": "当日予約で訪れた。"
+    },
+    {
+      "candidate_id": "visit_context_06",
+      "original_label": "事前予約",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "初訪問・再訪・予約時期・出張等の文脈。現在の日時やrevisitOfから推測せず、将来の訪問文脈欄へ保持する。",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-701966"
+      ],
+      "original_evidence_basis": "前日までの予約割引を利用した。"
+    },
+    {
+      "candidate_id": "visit_context_07",
+      "original_label": "移籍先への訪問",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "初訪問・再訪・予約時期・出張等の文脈。現在の日時やrevisitOfから推測せず、将来の訪問文脈欄へ保持する。",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-687360"
+      ],
+      "original_evidence_basis": "担当者の移籍先を訪れた。"
+    },
+    {
+      "candidate_id": "visit_context_08",
+      "original_label": "出張や遠征の途中",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "初訪問・再訪・予約時期・出張等の文脈。現在の日時やrevisitOfから推測せず、将来の訪問文脈欄へ保持する。",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-694759",
+        "ME-701966"
+      ],
+      "original_evidence_basis": "遠征帰りや出張先で利用した。"
+    },
+    {
+      "candidate_id": "access_01",
+      "original_label": "駅から近かった",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "アクセスの観察は導入に使えるが、対面後の出来事や担当者の接客星ではない。不満ではない中立・好意的な観察は将来の訪問前文脈へ保持する。",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-604702",
+        "ME-611571",
+        "ME-693779"
+      ],
+      "original_evidence_basis": "駅から近いと記した。"
+    },
+    {
+      "candidate_id": "access_03",
+      "original_label": "案内どおりに着けた",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "アクセスの観察は導入に使えるが、対面後の出来事や担当者の接客星ではない。不満ではない中立・好意的な観察は将来の訪問前文脈へ保持する。",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-604702",
+        "ME-694023"
+      ],
+      "original_evidence_basis": "案内を受け円滑に入室できた。"
+    },
+    {
+      "candidate_id": "access_06",
+      "original_label": "部屋によってアクセスが異なる",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "アクセスの観察は導入に使えるが、対面後の出来事や担当者の接客星ではない。不満ではない中立・好意的な観察は将来の訪問前文脈へ保持する。",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-693779",
+        "ME-666056"
+      ],
+      "original_evidence_basis": "同じ店に複数の部屋タイプや所在地があると述べる。"
+    },
+    {
+      "candidate_id": "price_clarity_04",
+      "original_label": "基本料金は掲載どおり",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "金額の確認範囲・確かさを示す補助情報。現在の費用数値から時点や確度を推測できないため、将来の費用文脈・根拠欄が自然。",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-668594"
+      ],
+      "original_evidence_basis": "掲載された基本料金に衣装代を加えた支払を説明しており、基本料金の一致を示す。総額全体の掲載一致を示すものではない。"
+    },
+    {
+      "candidate_id": "price_clarity_08",
+      "original_label": "金額の記憶が曖昧",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "金額の確認範囲・確かさを示す補助情報。現在の費用数値から時点や確度を推測できないため、将来の費用文脈・根拠欄が自然。",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-671206",
+        "ME-694759"
+      ],
+      "original_evidence_basis": "支払額は記憶が曖昧だと明記する。",
+      "suggested_semantic_revision": "支払額の記憶が曖昧",
+      "acceptance_constraints": [
+        "概算を未確認や無料に変えず、金額の確度として保持する。"
+      ]
+    },
+    {
+      "candidate_id": "upsell_07",
+      "original_label": "追加料金込みで納得した",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "費用への納得は接客星とは別の総合的判断。肯定的な金額評価を残念ポイントへ入れず、将来の価値判断欄へ保持する。",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-685554"
+      ],
+      "original_evidence_basis": "追加分を含む支払額に納得したと述べる。"
+    },
+    {
+      "candidate_id": "fee_components_02",
+      "original_label": "写真指名料あり",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "既存数値欄だけでは費用の種類・内包関係・割引を正確に表せない。ゼロや合計を推測せず、将来の費用文脈へ保持する。",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-676944"
+      ],
+      "original_evidence_basis": "写真指名料を内訳に記した。"
+    },
+    {
+      "candidate_id": "fee_components_06",
+      "original_label": "割引が適用された",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "既存数値欄だけでは費用の種類・内包関係・割引を正確に表せない。ゼロや合計を推測せず、将来の費用文脈へ保持する。",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-701966",
+        "ME-624755"
+      ],
+      "original_evidence_basis": "予約・新規割引を利用した。"
+    },
+    {
+      "candidate_id": "saving_01",
+      "original_label": "初回割引",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "割引の種類・条件・指名料込みかどうかは現在の料金数値と別。本文への費用出力も現状未対応であり、将来の費用文脈へ保持する。",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-624755",
+        "ME-691373"
+      ],
+      "original_evidence_basis": "新規利用時の割引、または初利用時に安い料金だったと述べる。"
+    },
+    {
+      "candidate_id": "saving_04",
+      "original_label": "公式クーポン",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "割引の種類・条件・指名料込みかどうかは現在の料金数値と別。本文への費用出力も現状未対応であり、将来の費用文脈へ保持する。",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-655259",
+        "ME-675068"
+      ],
+      "original_evidence_basis": "クーポンで料金が下がったと述べる。",
+      "suggested_semantic_revision": "クーポンを利用した",
+      "acceptance_constraints": [
+        "原典basisに公式発行との区別はないため、公式という修飾は付けない。"
+      ]
+    },
+    {
+      "candidate_id": "saving_06",
+      "original_label": "指名料込みの価格",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "割引の種類・条件・指名料込みかどうかは現在の料金数値と別。本文への費用出力も現状未対応であり、将来の費用文脈へ保持する。",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-701966",
+        "ME-691373"
+      ],
+      "original_evidence_basis": "指名料込みのコース料金を記した。"
+    },
+    {
+      "candidate_id": "method_06",
+      "original_label": "リンパを流す施術",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "リンパという表現は手技への本人の受け止めとして既存massage.noteへ自由記述できる。臨床的な作用や効果と誤認される固定候補にはせず、表現と本人の意図を追加確認する。",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-673503"
+      ],
+      "original_evidence_basis": "リンパをしっかり流す施術と感じた。"
+    },
+    {
+      "candidate_id": "flow_variation_01",
+      "original_label": "定番の順番で進行",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "定番の基準が分からず、個々の手技や順番より情報量が少ない。実際に覚えている順番を各phase.noteへ記録できるが、曖昧な定番ラベルは固定候補にしない。",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-684793",
+        "ME-692367"
+      ],
+      "original_evidence_basis": "定番または標準的な流れと記す。"
+    },
+    {
+      "candidate_id": "scope_confirmation_07",
+      "original_label": "対応範囲は未確認",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "未確認は非提供・拒否ではなく情報不足。現在の寛容度の星に未確認を理由として自動付与せず、将来の不確実性・対応範囲の文脈として保持する。",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-667277",
+        "ME-701966"
+      ],
+      "original_evidence_basis": "本人が尋ねなかったため、対応範囲は未確認。"
+    },
+    {
+      "candidate_id": "satisfaction_06",
+      "original_label": "期待以上の内容だった",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "全体の満足や期待との差は既存6軸のいずれか一つを自動で指さない。特定の場面があれば既存note/bestMomentを本人が書けるが、抽象的な全体判断は将来の総合評価欄へ保持する。",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-694759",
+        "ME-702434"
+      ],
+      "original_evidence_basis": "事前の予想より好印象だったと述べる。"
+    },
+    {
+      "candidate_id": "satisfaction_07",
+      "original_label": "料金に納得できた",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "全体の満足や期待との差は既存6軸のいずれか一つを自動で指さない。特定の場面があれば既存note/bestMomentを本人が書けるが、抽象的な全体判断は将来の総合評価欄へ保持する。",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-685554",
+        "ME-684793"
+      ],
+      "original_evidence_basis": "支払額に納得した。"
+    },
+    {
+      "candidate_id": "satisfaction_08",
+      "original_label": "全体の相性が良かった",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "全体の満足や期待との差は既存6軸のいずれか一つを自動で指さない。特定の場面があれば既存note/bestMomentを本人が書けるが、抽象的な全体判断は将来の総合評価欄へ保持する。",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-697480",
+        "ME-651913"
+      ],
+      "original_evidence_basis": "複数要素のバランスに満足した。"
+    },
+    {
+      "candidate_id": "value_01",
+      "original_label": "内容に対して割安",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "費用対内容の肯定・条件付き判断は記事のまとめに有用。肯定評価をdownsideや特定6軸へ押し込まず、将来の価値・再訪条件欄へ保持する。",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-693774",
+        "ME-701966"
+      ],
+      "original_evidence_basis": "料金に対する内容を割安と評価した。"
+    },
+    {
+      "candidate_id": "value_02",
+      "original_label": "料金相応に感じた",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "費用対内容の肯定・条件付き判断は記事のまとめに有用。肯定評価をdownsideや特定6軸へ押し込まず、将来の価値・再訪条件欄へ保持する。",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-685554",
+        "ME-676632"
+      ],
+      "original_evidence_basis": "内容と支払額の釣り合いに納得した。"
+    },
+    {
+      "candidate_id": "value_05",
+      "original_label": "追加料金を含めると迷う",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "費用対内容の肯定・条件付き判断は記事のまとめに有用。肯定評価をdownsideや特定6軸へ押し込まず、将来の価値・再訪条件欄へ保持する。",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-694759",
+        "ME-690955"
+      ],
+      "original_evidence_basis": "追加込みの高額な総額を再訪判断で迷った。",
+      "suggested_semantic_revision": "追加込みの総額を踏まえると再訪は迷う",
+      "acceptance_constraints": [
+        "原典は高額な総額を踏まえた再訪判断。予算超過や支払への拒否とはしない。"
+      ]
+    },
+    {
+      "candidate_id": "revisit_store_01",
+      "original_label": "同じ店をまた利用したい",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "同じ店への意向は同じ担当者への意向と別。現在の単一repeatIntentでは両者を分けられず、将来の店/担当者別再訪意向が自然。",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-700976",
+        "ME-678605"
+      ],
+      "original_evidence_basis": "店自体の再利用意向を示した。"
+    },
+    {
+      "candidate_id": "revisit_store_03",
+      "original_label": "条件が合えば再訪",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "同じ店への意向は同じ担当者への意向と別。現在の単一repeatIntentでは両者を分けられず、将来の店/担当者別再訪意向が自然。",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-693779",
+        "ME-668594"
+      ],
+      "original_evidence_basis": "予定や予約が合えば店をまた利用したい。"
+    },
+    {
+      "candidate_id": "revisit_store_05",
+      "original_label": "店への再訪は考えていない",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "同じ店への意向は同じ担当者への意向と別。現在の単一repeatIntentでは両者を分けられず、将来の店/担当者別再訪意向が自然。",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-676914"
+      ],
+      "original_evidence_basis": "店への再訪意向がないと述べた。"
+    },
+    {
+      "candidate_id": "revisit_therapist_02",
+      "original_label": "条件が合えば再指名",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "条件付き再指名は肯定の度合いだけでは表せない。現在のunsureへ潰さず、将来の再訪条件・理由欄へ保持する。",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-693779",
+        "ME-691620"
+      ],
+      "original_evidence_basis": "日程が合えば同じ担当者を再指名したい。"
+    },
+    {
+      "candidate_id": "repeat_reason_04",
+      "original_label": "料金との釣り合いが良かった",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "価格や予約条件・別担当者の希望など、再訪判断の対象と条件を持つ。単一repeatIntentや6軸の星へ押し込まず将来の再訪理由欄へ保持する。",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-701966"
+      ],
+      "original_evidence_basis": "この金額で受けた内容を再訪候補にする理由として明示した。"
+    },
+    {
+      "candidate_id": "repeat_reason_06",
+      "original_label": "予約が取れれば再訪",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "価格や予約条件・別担当者の希望など、再訪判断の対象と条件を持つ。単一repeatIntentや6軸の星へ押し込まず将来の再訪理由欄へ保持する。",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-693779",
+        "ME-668594"
+      ],
+      "original_evidence_basis": "予定が合えば再訪、または予約が取れれば再訪したいと述べた。"
+    },
+    {
+      "candidate_id": "repeat_reason_08",
+      "original_label": "別の担当者を試したい",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "価格や予約条件・別担当者の希望など、再訪判断の対象と条件を持つ。単一repeatIntentや6軸の星へ押し込まず将来の再訪理由欄へ保持する。",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-671629"
+      ],
+      "original_evidence_basis": "同じ担当者は再指名しない方針に続き、同じ店の別担当者で再訪すると述べた。"
+    },
+    {
+      "candidate_id": "comparison_05",
+      "original_label": "料金が変わった",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "料金変更・移籍前後・他店との比較は対象と比較軸が必要。現在の一訪問の欄へ広い比較ラベルだけ追加せず、将来の比較文脈欄へ保持する。",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-691373"
+      ],
+      "original_evidence_basis": "以前より追加料金が上がったと述べる。"
+    },
+    {
+      "candidate_id": "comparison_07",
+      "original_label": "移籍前と比較した",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "料金変更・移籍前後・他店との比較は対象と比較軸が必要。現在の一訪問の欄へ広い比較ラベルだけ追加せず、将来の比較文脈欄へ保持する。",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-687360"
+      ],
+      "original_evidence_basis": "担当者の移籍前後の店や体験を比較した。"
+    },
+    {
+      "candidate_id": "comparison_08",
+      "original_label": "他店と比較した",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "料金変更・移籍前後・他店との比較は対象と比較軸が必要。現在の一訪問の欄へ広い比較ラベルだけ追加せず、将来の比較文脈欄へ保持する。",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-701966",
+        "ME-687360"
+      ],
+      "original_evidence_basis": "他地域や以前の店と料金・対応を比較した。"
+    },
+    {
+      "candidate_id": "uncertainty_02",
+      "original_label": "金額はおおよそ",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "金額・時間・順序などの確度は記事の断定範囲を調整する補助情報。確定した施術・評価の選択肢としては追加しない。",
+      "original_disposition": "supporting_metadata_later",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-671206",
+        "ME-694759"
+      ],
+      "original_evidence_basis": "金額を記憶が曖昧な概算として示した。"
+    },
+    {
+      "candidate_id": "uncertainty_03",
+      "original_label": "時間はおおよそ",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "金額・時間・順序などの確度は記事の断定範囲を調整する補助情報。確定した施術・評価の選択肢としては追加しない。",
+      "original_disposition": "supporting_metadata_later",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-676632",
+        "ME-688810"
+      ],
+      "original_evidence_basis": "終了時刻や施術前の会話時間を概数で示した。"
+    },
+    {
+      "candidate_id": "uncertainty_05",
+      "original_label": "一部を覚えていない",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "金額・時間・順序などの確度は記事の断定範囲を調整する補助情報。確定した施術・評価の選択肢としては追加しない。",
+      "original_disposition": "supporting_metadata_later",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-671206"
+      ],
+      "original_evidence_basis": "施術内容の記憶が曖昧と述べる。"
+    },
+    {
+      "candidate_id": "uncertainty_06",
+      "original_label": "内訳と総額が一致しない",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "金額・時間・順序などの確度は記事の断定範囲を調整する補助情報。確定した施術・評価の選択肢としては追加しない。",
+      "original_disposition": "supporting_metadata_later",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-675068"
+      ],
+      "original_evidence_basis": "記載した内訳の合計と申告総額が一致しない。"
+    },
+    {
+      "candidate_id": "uncertainty_08",
+      "original_label": "未確認",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "金額・時間・順序などの確度は記事の断定範囲を調整する補助情報。確定した施術・評価の選択肢としては追加しない。",
+      "original_disposition": "supporting_metadata_later",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-667277",
+        "ME-701966"
+      ],
+      "original_evidence_basis": "試していない追加内容は不明と述べる。"
+    },
+    {
+      "candidate_id": "knowledge_source_01",
+      "original_label": "自分が体験したこと",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "本人の体験・説明・プロフィール・口コミ・推測を区別する出所情報。体験そのものの候補へ変換せず、将来の項目別出所欄が自然。",
+      "original_disposition": "supporting_metadata_later",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-688337",
+        "ME-676632"
+      ],
+      "original_evidence_basis": "訪問中に自分が経験したことを記した。"
+    },
+    {
+      "candidate_id": "knowledge_source_02",
+      "original_label": "本人から聞いたこと",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "本人の体験・説明・プロフィール・口コミ・推測を区別する出所情報。体験そのものの候補へ変換せず、将来の項目別出所欄が自然。",
+      "original_disposition": "supporting_metadata_later",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-668594",
+        "ME-691373"
+      ],
+      "original_evidence_basis": "担当者から聞いた説明を基にした情報がある。"
+    },
+    {
+      "candidate_id": "knowledge_source_03",
+      "original_label": "予約時に店から聞いたこと",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "本人の体験・説明・プロフィール・口コミ・推測を区別する出所情報。体験そのものの候補へ変換せず、将来の項目別出所欄が自然。",
+      "original_disposition": "supporting_metadata_later",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-691394",
+        "ME-677219"
+      ],
+      "original_evidence_basis": "予約時の店の案内や連絡を情報源とした。"
+    },
+    {
+      "candidate_id": "knowledge_source_04",
+      "original_label": "掲載プロフィールの情報",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "本人の体験・説明・プロフィール・口コミ・推測を区別する出所情報。体験そのものの候補へ変換せず、将来の項目別出所欄が自然。",
+      "original_disposition": "supporting_metadata_later",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-697480",
+        "ME-651913"
+      ],
+      "original_evidence_basis": "掲載プロフィールや写真との比較がある。"
+    },
+    {
+      "candidate_id": "knowledge_source_05",
+      "original_label": "他の口コミで見たこと",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "本人の体験・説明・プロフィール・口コミ・推測を区別する出所情報。体験そのものの候補へ変換せず、将来の項目別出所欄が自然。",
+      "original_disposition": "supporting_metadata_later",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-693774",
+        "ME-690955"
+      ],
+      "original_evidence_basis": "以前の口コミやレビューを参照した。"
+    },
+    {
+      "candidate_id": "knowledge_source_06",
+      "original_label": "自分の推測",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "本人の体験・説明・プロフィール・口コミ・推測を区別する出所情報。体験そのものの候補へ変換せず、将来の項目別出所欄が自然。",
+      "original_disposition": "supporting_metadata_later",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-687360",
+        "ME-674478"
+      ],
+      "original_evidence_basis": "本文中で自分の推測だと示した部分がある。"
+    },
+    {
+      "candidate_id": "knowledge_source_07",
+      "original_label": "確認できていない",
+      "recommendation": "hold_for_context_or_metadata_advisory",
+      "reason": "本人の体験・説明・プロフィール・口コミ・推測を区別する出所情報。体験そのものの候補へ変換せず、将来の項目別出所欄が自然。",
+      "original_disposition": "supporting_metadata_later",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-667277",
+        "ME-701966"
+      ],
+      "original_evidence_basis": "未確認または試していない内容があると述べる。"
+    }
+  ],
+  "already_integrated_candidate_ids": [
+    "welcome_01",
+    "welcome_07",
+    "photo_match_01",
+    "photo_match_02",
+    "photo_match_03",
+    "photo_match_05",
+    "photo_match_06",
+    "conversation_style_02",
+    "conversation_style_03",
+    "conversation_style_07",
+    "conversation_style_08",
+    "conversation_fit_01",
+    "conversation_fit_05",
+    "conversation_fit_06",
+    "professionalism_02",
+    "professionalism_06",
+    "assessment_06",
+    "assessment_07",
+    "pressure_07",
+    "pressure_08",
+    "pace_05",
+    "technique_01",
+    "technique_03",
+    "technique_06",
+    "technique_07",
+    "technique_08",
+    "focus_06",
+    "method_05",
+    "aftercare_03"
+  ],
+  "unchecked_candidates_retained_without_promotion": {
+    "count": 148,
+    "reason": "original_evidence_statusがnot_individually_checkedであり、次候補や正反対の対になる選択肢の根拠として昇格させない。既存UIに同名があることやdimension単位の手掛かりは個別の意味確認に置き換えない。",
+    "candidate_ids": [
+      "booking_response_01",
+      "booking_response_02",
+      "booking_response_04",
+      "booking_response_06",
+      "booking_response_07",
+      "booking_flow_01",
+      "booking_flow_05",
+      "booking_flow_07",
+      "selection_reason_07",
+      "selection_reason_08",
+      "arrival_01",
+      "arrival_02",
+      "arrival_03",
+      "arrival_04",
+      "arrival_06",
+      "arrival_07",
+      "welcome_02",
+      "welcome_04",
+      "price_clarity_01",
+      "price_clarity_03",
+      "price_clarity_06",
+      "upsell_02",
+      "upsell_06",
+      "fee_components_03",
+      "fee_components_05",
+      "fee_components_07",
+      "fee_components_08",
+      "saving_02",
+      "saving_03",
+      "saving_05",
+      "saving_07",
+      "saving_08",
+      "room_facility_03",
+      "room_facility_04",
+      "room_facility_05",
+      "room_facility_06",
+      "room_facility_07",
+      "room_facility_08",
+      "cleanliness_02",
+      "cleanliness_03",
+      "cleanliness_05",
+      "cleanliness_06",
+      "cleanliness_07",
+      "comfort_01",
+      "comfort_02",
+      "comfort_04",
+      "comfort_05",
+      "comfort_06",
+      "comfort_07",
+      "comfort_08",
+      "noise_01",
+      "noise_02",
+      "noise_03",
+      "noise_04",
+      "noise_05",
+      "noise_06",
+      "amenities_03",
+      "amenities_04",
+      "amenities_06",
+      "amenities_07",
+      "shower_02",
+      "shower_03",
+      "shower_04",
+      "shower_07",
+      "shower_08",
+      "scent_01",
+      "scent_02",
+      "scent_04",
+      "scent_05",
+      "scent_07",
+      "photo_match_04",
+      "photo_match_07",
+      "appearance_01",
+      "conversation_amount_02",
+      "conversation_amount_04",
+      "conversation_style_01",
+      "conversation_style_04",
+      "conversation_style_06",
+      "conversation_fit_03",
+      "conversation_fit_04",
+      "conversation_fit_07",
+      "professionalism_01",
+      "professionalism_03",
+      "professionalism_04",
+      "professionalism_08",
+      "assessment_01",
+      "assessment_02",
+      "assessment_03",
+      "pressure_04",
+      "pressure_05",
+      "pressure_06",
+      "pace_01",
+      "pace_02",
+      "pace_04",
+      "pace_06",
+      "pace_07",
+      "technique_02",
+      "technique_04",
+      "focus_01",
+      "focus_03",
+      "focus_05",
+      "focus_07",
+      "method_01",
+      "method_04",
+      "medium_02",
+      "medium_03",
+      "medium_04",
+      "medium_05",
+      "medium_06",
+      "medium_07",
+      "medium_08",
+      "flow_variation_02",
+      "flow_variation_04",
+      "flow_variation_05",
+      "flow_variation_06",
+      "flow_variation_07",
+      "pace_of_time_07",
+      "pace_of_time_08",
+      "comfort_distance_05",
+      "comfort_distance_06",
+      "scope_confirmation_03",
+      "scope_confirmation_04",
+      "scope_confirmation_06",
+      "aftercare_04",
+      "aftercare_05",
+      "aftercare_07",
+      "satisfaction_04",
+      "downside_01",
+      "downside_08",
+      "value_04",
+      "value_06",
+      "value_07",
+      "revisit_store_02",
+      "revisit_store_04",
+      "revisit_store_06",
+      "revisit_therapist_05",
+      "revisit_therapist_06",
+      "repeat_reason_01",
+      "repeat_reason_03",
+      "repeat_reason_05",
+      "repeat_reason_07",
+      "comparison_01",
+      "comparison_02",
+      "comparison_04",
+      "comparison_06",
+      "uncertainty_01",
+      "uncertainty_04",
+      "uncertainty_07"
+    ]
+  },
+  "coverage_validation": {
+    "unique_candidate_ids": 332,
+    "all_332_assigned_once": true,
+    "new_ready_excludes_first29": true,
+    "all_new_ready_originally_source_meaning_checked": true,
+    "all_proposed_evidence_ids_match_original_reviewed": true,
+    "src_or_schema_modified": false
+  },
+  "parent_integration": {
+    "authoritative_ledger": "next-adoption-ledger.json",
+    "parent_final_counts": {
+      "evidence_pending": 148,
+      "next_existing_conditional": 23,
+      "optional_context": 9,
+      "next_existing_priority": 35,
+      "new_question_required": 42,
+      "reuse_or_manual_detail": 32,
+      "implemented": 29,
+      "per_fact_metadata": 14
+    },
+    "notes": [
+      "既存候補プール58語を優先35と場面限定23に分割した。",
+      "店と担当者を区別した再訪値、および会話を再訪理由にした関係を単一repeatIntentとの重複にしなかった。",
+      "開始の遅れと迷った事実、催促と複数回連絡を同一の出来事として統合しなかった。",
+      "語の一次照合状態、既存欄への適合、採用優先度を別々の軸で保持した。",
+      "現在のコードに実装されているのは29語で、今回の追加採用は0語。"
+    ]
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "status": "pass",
+  "scope": "first29 production questionnaire integration; historical research and remaining proposals retained",
+  "checks": {
+    "all332candidates_disposed_once": true,
+    "csv_json_equal": true,
+    "first29all_original_source_supported": true,
+    "group_ids_match_first_batch": true,
+    "original_evidence_ids_preserved": true,
+    "merge_targets_known": true,
+    "existing_reuse_count": 4,
+    "assessment_negative_scope_narrowed": true,
+    "local_links_resolve": true,
+    "current_report_counts_match": true,
+    "gemini_success_and_parent_diff_reviewed": true,
+    "model_change_explicitly_authorized": true,
+    "ui_prototype_checked": true,
+    "only_first29_marked_implemented": true,
+    "gpt_only_integration": true
+  },
+  "independent_review": {
+    "sample": "332 record/CSV and category checks; first29 evidence IDs and34 derived source notes; current app routes",
+    "source_original_bodies_refetched": false,
+    "findings_fixed": [
+      "assessment_06 scope narrowed",
+      "aftercare_06 reuses existing after-phase 会話"
+    ]
+  },
+  "tests": "npm test:9 files/133 passed including7 new regression tests; npm run build passed; prototype explicit strict tsc passed; see integration-validation.json for actual browser save/reload verification",
+  "remaining_work": [
+    "実際の訪問メモで入力時間と記事素材の具体性を評価",
+    "実機の片手操作とスクリーンリーダーによる確認",
+    "来店理由・総評理由など、追加の保存項目を別途検討"
+  ]
+}

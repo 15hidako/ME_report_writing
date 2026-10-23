@@ -1,0 +1,57 @@
+{
+  "status": "integrated_and_verified",
+  "current_approach": "GPT models preserving existing UI",
+  "user_authorization": {
+    "date": "2026-10-23",
+    "request": "UI検討に関しては、既存のものを踏襲し、gptモデルで進めて下し亜。",
+    "scope": "current questionnaire UI consideration only; no global policy change"
+  },
+  "current_outputs": [
+    "docs/06-questionnaire-ui.md",
+    "docs/prototypes/questionnaire-enrichment.html",
+    "planning/ui-first-batch.json",
+    "src/questionnaire-options.ts",
+    "src/ui/questionnaire-candidates.ts",
+    "planning/integration-validation.json"
+  ],
+  "production_implemented": true,
+  "previous_attempt": {
+    "requested_model": "grok-4.7-high",
+    "cli": "Cursor CLI",
+    "purpose": "UI planning for questionnaire enrichment",
+    "mode": "plan",
+    "model_id_listed": true,
+    "status": "not_completed",
+    "process_exit_code": 1,
+    "actual_error": "ActionRequiredError: Named models unavailable Free plans can only use Auto. Switch to Auto or upgrade plans to continue.",
+    "reason_category": "account_plan_restriction_not_quota",
+    "actual_ui_proposal_received": false,
+    "fallback_model_used": false,
+    "scope_authorization": {
+      "trusted_folder_only": "C:\\Users\\idako\\AppData\\Local\\Temp\\me-questionnaire-ui-planning-20261023",
+      "user_explicitly_approved": true,
+      "whole_project_workspace_used": false
+    },
+    "remaining_ui_work": [
+      "候補群の表示方法と常時表示の量",
+      "選択・解除・手入力の競合時の操作",
+      "相反する選択肢の扱い",
+      "任意詳細の見せ方と再訪時の復元",
+      "画面幅・キーボード・アクセシビリティの確認"
+    ],
+    "completion_boundary": "Editorial candidate selection and technical/data feasibility may proceed. UI decisions remain undecided until requested Grok4.7 can run or user changes delegation policy.",
+    "prepared_package_retained": true
+  },
+  "previous_provider_restriction_blocks_current_task": false,
+  "remaining_work": [
+    "実際の訪問メモで入力時間と記事素材の具体性を評価",
+    "実機の片手操作とスクリーンリーダーによる確認",
+    "来店理由・総評理由など、追加の保存項目を別途検討"
+  ],
+  "implementation_authorization": {
+    "date": "2026-10-23",
+    "request": "組み込みもしてしまいましょう。grokへの作業依頼はせずに、gpt内で完結させてください",
+    "scope": "current integration, reviews, verification and documentation; GPT only"
+  },
+  "external_model_calls_during_integration": false
+}

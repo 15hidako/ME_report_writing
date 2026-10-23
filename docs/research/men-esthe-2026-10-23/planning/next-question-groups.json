@@ -1,0 +1,5140 @@
+{
+  "purpose": "先行29語以外で次の実装判断に必要な質問・記事素材のまとまりを整理する。",
+  "status": "rejected_by_user",
+  "decision": "rejected_by_user",
+  "decision_record": "adoption58-decision.json",
+  "record_role": "rejected_question_design_history_only",
+  "history_note": "新しい質問群10群・33任意小問は利用者が全件却下した。以下の質問文、参照候補、根拠、保存経路、バッチ順は原案の履歴として保持し、今後の採用予定や実装指示として扱わない。新しい質問や保存項目は追加しない。",
+  "snapshot_counts_note": "already_implemented_unique_candidatesとparent_integration.current_implemented_countの29は前回計画時点の値。最新決定では既存欄58語を追加採用し、先行29語と合わせて87語を採用対象とする。今回の実装確認はadoption58-validation.jsonを参照する。",
+  "scope": {
+    "app_changes": false,
+    "ui_design": false,
+    "external_refetch_or_model": false,
+    "field_names": "proposals_only_not_schema_contracts",
+    "question_wording": "researcher_proposals_not_quoted_or_source_validated_fixed_questions"
+  },
+  "sources_read": [
+    "docs/05-questionnaire-enrichment.md",
+    "docs/06-questionnaire-ui.md",
+    "docs/research/men-esthe-2026-10-23/planning/candidate-disposition.json",
+    "docs/research/men-esthe-2026-10-23/planning/editorial-shortlist.json",
+    "docs/research/men-esthe-2026-10-23/option-candidates.json",
+    "docs/research/men-esthe-2026-10-23/option-evidence-reviewed.json",
+    "docs/research/men-esthe-2026-10-23/response-state-candidates.json",
+    "docs/research/men-esthe-2026-10-23/deep-read/pages-002-011-021.json",
+    "docs/research/men-esthe-2026-10-23/deep-read/pages-041-141-241.json",
+    "docs/research/men-esthe-2026-10-23/deep-read/pages-341-381-401.json"
+  ],
+  "decision_rules": [
+    "新設するのは既存項目に収まらない意味・関係であり、候補ラベル数と新しいフィールド数は一致しない。61件の後続候補は参照集合であり一括採用ではない。",
+    "既存ratingsの理由、flowの段階メモ・bestMoment・downsideに素直に収まる内容はそこを優先し、新設群から参照する。",
+    "質問文、目的の例、回答状態は設計提案として候補化できる。出典の語そのものや一次照合済みの選択肢とは区別する。",
+    "未照合148語は後続の調査・設計候補として保持する。未照合は永久不採用・不存在・自由記述禁止を意味しない。",
+    "根拠の照合状態は原データのまま保持し、派生精読メモや同義候補の根拠で当該IDを照合済みに昇格しない。",
+    "観察、本人の感想、本人が述べた判断理由、伝聞、推測を区別する。未回答から問題なし・未提供・一致などを補わない。",
+    "他人の口コミの出来事・数値・台詞を本人の記事へ移植しない。肯定と否定の両方を記録できるが、対称性のためだけに出典確認済みとしない。"
+  ],
+  "batches": [
+    {
+      "id": "B0",
+      "order": 0,
+      "group_ids": [
+        "source_and_memory_state"
+      ],
+      "purpose": "旧データ互換の任意素材領域、出所・状態、素材間参照の最小契約を決める。既存料金3数値のserializeRecord出力は独立した先行修正にできる。"
+    },
+    {
+      "id": "B1",
+      "order": 1,
+      "depends_on": [
+        "B0"
+      ],
+      "group_ids": [
+        "visit_choice",
+        "visit_purpose",
+        "expectation_gap",
+        "overall_decisive_reason",
+        "revisit_target_reason",
+        "unplaced_and_cross_phase_events"
+      ],
+      "purpose": "導入と総評の理由を補う。期待差や段階不明の素材は本人が必要な時だけ使う。"
+    },
+    {
+      "id": "B2",
+      "order": 2,
+      "depends_on": [
+        "B0"
+      ],
+      "group_ids": [
+        "cost_fact_and_value",
+        "time_fact_and_feeling"
+      ],
+      "purpose": "料金・時間の事実を主観から分ける。既存数値の引き渡しを優先し、総額や時刻の新設は必要な範囲に絞る。"
+    },
+    {
+      "id": "B3",
+      "order": 3,
+      "depends_on": [
+        "B0"
+      ],
+      "recommended_after": [
+        "B1",
+        "B2"
+      ],
+      "group_ids": [
+        "comparison_target_axis"
+      ],
+      "purpose": "本人が比較する場合に対象、軸、条件、主観を補う。"
+    }
+  ],
+  "shared_data_path_dependencies": [
+    {
+      "stage": "type_schema",
+      "files": [
+        "src/types.ts",
+        "schema/visit-record.schema.json",
+        "src/record-validation.ts"
+      ],
+      "work": [
+        "任意のarticleMaterial領域または同等の任意項目として設計し、旧JSONを拒否しない。型とスキーマの形を一致させる。",
+        "新設素材の出所・利用状態・概算を必要な対象に付ける。既存全項目の一括ラップや大規模な型変更は前提にしない。",
+        "未知の追加プロパティが検証を通っても、編集と記事出力が自動対応するわけではない。"
+      ]
+    },
+    {
+      "stage": "collect_restore",
+      "files": [
+        "src/ui/form.ts",
+        "src/main.ts"
+      ],
+      "work": [
+        "renderFormとcollectRecordの両方で復元・収集する。collectRecordは固定項目でレコードを作り直すため未対応項目は消える。",
+        "編集、未保存判定、送信、再訪新規の受け渡しを揃える。条件付き素材は隠しただけで消さない。",
+        "再訪新規に前回の主観・目的・出来事を自動回答としてコピーしない。"
+      ]
+    },
+    {
+      "stage": "store",
+      "files": [
+        "src/storage.ts",
+        "src/record-validation.ts"
+      ],
+      "work": [
+        "VisitStore.save/loadAll/exportJson/importJson/restoreBackupを通して任意素材が保持されることを確認する。",
+        "既存保存キーv1の変更や移行は、この計画だけで必要と決めない。"
+      ]
+    },
+    {
+      "stage": "serialize_prompt",
+      "files": [
+        "src/prompt/serialize.ts",
+        "src/prompt/build-prompt.ts"
+      ],
+      "work": [
+        "serializeRecordへ新素材を明示出力する。JSONに保存されるだけでは記事素材に渡らない。",
+        "観察と感想、伝聞・推測・概算、店と担当者別の再訪意向を区別して出力する。",
+        "buildSinglePrompt/buildRevisitPrompt/buildMatomePromptの参照を確認する。buildCatalogPromptに不要な詳細を追加しない。",
+        "withIdentity:false等の既存経路で新しい自由記述や比較参照をどう扱うか確認する。"
+      ]
+    },
+    {
+      "stage": "focused_verification",
+      "files": [
+        "src/storage.test.ts",
+        "src/ui-regression.test.ts",
+        "src/questionnaire-enrichment.test.ts",
+        "src/cost-storage.test.ts",
+        "src/prompt/build-prompt.test.ts"
+      ],
+      "work": [
+        "旧JSON、任意素材なし、新素材ありの編集・再保存・書出し・読込・バックアップ復元を確認する。",
+        "旧・未知の段階チェック保持を壊さず、段階不明イベントは特定段階へ勝手に変換しない。",
+        "未入力と0円、概算と確認済み、未利用と中立評価、店と担当者の意向を区別する。",
+        "実装時にnpm testとnpm run build、必要な本体操作確認を実行する。今ターンは資料作成のみ。"
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "id": "visit_choice",
+      "status": "rejected_by_user",
+      "decision": "rejected_by_user",
+      "decision_note": "利用者が全件却下。質問文と参照・根拠は履歴保存し、アプリへ追加しない。",
+      "title": "来店・担当者選択のきっかけ",
+      "batch": "B1",
+      "article_use": [
+        "導入",
+        "予約から対面までの経緯"
+      ],
+      "why_new_material": "basic.bookingMethodは連絡の経路であり選択理由ではない。revisitOfと記事種別も初めての店・同店の別担当者・移籍先という経験関係をすべて表さない。",
+      "reuse_existing_first": [
+        "予約方法はbasic.bookingMethod、記事の初回参照はrevisitOfを維持する。訪問理由を星やbestMomentへ押し込まない。"
+      ],
+      "source_note_ids": [
+        "ME-117753",
+        "ME-479744",
+        "ME-94606"
+      ],
+      "questions": [
+        {
+          "id": "choice_trigger",
+          "text": "今回、この店・担当者を選んだきっかけは何ですか？",
+          "answer": "写真・口コミ・以前からの関心・店からの紹介・空き枠・移籍先などの候補参照と本人の追記。何を見て関心を持ったかも補える。",
+          "kind": "本人の選択行動と動機",
+          "required": false,
+          "wording_origin": "researcher_proposal"
+        },
+        {
+          "id": "choice_relation",
+          "text": "この店・担当者を以前利用したことはありますか？ 今回はどのような関係の訪問ですか？",
+          "answer": "初めての店、同店の別担当者、同担当者への再訪、移籍先など、本人が明示した関係。記事リンクの有無から推測しない。",
+          "kind": "訪問経験の事実",
+          "required": false,
+          "wording_origin": "researcher_proposal"
+        },
+        {
+          "id": "choice_constraints",
+          "text": "希望していた相手や日時から変更した事情、当日の都合はありましたか？",
+          "answer": "変更前の希望、選んだ内容、本人の事情。変更なしと未回答を分ける。",
+          "kind": "訪問を決めた事情",
+          "conditional": "空き枠、代替選択、移動途中などが今回の記事に関わる時だけ",
+          "required": false,
+          "wording_origin": "researcher_proposal"
+        }
+      ],
+      "proposed_data_contract": {
+        "path": "articleMaterial.visitChoice?",
+        "shape": [
+          "reasons: candidate refs + free text",
+          "experienceRelation?: explicit relation",
+          "circumstances?: text"
+        ]
+      },
+      "distinctions": [
+        "空き枠から選んだことは期待が低かったことを意味しない。",
+        "写真や口コミの内容は、本人が今回確認した体験とは別。",
+        "初訪問・再訪は良否ではない。"
+      ],
+      "checks": [
+        "予約方法と選択理由が別々に記事へ出る。",
+        "同店別担当者への初回訪問を同担当者の再訪と扱わない。"
+      ],
+      "candidate_ids": [
+        "selection_reason_01",
+        "selection_reason_02",
+        "selection_reason_03",
+        "selection_reason_04",
+        "selection_reason_05",
+        "selection_reason_06",
+        "visit_context_01",
+        "visit_context_02",
+        "visit_context_03",
+        "visit_context_04",
+        "visit_context_05",
+        "visit_context_06",
+        "visit_context_07",
+        "visit_context_08"
+      ],
+      "candidate_refs_are_not_adoption_list": true,
+      "all_questions_optional": true,
+      "question_wording_origin": "researcher_proposal_not_a_quoted_or_source_validated_question",
+      "evidence_pending_candidate_ids": [
+        "selection_reason_07",
+        "selection_reason_08"
+      ]
+    },
+    {
+      "id": "visit_purpose",
+      "status": "rejected_by_user",
+      "decision": "rejected_by_user",
+      "decision_note": "利用者が全件却下。質問文と参照・根拠は履歴保存し、アプリへ追加しない。",
+      "title": "今回求めたことと本人の好み",
+      "batch": "B1",
+      "article_use": [
+        "導入",
+        "評価の基準",
+        "総評"
+      ],
+      "why_new_material": "満足した結果と訪問前から求めていた目的は時点と意味が異なる。結果のラベルや星から目的を逆算すると本人の判断基準を作ってしまう。",
+      "reuse_existing_first": [
+        "希望を伝えた出来事は正しいflowメモを、適合感はBメモを参照する。この群では訪問前の目的と本人の基準を補う。"
+      ],
+      "candidate_ids": [
+        "assessment_05",
+        "conversation_fit_01",
+        "pressure_08",
+        "satisfaction_01",
+        "satisfaction_02",
+        "satisfaction_03",
+        "technique_08"
+      ],
+      "candidate_role_caution": "結果や適合感の関連候補であり、訪問前の目的を直接実証する固定ラベルではない。",
+      "source_note_ids": [
+        "ME-637274",
+        "ME-426485",
+        "ME-644708",
+        "ME-115953"
+      ],
+      "questions": [
+        {
+          "id": "visit_goal",
+          "text": "今回は何を求めて利用しましたか？ 特に重視していたことは何ですか？",
+          "answer": "本人の目的と重視点の自由記述。例：疲れた部位をしっかりケアしたい、会話を楽しみたい、静かに休みたい。例は設計提案で、すべてが検証済みの固定ラベルではない。",
+          "kind": "訪問前の本人の意図",
+          "required": false,
+          "wording_origin": "researcher_proposal"
+        },
+        {
+          "id": "personal_baseline",
+          "text": "施術の強さ、会話の多さ、姿勢など、今回の感想に関わる自分の好みはありますか？",
+          "answer": "今回の評価に関わる本人の好み。例：強い圧は苦手、静かな時間が好み、うつ伏せを避けたい。",
+          "kind": "本人の主観的基準",
+          "required": false,
+          "wording_origin": "researcher_proposal"
+        },
+        {
+          "id": "goal_outcome",
+          "text": "求めていたことは実際にどうでしたか？ 判断につながった出来事は何ですか？",
+          "answer": "満たされた点、合わなかった点、判断保留と既存素材への参照。",
+          "kind": "本人の目的に対する結果判断",
+          "required": false,
+          "wording_origin": "researcher_proposal"
+        }
+      ],
+      "proposed_data_contract": {
+        "path": "articleMaterial.visitPurpose?",
+        "shape": [
+          "goal?: text",
+          "personalPreference?: text",
+          "outcome?: text + existing material refs"
+        ]
+      },
+      "distinctions": [
+        "しっかりした圧は歓迎にも不適合にもなり得る。",
+        "本人が疲れが楽になったと感じたことを治療効果の確認へ広げない。",
+        "避けたい姿勢を、今回その姿勢を行われた出来事にしない。"
+      ],
+      "checks": [
+        "目的が未記入なら星から補わない。",
+        "訪問前の基準、実際の出来事、その受け止め方を別々に識別できる。"
+      ],
+      "candidate_refs_are_not_adoption_list": true,
+      "all_questions_optional": true,
+      "question_wording_origin": "researcher_proposal_not_a_quoted_or_source_validated_question",
+      "evidence_pending_candidate_ids": []
+    },
+    {
+      "id": "expectation_gap",
+      "status": "rejected_by_user",
+      "decision": "rejected_by_user",
+      "decision_note": "利用者が全件却下。質問文と参照・根拠は履歴保存し、アプリへ追加しない。",
+      "title": "期待の出所と実際の違い",
+      "batch": "B1",
+      "article_use": [
+        "導入から体験へのつなぎ",
+        "発見の場面",
+        "総評"
+      ],
+      "why_new_material": "写真印象は顔・スタイルの評価で、技術、会話、清潔さへの予想と今回の観察を組で残す場所がない。期待以上という結果だけでは何が変わったか分からない。",
+      "reuse_existing_first": [
+        "顔・スタイルの写真印象は先行29のBメモを再利用する。観察は既存B/Dまたはイベントに置き、期待の出所と予想だけ補う。"
+      ],
+      "candidate_ids": [
+        "knowledge_source_04",
+        "knowledge_source_05",
+        "knowledge_source_06",
+        "satisfaction_06",
+        "selection_reason_01",
+        "selection_reason_02"
+      ],
+      "source_note_ids": [
+        "ME-117747",
+        "ME-117753",
+        "ME-638604"
+      ],
+      "questions": [
+        {
+          "id": "expectation_before",
+          "text": "利用前に何を期待していましたか？ 何を見聞きしてそう思いましたか？",
+          "answer": "期待の対象・内容と、プロフィール、口コミ、本人の想像などの出所。例：未経験という記載から技術は控えめに予想していた。",
+          "kind": "事前の主観と出所",
+          "required": false,
+          "wording_origin": "researcher_proposal"
+        },
+        {
+          "id": "expectation_actual",
+          "text": "自分が今回確認したことは、事前の期待とどう違いましたか？",
+          "answer": "合っていた、良い違い、合わなかった違い、比較できない等、本人の記述。空欄から一致を推定しない。",
+          "kind": "今回の観察と比較判断",
+          "required": false,
+          "wording_origin": "researcher_proposal"
+        },
+        {
+          "id": "expectation_effect",
+          "text": "その違いをどう受け止めましたか？ 評価や再訪判断にも関わりましたか？",
+          "answer": "好意的、不満、どちらでもない、判断保留と本人が述べた影響。",
+          "kind": "感情と判断への影響",
+          "conditional": "期待差を記録した時だけ",
+          "required": false,
+          "wording_origin": "researcher_proposal"
+        }
+      ],
+      "proposed_data_contract": {
+        "path": "articleMaterial.expectations?[]",
+        "shape": [
+          "subject: topic",
+          "before: text + provenance",
+          "actualMaterialRef: existing/event ref",
+          "reaction?: text"
+        ]
+      },
+      "distinctions": [
+        "写真からの性格の想像を確認済みプロフィールに変えない。",
+        "口コミと自分の体験の時点・条件が同じとは限らず、違いから口コミが虚偽と断定しない。",
+        "違いがない訪問に転換点を作らない。"
+      ],
+      "checks": [
+        "事前情報と今回の観察の出所が区別される。",
+        "期待差が空なら期待以上という展開を前提にしない。"
+      ],
+      "candidate_refs_are_not_adoption_list": true,
+      "all_questions_optional": true,
+      "question_wording_origin": "researcher_proposal_not_a_quoted_or_source_validated_question",
+      "evidence_pending_candidate_ids": []
+    },
+    {
+      "id": "overall_decisive_reason",
+      "status": "rejected_by_user",
+      "decision": "rejected_by_user",
+      "decision_note": "利用者が全件却下。質問文と参照・根拠は履歴保存し、アプリへ追加しない。",
+      "title": "総評の決め手と評価の重み",
+      "batch": "B1",
+      "article_use": [
+        "総評",
+        "星の説明",
+        "再訪判断へのつなぎ"
+      ],
+      "why_new_material": "bestMomentとdownsideは場面を記録できるが、相反する評価のうち何が最終判断で重かったかは表さない。6軸の平均も本人の結論ではない。",
+      "reuse_existing_first": [
+        "downside_03〜07は既存flow.downsideの理由補助に収まる場合が多く、新しい不満一覧へ複製しない。",
+        "satisfaction_01〜03/05/08も既存評価理由やbestMomentで意味が足りれば新設不要。新設の価値は既存素材と決め手の関係にある。"
+      ],
+      "source_note_ids": [
+        "ME-645755",
+        "ME-109628",
+        "ME-615850"
+      ],
+      "questions": [
+        {
+          "id": "overall_positive_negative",
+          "text": "全体として良かった点と気になった点は何ですか？",
+          "answer": "既存の評価理由・bestMoment・downside・イベントへの参照を優先。片方だけ、判断保留、未回答も可能。",
+          "kind": "本人の総合的な感想",
+          "required": false,
+          "wording_origin": "researcher_proposal"
+        },
+        {
+          "id": "overall_decider",
+          "text": "今回の結論で、特に決め手になったのはどの点ですか？",
+          "answer": "決め手になった既存素材への参照と本人の理由。例：技術は良いが営業対応が気になった、料金には満足したが自分の好みと違った。",
+          "kind": "本人が述べる評価の重み",
+          "required": false,
+          "wording_origin": "researcher_proposal"
+        },
+        {
+          "id": "overall_connection",
+          "text": "その点が、星や再訪意向にどうつながりましたか？",
+          "answer": "本人が説明した関係だけ。理由の順位付けや一つへの強制をしない。",
+          "kind": "本人が明示した判断理由",
+          "conditional": "星や再訪意向との関係を補足したい時だけ",
+          "required": false,
+          "wording_origin": "researcher_proposal"
+        }
+      ],
+      "proposed_data_contract": {
+        "path": "articleMaterial.overall?",
+        "shape": [
+          "positiveRefs?: existing refs",
+          "negativeRefs?: existing refs",
+          "decisiveReason?: text + refs"
+        ]
+      },
+      "distinctions": [
+        "技術が高評価でも好みや接客が結論を変える場合がある。",
+        "選択されていない不満を特に問題なしへ変換しない。",
+        "時間が足りないの意味は時間群で限定する。"
+      ],
+      "checks": [
+        "肯定的評価と否定的結論が同じ素材で説明できる。",
+        "同じdownsideが二つの事件として増えない。"
+      ],
+      "candidate_ids": [
+        "downside_02",
+        "downside_03",
+        "downside_04",
+        "downside_05",
+        "downside_06",
+        "downside_07",
+        "satisfaction_01",
+        "satisfaction_02",
+        "satisfaction_03",
+        "satisfaction_05",
+        "satisfaction_06",
+        "satisfaction_07",
+        "satisfaction_08"
+      ],
+      "candidate_refs_are_not_adoption_list": true,
+      "all_questions_optional": true,
+      "question_wording_origin": "researcher_proposal_not_a_quoted_or_source_validated_question",
+      "evidence_pending_candidate_ids": [
+        "satisfaction_04",
+        "downside_01",
+        "downside_08"
+      ]
+    },
+    {
+      "id": "revisit_target_reason",
+      "status": "rejected_by_user",
+      "decision": "rejected_by_user",
+      "decision_note": "利用者が全件却下。質問文と参照・根拠は履歴保存し、アプリへ追加しない。",
+      "title": "店舗と担当者を分けた再訪意向・理由・条件",
+      "batch": "B1",
+      "article_use": [
+        "総評",
+        "次回への言及",
+        "再訪記事の起点"
+      ],
+      "why_new_material": "voice.repeatIntentは対象が一つで、同店には行くが別担当者を試したいという意向を表せない。会話や料金の評価と、それを再訪理由にしたかも別である。",
+      "reuse_existing_first": [
+        "voice.repeatIntentは既存互換で維持し、新しい対象別回答で自動上書きしない。",
+        "施術、会話、料金の理由は既存メモやoverall/costを参照し同じ出来事を複製しない。"
+      ],
+      "source_note_ids": [
+        "ME-113261",
+        "ME-111685",
+        "ME-507212",
+        "ME-117747",
+        "ME-108576"
+      ],
+      "questions": [
+        {
+          "id": "store_return",
+          "text": "この店をまた利用したいですか？ 別の担当者を試す場合も含めて教えてください。",
+          "answer": "店を対象とした意向と保留・未回答。別担当者への関心を今回の不満と同一視しない。",
+          "kind": "店舗への主観的意向",
+          "required": false,
+          "wording_origin": "researcher_proposal"
+        },
+        {
+          "id": "therapist_return",
+          "text": "今回と同じ担当者を、また指名したいですか？",
+          "answer": "担当者を対象にした意向。店への意向と独立に記録する。",
+          "kind": "担当者への主観的意向",
+          "required": false,
+          "wording_origin": "researcher_proposal"
+        },
+        {
+          "id": "revisit_reason_condition",
+          "text": "それぞれの意向の理由や、再訪するための条件は何ですか？",
+          "answer": "対象別に理由の参照と、予約、日程、予算等の本人が述べた条件。例：予約が取れれば同担当者、店はまた利用するが次は別担当者。",
+          "kind": "判断理由と未確定条件",
+          "required": false,
+          "wording_origin": "researcher_proposal"
+        },
+        {
+          "id": "intent_or_booking",
+          "text": "次回について、実際に予約したことと、今そう思っていることは分けられますか？",
+          "answer": "予約完了、検討、未確認を区別する任意記述。次の予約を入れたという元候補は個別未確認のまま。",
+          "kind": "確認できる行動と予定の区別",
+          "conditional": "次回予約について本人が触れた時だけ",
+          "required": false,
+          "wording_origin": "researcher_proposal"
+        }
+      ],
+      "proposed_data_contract": {
+        "path": "articleMaterial.revisitDecision?",
+        "shape": [
+          "store?: intent + reason refs + conditions",
+          "therapist?: intent + reason refs + conditions",
+          "actualNextBooking?: confirmed action text"
+        ]
+      },
+      "distinctions": [
+        "再訪の意向は予約完了ではない。",
+        "料金相応と感じても料金が再訪理由とは限らない。",
+        "旧repeatIntentを店と担当者の両方へ自動複製しない。"
+      ],
+      "checks": [
+        "店は再訪、担当者は再指名なしという組み合わせを保持する。",
+        "旧4段階しかない記録には対象を補わず従来の意向として出す。"
+      ],
+      "candidate_ids": [
+        "repeat_reason_02",
+        "repeat_reason_04",
+        "repeat_reason_06",
+        "repeat_reason_08",
+        "revisit_store_01",
+        "revisit_store_02",
+        "revisit_store_03",
+        "revisit_store_05",
+        "revisit_therapist_01",
+        "revisit_therapist_02",
+        "revisit_therapist_03",
+        "revisit_therapist_04"
+      ],
+      "candidate_refs_are_not_adoption_list": true,
+      "all_questions_optional": true,
+      "question_wording_origin": "researcher_proposal_not_a_quoted_or_source_validated_question",
+      "evidence_pending_candidate_ids": [
+        "revisit_store_02",
+        "revisit_store_04",
+        "revisit_store_06",
+        "revisit_therapist_05",
+        "revisit_therapist_06",
+        "repeat_reason_01",
+        "repeat_reason_03",
+        "repeat_reason_05",
+        "repeat_reason_07"
+      ]
+    },
+    {
+      "id": "comparison_target_axis",
+      "status": "rejected_by_user",
+      "decision": "rejected_by_user",
+      "decision_note": "利用者が全件却下。質問文と参照・根拠は履歴保存し、アプリへ追加しない。",
+      "title": "比較対象・比較軸・条件の違い",
+      "batch": "B3",
+      "article_use": [
+        "再訪記事",
+        "前回との差分",
+        "相対的な好みや料金判断"
+      ],
+      "why_new_material": "revisitOfは初回記事への参照で、今回比較した直前訪問、移籍前、同店別担当者、他店を常に指すわけではない。前回より物足りないだけでは違う条件が分からない。",
+      "reuse_existing_first": [
+        "revisitOfは初回記事リンクの用途を維持する。比較相手が同じ場合のみそのレコードを明示参照する。",
+        "過去の本人レコードがあればその値を参照し、今回比較していない項目まで物語化しない。"
+      ],
+      "source_note_ids": [
+        "ME-67846",
+        "ME-677231",
+        "ME-687360"
+      ],
+      "optional_trigger": "本人が過去・別担当者・他店と比較したい時。初回訪問でも比較はあり得るのでsales.articleTypeだけを条件にしない。",
+      "questions": [
+        {
+          "id": "comparison_target",
+          "text": "何と比較していますか？ 比較元の訪問や担当者を分かる範囲で教えてください。",
+          "answer": "本人レコード参照または過去体験の記述。初回・直前、同担当者・別担当者・他店を区別。",
+          "kind": "比較対象の事実と記憶",
+          "required": false,
+          "wording_origin": "researcher_proposal"
+        },
+        {
+          "id": "comparison_conditions",
+          "text": "何を比べ、コース・時間・料金・希望内容などの条件はどう違いましたか？",
+          "answer": "軸ごとの前回と今回の値、条件の違い、分からない点。例：前回はオイル、今回は希望してパウダー。",
+          "kind": "比較条件の事実と曖昧さ",
+          "required": false,
+          "wording_origin": "researcher_proposal"
+        },
+        {
+          "id": "comparison_reaction",
+          "text": "その違いを自分はどう感じましたか？",
+          "answer": "良く感じた、合わなくなった、変わらない、比較できない等の自由記述。例は設計提案で各固定候補の根拠状態とは別。",
+          "kind": "本人の相対的評価",
+          "required": false,
+          "wording_origin": "researcher_proposal"
+        }
+      ],
+      "proposed_data_contract": {
+        "path": "articleMaterial.comparisons?[]",
+        "shape": [
+          "target: record id or text",
+          "axis: topic",
+          "prior?: value/text + provenance",
+          "currentRef: existing material",
+          "conditions?: text",
+          "reaction?: text"
+        ]
+      },
+      "distinctions": [
+        "保存データにない比較元を必須レコード参照にしない。",
+        "笑顔が前より多いというメモは総合満足向上や部屋変更の直接根拠ではない。",
+        "条件が違う比較を技術の成長や低下の証拠にしない。"
+      ],
+      "checks": [
+        "初回記事リンクと今回の比較相手が異なっても保持できる。",
+        "過去の曖昧な記憶から正確な数値や台詞を作らない。"
+      ],
+      "candidate_ids": [
+        "comparison_03",
+        "comparison_05",
+        "comparison_07",
+        "comparison_08"
+      ],
+      "candidate_refs_are_not_adoption_list": true,
+      "all_questions_optional": true,
+      "question_wording_origin": "researcher_proposal_not_a_quoted_or_source_validated_question",
+      "evidence_pending_candidate_ids": [
+        "comparison_01",
+        "comparison_02",
+        "comparison_04",
+        "comparison_06"
+      ]
+    },
+    {
+      "id": "cost_fact_and_value",
+      "status": "rejected_by_user",
+      "decision": "rejected_by_user",
+      "decision_note": "利用者が全件却下。質問文と参照・根拠は履歴保存し、アプリへ追加しない。",
+      "title": "料金の事実・説明・納得感",
+      "batch": "B2",
+      "article_use": [
+        "店舗情報と実額",
+        "総評",
+        "料金が関わる残念点や再訪理由"
+      ],
+      "why_new_material": "コース代・追加代・指名料は保存済みだがserializeRecordに出ない。総支払額、割引、説明の時点、本人の納得感は内訳や星から分からない。既存金額の引き渡しを先に直す。",
+      "reuse_existing_first": [
+        "basic.courseFee/optionFee/nominationFeeとoptionSystem/optionChosenを再利用する。未入力、0円、旧選択範囲外の金額を保持する。",
+        "不満はflow.downside、再訪理由は対象別意向等から同じ支払い素材を参照する。"
+      ],
+      "candidate_ids": [
+        "fee_components_01",
+        "fee_components_02",
+        "fee_components_04",
+        "fee_components_06",
+        "price_clarity_02",
+        "price_clarity_04",
+        "price_clarity_05",
+        "price_clarity_07",
+        "price_clarity_08",
+        "repeat_reason_04",
+        "satisfaction_07",
+        "saving_01",
+        "saving_04",
+        "saving_06",
+        "uncertainty_06",
+        "upsell_01",
+        "upsell_03",
+        "upsell_04",
+        "upsell_05",
+        "upsell_07",
+        "value_01",
+        "value_02",
+        "value_03",
+        "value_05"
+      ],
+      "source_note_ids": [
+        "ME-615850",
+        "ME-52641",
+        "ME-111685",
+        "ME-67846",
+        "ME-645755"
+      ],
+      "optional_trigger": "実額の補足、料金説明、追加案内や納得感が記事の経緯・評価理由に関わる時。既存金額の再入力は求めない。",
+      "questions": [
+        {
+          "id": "paid_total",
+          "text": "実際に支払った総額は分かりますか？ 内訳に含まれていない追加や割引はありますか？",
+          "answer": "実額と追加・割引の記述。金額ごとに確認済み、概算、覚えていないを分ける。内訳から総額を自動確定しない。",
+          "kind": "支払いの事実と記憶",
+          "required": false,
+          "wording_origin": "researcher_proposal"
+        },
+        {
+          "id": "price_explanation",
+          "text": "どの時点で、どの料金・追加内容の説明を受けましたか？",
+          "answer": "予約時、入室後、途中等の時点と内容。説明、選んだ事実、断った後の対応を分ける。",
+          "kind": "案内と選択の観察",
+          "required": false,
+          "wording_origin": "researcher_proposal"
+        },
+        {
+          "id": "price_reaction",
+          "text": "支払った内容と金額について、自分はどう感じましたか？ 理由は何ですか？",
+          "answer": "割安、相応、割高、追加込みでは迷う等の本人の判断と理由への参照。",
+          "kind": "本人の価値判断",
+          "required": false,
+          "wording_origin": "researcher_proposal"
+        },
+        {
+          "id": "price_decision_effect",
+          "text": "料金や追加提案は、総評や再訪の判断に関わりましたか？",
+          "answer": "影響した場合だけ本人の関係づけを参照する。納得を自動で再訪理由にしない。",
+          "kind": "本人が述べた判断への影響",
+          "conditional": "料金・追加案内が判断に関わった時だけ",
+          "required": false,
+          "wording_origin": "researcher_proposal"
+        }
+      ],
+      "proposed_data_contract": {
+        "path": "articleMaterial.costContext?",
+        "shape": [
+          "paidTotal?: nonnegative safe integer yen or null + certainty",
+          "adjustments?: named charges/discounts",
+          "explanation?: timing + event refs",
+          "valueJudgment?: text/candidate refs + reason refs"
+        ]
+      },
+      "distinctions": [
+        "未利用追加の案内価格と実際の支払いは別。",
+        "追加を断っても対応が変わらなかったという観察と断りにくいという感想は別。",
+        "内訳と総額が合わなければ不一致を残す。自動補正しない。",
+        "高額と割高は別。過去の出典料金を今回や現在の価格に移植しない。"
+      ],
+      "checks": [
+        "既存料金の未入力、0円、正の整数、範囲外の旧値が区別して記事に出る。",
+        "概算と未利用追加の価格を支払実額として合算しない。",
+        "割安だが再訪しないという回答を保持する。"
+      ],
+      "candidate_refs_are_not_adoption_list": true,
+      "all_questions_optional": true,
+      "question_wording_origin": "researcher_proposal_not_a_quoted_or_source_validated_question",
+      "evidence_pending_candidate_ids": [
+        "price_clarity_01",
+        "price_clarity_03",
+        "price_clarity_06",
+        "upsell_02",
+        "upsell_06",
+        "fee_components_03",
+        "fee_components_05",
+        "fee_components_07",
+        "fee_components_08",
+        "saving_02",
+        "saving_03",
+        "saving_05",
+        "saving_07",
+        "saving_08",
+        "value_04",
+        "value_06",
+        "value_07"
+      ]
+    },
+    {
+      "id": "time_fact_and_feeling",
+      "status": "rejected_by_user",
+      "decision": "rejected_by_user",
+      "decision_note": "利用者が全件却下。質問文と参照・根拠は履歴保存し、アプリへ追加しない。",
+      "title": "時間の事実・配分・本人の体感",
+      "batch": "B2",
+      "article_use": [
+        "時系列",
+        "残念点",
+        "良かった点",
+        "次回コースへの希望"
+      ],
+      "why_new_material": "basic.courseは予約コースで、実際の滞在・施術の長さ、準備配分、短く感じた体感ではない。早期退出、後半の配分、もっと受けたかった主観を分ける必要がある。",
+      "reuse_existing_first": [
+        "予約コースはbasic.courseを、段階が分かる準備や待ちは既存flowを参照する。",
+        "pace_of_time_06は終了後会話へ限定できれば既存flow.afterの会話へ寄せる。施術延長は新設しない。"
+      ],
+      "candidate_ids": [
+        "downside_02",
+        "pace_of_time_01",
+        "pace_of_time_02",
+        "pace_of_time_03",
+        "pace_of_time_04",
+        "pace_of_time_05",
+        "pace_of_time_06",
+        "value_06",
+        "arrival_05"
+      ],
+      "source_note_ids": [
+        "ME-688337",
+        "ME-611571",
+        "ME-108576",
+        "ME-94606",
+        "ME-109630"
+      ],
+      "optional_trigger": "時間の事実や配分、体感が本人の感想・判断に関わる時。覚えていない時刻を必須にしない。",
+      "questions": [
+        {
+          "id": "time_known_fact",
+          "text": "開始・終了・退出の時刻や長さで、確認できているものはありますか？",
+          "answer": "時計確認と概算を分け、施術開始・滞在開始・退出など何の時点かを明示。分からないものは残す。",
+          "kind": "時間の事実と記憶",
+          "required": false,
+          "wording_origin": "researcher_proposal"
+        },
+        {
+          "id": "time_allocation",
+          "text": "準備・入浴・会話・待ち時間などで、配分が印象に残った部分はありますか？",
+          "answer": "出来事への参照と配分の感想。速度が速いという観察と時間が短いという印象を分ける。",
+          "kind": "配分の観察と体感",
+          "required": false,
+          "wording_origin": "researcher_proposal"
+        },
+        {
+          "id": "time_feeling",
+          "text": "全体や一部の長さを、自分はどう感じましたか？",
+          "answer": "十分、短くてもっと受けたい、長く感じた等。予定より早い退出という事実とは別に記録。",
+          "kind": "本人の主観的な長さ",
+          "required": false,
+          "wording_origin": "researcher_proposal"
+        },
+        {
+          "id": "time_effect_next",
+          "text": "その時間の印象は、評価や次回のコース選びにどう関わりますか？",
+          "answer": "本人が述べた理由や希望だけ。長いコースなら満足するという未体験の結果を確定しない。",
+          "kind": "判断理由と将来の希望",
+          "conditional": "時間が評価や次回希望に関わった時だけ",
+          "required": false,
+          "wording_origin": "researcher_proposal"
+        }
+      ],
+      "proposed_data_contract": {
+        "path": "articleMaterial.timeContext?",
+        "shape": [
+          "knownTimes?: event-specific times/durations + certainty",
+          "allocationNotes?: text + refs",
+          "subjectiveLength?: text/candidate refs",
+          "decisionEffect?: text"
+        ]
+      },
+      "distinctions": [
+        "downside_02は予定より早い終了で、value_06のもっと受けたいという体感とは別。",
+        "pace_of_time_04は後半を短く感じたという意味に限定し、駆け足という速度を断定しない。",
+        "pace_of_time_06の枠後会話を施術時間へ加算しない。",
+        "技術が良くても同じ部位を長く感じることがある。"
+      ],
+      "checks": [
+        "早期退出と90分でももっと受けたいという主観が別々に出る。",
+        "予約分数を実測施術時間にしない。概算から原因や不足分を創作しない。"
+      ],
+      "candidate_refs_are_not_adoption_list": true,
+      "all_questions_optional": true,
+      "question_wording_origin": "researcher_proposal_not_a_quoted_or_source_validated_question",
+      "evidence_pending_candidate_ids": [
+        "pace_of_time_07",
+        "pace_of_time_08"
+      ]
+    },
+    {
+      "id": "unplaced_and_cross_phase_events",
+      "status": "rejected_by_user",
+      "decision": "rejected_by_user",
+      "decision_note": "利用者が全件却下。質問文と参照・根拠は履歴保存し、アプリへ追加しない。",
+      "title": "段階不明の出来事と訪問中の印象の変化",
+      "batch": "B1",
+      "article_use": [
+        "場面の補足",
+        "訪問の流れ",
+        "印象が変わった理由"
+      ],
+      "why_new_material": "現行flowは決まった6段階しかなく、予約前、訪問全体、段階を覚えていない出来事を置くと誤った時系列になる。任意の共通素材を残せる場所が必要。",
+      "reuse_existing_first": [
+        "実際の段階が分かるなら既存flow.<phase>、星の理由だけならratings.*.noteを使う。",
+        "76件のretain_as_contextは参照素材庫であり、76個の新質問や固定候補の採用指示ではない。"
+      ],
+      "source_note_ids": [
+        "ME-669488",
+        "ME-479744",
+        "ME-509759"
+      ],
+      "optional_trigger": "段階不明、予約前、訪問全体の素材、または印象の変化を本人が残したい時。",
+      "questions": [
+        {
+          "id": "unplaced_event",
+          "text": "段階をはっきり覚えていない出来事や、既存欄に収まらない素材はありますか？",
+          "answer": "本人の出来事。予約前、到着前、訪問全体、段階不明など、覚えている範囲だけ時点を付ける。",
+          "kind": "観察と時点の確かさ",
+          "required": false,
+          "wording_origin": "researcher_proposal"
+        },
+        {
+          "id": "event_feeling",
+          "text": "何が起きて、自分はどう感じましたか？",
+          "answer": "動作や聞いたことと本人の感情を分ける。台詞を覚えていなければ要約と明示し、引用を作らない。",
+          "kind": "観察と本人の感情",
+          "required": false,
+          "wording_origin": "researcher_proposal"
+        },
+        {
+          "id": "turning_point",
+          "text": "途中で印象が変わった場面があれば、その前後ときっかけを教えてください。",
+          "answer": "前の印象、本人が結び付けた出来事、後の感想。良い変化も悪い変化も残せる。変化なし・未回答も可能。",
+          "kind": "本人が述べた感情の変化",
+          "conditional": "本人が変化を記録したい時だけ",
+          "required": false,
+          "wording_origin": "researcher_proposal"
+        }
+      ],
+      "proposed_data_contract": {
+        "path": "articleMaterial.events?[]",
+        "shape": [
+          "id?: stable id when referenced",
+          "observation?: user text",
+          "when?: known phase/before visit/visit-wide/unknown",
+          "feeling?: user text",
+          "change?: before/after + user-linked event"
+        ]
+      },
+      "distinctions": [
+        "出迎えは気になったが会話で改善、施術は良いが見送りで下がった、どちらも記録できる。",
+        "段階不明を自動でmeetingに入れない。",
+        "出来事から担当者の気分や意欲を確認事実にしない。"
+      ],
+      "checks": [
+        "段階不明のまま保存・再編集・出力できる。",
+        "同じ出来事を星・総評・再訪から参照しても事件や台詞が増えない。"
+      ],
+      "candidate_ids": [
+        "access_01",
+        "access_02",
+        "access_03",
+        "access_04",
+        "access_05",
+        "access_06",
+        "access_07",
+        "aftercare_01",
+        "aftercare_02",
+        "amenities_01",
+        "amenities_02",
+        "amenities_05",
+        "appearance_02",
+        "appearance_03",
+        "appearance_04",
+        "appearance_05",
+        "appearance_06",
+        "appearance_07",
+        "arrival_05",
+        "assessment_04",
+        "assessment_05",
+        "booking_flow_02",
+        "booking_flow_03",
+        "booking_flow_04",
+        "booking_flow_06",
+        "booking_response_03",
+        "booking_response_05",
+        "cleanliness_01",
+        "cleanliness_04",
+        "comfort_03",
+        "comfort_distance_01",
+        "comfort_distance_02",
+        "comfort_distance_03",
+        "conversation_amount_01",
+        "conversation_amount_03",
+        "conversation_amount_05",
+        "conversation_amount_06",
+        "conversation_amount_07",
+        "conversation_style_05",
+        "fee_components_01",
+        "fee_components_02",
+        "fee_components_04",
+        "fee_components_06",
+        "flow_variation_01",
+        "flow_variation_03",
+        "focus_02",
+        "focus_04",
+        "focus_08",
+        "medium_01",
+        "method_02",
+        "method_03",
+        "method_06",
+        "method_07",
+        "pace_03",
+        "pressure_01",
+        "pressure_03",
+        "professionalism_05",
+        "professionalism_07",
+        "room_facility_01",
+        "room_facility_02",
+        "saving_01",
+        "saving_04",
+        "saving_06",
+        "scent_03",
+        "scent_06",
+        "scope_confirmation_01",
+        "scope_confirmation_02",
+        "scope_confirmation_05",
+        "scope_confirmation_07",
+        "shower_01",
+        "shower_05",
+        "shower_06",
+        "technique_05",
+        "welcome_03",
+        "welcome_05",
+        "welcome_06"
+      ],
+      "candidate_refs_are_not_adoption_list": true,
+      "all_questions_optional": true,
+      "question_wording_origin": "researcher_proposal_not_a_quoted_or_source_validated_question",
+      "evidence_pending_candidate_ids": []
+    },
+    {
+      "id": "source_and_memory_state",
+      "status": "rejected_by_user",
+      "decision": "rejected_by_user",
+      "decision_note": "利用者が全件却下。質問文と参照・根拠は履歴保存し、アプリへ追加しない。",
+      "title": "素材ごとの情報源・利用状態・記憶の確かさ",
+      "batch": "B0",
+      "article_use": [
+        "断言・伝聞・推測・概算の書き分け",
+        "未体験評価の抑制",
+        "すべての素材の意味保持"
+      ],
+      "why_new_material": "evidenceSavedは証跡保存の有無で、各情報の出所や確かさを表さない。全体の単一フラグでは正確な料金と曖昧な順番を同時に保持できない。",
+      "reuse_existing_first": [
+        "ageIsEstimateは年齢の推定として維持し全体へ広げない。",
+        "既存6軸の型や星の一括変更は前提にしない。新状態を添えるなら旧星3を観察済み評価として出さない方針を決める。",
+        "response-state-candidates.jsonの状態6種と候補15語は別の軸。"
+      ],
+      "source_note_ids": [
+        "ME-693774",
+        "ME-464827",
+        "ME-52641",
+        "ME-117747",
+        "ME-671206"
+      ],
+      "questions": [
+        {
+          "id": "material_source",
+          "text": "この内容は、自分の体験、相手や店から聞いたこと、掲載情報、他の口コミ、自分の推測のどれですか？",
+          "answer": "素材単位の出所。混在する場合は部分ごとの出所を明示する。",
+          "kind": "情報源メタデータ",
+          "required": false,
+          "wording_origin": "researcher_proposal"
+        },
+        {
+          "id": "material_state",
+          "text": "確認済み、未確認、利用なし、覚えていない、今回該当しない場合を分けられますか？",
+          "answer": "observed/not_checked/not_used/not_recalled/not_applicable/unanswered。未回答は入力欠落の状態で本人が選んだ肯定・否定ではない。",
+          "kind": "利用・確認・回答状態",
+          "required": false,
+          "wording_origin": "researcher_proposal"
+        },
+        {
+          "id": "material_precision",
+          "text": "金額・時間・順番などで、概算や曖昧な部分はどこですか？",
+          "answer": "対象素材ごとの概算、順番不明等の限定。未選択から正確や明瞭な記憶を作らない。",
+          "kind": "値と記憶の精度",
+          "required": false,
+          "wording_origin": "researcher_proposal"
+        }
+      ],
+      "proposed_data_contract": {
+        "path": "articleMaterial.provenance?[] or metadata beside new material",
+        "shape": [
+          "target: stable material ref/explicit field path",
+          "source: self/therapist/store/profile/review/inference/unknown",
+          "responseState: six proposed states",
+          "precision?: per-topic approximation/uncertainty",
+          "note?: text"
+        ]
+      },
+      "distinctions": [
+        "状態名には研究者による設計案も含み、すべてが332候補の照合済み語ではない。",
+        "候補のsource_meaning_checkedは調査語の状態で、本人の回答の確認済みとは別。",
+        "未利用、中立評価、記憶なし、未回答を混ぜない。"
+      ],
+      "checks": [
+        "料金の正確さと順番の曖昧さが別々に保存される。",
+        "未利用の旧星3を普通の実体験評価として表現しない。",
+        "状態が輸出入後も保持され、参照切れを検出できる。"
+      ],
+      "candidate_ids": [
+        "knowledge_source_01",
+        "knowledge_source_02",
+        "knowledge_source_03",
+        "knowledge_source_04",
+        "knowledge_source_05",
+        "knowledge_source_06",
+        "knowledge_source_07",
+        "uncertainty_01",
+        "uncertainty_02",
+        "uncertainty_03",
+        "uncertainty_04",
+        "uncertainty_05",
+        "uncertainty_06",
+        "uncertainty_07",
+        "uncertainty_08",
+        "price_clarity_08",
+        "scope_confirmation_07"
+      ],
+      "candidate_refs_are_not_adoption_list": true,
+      "all_questions_optional": true,
+      "question_wording_origin": "researcher_proposal_not_a_quoted_or_source_validated_question",
+      "evidence_pending_candidate_ids": [
+        "uncertainty_01",
+        "uncertainty_04",
+        "uncertainty_07"
+      ]
+    }
+  ],
+  "meaning_gates": [
+    {
+      "candidate_id": "pace_of_time_04",
+      "source_ids": [
+        "ME-611571"
+      ],
+      "gate": "後半が短めという根拠を施術速度が速かったへ広げない。後半の施術時間を短く感じた等に限定するか元文を再確認する。"
+    },
+    {
+      "candidate_id": "pace_of_time_06",
+      "source_ids": [
+        "ME-689417"
+      ],
+      "gate": "予約枠後の会話が根拠。終了後も会話が続いたへ限定できれば既存flow.afterの会話へ寄せる。施術延長の根拠にしない。"
+    },
+    {
+      "candidate_id": "downside_02",
+      "source_ids": [
+        "ME-688337",
+        "ME-676632"
+      ],
+      "gate": "予定より早い終了が根拠。楽しくてもっと受けたいというvalue_06の主観と統合しない。時計確認・概算・印象も区別する。"
+    }
+  ],
+  "completion_evidence": [
+    "本人の同じ訪問メモで導入、評価理由、出来事、総評、再訪理由がつながるかを見る。",
+    "肯定、否定、技術に満足だが再訪なし、記憶が曖昧な例を確認する。未記録の台詞・因果・数値を補わない。",
+    "入力時間と書き直しを実測する。この資料だけで5分以内や記事の具体性向上を達成済みとしない。"
+  ],
+  "candidate_references": [
+    {
+      "candidate_id": "access_01",
+      "label": "駅から近かった",
+      "dimension": "access",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-604702",
+        "ME-611571",
+        "ME-693779"
+      ],
+      "original_individual_evidence_basis": "駅から近いと記した。",
+      "reviewed_evidence_basis": "駅から近いと記した。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "access_02",
+      "label": "駅から歩く距離があった",
+      "dimension": "access",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-671206",
+        "ME-694759",
+        "ME-660936"
+      ],
+      "original_individual_evidence_basis": "駅から距離があると感じた。",
+      "reviewed_evidence_basis": "駅から距離があると感じた。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "access_03",
+      "label": "案内どおりに着けた",
+      "dimension": "access",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-604702",
+        "ME-694023"
+      ],
+      "original_individual_evidence_basis": "案内を受け円滑に入室できた。",
+      "reviewed_evidence_basis": "案内を受け円滑に入室できた。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "access_04",
+      "label": "場所を探して迷った",
+      "dimension": "access",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-671206"
+      ],
+      "original_individual_evidence_basis": "建物を見つけられず迷った。",
+      "reviewed_evidence_basis": "建物を見つけられず迷った。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "access_05",
+      "label": "入口が分かりにくかった",
+      "dimension": "access",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-671206",
+        "ME-688698"
+      ],
+      "original_individual_evidence_basis": "建物入口やエレベーターが分かりづらかった。",
+      "reviewed_evidence_basis": "建物入口やエレベーターが分かりづらかった。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "access_06",
+      "label": "部屋によってアクセスが異なる",
+      "dimension": "access",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-693779",
+        "ME-666056"
+      ],
+      "original_individual_evidence_basis": "同じ店に複数の部屋タイプや所在地があると述べる。",
+      "reviewed_evidence_basis": "同じ店に複数の部屋タイプや所在地があると述べる。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "access_07",
+      "label": "時間に余裕が必要だった",
+      "dimension": "access",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-671206"
+      ],
+      "original_individual_evidence_basis": "場所が分かりづらく、余裕を持つ必要を感じた。",
+      "reviewed_evidence_basis": "場所が分かりづらく、余裕を持つ必要を感じた。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "aftercare_01",
+      "label": "終了後も丁寧だった",
+      "dimension": "aftercare",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-689417"
+      ],
+      "original_individual_evidence_basis": "終了後も落ち着いて会話できた。",
+      "reviewed_evidence_basis": "終了後も落ち着いて会話できた。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "aftercare_02",
+      "label": "帰り支度を急かされなかった",
+      "dimension": "aftercare",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-689417"
+      ],
+      "original_individual_evidence_basis": "予約時間後も帰り支度を急かされなかった。",
+      "reviewed_evidence_basis": "予約時間後も帰り支度を急かされなかった。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "amenities_01",
+      "label": "入室時に飲み物あり",
+      "dimension": "amenities",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-693774",
+        "ME-694023",
+        "ME-691373"
+      ],
+      "original_individual_evidence_basis": "入室後にお茶や飲み物を出された。",
+      "reviewed_evidence_basis": "入室後にお茶や飲み物を出された。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "amenities_02",
+      "label": "終了後に飲み物あり",
+      "dimension": "amenities",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-689417",
+        "ME-684793"
+      ],
+      "original_individual_evidence_basis": "終了後に茶を飲んだと記した。",
+      "reviewed_evidence_basis": "終了後に茶を飲んだと記した。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "amenities_05",
+      "label": "備品の説明あり",
+      "dimension": "amenities",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-624755"
+      ],
+      "original_individual_evidence_basis": "使用する備品の選択について説明された。",
+      "reviewed_evidence_basis": "使用する備品の選択について説明された。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "appearance_02",
+      "label": "自然な雰囲気",
+      "dimension": "appearance",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-676632"
+      ],
+      "original_individual_evidence_basis": "自然な印象と受け止めた。",
+      "reviewed_evidence_basis": "自然な印象と受け止めた。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "appearance_03",
+      "label": "華やかな雰囲気",
+      "dimension": "appearance",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-694023"
+      ],
+      "original_individual_evidence_basis": "華やかなメイクと雰囲気を記した。",
+      "reviewed_evidence_basis": "華やかなメイクと雰囲気を記した。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "appearance_04",
+      "label": "落ち着いた雰囲気",
+      "dimension": "appearance",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-701966",
+        "ME-680085"
+      ],
+      "original_individual_evidence_basis": "落ち着いた雰囲気と感じた。",
+      "reviewed_evidence_basis": "落ち着いた雰囲気と感じた。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "appearance_05",
+      "label": "親しみやすい雰囲気",
+      "dimension": "appearance",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-693779",
+        "ME-624755"
+      ],
+      "original_individual_evidence_basis": "明るく親しみやすい印象を記した。",
+      "reviewed_evidence_basis": "明るく親しみやすい印象を記した。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "appearance_06",
+      "label": "スポーティーな印象",
+      "dimension": "appearance",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-693779"
+      ],
+      "original_individual_evidence_basis": "健康的で運動部のような印象と記した。",
+      "reviewed_evidence_basis": "健康的で運動部のような印象と記した。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "appearance_07",
+      "label": "プロフィールどおりの印象",
+      "dimension": "appearance",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-697480",
+        "ME-651913"
+      ],
+      "original_individual_evidence_basis": "プロフィールや写真に近い印象だった。",
+      "reviewed_evidence_basis": "プロフィールや写真に近い印象だった。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "arrival_05",
+      "label": "開始が遅れた",
+      "dimension": "arrival",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-671206"
+      ],
+      "original_individual_evidence_basis": "建物を探して迷い、開始が遅れた。",
+      "reviewed_evidence_basis": "建物を探して迷い、開始が遅れた。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events",
+        "time_fact_and_feeling"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "assessment_04",
+      "label": "希望に合わせて調整",
+      "dimension": "assessment",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-691394"
+      ],
+      "original_individual_evidence_basis": "本人の希望に合わせ、疲れた部位を重点施術した。",
+      "reviewed_evidence_basis": "本人の希望に合わせ、疲れた部位を重点施術した。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "assessment_05",
+      "label": "こちらから希望を伝えた",
+      "dimension": "assessment",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-691394"
+      ],
+      "original_individual_evidence_basis": "疲れた部位の希望を伝えた。",
+      "reviewed_evidence_basis": "疲れた部位の希望を伝えた。",
+      "group_refs": [
+        "visit_purpose",
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "booking_flow_02",
+      "label": "到着前に電話が必要",
+      "dimension": "booking_flow",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-687357",
+        "ME-693774"
+      ],
+      "original_individual_evidence_basis": "予約後、開始直前に電話連絡する方式だった。",
+      "reviewed_evidence_basis": "予約後、開始直前に電話連絡する方式だった。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "booking_flow_03",
+      "label": "到着後に電話が必要",
+      "dimension": "booking_flow",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-604702",
+        "ME-683875"
+      ],
+      "original_individual_evidence_basis": "現地到着後の電話で案内を受けた。",
+      "reviewed_evidence_basis": "現地到着後の電話で案内を受けた。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "booking_flow_04",
+      "label": "予約内容の再確認があった",
+      "dimension": "booking_flow",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-694023"
+      ],
+      "original_individual_evidence_basis": "入室時にコースを確認された。",
+      "reviewed_evidence_basis": "入室時にコースを確認された。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "booking_flow_06",
+      "label": "複数回の連絡が必要だった",
+      "dimension": "booking_flow",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-695551",
+        "ME-683875"
+      ],
+      "original_individual_evidence_basis": "所在地の催促や到着後の再電話が必要だった。",
+      "reviewed_evidence_basis": "所在地の催促や到着後の再電話が必要だった。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "booking_response_03",
+      "label": "催促して返信が来た",
+      "dimension": "booking_response",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-695551"
+      ],
+      "original_individual_evidence_basis": "所在地の連絡が来ず、催促したと述べる。",
+      "reviewed_evidence_basis": "所在地の連絡が来ず、催促したと述べる。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "booking_response_05",
+      "label": "予約はスムーズだった",
+      "dimension": "booking_response",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-694023",
+        "ME-677219",
+        "ME-683875"
+      ],
+      "original_individual_evidence_basis": "LINE、ネット、電話の予約手続きが円滑だったと述べる。",
+      "reviewed_evidence_basis": "LINE、ネット、電話の予約手続きが円滑だったと述べる。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "cleanliness_01",
+      "label": "部屋が清潔だった",
+      "dimension": "cleanliness",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-604702",
+        "ME-694023",
+        "ME-690955"
+      ],
+      "original_individual_evidence_basis": "建物や室内を清潔と評価した。",
+      "reviewed_evidence_basis": "建物や室内を清潔と評価した。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "cleanliness_04",
+      "label": "清掃が気になった",
+      "dimension": "cleanliness",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-695551",
+        "ME-676632"
+      ],
+      "original_individual_evidence_basis": "浴室のカビや汚れが気になった。",
+      "reviewed_evidence_basis": "浴室のカビや汚れが気になった。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "comfort_03",
+      "label": "照明が控えめ",
+      "dimension": "comfort",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-688698"
+      ],
+      "original_individual_evidence_basis": "部屋の照明が薄暗かったと記す。",
+      "reviewed_evidence_basis": "部屋の照明が薄暗かったと記す。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "comfort_distance_01",
+      "label": "自然な距離感",
+      "dimension": "comfort_distance",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-685554"
+      ],
+      "original_individual_evidence_basis": "施術中の距離感がちょうどよいと感じた。",
+      "reviewed_evidence_basis": "施術中の距離感がちょうどよいと感じた。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "comfort_distance_02",
+      "label": "リラックスできた",
+      "dimension": "comfort_distance",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-685554",
+        "ME-651913"
+      ],
+      "original_individual_evidence_basis": "施術や会話でリラックスできた。",
+      "reviewed_evidence_basis": "施術や会話でリラックスできた。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "comfort_distance_03",
+      "label": "近さに緊張した",
+      "dimension": "comfort_distance",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-687357"
+      ],
+      "original_individual_evidence_basis": "シャワー前の接客で緊張したと述べる。",
+      "reviewed_evidence_basis": "シャワー前の接客で緊張したと述べる。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "comparison_01",
+      "label": "前回より満足",
+      "dimension": "comparison",
+      "original_disposition": "evidence_pending",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [],
+      "pending_group_refs": [
+        "comparison_target_axis"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "comparison_02",
+      "label": "前回と同じ印象",
+      "dimension": "comparison",
+      "original_disposition": "evidence_pending",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [],
+      "pending_group_refs": [
+        "comparison_target_axis"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "comparison_03",
+      "label": "前回より物足りない",
+      "dimension": "comparison",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-687360"
+      ],
+      "original_individual_evidence_basis": "以前の同じ担当者との体験より物足りないと感じた。",
+      "reviewed_evidence_basis": "以前の同じ担当者との体験より物足りないと感じた。",
+      "group_refs": [
+        "comparison_target_axis"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "comparison_04",
+      "label": "以前と手順が変わった",
+      "dimension": "comparison",
+      "original_disposition": "evidence_pending",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [],
+      "pending_group_refs": [
+        "comparison_target_axis"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "comparison_05",
+      "label": "料金が変わった",
+      "dimension": "comparison",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-691373"
+      ],
+      "original_individual_evidence_basis": "以前より追加料金が上がったと述べる。",
+      "reviewed_evidence_basis": "以前より追加料金が上がったと述べる。",
+      "group_refs": [
+        "comparison_target_axis"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "comparison_06",
+      "label": "部屋が変わった",
+      "dimension": "comparison",
+      "original_disposition": "evidence_pending",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [],
+      "pending_group_refs": [
+        "comparison_target_axis"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "comparison_07",
+      "label": "移籍前と比較した",
+      "dimension": "comparison",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-687360"
+      ],
+      "original_individual_evidence_basis": "担当者の移籍前後の店や体験を比較した。",
+      "reviewed_evidence_basis": "担当者の移籍前後の店や体験を比較した。",
+      "group_refs": [
+        "comparison_target_axis"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "comparison_08",
+      "label": "他店と比較した",
+      "dimension": "comparison",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-701966",
+        "ME-687360"
+      ],
+      "original_individual_evidence_basis": "他地域や以前の店と料金・対応を比較した。",
+      "reviewed_evidence_basis": "他地域や以前の店と料金・対応を比較した。",
+      "group_refs": [
+        "comparison_target_axis"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "conversation_amount_01",
+      "label": "会話が多かった",
+      "dimension": "conversation_amount",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-687357",
+        "ME-685554",
+        "ME-675282"
+      ],
+      "original_individual_evidence_basis": "会話が多かったと明記する。",
+      "reviewed_evidence_basis": "会話が多かったと明記する。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "conversation_amount_03",
+      "label": "会話は少なめ",
+      "dimension": "conversation_amount",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-691394",
+        "ME-690955"
+      ],
+      "original_individual_evidence_basis": "施術中の会話が少なかったと述べる。",
+      "reviewed_evidence_basis": "施術中の会話が少なかったと述べる。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "conversation_amount_05",
+      "label": "場面によって会話量が変わった",
+      "dimension": "conversation_amount",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-697480",
+        "ME-666056",
+        "ME-679400"
+      ],
+      "original_individual_evidence_basis": "場面により会話量が変わったと記す。",
+      "reviewed_evidence_basis": "場面により会話量が変わったと記す。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "conversation_amount_06",
+      "label": "こちらから話すことが多かった",
+      "dimension": "conversation_amount",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-690955"
+      ],
+      "original_individual_evidence_basis": "相手からの話題提供が少なく、質問を起点にした。",
+      "reviewed_evidence_basis": "相手からの話題提供が少なく、質問を起点にした。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "conversation_amount_07",
+      "label": "静かに過ごせた",
+      "dimension": "conversation_amount",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-691394",
+        "ME-691620"
+      ],
+      "original_individual_evidence_basis": "会話が少ない時間を過ごした。",
+      "reviewed_evidence_basis": "会話が少ない時間を過ごした。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "conversation_fit_01",
+      "label": "会話が好みに合った",
+      "dimension": "conversation_fit",
+      "original_disposition": "propose_first_batch",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-697480",
+        "ME-694759"
+      ],
+      "original_individual_evidence_basis": "会話の相性を良いと感じた。",
+      "reviewed_evidence_basis": "会話の相性を良いと感じた。",
+      "group_refs": [
+        "visit_purpose"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "conversation_style_05",
+      "label": "明るい話し方",
+      "dimension": "conversation_style",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-693779",
+        "ME-675068"
+      ],
+      "original_individual_evidence_basis": "明るい話し方と感じた。",
+      "reviewed_evidence_basis": "明るい話し方と感じた。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "downside_01",
+      "label": "料金が予想より高かった",
+      "dimension": "downside",
+      "original_disposition": "evidence_pending",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [],
+      "pending_group_refs": [
+        "overall_decisive_reason"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "downside_02",
+      "label": "時間が足りなかった",
+      "dimension": "downside",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-688337",
+        "ME-676632"
+      ],
+      "original_individual_evidence_basis": "予約時間より早い終了を不満とした。",
+      "reviewed_evidence_basis": "予約時間より早い終了を不満とした。",
+      "group_refs": [
+        "overall_decisive_reason",
+        "time_fact_and_feeling"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": true
+    },
+    {
+      "candidate_id": "downside_03",
+      "label": "会話量が合わなかった",
+      "dimension": "downside",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-687357",
+        "ME-676914"
+      ],
+      "original_individual_evidence_basis": "会話量やテンポが合わなかった。",
+      "reviewed_evidence_basis": "会話量やテンポが合わなかった。",
+      "group_refs": [
+        "overall_decisive_reason"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "downside_04",
+      "label": "圧の強さが合わなかった",
+      "dimension": "downside",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-697480",
+        "ME-680176"
+      ],
+      "original_individual_evidence_basis": "本人には圧が弱く感じられた。",
+      "reviewed_evidence_basis": "本人には圧が弱く感じられた。",
+      "group_refs": [
+        "overall_decisive_reason"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "downside_05",
+      "label": "写真との印象差が大きかった",
+      "dimension": "downside",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-671206",
+        "ME-660936"
+      ],
+      "original_individual_evidence_basis": "写真からの印象と対面時に大きな差を感じた。",
+      "reviewed_evidence_basis": "写真からの印象と対面時に大きな差を感じた。",
+      "group_refs": [
+        "overall_decisive_reason"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "downside_06",
+      "label": "部屋や設備が気になった",
+      "dimension": "downside",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-684793",
+        "ME-695551"
+      ],
+      "original_individual_evidence_basis": "浴室の湯温や清潔さを気にした。",
+      "reviewed_evidence_basis": "浴室の湯温や清潔さを気にした。",
+      "group_refs": [
+        "overall_decisive_reason"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "downside_07",
+      "label": "案内が分かりにくかった",
+      "dimension": "downside",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-671206",
+        "ME-695551"
+      ],
+      "original_individual_evidence_basis": "所在地や入口の案内に困った。",
+      "reviewed_evidence_basis": "所在地や入口の案内に困った。",
+      "group_refs": [
+        "overall_decisive_reason"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "downside_08",
+      "label": "特に気になる点はなかった",
+      "dimension": "downside",
+      "original_disposition": "evidence_pending",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [],
+      "pending_group_refs": [
+        "overall_decisive_reason"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "fee_components_01",
+      "label": "基本コースのみ",
+      "dimension": "fee_components",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-684793",
+        "ME-697378"
+      ],
+      "original_individual_evidence_basis": "追加なしでコース料金だけを支払った。",
+      "reviewed_evidence_basis": "追加なしでコース料金だけを支払った。",
+      "group_refs": [
+        "cost_fact_and_value",
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "fee_components_02",
+      "label": "写真指名料あり",
+      "dimension": "fee_components",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-676944"
+      ],
+      "original_individual_evidence_basis": "写真指名料を内訳に記した。",
+      "reviewed_evidence_basis": "写真指名料を内訳に記した。",
+      "group_refs": [
+        "cost_fact_and_value",
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "fee_components_03",
+      "label": "本指名料あり",
+      "dimension": "fee_components",
+      "original_disposition": "evidence_pending",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [],
+      "pending_group_refs": [
+        "cost_fact_and_value"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "fee_components_04",
+      "label": "選択オプションあり",
+      "dimension": "fee_components",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-702159",
+        "ME-687357"
+      ],
+      "original_individual_evidence_basis": "有料オプションを選択した。",
+      "reviewed_evidence_basis": "有料オプションを選択した。",
+      "group_refs": [
+        "cost_fact_and_value",
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "fee_components_05",
+      "label": "延長料金あり",
+      "dimension": "fee_components",
+      "original_disposition": "evidence_pending",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [],
+      "pending_group_refs": [
+        "cost_fact_and_value"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "fee_components_06",
+      "label": "割引が適用された",
+      "dimension": "fee_components",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-701966",
+        "ME-624755"
+      ],
+      "original_individual_evidence_basis": "予約・新規割引を利用した。",
+      "reviewed_evidence_basis": "予約・新規割引を利用した。",
+      "group_refs": [
+        "cost_fact_and_value",
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "fee_components_07",
+      "label": "税込か未確認",
+      "dimension": "fee_components",
+      "original_disposition": "evidence_pending",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [],
+      "pending_group_refs": [
+        "cost_fact_and_value"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "fee_components_08",
+      "label": "内訳を覚えていない",
+      "dimension": "fee_components",
+      "original_disposition": "evidence_pending",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [],
+      "pending_group_refs": [
+        "cost_fact_and_value"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "flow_variation_01",
+      "label": "定番の順番で進行",
+      "dimension": "flow_variation",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-684793",
+        "ME-692367"
+      ],
+      "original_individual_evidence_basis": "定番または標準的な流れと記す。",
+      "reviewed_evidence_basis": "定番または標準的な流れと記す。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "flow_variation_03",
+      "label": "途中で手技が変化",
+      "dimension": "flow_variation",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-684793",
+        "ME-679400"
+      ],
+      "original_individual_evidence_basis": "指圧からオイルなど途中で手技が変化した。",
+      "reviewed_evidence_basis": "指圧からオイルなど途中で手技が変化した。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "focus_02",
+      "label": "背中を中心にケア",
+      "dimension": "focus",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-651913"
+      ],
+      "original_individual_evidence_basis": "背面を長めに丁寧にほぐした。",
+      "reviewed_evidence_basis": "背面を長めに丁寧にほぐした。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "focus_04",
+      "label": "ふくらはぎを中心にケア",
+      "dimension": "focus",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-675068"
+      ],
+      "original_individual_evidence_basis": "ふくらはぎの施術が長かった。",
+      "reviewed_evidence_basis": "ふくらはぎの施術が長かった。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "focus_08",
+      "label": "疲れた部位を重点的にケア",
+      "dimension": "focus",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-691394"
+      ],
+      "original_individual_evidence_basis": "本人が疲れた部位を重点的に施術した。",
+      "reviewed_evidence_basis": "本人が疲れた部位を重点的に施術した。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "knowledge_source_01",
+      "label": "自分が体験したこと",
+      "dimension": "knowledge_source",
+      "original_disposition": "supporting_metadata_later",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-688337",
+        "ME-676632"
+      ],
+      "original_individual_evidence_basis": "訪問中に自分が経験したことを記した。",
+      "reviewed_evidence_basis": "訪問中に自分が経験したことを記した。",
+      "group_refs": [
+        "source_and_memory_state"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "knowledge_source_02",
+      "label": "本人から聞いたこと",
+      "dimension": "knowledge_source",
+      "original_disposition": "supporting_metadata_later",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-668594",
+        "ME-691373"
+      ],
+      "original_individual_evidence_basis": "担当者から聞いた説明を基にした情報がある。",
+      "reviewed_evidence_basis": "担当者から聞いた説明を基にした情報がある。",
+      "group_refs": [
+        "source_and_memory_state"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "knowledge_source_03",
+      "label": "予約時に店から聞いたこと",
+      "dimension": "knowledge_source",
+      "original_disposition": "supporting_metadata_later",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-691394",
+        "ME-677219"
+      ],
+      "original_individual_evidence_basis": "予約時の店の案内や連絡を情報源とした。",
+      "reviewed_evidence_basis": "予約時の店の案内や連絡を情報源とした。",
+      "group_refs": [
+        "source_and_memory_state"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "knowledge_source_04",
+      "label": "掲載プロフィールの情報",
+      "dimension": "knowledge_source",
+      "original_disposition": "supporting_metadata_later",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-697480",
+        "ME-651913"
+      ],
+      "original_individual_evidence_basis": "掲載プロフィールや写真との比較がある。",
+      "reviewed_evidence_basis": "掲載プロフィールや写真との比較がある。",
+      "group_refs": [
+        "expectation_gap",
+        "source_and_memory_state"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "knowledge_source_05",
+      "label": "他の口コミで見たこと",
+      "dimension": "knowledge_source",
+      "original_disposition": "supporting_metadata_later",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-693774",
+        "ME-690955"
+      ],
+      "original_individual_evidence_basis": "以前の口コミやレビューを参照した。",
+      "reviewed_evidence_basis": "以前の口コミやレビューを参照した。",
+      "group_refs": [
+        "expectation_gap",
+        "source_and_memory_state"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "knowledge_source_06",
+      "label": "自分の推測",
+      "dimension": "knowledge_source",
+      "original_disposition": "supporting_metadata_later",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-687360",
+        "ME-674478"
+      ],
+      "original_individual_evidence_basis": "本文中で自分の推測だと示した部分がある。",
+      "reviewed_evidence_basis": "本文中で自分の推測だと示した部分がある。",
+      "group_refs": [
+        "expectation_gap",
+        "source_and_memory_state"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "knowledge_source_07",
+      "label": "確認できていない",
+      "dimension": "knowledge_source",
+      "original_disposition": "supporting_metadata_later",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-667277",
+        "ME-701966"
+      ],
+      "original_individual_evidence_basis": "未確認または試していない内容があると述べる。",
+      "reviewed_evidence_basis": "未確認または試していない内容があると述べる。",
+      "group_refs": [
+        "source_and_memory_state"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "medium_01",
+      "label": "オイルを使用",
+      "dimension": "medium",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-701966",
+        "ME-697480"
+      ],
+      "original_individual_evidence_basis": "オイルを使用したと明記する。",
+      "reviewed_evidence_basis": "オイルを使用したと明記する。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "method_02",
+      "label": "ドライマッサージ",
+      "dimension": "method",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-697079",
+        "ME-688698"
+      ],
+      "original_individual_evidence_basis": "ドライマッサージから始まった。",
+      "reviewed_evidence_basis": "ドライマッサージから始まった。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "method_03",
+      "label": "オイルマッサージ",
+      "dimension": "method",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-701966",
+        "ME-697480"
+      ],
+      "original_individual_evidence_basis": "オイルマッサージを受けた。",
+      "reviewed_evidence_basis": "オイルマッサージを受けた。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "method_06",
+      "label": "リンパを流す施術",
+      "dimension": "method",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-673503"
+      ],
+      "original_individual_evidence_basis": "リンパをしっかり流す施術と感じた。",
+      "reviewed_evidence_basis": "リンパをしっかり流す施術と感じた。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "method_07",
+      "label": "複数の手技を組み合わせ",
+      "dimension": "method",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-697480",
+        "ME-701966"
+      ],
+      "original_individual_evidence_basis": "指圧とオイルなど複数の手技があった。",
+      "reviewed_evidence_basis": "指圧とオイルなど複数の手技があった。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "pace_03",
+      "label": "じっくり同じ部位をケア",
+      "dimension": "pace",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-651913",
+        "ME-675068"
+      ],
+      "original_individual_evidence_basis": "背面やふくらはぎを長めに施術した。",
+      "reviewed_evidence_basis": "背面やふくらはぎを長めに施術した。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "pace_of_time_01",
+      "label": "十分な施術時間",
+      "dimension": "pace_of_time",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-668594"
+      ],
+      "original_individual_evidence_basis": "時間を通して十分な施術と感じた。",
+      "reviewed_evidence_basis": "時間を通して十分な施術と感じた。",
+      "group_refs": [
+        "time_fact_and_feeling"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "pace_of_time_02",
+      "label": "準備時間が長かった",
+      "dimension": "pace_of_time",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-611571",
+        "ME-692367",
+        "ME-691373"
+      ],
+      "original_individual_evidence_basis": "開始前の準備に時間がかかった。",
+      "reviewed_evidence_basis": "開始前の準備に時間がかかった。",
+      "group_refs": [
+        "time_fact_and_feeling"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "pace_of_time_03",
+      "label": "途中で待ち時間があった",
+      "dimension": "pace_of_time",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-611571"
+      ],
+      "original_individual_evidence_basis": "途中で準備待ちの時間があった。",
+      "reviewed_evidence_basis": "途中で準備待ちの時間があった。",
+      "group_refs": [
+        "time_fact_and_feeling"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "pace_of_time_04",
+      "label": "後半が駆け足だった",
+      "dimension": "pace_of_time",
+      "original_disposition": "revise_semantics_before_use",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-611571"
+      ],
+      "original_individual_evidence_basis": "序盤の準備が長く、後半の施術が短めになった。",
+      "reviewed_evidence_basis": "序盤の準備が長く、後半の施術が短めになった。",
+      "group_refs": [
+        "time_fact_and_feeling"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": true
+    },
+    {
+      "candidate_id": "pace_of_time_05",
+      "label": "予定より早く終わった",
+      "dimension": "pace_of_time",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-688337",
+        "ME-676632",
+        "ME-691373"
+      ],
+      "original_individual_evidence_basis": "予約時間より早く終了したと述べる。",
+      "reviewed_evidence_basis": "予約時間より早く終了したと述べる。",
+      "group_refs": [
+        "time_fact_and_feeling"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "pace_of_time_06",
+      "label": "少し長く対応してくれた",
+      "dimension": "pace_of_time",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-689417"
+      ],
+      "original_individual_evidence_basis": "予約時間後も会話を続けた。",
+      "reviewed_evidence_basis": "予約時間後も会話を続けた。",
+      "group_refs": [
+        "time_fact_and_feeling"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": true
+    },
+    {
+      "candidate_id": "pace_of_time_07",
+      "label": "延長を選んだ",
+      "dimension": "pace_of_time",
+      "original_disposition": "evidence_pending",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [],
+      "pending_group_refs": [
+        "time_fact_and_feeling"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "pace_of_time_08",
+      "label": "予約時間と施術時間の違いを確認",
+      "dimension": "pace_of_time",
+      "original_disposition": "evidence_pending",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [],
+      "pending_group_refs": [
+        "time_fact_and_feeling"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "pressure_01",
+      "label": "しっかりした圧",
+      "dimension": "pressure",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-667277",
+        "ME-701182",
+        "ME-691620"
+      ],
+      "original_individual_evidence_basis": "しっかりした圧や力強い指圧と評価した。",
+      "reviewed_evidence_basis": "しっかりした圧や力強い指圧と評価した。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "pressure_03",
+      "label": "軽めの圧",
+      "dimension": "pressure",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-697480",
+        "ME-660936",
+        "ME-680176"
+      ],
+      "original_individual_evidence_basis": "施術の圧を弱めと感じた。",
+      "reviewed_evidence_basis": "施術の圧を弱めと感じた。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "pressure_08",
+      "label": "強さはちょうどよかった",
+      "dimension": "pressure",
+      "original_disposition": "propose_first_batch",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-604702",
+        "ME-687360",
+        "ME-688337"
+      ],
+      "original_individual_evidence_basis": "圧の強さが本人にちょうどよかった。",
+      "reviewed_evidence_basis": "圧の強さが本人にちょうどよかった。",
+      "group_refs": [
+        "visit_purpose"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "price_clarity_01",
+      "label": "予約時に総額を確認",
+      "dimension": "price_clarity",
+      "original_disposition": "evidence_pending",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [],
+      "pending_group_refs": [
+        "cost_fact_and_value"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "price_clarity_02",
+      "label": "入室後に総額を確認",
+      "dimension": "price_clarity",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-694023",
+        "ME-692367"
+      ],
+      "original_individual_evidence_basis": "入室後にコース・追加内容を確認して支払った。",
+      "reviewed_evidence_basis": "入室後にコース・追加内容を確認して支払った。",
+      "group_refs": [
+        "cost_fact_and_value"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "price_clarity_03",
+      "label": "内訳の説明があった",
+      "dimension": "price_clarity",
+      "original_disposition": "evidence_pending",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [],
+      "pending_group_refs": [
+        "cost_fact_and_value"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "price_clarity_04",
+      "label": "基本料金は掲載どおり",
+      "dimension": "price_clarity",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-668594"
+      ],
+      "original_individual_evidence_basis": "掲載された基本料金に衣装代を加えた支払を説明しており、基本料金の一致を示す。総額全体の掲載一致を示すものではない。",
+      "reviewed_evidence_basis": "掲載された基本料金に衣装代を加えた支払を説明しており、基本料金の一致を示す。総額全体の掲載一致を示すものではない。",
+      "group_refs": [
+        "cost_fact_and_value"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "price_clarity_05",
+      "label": "追加料金を先に説明された",
+      "dimension": "price_clarity",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-687357",
+        "ME-694023"
+      ],
+      "original_individual_evidence_basis": "施術前に追加メニューと費用の案内があった。",
+      "reviewed_evidence_basis": "施術前に追加メニューと費用の案内があった。",
+      "group_refs": [
+        "cost_fact_and_value"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "price_clarity_06",
+      "label": "終了時に初めて金額が分かった",
+      "dimension": "price_clarity",
+      "original_disposition": "evidence_pending",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [],
+      "pending_group_refs": [
+        "cost_fact_and_value"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "price_clarity_07",
+      "label": "説明が足りなかった",
+      "dimension": "price_clarity",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-655259",
+        "ME-673503"
+      ],
+      "original_individual_evidence_basis": "上位追加の違いや掲載価格との差を分かりづらく感じた。",
+      "reviewed_evidence_basis": "上位追加の違いや掲載価格との差を分かりづらく感じた。",
+      "group_refs": [
+        "cost_fact_and_value"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "price_clarity_08",
+      "label": "金額の記憶が曖昧",
+      "dimension": "price_clarity",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-671206",
+        "ME-694759"
+      ],
+      "original_individual_evidence_basis": "支払額は記憶が曖昧だと明記する。",
+      "reviewed_evidence_basis": "支払額は記憶が曖昧だと明記する。",
+      "group_refs": [
+        "cost_fact_and_value",
+        "source_and_memory_state"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "professionalism_05",
+      "label": "慣れた対応だった",
+      "dimension": "professionalism",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-687480"
+      ],
+      "original_individual_evidence_basis": "慣れた施術・案内と受け止めた。",
+      "reviewed_evidence_basis": "慣れた施術・案内と受け止めた。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "professionalism_07",
+      "label": "慌ただしく感じた",
+      "dimension": "professionalism",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-692367"
+      ],
+      "original_individual_evidence_basis": "準備が間に合わず、慌ただしいと感じた。",
+      "reviewed_evidence_basis": "準備が間に合わず、慌ただしいと感じた。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "repeat_reason_01",
+      "label": "施術が好みだった",
+      "dimension": "repeat_reason",
+      "original_disposition": "evidence_pending",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [],
+      "pending_group_refs": [
+        "revisit_target_reason"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "repeat_reason_02",
+      "label": "会話の相性が良かった",
+      "dimension": "repeat_reason",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-697480",
+        "ME-624755"
+      ],
+      "original_individual_evidence_basis": "会話の楽しさを述べたうえで同じ担当者の再訪候補・再指名意向につなげた。",
+      "reviewed_evidence_basis": "会話の楽しさを述べたうえで同じ担当者の再訪候補・再指名意向につなげた。",
+      "group_refs": [
+        "revisit_target_reason"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "repeat_reason_03",
+      "label": "接客が心地よかった",
+      "dimension": "repeat_reason",
+      "original_disposition": "evidence_pending",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [],
+      "pending_group_refs": [
+        "revisit_target_reason"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "repeat_reason_04",
+      "label": "料金との釣り合いが良かった",
+      "dimension": "repeat_reason",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-701966"
+      ],
+      "original_individual_evidence_basis": "この金額で受けた内容を再訪候補にする理由として明示した。",
+      "reviewed_evidence_basis": "この金額で受けた内容を再訪候補にする理由として明示した。",
+      "group_refs": [
+        "revisit_target_reason",
+        "cost_fact_and_value"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "repeat_reason_05",
+      "label": "予算が合えば再訪",
+      "dimension": "repeat_reason",
+      "original_disposition": "evidence_pending",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [],
+      "pending_group_refs": [
+        "revisit_target_reason"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "repeat_reason_06",
+      "label": "予約が取れれば再訪",
+      "dimension": "repeat_reason",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-693779",
+        "ME-668594"
+      ],
+      "original_individual_evidence_basis": "予定が合えば再訪、または予約が取れれば再訪したいと述べた。",
+      "reviewed_evidence_basis": "予定が合えば再訪、または予約が取れれば再訪したいと述べた。",
+      "group_refs": [
+        "revisit_target_reason"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "repeat_reason_07",
+      "label": "次は長いコースで利用",
+      "dimension": "repeat_reason",
+      "original_disposition": "evidence_pending",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [],
+      "pending_group_refs": [
+        "revisit_target_reason"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "repeat_reason_08",
+      "label": "別の担当者を試したい",
+      "dimension": "repeat_reason",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-671629"
+      ],
+      "original_individual_evidence_basis": "同じ担当者は再指名しない方針に続き、同じ店の別担当者で再訪すると述べた。",
+      "reviewed_evidence_basis": "同じ担当者は再指名しない方針に続き、同じ店の別担当者で再訪すると述べた。",
+      "group_refs": [
+        "revisit_target_reason"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "revisit_store_01",
+      "label": "同じ店をまた利用したい",
+      "dimension": "revisit_store",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-700976",
+        "ME-678605"
+      ],
+      "original_individual_evidence_basis": "店自体の再利用意向を示した。",
+      "reviewed_evidence_basis": "店自体の再利用意向を示した。",
+      "group_refs": [
+        "revisit_target_reason"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "revisit_store_02",
+      "label": "別の担当者も試したい",
+      "dimension": "revisit_store",
+      "original_disposition": "merge_for_planning",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [
+        "revisit_target_reason"
+      ],
+      "pending_group_refs": [
+        "revisit_target_reason"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "supplementary_support": {
+        "source_note_ids": [
+          "ME-113261",
+          "ME-111685",
+          "ME-507212"
+        ],
+        "equivalent_candidate_id": "repeat_reason_08",
+        "evidence_level": "derived_note_and_equivalent_candidate_not_new_full_source_check",
+        "caution": "同義候補の根拠をこのIDの個別根拠へコピーしない。"
+      },
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "revisit_store_03",
+      "label": "条件が合えば再訪",
+      "dimension": "revisit_store",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-693779",
+        "ME-668594"
+      ],
+      "original_individual_evidence_basis": "予定や予約が合えば店をまた利用したい。",
+      "reviewed_evidence_basis": "予定や予約が合えば店をまた利用したい。",
+      "group_refs": [
+        "revisit_target_reason"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "revisit_store_04",
+      "label": "店への再訪は迷う",
+      "dimension": "revisit_store",
+      "original_disposition": "evidence_pending",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [],
+      "pending_group_refs": [
+        "revisit_target_reason"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "revisit_store_05",
+      "label": "店への再訪は考えていない",
+      "dimension": "revisit_store",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-676914"
+      ],
+      "original_individual_evidence_basis": "店への再訪意向がないと述べた。",
+      "reviewed_evidence_basis": "店への再訪意向がないと述べた。",
+      "group_refs": [
+        "revisit_target_reason"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "revisit_store_06",
+      "label": "まだ判断できない",
+      "dimension": "revisit_store",
+      "original_disposition": "evidence_pending",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [],
+      "pending_group_refs": [
+        "revisit_target_reason"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "revisit_therapist_01",
+      "label": "同じ担当者をまた指名したい",
+      "dimension": "revisit_therapist",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-702159",
+        "ME-687480",
+        "ME-668594"
+      ],
+      "original_individual_evidence_basis": "同じ担当者への再訪を希望した。",
+      "reviewed_evidence_basis": "同じ担当者への再訪を希望した。",
+      "group_refs": [
+        "revisit_target_reason"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "revisit_therapist_02",
+      "label": "条件が合えば再指名",
+      "dimension": "revisit_therapist",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-693779",
+        "ME-691620"
+      ],
+      "original_individual_evidence_basis": "日程が合えば同じ担当者を再指名したい。",
+      "reviewed_evidence_basis": "日程が合えば同じ担当者を再指名したい。",
+      "group_refs": [
+        "revisit_target_reason"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "revisit_therapist_03",
+      "label": "再指名は迷う",
+      "dimension": "revisit_therapist",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-684793",
+        "ME-691034"
+      ],
+      "original_individual_evidence_basis": "同じ担当者の再訪を決めかねていた。",
+      "reviewed_evidence_basis": "同じ担当者の再訪を決めかねていた。",
+      "group_refs": [
+        "revisit_target_reason"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "revisit_therapist_04",
+      "label": "再指名は考えていない",
+      "dimension": "revisit_therapist",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-687357",
+        "ME-695551",
+        "ME-680085"
+      ],
+      "original_individual_evidence_basis": "同じ担当者への再訪を望まなかった。",
+      "reviewed_evidence_basis": "同じ担当者への再訪を望まなかった。",
+      "group_refs": [
+        "revisit_target_reason"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "revisit_therapist_05",
+      "label": "一度だけでは判断できない",
+      "dimension": "revisit_therapist",
+      "original_disposition": "evidence_pending",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [],
+      "pending_group_refs": [
+        "revisit_target_reason"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "revisit_therapist_06",
+      "label": "次の予約を入れた",
+      "dimension": "revisit_therapist",
+      "original_disposition": "evidence_pending",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [],
+      "pending_group_refs": [
+        "revisit_target_reason"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "room_facility_01",
+      "label": "マットで施術",
+      "dimension": "room_facility",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-702159",
+        "ME-691373"
+      ],
+      "original_individual_evidence_basis": "マットでの施術を記した。",
+      "reviewed_evidence_basis": "マットでの施術を記した。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "room_facility_02",
+      "label": "ベッドで施術",
+      "dimension": "room_facility",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-611571"
+      ],
+      "original_individual_evidence_basis": "ベッドでの施術を記した。",
+      "reviewed_evidence_basis": "ベッドでの施術を記した。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "satisfaction_01",
+      "label": "施術が好みに合った",
+      "dimension": "satisfaction",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-667277",
+        "ME-687480"
+      ],
+      "original_individual_evidence_basis": "手技や圧が好みに合った。",
+      "reviewed_evidence_basis": "手技や圧が好みに合った。",
+      "group_refs": [
+        "visit_purpose",
+        "overall_decisive_reason"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "satisfaction_02",
+      "label": "疲れた部位をケアできた",
+      "dimension": "satisfaction",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-604702",
+        "ME-691394"
+      ],
+      "original_individual_evidence_basis": "つらい肩や腰をケアしてもらった。",
+      "reviewed_evidence_basis": "つらい肩や腰をケアしてもらった。",
+      "group_refs": [
+        "visit_purpose",
+        "overall_decisive_reason"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "satisfaction_03",
+      "label": "会話を楽しめた",
+      "dimension": "satisfaction",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-697480",
+        "ME-694759",
+        "ME-624755"
+      ],
+      "original_individual_evidence_basis": "会話を楽しんだと述べる。",
+      "reviewed_evidence_basis": "会話を楽しんだと述べる。",
+      "group_refs": [
+        "visit_purpose",
+        "overall_decisive_reason"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "satisfaction_04",
+      "label": "静かに休めた",
+      "dimension": "satisfaction",
+      "original_disposition": "evidence_pending",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [],
+      "pending_group_refs": [
+        "overall_decisive_reason"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "satisfaction_05",
+      "label": "丁寧な対応が良かった",
+      "dimension": "satisfaction",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-604702",
+        "ME-677219"
+      ],
+      "original_individual_evidence_basis": "丁寧な受付・案内を評価した。",
+      "reviewed_evidence_basis": "丁寧な受付・案内を評価した。",
+      "group_refs": [
+        "overall_decisive_reason"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "satisfaction_06",
+      "label": "期待以上の内容だった",
+      "dimension": "satisfaction",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-694759",
+        "ME-702434"
+      ],
+      "original_individual_evidence_basis": "事前の予想より好印象だったと述べる。",
+      "reviewed_evidence_basis": "事前の予想より好印象だったと述べる。",
+      "group_refs": [
+        "expectation_gap",
+        "overall_decisive_reason"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "satisfaction_07",
+      "label": "料金に納得できた",
+      "dimension": "satisfaction",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-685554",
+        "ME-684793"
+      ],
+      "original_individual_evidence_basis": "支払額に納得した。",
+      "reviewed_evidence_basis": "支払額に納得した。",
+      "group_refs": [
+        "overall_decisive_reason",
+        "cost_fact_and_value"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "satisfaction_08",
+      "label": "全体の相性が良かった",
+      "dimension": "satisfaction",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-697480",
+        "ME-651913"
+      ],
+      "original_individual_evidence_basis": "複数要素のバランスに満足した。",
+      "reviewed_evidence_basis": "複数要素のバランスに満足した。",
+      "group_refs": [
+        "overall_decisive_reason"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "saving_01",
+      "label": "初回割引",
+      "dimension": "saving",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-624755",
+        "ME-691373"
+      ],
+      "original_individual_evidence_basis": "新規利用時の割引、または初利用時に安い料金だったと述べる。",
+      "reviewed_evidence_basis": "新規利用時の割引、または初利用時に安い料金だったと述べる。",
+      "group_refs": [
+        "cost_fact_and_value",
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "saving_02",
+      "label": "再訪割引",
+      "dimension": "saving",
+      "original_disposition": "evidence_pending",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [],
+      "pending_group_refs": [
+        "cost_fact_and_value"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "saving_03",
+      "label": "時間帯の割引",
+      "dimension": "saving",
+      "original_disposition": "evidence_pending",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [],
+      "pending_group_refs": [
+        "cost_fact_and_value"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "saving_04",
+      "label": "公式クーポン",
+      "dimension": "saving",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-655259",
+        "ME-675068"
+      ],
+      "original_individual_evidence_basis": "クーポンで料金が下がったと述べる。",
+      "reviewed_evidence_basis": "クーポンで料金が下がったと述べる。",
+      "group_refs": [
+        "cost_fact_and_value",
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "saving_05",
+      "label": "キャンペーン価格",
+      "dimension": "saving",
+      "original_disposition": "evidence_pending",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [],
+      "pending_group_refs": [
+        "cost_fact_and_value"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "saving_06",
+      "label": "指名料込みの価格",
+      "dimension": "saving",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-701966",
+        "ME-691373"
+      ],
+      "original_individual_evidence_basis": "指名料込みのコース料金を記した。",
+      "reviewed_evidence_basis": "指名料込みのコース料金を記した。",
+      "group_refs": [
+        "cost_fact_and_value",
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "saving_07",
+      "label": "割引条件を事前確認",
+      "dimension": "saving",
+      "original_disposition": "evidence_pending",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [],
+      "pending_group_refs": [
+        "cost_fact_and_value"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "saving_08",
+      "label": "割引は利用しなかった",
+      "dimension": "saving",
+      "original_disposition": "evidence_pending",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [],
+      "pending_group_refs": [
+        "cost_fact_and_value"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "scent_03",
+      "label": "香水の香り",
+      "dimension": "scent",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-655259"
+      ],
+      "original_individual_evidence_basis": "香水の香りがしたと述べる。",
+      "reviewed_evidence_basis": "香水の香りがしたと述べる。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "scent_06",
+      "label": "香りが強く感じられた",
+      "dimension": "scent",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-655259"
+      ],
+      "original_individual_evidence_basis": "香水の香りが強いと感じた。",
+      "reviewed_evidence_basis": "香水の香りが強いと感じた。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "scope_confirmation_01",
+      "label": "対応範囲の説明があった",
+      "dimension": "scope_confirmation",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-679400"
+      ],
+      "original_individual_evidence_basis": "対応範囲を口頭で説明された。",
+      "reviewed_evidence_basis": "対応範囲を口頭で説明された。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "scope_confirmation_02",
+      "label": "希望を確認された",
+      "dimension": "scope_confirmation",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-624755"
+      ],
+      "original_individual_evidence_basis": "希望する箇所を尋ねられた。",
+      "reviewed_evidence_basis": "希望する箇所を尋ねられた。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "scope_confirmation_05",
+      "label": "断った内容は行われなかった",
+      "dimension": "scope_confirmation",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-680176"
+      ],
+      "original_individual_evidence_basis": "本人が一つの施術手順を断り、行われなかった。",
+      "reviewed_evidence_basis": "本人が一つの施術手順を断り、行われなかった。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "scope_confirmation_07",
+      "label": "対応範囲は未確認",
+      "dimension": "scope_confirmation",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-667277",
+        "ME-701966"
+      ],
+      "original_individual_evidence_basis": "本人が尋ねなかったため、対応範囲は未確認。",
+      "reviewed_evidence_basis": "本人が尋ねなかったため、対応範囲は未確認。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events",
+        "source_and_memory_state"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "selection_reason_01",
+      "label": "写真が気になった",
+      "dimension": "selection_reason",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-693774",
+        "ME-702159"
+      ],
+      "original_individual_evidence_basis": "掲載写真を見て指名を決めたと述べる。",
+      "reviewed_evidence_basis": "掲載写真を見て指名を決めたと述べる。",
+      "group_refs": [
+        "visit_choice",
+        "expectation_gap"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "selection_reason_02",
+      "label": "口コミを見て選んだ",
+      "dimension": "selection_reason",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-694759",
+        "ME-690955"
+      ],
+      "original_individual_evidence_basis": "評判やレビューを参照して選んだ。",
+      "reviewed_evidence_basis": "評判やレビューを参照して選んだ。",
+      "group_refs": [
+        "visit_choice",
+        "expectation_gap"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "selection_reason_03",
+      "label": "以前から気になっていた",
+      "dimension": "selection_reason",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-694023",
+        "ME-689417"
+      ],
+      "original_individual_evidence_basis": "以前から気になっていた店を訪れた。",
+      "reviewed_evidence_basis": "以前から気になっていた店を訪れた。",
+      "group_refs": [
+        "visit_choice"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "selection_reason_04",
+      "label": "店から紹介された",
+      "dimension": "selection_reason",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-691394"
+      ],
+      "original_individual_evidence_basis": "店から勧められた担当者を予約した。",
+      "reviewed_evidence_basis": "店から勧められた担当者を予約した。",
+      "group_refs": [
+        "visit_choice"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "selection_reason_05",
+      "label": "空いている枠で選んだ",
+      "dimension": "selection_reason",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-694759",
+        "ME-680085"
+      ],
+      "original_individual_evidence_basis": "予約可能な枠から担当者を選んだ。",
+      "reviewed_evidence_basis": "予約可能な枠から担当者を選んだ。",
+      "group_refs": [
+        "visit_choice"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "selection_reason_06",
+      "label": "以前の担当者を追って来店",
+      "dimension": "selection_reason",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-687360"
+      ],
+      "original_individual_evidence_basis": "以前別の店で利用した担当者の移籍先を訪れた。",
+      "reviewed_evidence_basis": "以前別の店で利用した担当者の移籍先を訪れた。",
+      "group_refs": [
+        "visit_choice"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "selection_reason_07",
+      "label": "料金で選んだ",
+      "dimension": "selection_reason",
+      "original_disposition": "evidence_pending",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [],
+      "pending_group_refs": [
+        "visit_choice"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "selection_reason_08",
+      "label": "友人の紹介",
+      "dimension": "selection_reason",
+      "original_disposition": "evidence_pending",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [],
+      "pending_group_refs": [
+        "visit_choice"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "shower_01",
+      "label": "最初と最後に利用",
+      "dimension": "shower",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-678605",
+        "ME-689417"
+      ],
+      "original_individual_evidence_basis": "施術前後にシャワーを利用した。",
+      "reviewed_evidence_basis": "施術前後にシャワーを利用した。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "shower_05",
+      "label": "お湯が出るまで待った",
+      "dimension": "shower",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-684793"
+      ],
+      "original_individual_evidence_basis": "お湯が温まるまで待った。",
+      "reviewed_evidence_basis": "お湯が温まるまで待った。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "shower_06",
+      "label": "浴室が狭かった",
+      "dimension": "shower",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-676632"
+      ],
+      "original_individual_evidence_basis": "浴室が狭いと感じた。",
+      "reviewed_evidence_basis": "浴室が狭いと感じた。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "technique_05",
+      "label": "手順が一定だった",
+      "dimension": "technique",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-680085"
+      ],
+      "original_individual_evidence_basis": "一定の手順に沿った施術と感じた。",
+      "reviewed_evidence_basis": "一定の手順に沿った施術と感じた。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "technique_08",
+      "label": "自分の好みに合った",
+      "dimension": "technique",
+      "original_disposition": "propose_first_batch",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-604702",
+        "ME-667277"
+      ],
+      "original_individual_evidence_basis": "施術の圧や手つきが本人の好みに合った。",
+      "reviewed_evidence_basis": "施術の圧や手つきが本人の好みに合った。",
+      "group_refs": [
+        "visit_purpose"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "uncertainty_01",
+      "label": "はっきり覚えている",
+      "dimension": "uncertainty",
+      "original_disposition": "supporting_metadata_later",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [
+        "source_and_memory_state"
+      ],
+      "pending_group_refs": [
+        "source_and_memory_state"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "uncertainty_02",
+      "label": "金額はおおよそ",
+      "dimension": "uncertainty",
+      "original_disposition": "supporting_metadata_later",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-671206",
+        "ME-694759"
+      ],
+      "original_individual_evidence_basis": "金額を記憶が曖昧な概算として示した。",
+      "reviewed_evidence_basis": "金額を記憶が曖昧な概算として示した。",
+      "group_refs": [
+        "source_and_memory_state"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "uncertainty_03",
+      "label": "時間はおおよそ",
+      "dimension": "uncertainty",
+      "original_disposition": "supporting_metadata_later",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-676632",
+        "ME-688810"
+      ],
+      "original_individual_evidence_basis": "終了時刻や施術前の会話時間を概数で示した。",
+      "reviewed_evidence_basis": "終了時刻や施術前の会話時間を概数で示した。",
+      "group_refs": [
+        "source_and_memory_state"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "uncertainty_04",
+      "label": "順番は曖昧",
+      "dimension": "uncertainty",
+      "original_disposition": "supporting_metadata_later",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [
+        "source_and_memory_state"
+      ],
+      "pending_group_refs": [
+        "source_and_memory_state"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "uncertainty_05",
+      "label": "一部を覚えていない",
+      "dimension": "uncertainty",
+      "original_disposition": "supporting_metadata_later",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-671206"
+      ],
+      "original_individual_evidence_basis": "施術内容の記憶が曖昧と述べる。",
+      "reviewed_evidence_basis": "施術内容の記憶が曖昧と述べる。",
+      "group_refs": [
+        "source_and_memory_state"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "uncertainty_06",
+      "label": "内訳と総額が一致しない",
+      "dimension": "uncertainty",
+      "original_disposition": "supporting_metadata_later",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-675068"
+      ],
+      "original_individual_evidence_basis": "記載した内訳の合計と申告総額が一致しない。",
+      "reviewed_evidence_basis": "記載した内訳の合計と申告総額が一致しない。",
+      "group_refs": [
+        "cost_fact_and_value",
+        "source_and_memory_state"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "uncertainty_07",
+      "label": "後で確認したい",
+      "dimension": "uncertainty",
+      "original_disposition": "supporting_metadata_later",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [
+        "source_and_memory_state"
+      ],
+      "pending_group_refs": [
+        "source_and_memory_state"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "uncertainty_08",
+      "label": "未確認",
+      "dimension": "uncertainty",
+      "original_disposition": "supporting_metadata_later",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-667277",
+        "ME-701966"
+      ],
+      "original_individual_evidence_basis": "試していない追加内容は不明と述べる。",
+      "reviewed_evidence_basis": "試していない追加内容は不明と述べる。",
+      "group_refs": [
+        "source_and_memory_state"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "upsell_01",
+      "label": "追加提案はなかった",
+      "dimension": "upsell",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-693774",
+        "ME-691394"
+      ],
+      "original_individual_evidence_basis": "追加メニューを提案されなかったと述べる。",
+      "reviewed_evidence_basis": "追加メニューを提案されなかったと述べる。",
+      "group_refs": [
+        "cost_fact_and_value"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "upsell_02",
+      "label": "追加内容の説明だけあった",
+      "dimension": "upsell",
+      "original_disposition": "evidence_pending",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [],
+      "pending_group_refs": [
+        "cost_fact_and_value"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "upsell_03",
+      "label": "おすすめを提案された",
+      "dimension": "upsell",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-687357",
+        "ME-676914"
+      ],
+      "original_individual_evidence_basis": "おすすめの有料追加を提案された。",
+      "reviewed_evidence_basis": "おすすめの有料追加を提案された。",
+      "group_refs": [
+        "cost_fact_and_value"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "upsell_04",
+      "label": "断っても対応は変わらなかった",
+      "dimension": "upsell",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-678605"
+      ],
+      "original_individual_evidence_basis": "追加を断った後も施術が丁寧だったと評価した。",
+      "reviewed_evidence_basis": "追加を断った後も施術が丁寧だったと評価した。",
+      "group_refs": [
+        "cost_fact_and_value"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "upsell_05",
+      "label": "断りにくく感じた",
+      "dimension": "upsell",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-655259"
+      ],
+      "original_individual_evidence_basis": "提案されると断りにくいと本人が述べた。",
+      "reviewed_evidence_basis": "提案されると断りにくいと本人が述べた。",
+      "group_refs": [
+        "cost_fact_and_value"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "upsell_06",
+      "label": "追加を選ぶと予算を超えた",
+      "dimension": "upsell",
+      "original_disposition": "evidence_pending",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [],
+      "pending_group_refs": [
+        "cost_fact_and_value"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "upsell_07",
+      "label": "追加料金込みで納得した",
+      "dimension": "upsell",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-685554"
+      ],
+      "original_individual_evidence_basis": "追加分を含む支払額に納得したと述べる。",
+      "reviewed_evidence_basis": "追加分を含む支払額に納得したと述べる。",
+      "group_refs": [
+        "cost_fact_and_value"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "value_01",
+      "label": "内容に対して割安",
+      "dimension": "value",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-693774",
+        "ME-701966"
+      ],
+      "original_individual_evidence_basis": "料金に対する内容を割安と評価した。",
+      "reviewed_evidence_basis": "料金に対する内容を割安と評価した。",
+      "group_refs": [
+        "cost_fact_and_value"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "value_02",
+      "label": "料金相応に感じた",
+      "dimension": "value",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-685554",
+        "ME-676632"
+      ],
+      "original_individual_evidence_basis": "内容と支払額の釣り合いに納得した。",
+      "reviewed_evidence_basis": "内容と支払額の釣り合いに納得した。",
+      "group_refs": [
+        "cost_fact_and_value"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "value_03",
+      "label": "内容に対して割高",
+      "dimension": "value",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-676914",
+        "ME-687360"
+      ],
+      "original_individual_evidence_basis": "支払額に対して内容を割高と感じた。",
+      "reviewed_evidence_basis": "支払額に対して内容を割高と感じた。",
+      "group_refs": [
+        "cost_fact_and_value"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "value_04",
+      "label": "予算内で満足",
+      "dimension": "value",
+      "original_disposition": "evidence_pending",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [],
+      "pending_group_refs": [
+        "cost_fact_and_value"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "value_05",
+      "label": "追加料金を含めると迷う",
+      "dimension": "value",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-694759",
+        "ME-690955"
+      ],
+      "original_individual_evidence_basis": "追加込みの高額な総額を再訪判断で迷った。",
+      "reviewed_evidence_basis": "追加込みの高額な総額を再訪判断で迷った。",
+      "group_refs": [
+        "cost_fact_and_value"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "value_06",
+      "label": "短時間では物足りなかった",
+      "dimension": "value",
+      "original_disposition": "propose_later_with_supplemental_notes",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [
+        "time_fact_and_feeling"
+      ],
+      "pending_group_refs": [
+        "cost_fact_and_value"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "supplementary_support": {
+        "source_note_ids": [
+          "ME-94606",
+          "ME-108576"
+        ],
+        "evidence_level": "derived_note_only_not_new_full_source_check",
+        "caution": "もっと受けたかった体感であり予定時間未消化とは別。原IDの個別根拠欄は空欄のまま。"
+      },
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "value_07",
+      "label": "割引があれば利用したい",
+      "dimension": "value",
+      "original_disposition": "evidence_pending",
+      "original_evidence_status": "not_individually_checked",
+      "original_individual_evidence_ids": [],
+      "original_individual_evidence_basis": null,
+      "reviewed_evidence_basis": null,
+      "group_refs": [],
+      "pending_group_refs": [
+        "cost_fact_and_value"
+      ],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "visit_context_01",
+      "label": "初めての店",
+      "dimension": "visit_context",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-624755",
+        "ME-611571",
+        "ME-680085"
+      ],
+      "original_individual_evidence_basis": "店を初めて利用したと明記する。",
+      "reviewed_evidence_basis": "店を初めて利用したと明記する。",
+      "group_refs": [
+        "visit_choice"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "visit_context_02",
+      "label": "同じ店の別の担当者",
+      "dimension": "visit_context",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-693779",
+        "ME-688698"
+      ],
+      "original_individual_evidence_basis": "店の利用歴はあるが担当者は初めてだった。",
+      "reviewed_evidence_basis": "店の利用歴はあるが担当者は初めてだった。",
+      "group_refs": [
+        "visit_choice"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "visit_context_03",
+      "label": "同じ担当者への再訪",
+      "dimension": "visit_context",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-685554",
+        "ME-690317",
+        "ME-691373"
+      ],
+      "original_individual_evidence_basis": "同じ担当者を複数回利用したと述べる。",
+      "reviewed_evidence_basis": "同じ担当者を複数回利用したと述べる。",
+      "group_refs": [
+        "visit_choice"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "visit_context_04",
+      "label": "久しぶりの訪問",
+      "dimension": "visit_context",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-687360"
+      ],
+      "original_individual_evidence_basis": "以前会った担当者を久しぶりに訪れた。",
+      "reviewed_evidence_basis": "以前会った担当者を久しぶりに訪れた。",
+      "group_refs": [
+        "visit_choice"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "visit_context_05",
+      "label": "当日予約",
+      "dimension": "visit_context",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-694759"
+      ],
+      "original_individual_evidence_basis": "当日予約で訪れた。",
+      "reviewed_evidence_basis": "当日予約で訪れた。",
+      "group_refs": [
+        "visit_choice"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "visit_context_06",
+      "label": "事前予約",
+      "dimension": "visit_context",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-701966"
+      ],
+      "original_individual_evidence_basis": "前日までの予約割引を利用した。",
+      "reviewed_evidence_basis": "前日までの予約割引を利用した。",
+      "group_refs": [
+        "visit_choice"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "visit_context_07",
+      "label": "移籍先への訪問",
+      "dimension": "visit_context",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-687360"
+      ],
+      "original_individual_evidence_basis": "担当者の移籍先を訪れた。",
+      "reviewed_evidence_basis": "担当者の移籍先を訪れた。",
+      "group_refs": [
+        "visit_choice"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "visit_context_08",
+      "label": "出張や遠征の途中",
+      "dimension": "visit_context",
+      "original_disposition": "propose_later_structured_material",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-694759",
+        "ME-701966"
+      ],
+      "original_individual_evidence_basis": "遠征帰りや出張先で利用した。",
+      "reviewed_evidence_basis": "遠征帰りや出張先で利用した。",
+      "group_refs": [
+        "visit_choice"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "welcome_03",
+      "label": "明るい対応だった",
+      "dimension": "welcome",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-693779",
+        "ME-624755"
+      ],
+      "original_individual_evidence_basis": "明るい雰囲気の接客と述べる。",
+      "reviewed_evidence_basis": "明るい雰囲気の接客と述べる。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "welcome_05",
+      "label": "親しみやすかった",
+      "dimension": "welcome",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-694759",
+        "ME-701182"
+      ],
+      "original_individual_evidence_basis": "親しみやすい応対だったと述べる。",
+      "reviewed_evidence_basis": "親しみやすい応対だったと述べる。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    },
+    {
+      "candidate_id": "welcome_06",
+      "label": "淡々とした対応だった",
+      "dimension": "welcome",
+      "original_disposition": "retain_as_context",
+      "original_evidence_status": "source_meaning_checked",
+      "original_individual_evidence_ids": [
+        "ME-691394",
+        "ME-693774"
+      ],
+      "original_individual_evidence_basis": "説明や受付を淡々としたものと感じた。",
+      "reviewed_evidence_basis": "説明や受付を淡々としたものと感じた。",
+      "group_refs": [
+        "unplaced_and_cross_phase_events"
+      ],
+      "pending_group_refs": [],
+      "status_in_this_file": "reference_or_design_candidate_only_not_adopted",
+      "meaning_gate_required": false
+    }
+  ],
+  "supplementary_source_notes": [
+    {
+      "source_id": "ME-108576",
+      "evidence_level": "supplementary_derived_deep_read_note_only",
+      "source_file": "docs/research/men-esthe-2026-10-23/deep-read/pages-341-381-401.json",
+      "page_number": 381,
+      "summary": "友人に誘われた初利用で、笑顔の会話が緊張をほぐした。希望に合わせた圧の調整を評価し、長いコースと再訪を希望。",
+      "uncertainty": [
+        "この種の店の初利用者による一回の体験で、他の担当者との比較はない。",
+        "長いコースを実際に利用した場合の評価は未確認。"
+      ],
+      "not_new_full_source_verification": true
+    },
+    {
+      "source_id": "ME-109628",
+      "evidence_level": "supplementary_derived_deep_read_note_only",
+      "source_file": "docs/research/men-esthe-2026-10-23/deep-read/pages-341-381-401.json",
+      "page_number": 341,
+      "summary": "静かな会話量、丁寧な気遣い、心地よい施術には満足。一方、個人の好みとの違いから当面の再訪は考えていない。",
+      "uncertainty": [
+        "気遣いや担当者の意図は投稿者が受けた印象。",
+        "継続利用で対応が変わる可能性は未確認の推測。"
+      ],
+      "not_new_full_source_verification": true
+    },
+    {
+      "source_id": "ME-109630",
+      "evidence_level": "supplementary_derived_deep_read_note_only",
+      "source_file": "docs/research/men-esthe-2026-10-23/deep-read/pages-341-381-401.json",
+      "page_number": 341,
+      "summary": "指圧技術は高評価でも、長さやゆっくりした進行は好みと合わなかった。会話は受け答え中心で、再訪を迷う。",
+      "uncertainty": [
+        "時間が長いという評価は利用者個人の好み。",
+        "再訪による変化や初回だったことの影響は本人の推測。"
+      ],
+      "not_new_full_source_verification": true
+    },
+    {
+      "source_id": "ME-111685",
+      "evidence_level": "supplementary_derived_deep_read_note_only",
+      "source_file": "docs/research/men-esthe-2026-10-23/deep-read/pages-341-381-401.json",
+      "page_number": 381,
+      "summary": "指圧や手技、会話と丁寧な気遣いを評価。料金の構成は記載されるが総額は曖昧で、他担当者を試す再訪を希望。",
+      "uncertainty": [
+        "20000円が割引や追加を含む総額か基本料金か、本文の書式では明確でない。",
+        "見た目からの年齢推測や独自の採点は、確認された事実ではない。"
+      ],
+      "not_new_full_source_verification": true
+    },
+    {
+      "source_id": "ME-113261",
+      "evidence_level": "supplementary_derived_deep_read_note_only",
+      "source_file": "docs/research/men-esthe-2026-10-23/deep-read/pages-341-381-401.json",
+      "page_number": 341,
+      "summary": "写真と対面の印象はおおむね一致。施術は標準的だが腰を評価し、価格との釣り合いから店の他担当者にも関心を示す。",
+      "uncertainty": [
+        "写真との一致や施術水準は投稿者の主観。",
+        "他利用者に人気という追加項目の組み合わせは伝聞。"
+      ],
+      "not_new_full_source_verification": true
+    },
+    {
+      "source_id": "ME-115953",
+      "evidence_level": "supplementary_derived_deep_read_note_only",
+      "source_file": "docs/research/men-esthe-2026-10-23/deep-read/pages-341-381-401.json",
+      "page_number": 401,
+      "summary": "掲示板などから落ち着いた体験を期待して利用。足湯とオイル選択、豊富な備品、しっかりした施術に満足し再訪を希望。",
+      "uncertainty": [
+        "掲示板の情報と今回の自分の体験が同じ文章にあるため、出所を分ける必要がある。",
+        "今回の体験を店舗全体の恒常的な提供内容と断定できない。"
+      ],
+      "not_new_full_source_verification": true
+    },
+    {
+      "source_id": "ME-117747",
+      "evidence_level": "supplementary_derived_deep_read_note_only",
+      "source_file": "docs/research/men-esthe-2026-10-23/deep-read/pages-341-381-401.json",
+      "page_number": 401,
+      "summary": "物静かでも会話は成立し、未経験という事前説明より施術は良かった。担当者への再訪は緩やかな希望で、店舗は継続利用予定。",
+      "uncertainty": [
+        "未経験という情報はプロフィール記載による。",
+        "担当者が近く退職する可能性は、店舗で長続きしないという投稿者の印象からの推測。",
+        "真面目さや意欲は利用者が受けた印象。"
+      ],
+      "not_new_full_source_verification": true
+    },
+    {
+      "source_id": "ME-117753",
+      "evidence_level": "supplementary_derived_deep_read_note_only",
+      "source_file": "docs/research/men-esthe-2026-10-23/deep-read/pages-341-381-401.json",
+      "page_number": 401,
+      "summary": "希望担当者が不在で別担当者を利用。掲示板の清掃評とは異なり室内は普通と感じ、技術は標準的で他担当者も検討。",
+      "uncertainty": [
+        "外部掲示板の清掃評と今回の利用時点が同条件かは不明。",
+        "清潔さに関する個人差を述べるが、他者の受け止めを否定する根拠にはならない。"
+      ],
+      "not_new_full_source_verification": true
+    },
+    {
+      "source_id": "ME-426485",
+      "evidence_level": "supplementary_derived_deep_read_note_only",
+      "source_file": "docs/research/men-esthe-2026-10-23/deep-read/pages-041-141-241.json",
+      "page_number": 241,
+      "summary": "電話応対と清潔な部屋は評価したが、長めで強い指圧が好みに合わず、同じ担当者の再訪は消極的。",
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "揉み返しについては投稿者の一般的な苦手意識で、今回発生したとは記されない。"
+      ],
+      "not_new_full_source_verification": true
+    },
+    {
+      "source_id": "ME-464827",
+      "evidence_level": "supplementary_derived_deep_read_note_only",
+      "source_file": "docs/research/men-esthe-2026-10-23/deep-read/pages-041-141-241.json",
+      "page_number": 241,
+      "summary": "隣室の音や外からのにおいは気になったが施術の加減は合い、出勤と予定が合えば再指名したい意向。",
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "電話対応の点数は実際の応対を観察した評価ではない。",
+        "職歴や出勤頻度は会話で聞いた情報。",
+        "料金追加の意図を過去の会話と結び付けた部分は推測。"
+      ],
+      "not_new_full_source_verification": true
+    },
+    {
+      "source_id": "ME-479744",
+      "evidence_level": "supplementary_derived_deep_read_note_only",
+      "source_file": "docs/research/men-esthe-2026-10-23/deep-read/pages-041-141-241.json",
+      "page_number": 241,
+      "summary": "SNSを見て指名。最初は控えめな印象でも施術中に打ち解けたが、追加選択への期待には差があった。",
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "料金は記憶による概数。",
+        "性格や衣装選択の理由、地域ごとの客層は投稿者の推測。",
+        "自身が確認していない対応については不明としている。"
+      ],
+      "not_new_full_source_verification": true
+    },
+    {
+      "source_id": "ME-507212",
+      "evidence_level": "supplementary_derived_deep_read_note_only",
+      "source_file": "docs/research/men-esthe-2026-10-23/deep-read/pages-041-141-241.json",
+      "page_number": 241,
+      "summary": "指圧は心地よかったが担当者との好みが合わず、店の再訪と担当者の再指名を分けて判断。",
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "外見の好みを理由とした評価を他の客に一般化できない。",
+        "試していない内容については投稿者自身も判断できないとしている。"
+      ],
+      "not_new_full_source_verification": true
+    },
+    {
+      "source_id": "ME-509759",
+      "evidence_level": "supplementary_derived_deep_read_note_only",
+      "source_file": "docs/research/men-esthe-2026-10-23/deep-read/pages-041-141-241.json",
+      "page_number": 241,
+      "summary": "前日予約で希望枠を確保。笑顔と共通の話題、的確な施術を評価したが、見送りは事務的に感じた。",
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "通常料金、端数を上乗せした支払い、後半の交渉による追加が別に記される。"
+      ],
+      "not_new_full_source_verification": true
+    },
+    {
+      "source_id": "ME-52641",
+      "evidence_level": "supplementary_derived_deep_read_note_only",
+      "source_file": "docs/research/men-esthe-2026-10-23/deep-read/pages-341-381-401.json",
+      "page_number": 341,
+      "summary": "事前アンケートに沿う施術と割引後の価格に満足。一方、ウェブ未掲載の追加項目と曖昧な価格記憶がある。",
+      "uncertainty": [
+        "約4000円という追加料金は記憶による概数で、当該項目も利用していない。",
+        "割引の頻度は投稿者の印象で、現在の料金情報ではない。"
+      ],
+      "not_new_full_source_verification": true
+    },
+    {
+      "source_id": "ME-611571",
+      "evidence_level": "supplementary_derived_deep_read_note_only",
+      "source_file": "docs/research/men-esthe-2026-10-23/deep-read/pages-002-011-021.json",
+      "page_number": 11,
+      "summary": "事前連絡は丁寧で到着もほぼ定刻だったが、待ち時間と時間配分を気にした。",
+      "uncertainty": [
+        "短いコースでさらに内容が薄くなるという見方は推測。"
+      ],
+      "not_new_full_source_verification": true
+    },
+    {
+      "source_id": "ME-615850",
+      "evidence_level": "supplementary_derived_deep_read_note_only",
+      "source_file": "docs/research/men-esthe-2026-10-23/deep-read/pages-041-141-241.json",
+      "page_number": 41,
+      "summary": "丁寧な所作、落ち着く声と話しやすさを評価。費用にも満足したが個人の好みから再訪は消極的。",
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "年齢や兼業状況に関する記述は推定または伝聞。"
+      ],
+      "not_new_full_source_verification": true
+    },
+    {
+      "source_id": "ME-637274",
+      "evidence_level": "supplementary_derived_deep_read_note_only",
+      "source_file": "docs/research/men-esthe-2026-10-23/deep-read/pages-041-141-241.json",
+      "page_number": 141,
+      "summary": "予約時刻の柔軟な対応と、狙った箇所をしっかり押す施術を評価。疲労を和らげたい目的は満たされた。",
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "技術の学習量に関する記述は投稿者の推測。"
+      ],
+      "not_new_full_source_verification": true
+    },
+    {
+      "source_id": "ME-638604",
+      "evidence_level": "supplementary_derived_deep_read_note_only",
+      "source_file": "docs/research/men-esthe-2026-10-23/deep-read/pages-041-141-241.json",
+      "page_number": 141,
+      "summary": "写真から想像したより明るい接客。流す施術が中心で、強い圧への期待やタイマー音には不満が残った。",
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "写真から性格を想像した点や年齢からの期待は根拠の確認がない。"
+      ],
+      "not_new_full_source_verification": true
+    },
+    {
+      "source_id": "ME-644708",
+      "evidence_level": "supplementary_derived_deep_read_note_only",
+      "source_file": "docs/research/men-esthe-2026-10-23/deep-read/pages-002-011-021.json",
+      "page_number": 11,
+      "summary": "姿勢の希望に合う専用コースを見つけ、再訪も考えた。",
+      "uncertainty": [
+        "施術時間の比率は本人の概算。"
+      ],
+      "not_new_full_source_verification": true
+    },
+    {
+      "source_id": "ME-645755",
+      "evidence_level": "supplementary_derived_deep_read_note_only",
+      "source_file": "docs/research/men-esthe-2026-10-23/deep-read/pages-041-141-241.json",
+      "page_number": 141,
+      "summary": "施術技術は高く評価したが、不満の話題や延長・次回予約の営業でくつろげず、再訪は見送る意向。",
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "前の客の行動は担当者が話した内容で独立に未確認。",
+        "次回予約はその場では完了していないと記す。"
+      ],
+      "not_new_full_source_verification": true
+    },
+    {
+      "source_id": "ME-669488",
+      "evidence_level": "supplementary_derived_deep_read_note_only",
+      "source_file": "docs/research/men-esthe-2026-10-23/deep-read/pages-041-141-241.json",
+      "page_number": 41,
+      "summary": "迎えのスマートフォン対応は気になったが、会話が進むと印象が改善。脚の施術効果を評価した。",
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "担当者の意欲に関する評価は投稿者の受け止め。"
+      ],
+      "not_new_full_source_verification": true
+    },
+    {
+      "source_id": "ME-671206",
+      "evidence_level": "supplementary_derived_deep_read_note_only",
+      "source_file": "docs/research/men-esthe-2026-10-23/deep-read/pages-002-011-021.json",
+      "page_number": 2,
+      "summary": "入口が見つけづらく開始が遅れ、写真との印象差も感じた。",
+      "uncertainty": [
+        "金額は概算で、正確な支払額ではない。"
+      ],
+      "not_new_full_source_verification": true
+    },
+    {
+      "source_id": "ME-677231",
+      "evidence_level": "supplementary_derived_deep_read_note_only",
+      "source_file": "docs/research/men-esthe-2026-10-23/deep-read/pages-041-141-241.json",
+      "page_number": 41,
+      "summary": "利用経験のある店で、マッサージと費用への満足を理由に同じ担当者への再訪に前向き。",
+      "uncertainty": [
+        "投稿者の体験に基づく主観で未検証。",
+        "写真加工に関する店全体の評価は独立に確認していない。"
+      ],
+      "not_new_full_source_verification": true
+    },
+    {
+      "source_id": "ME-67846",
+      "evidence_level": "supplementary_derived_deep_read_note_only",
+      "source_file": "docs/research/men-esthe-2026-10-23/deep-read/pages-341-381-401.json",
+      "page_number": 341,
+      "summary": "同じ担当者への再訪で、希望したパウダー施術と手のひらの力強い圧を体験。前回より笑顔が多かったと感じた。",
+      "uncertainty": [
+        "通常料金の金額は本文にないため、総支払額は算出できない。",
+        "手のひら施術の要望が少ないという情報は担当者との会話による。"
+      ],
+      "not_new_full_source_verification": true
+    },
+    {
+      "source_id": "ME-687360",
+      "evidence_level": "supplementary_derived_deep_read_note_only",
+      "source_file": "docs/research/men-esthe-2026-10-23/deep-read/pages-002-011-021.json",
+      "page_number": 2,
+      "summary": "会話と施術の力加減は良かったが、体験の一貫性と価格を懸念した。",
+      "uncertainty": [
+        "対応が気分で変わるという説明は本人の推測。"
+      ],
+      "not_new_full_source_verification": true
+    },
+    {
+      "source_id": "ME-688337",
+      "evidence_level": "supplementary_derived_deep_read_note_only",
+      "source_file": "docs/research/men-esthe-2026-10-23/deep-read/pages-002-011-021.json",
+      "page_number": 11,
+      "summary": "施術の力加減を評価した一方、予定時間より早い終了を不満とした。",
+      "uncertainty": [
+        "早期退出の原因は記されていない。"
+      ],
+      "not_new_full_source_verification": true
+    },
+    {
+      "source_id": "ME-693774",
+      "evidence_level": "supplementary_derived_deep_read_note_only",
+      "source_file": "docs/research/men-esthe-2026-10-23/deep-read/pages-002-011-021.json",
+      "page_number": 2,
+      "summary": "受付と案内は円滑だったが、施術技術には不満もあり、再訪を検討している。",
+      "uncertainty": [
+        "他の口コミで懸念された待ち時間は本人の訪問では生じていない。"
+      ],
+      "not_new_full_source_verification": true
+    },
+    {
+      "source_id": "ME-94606",
+      "evidence_level": "supplementary_derived_deep_read_note_only",
+      "source_file": "docs/research/men-esthe-2026-10-23/deep-read/pages-341-381-401.json",
+      "page_number": 381,
+      "summary": "SNSの誘いから予約。案内は円滑だったが、50分を短く感じ、追加項目や延長料金への納得感も乏しく再訪を見送る。",
+      "uncertainty": [
+        "初期の施術選択の有無は記憶が曖昧な表現。",
+        "通常衣装が追加利用を促す意図かどうかは投稿者の推測。",
+        "90分なら感想が変わる可能性も未確認。"
+      ],
+      "not_new_full_source_verification": true
+    }
+  ],
+  "counts": {
+    "groups": 10,
+    "questions": 33,
+    "batches": 4,
+    "source_candidates_read": 332,
+    "original_source_checked": 184,
+    "original_not_individually_checked": 148,
+    "already_implemented_unique_candidates": 29,
+    "existing_later_structured_candidates_referenced": 61,
+    "existing_metadata_candidates_referenced": 15,
+    "context_candidates_in_optional_bank": 76,
+    "unique_candidate_references_including_design_or_pending": 193,
+    "candidate_refs_by_original_evidence_status": {
+      "source_meaning_checked": 153,
+      "not_individually_checked": 40
+    },
+    "supplementary_source_notes_used": 28,
+    "deep_read_records_available": 166,
+    "meaning_gates": 3,
+    "new_fixed_labels_adopted": 0,
+    "new_app_fields_implemented": 0
+  },
+  "validation": {
+    "json_parsed": true,
+    "all_candidate_ids_exist": true,
+    "all_61_original_later_candidates_referenced": true,
+    "individual_source_ids_unchanged": true,
+    "all_source_note_ids_found_in_local_deep_read": true,
+    "question_ids_unique": true,
+    "no_new_full_source_evidence_claimed": true,
+    "tests_or_build_run": "not_applicable_planning_json_only"
+  },
+  "parent_integration": {
+    "authoritative_adoption_ledger": "next-adoption-ledger.json",
+    "current_implemented_count": 29,
+    "new_app_fields_implemented": 0,
+    "primary_group_references_aligned": {
+      "arrival_05": "time_fact_and_feeling",
+      "price_clarity_08": "source_and_memory_state",
+      "scope_confirmation_07": "source_and_memory_state"
+    },
+    "note": "次回採用の最終分類は台帳を参照する。主質問群への参照を追加し、元の関連質問群も保持した。質問の採用や必須化を意味しない。既存欄への35語追加はB0の素材領域設計を待たずに進められる。"
+  }
+}

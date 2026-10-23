@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>質問票の候補追加・確認用</title>
+  </head>
+  <body>
+    <header><h1>記事執筆用質問票・確認用</h1></header>
+    <main>
+      <aside class="card prototype-intro">
+        <strong>保存しない確認用プロトタイプ</strong>
+        <p>架空のメモで候補の追加を試せます。ページを閉じると入力は消えます。</p>
+        <a href="../06-questionnaire-ui.md">表示と操作の検討メモ</a>
+      </aside>
+      <div id="prototype-form"></div>
+      <p id="prototype-status" role="status" aria-live="polite"></p>
+      <section id="prototype-output" class="card" hidden aria-labelledby="output-heading">
+        <h2 id="output-heading">今回の入力から作った記事素材</h2>
+        <pre></pre>
+      </section>
+    </main>
+    <script type="module" src="./questionnaire-enrichment.ts"></script>
+  </body>
+</html>

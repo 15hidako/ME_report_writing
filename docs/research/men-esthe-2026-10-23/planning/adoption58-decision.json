@@ -1,0 +1,1896 @@
+{
+  "version": 1,
+  "date": "2026-10-23",
+  "status": "implemented_and_verified",
+  "user_instruction": "58語は採用し、新しい質問群に関しては全件却下で。",
+  "execution": {
+    "models": "GPT only",
+    "external_model_calls": false,
+    "new_source_fetch": false
+  },
+  "scope": {
+    "additional_existing_field_candidates": 58,
+    "new_questions_added": 0,
+    "new_storage_fields_added": 0,
+    "new_question_groups": "all_rejected",
+    "layout_and_interactions": "existing_patterns_preserved",
+    "schema_storage_keys_dependencies": "unchanged"
+  },
+  "counts": {
+    "previously_implemented": 29,
+    "added": 58,
+    "current_implemented": 87,
+    "rejected_question_groups": 10,
+    "rejected_optional_subquestions": 33,
+    "research_candidates": 332,
+    "source_meaning_checked": 184,
+    "not_individually_checked": 148
+  },
+  "accepted_from_snapshot": {
+    "next_existing_priority": [
+      "booking_flow_04",
+      "welcome_03",
+      "welcome_05",
+      "price_clarity_07",
+      "upsell_04",
+      "upsell_05",
+      "amenities_01",
+      "amenities_02",
+      "appearance_02",
+      "appearance_03",
+      "appearance_04",
+      "appearance_06",
+      "conversation_amount_01",
+      "conversation_amount_03",
+      "conversation_amount_05",
+      "conversation_amount_06",
+      "professionalism_05",
+      "professionalism_07",
+      "assessment_05",
+      "technique_05",
+      "focus_02",
+      "focus_04",
+      "focus_08",
+      "method_02",
+      "method_03",
+      "pace_of_time_01",
+      "pace_of_time_04",
+      "pace_of_time_05",
+      "comfort_distance_01",
+      "comfort_distance_02",
+      "scope_confirmation_02",
+      "scope_confirmation_05",
+      "aftercare_02",
+      "downside_07",
+      "value_03"
+    ],
+    "next_existing_conditional": [
+      "booking_response_03",
+      "access_02",
+      "access_04",
+      "price_clarity_02",
+      "price_clarity_05",
+      "upsell_01",
+      "upsell_03",
+      "room_facility_01",
+      "room_facility_02",
+      "cleanliness_01",
+      "cleanliness_04",
+      "comfort_03",
+      "amenities_05",
+      "shower_05",
+      "shower_06",
+      "scent_03",
+      "scent_06",
+      "pace_of_time_02",
+      "pace_of_time_03",
+      "comfort_distance_03",
+      "scope_confirmation_01",
+      "satisfaction_05",
+      "comparison_03"
+    ]
+  },
+  "previously_implemented_candidate_ids": [
+    "welcome_01",
+    "welcome_07",
+    "photo_match_01",
+    "photo_match_02",
+    "photo_match_03",
+    "photo_match_05",
+    "photo_match_06",
+    "conversation_style_02",
+    "conversation_style_03",
+    "conversation_style_07",
+    "conversation_style_08",
+    "conversation_fit_01",
+    "conversation_fit_05",
+    "conversation_fit_06",
+    "professionalism_02",
+    "professionalism_06",
+    "assessment_06",
+    "assessment_07",
+    "pressure_07",
+    "pressure_08",
+    "pace_05",
+    "technique_01",
+    "technique_03",
+    "technique_06",
+    "technique_07",
+    "technique_08",
+    "focus_06",
+    "method_05",
+    "aftercare_03"
+  ],
+  "newly_implemented_candidate_ids": [
+    "booking_response_03",
+    "booking_flow_04",
+    "access_02",
+    "access_04",
+    "welcome_03",
+    "welcome_05",
+    "price_clarity_02",
+    "price_clarity_05",
+    "price_clarity_07",
+    "upsell_01",
+    "upsell_03",
+    "upsell_04",
+    "upsell_05",
+    "room_facility_01",
+    "room_facility_02",
+    "cleanliness_01",
+    "cleanliness_04",
+    "comfort_03",
+    "amenities_01",
+    "amenities_02",
+    "amenities_05",
+    "shower_05",
+    "shower_06",
+    "scent_03",
+    "scent_06",
+    "appearance_02",
+    "appearance_03",
+    "appearance_04",
+    "appearance_06",
+    "conversation_amount_01",
+    "conversation_amount_03",
+    "conversation_amount_05",
+    "conversation_amount_06",
+    "professionalism_05",
+    "professionalism_07",
+    "assessment_05",
+    "technique_05",
+    "focus_02",
+    "focus_04",
+    "focus_08",
+    "method_02",
+    "method_03",
+    "pace_of_time_01",
+    "pace_of_time_02",
+    "pace_of_time_03",
+    "pace_of_time_04",
+    "pace_of_time_05",
+    "comfort_distance_01",
+    "comfort_distance_02",
+    "comfort_distance_03",
+    "scope_confirmation_01",
+    "scope_confirmation_02",
+    "scope_confirmation_05",
+    "aftercare_02",
+    "satisfaction_05",
+    "downside_07",
+    "value_03",
+    "comparison_03"
+  ],
+  "implemented_candidate_ids": [
+    "welcome_01",
+    "welcome_07",
+    "photo_match_01",
+    "photo_match_02",
+    "photo_match_03",
+    "photo_match_05",
+    "photo_match_06",
+    "conversation_style_02",
+    "conversation_style_03",
+    "conversation_style_07",
+    "conversation_style_08",
+    "conversation_fit_01",
+    "conversation_fit_05",
+    "conversation_fit_06",
+    "professionalism_02",
+    "professionalism_06",
+    "assessment_06",
+    "assessment_07",
+    "pressure_07",
+    "pressure_08",
+    "pace_05",
+    "technique_01",
+    "technique_03",
+    "technique_06",
+    "technique_07",
+    "technique_08",
+    "focus_06",
+    "method_05",
+    "aftercare_03",
+    "booking_response_03",
+    "booking_flow_04",
+    "access_02",
+    "access_04",
+    "welcome_03",
+    "welcome_05",
+    "price_clarity_02",
+    "price_clarity_05",
+    "price_clarity_07",
+    "upsell_01",
+    "upsell_03",
+    "upsell_04",
+    "upsell_05",
+    "room_facility_01",
+    "room_facility_02",
+    "cleanliness_01",
+    "cleanliness_04",
+    "comfort_03",
+    "amenities_01",
+    "amenities_02",
+    "amenities_05",
+    "shower_05",
+    "shower_06",
+    "scent_03",
+    "scent_06",
+    "appearance_02",
+    "appearance_03",
+    "appearance_04",
+    "appearance_06",
+    "conversation_amount_01",
+    "conversation_amount_03",
+    "conversation_amount_05",
+    "conversation_amount_06",
+    "professionalism_05",
+    "professionalism_07",
+    "assessment_05",
+    "technique_05",
+    "focus_02",
+    "focus_04",
+    "focus_08",
+    "method_02",
+    "method_03",
+    "pace_of_time_01",
+    "pace_of_time_02",
+    "pace_of_time_03",
+    "pace_of_time_04",
+    "pace_of_time_05",
+    "comfort_distance_01",
+    "comfort_distance_02",
+    "comfort_distance_03",
+    "scope_confirmation_01",
+    "scope_confirmation_02",
+    "scope_confirmation_05",
+    "aftercare_02",
+    "satisfaction_05",
+    "downside_07",
+    "value_03",
+    "comparison_03"
+  ],
+  "rejected_question_groups": [
+    {
+      "id": "visit_choice",
+      "title": "来店・担当者選択のきっかけ",
+      "optional_subquestions": 3,
+      "decision": "rejected_by_user",
+      "implemented": false
+    },
+    {
+      "id": "visit_purpose",
+      "title": "今回求めたことと本人の好み",
+      "optional_subquestions": 3,
+      "decision": "rejected_by_user",
+      "implemented": false
+    },
+    {
+      "id": "expectation_gap",
+      "title": "期待の出所と実際の違い",
+      "optional_subquestions": 3,
+      "decision": "rejected_by_user",
+      "implemented": false
+    },
+    {
+      "id": "overall_decisive_reason",
+      "title": "総評の決め手と評価の重み",
+      "optional_subquestions": 3,
+      "decision": "rejected_by_user",
+      "implemented": false
+    },
+    {
+      "id": "revisit_target_reason",
+      "title": "店舗と担当者を分けた再訪意向・理由・条件",
+      "optional_subquestions": 4,
+      "decision": "rejected_by_user",
+      "implemented": false
+    },
+    {
+      "id": "comparison_target_axis",
+      "title": "比較対象・比較軸・条件の違い",
+      "optional_subquestions": 3,
+      "decision": "rejected_by_user",
+      "implemented": false
+    },
+    {
+      "id": "cost_fact_and_value",
+      "title": "料金の事実・説明・納得感",
+      "optional_subquestions": 4,
+      "decision": "rejected_by_user",
+      "implemented": false
+    },
+    {
+      "id": "time_fact_and_feeling",
+      "title": "時間の事実・配分・本人の体感",
+      "optional_subquestions": 4,
+      "decision": "rejected_by_user",
+      "implemented": false
+    },
+    {
+      "id": "unplaced_and_cross_phase_events",
+      "title": "段階不明の出来事と訪問中の印象の変化",
+      "optional_subquestions": 3,
+      "decision": "rejected_by_user",
+      "implemented": false
+    },
+    {
+      "id": "source_and_memory_state",
+      "title": "素材ごとの情報源・利用状態・記憶の確かさ",
+      "optional_subquestions": 3,
+      "decision": "rejected_by_user",
+      "implemented": false
+    }
+  ],
+  "display_revision_from_previous_plan": [
+    {
+      "candidate_id": "price_clarity_05",
+      "previous_proposal": "施術前に追加内容と料金の説明があった",
+      "implemented_label": "追加内容と料金の説明があった",
+      "reason": "説明の内容を保ち、記録する段階を施術前へ固定しない。実際に説明された段階は本人が選ぶ。元の根拠は施術前の説明であり、途中の説明まで追加で原典確認したという意味ではない。"
+    }
+  ],
+  "placement_instance_counts": {
+    "rating_note_buttons": 52,
+    "phase_check_buttons": 65,
+    "phase_note_buttons": 27,
+    "downside_buttons": 13
+  },
+  "implemented_candidates": [
+    {
+      "candidate_id": "welcome_01",
+      "label": "笑顔で迎えられた",
+      "adoption_batch": "previous29",
+      "locations": [
+        "flow.meeting.checks"
+      ],
+      "original_label": "笑顔で迎えられた",
+      "individual_evidence_ids": [
+        "ME-604702",
+        "ME-702434",
+        "ME-691620"
+      ],
+      "source_basis": "笑顔の出迎えを記した。",
+      "conditions": [
+        "実際に起きた段階が分かるときだけ格納する。調査記事の段階を本人の訪問へ転用しない。"
+      ]
+    },
+    {
+      "candidate_id": "welcome_07",
+      "label": "緊張がほぐれた",
+      "adoption_batch": "previous29",
+      "locations": [
+        "flow.meeting.checks"
+      ],
+      "original_label": "緊張がほぐれた",
+      "individual_evidence_ids": [
+        "ME-677219"
+      ],
+      "source_basis": "到着時の対応でリラックスできたと述べる。",
+      "conditions": [
+        "実際に起きた段階が分かるときだけ格納する。調査記事の段階を本人の訪問へ転用しない。"
+      ]
+    },
+    {
+      "candidate_id": "photo_match_01",
+      "label": "写真とほぼ同じ印象",
+      "adoption_batch": "previous29",
+      "locations": [
+        "ratings.face.note",
+        "ratings.style.note"
+      ],
+      "original_label": "写真とほぼ同じ印象",
+      "individual_evidence_ids": [
+        "ME-667277",
+        "ME-685554",
+        "ME-651913"
+      ],
+      "source_basis": "写真と対面時の印象に大きな違いを感じなかった。",
+      "conditions": [
+        "顔の印象と体型の印象は対応する軸で扱い、両方へ自動複製しない。"
+      ]
+    },
+    {
+      "candidate_id": "photo_match_02",
+      "label": "写真より好印象",
+      "adoption_batch": "previous29",
+      "locations": [
+        "ratings.face.note",
+        "ratings.style.note"
+      ],
+      "original_label": "写真より好印象",
+      "individual_evidence_ids": [
+        "ME-676632",
+        "ME-689417"
+      ],
+      "source_basis": "掲載写真から受けた印象より対面時を好意的に評価した。",
+      "conditions": [
+        "顔の印象と体型の印象は対応する軸で扱い、両方へ自動複製しない。"
+      ]
+    },
+    {
+      "candidate_id": "photo_match_03",
+      "label": "写真とは雰囲気が違った",
+      "adoption_batch": "previous29",
+      "locations": [
+        "ratings.face.note"
+      ],
+      "original_label": "写真とは雰囲気が違った",
+      "individual_evidence_ids": [
+        "ME-671206",
+        "ME-678605"
+      ],
+      "source_basis": "写真から受けた雰囲気と対面時に差を感じた。",
+      "conditions": [
+        "顔の印象と体型の印象は対応する軸で扱い、両方へ自動複製しない。"
+      ]
+    },
+    {
+      "candidate_id": "photo_match_05",
+      "label": "体型の印象が違った",
+      "adoption_batch": "previous29",
+      "locations": [
+        "ratings.style.note"
+      ],
+      "original_label": "体型の印象が違った",
+      "individual_evidence_ids": [
+        "ME-702159",
+        "ME-666056",
+        "ME-668594"
+      ],
+      "source_basis": "写真と実際の体格に印象差を感じた。",
+      "conditions": [
+        "顔の印象と体型の印象は対応する軸で扱い、両方へ自動複製しない。"
+      ]
+    },
+    {
+      "candidate_id": "photo_match_06",
+      "label": "写真だけでは判断できなかった",
+      "adoption_batch": "previous29",
+      "locations": [
+        "ratings.face.note",
+        "ratings.style.note"
+      ],
+      "original_label": "写真だけでは判断できなかった",
+      "individual_evidence_ids": [
+        "ME-697378",
+        "ME-644708"
+      ],
+      "source_basis": "写真で顔が隠れるなど、事前判断に限界があった。",
+      "conditions": [
+        "顔の印象と体型の印象は対応する軸で扱い、両方へ自動複製しない。"
+      ]
+    },
+    {
+      "candidate_id": "conversation_style_02",
+      "label": "話題を広げてくれた",
+      "adoption_batch": "previous29",
+      "locations": [
+        "ratings.service.note"
+      ],
+      "original_label": "話題を広げてくれた",
+      "individual_evidence_ids": [
+        "ME-697480",
+        "ME-701966"
+      ],
+      "source_basis": "相手から話題を提供し、会話が自然に続いた。",
+      "conditions": [
+        "会話量と好みへの適合は別。具体的な話題や気遣いの行動は本人の記録で補う。"
+      ]
+    },
+    {
+      "candidate_id": "conversation_style_03",
+      "label": "話しやすかった",
+      "adoption_batch": "previous29",
+      "locations": [
+        "ratings.service.note"
+      ],
+      "original_label": "話しやすかった",
+      "individual_evidence_ids": [
+        "ME-694759",
+        "ME-611571"
+      ],
+      "source_basis": "親しみやすく話しやすかった。",
+      "conditions": [
+        "会話量と好みへの適合は別。具体的な話題や気遣いの行動は本人の記録で補う。"
+      ]
+    },
+    {
+      "candidate_id": "conversation_style_07",
+      "label": "一方的に話す印象",
+      "adoption_batch": "previous29",
+      "locations": [
+        "ratings.service.note"
+      ],
+      "original_label": "一方的に話す印象",
+      "individual_evidence_ids": [
+        "ME-676914",
+        "ME-675282"
+      ],
+      "source_basis": "相手の話が続き、一方的に感じた。",
+      "conditions": [
+        "会話量と好みへの適合は別。具体的な話題や気遣いの行動は本人の記録で補う。"
+      ]
+    },
+    {
+      "candidate_id": "conversation_style_08",
+      "label": "受け答えは短め",
+      "adoption_batch": "previous29",
+      "locations": [
+        "ratings.service.note"
+      ],
+      "original_label": "受け答えは短め",
+      "individual_evidence_ids": [
+        "ME-690955"
+      ],
+      "source_basis": "質問に短く答え、会話が広がりにくかった。",
+      "conditions": [
+        "会話量と好みへの適合は別。具体的な話題や気遣いの行動は本人の記録で補う。"
+      ]
+    },
+    {
+      "candidate_id": "conversation_fit_01",
+      "label": "会話が好みに合った",
+      "adoption_batch": "previous29",
+      "locations": [
+        "ratings.service.note"
+      ],
+      "original_label": "会話が好みに合った",
+      "individual_evidence_ids": [
+        "ME-697480",
+        "ME-694759"
+      ],
+      "source_basis": "会話の相性を良いと感じた。",
+      "conditions": [
+        "会話量と好みへの適合は別。具体的な話題や気遣いの行動は本人の記録で補う。"
+      ]
+    },
+    {
+      "candidate_id": "conversation_fit_05",
+      "label": "会話量が多く感じた",
+      "adoption_batch": "previous29",
+      "locations": [
+        "ratings.service.note"
+      ],
+      "original_label": "会話量が多く感じた",
+      "individual_evidence_ids": [
+        "ME-687357",
+        "ME-675282"
+      ],
+      "source_basis": "会話量が多すぎると感じた。",
+      "conditions": [
+        "会話量と好みへの適合は別。具体的な話題や気遣いの行動は本人の記録で補う。"
+      ]
+    },
+    {
+      "candidate_id": "conversation_fit_06",
+      "label": "話題が合わなかった",
+      "adoption_batch": "previous29",
+      "locations": [
+        "ratings.service.note"
+      ],
+      "original_label": "話題が合わなかった",
+      "individual_evidence_ids": [
+        "ME-676914",
+        "ME-680176"
+      ],
+      "source_basis": "会話のテンポや話題が合わなかった。",
+      "conditions": [
+        "会話量と好みへの適合は別。具体的な話題や気遣いの行動は本人の記録で補う。"
+      ]
+    },
+    {
+      "candidate_id": "professionalism_02",
+      "label": "気配りがあった",
+      "adoption_batch": "previous29",
+      "locations": [
+        "ratings.service.note"
+      ],
+      "original_label": "気配りがあった",
+      "individual_evidence_ids": [
+        "ME-666056",
+        "ME-687480"
+      ],
+      "source_basis": "室温調整や使用剤への配慮を記した。",
+      "conditions": [
+        "会話量と好みへの適合は別。具体的な話題や気遣いの行動は本人の記録で補う。"
+      ]
+    },
+    {
+      "candidate_id": "professionalism_06",
+      "label": "事務的に感じた",
+      "adoption_batch": "previous29",
+      "locations": [
+        "ratings.service.note"
+      ],
+      "original_label": "事務的に感じた",
+      "individual_evidence_ids": [
+        "ME-700976",
+        "ME-680085",
+        "ME-690955"
+      ],
+      "source_basis": "対応を事務的と感じた。",
+      "conditions": [
+        "会話量と好みへの適合は別。具体的な話題や気遣いの行動は本人の記録で補う。"
+      ]
+    },
+    {
+      "candidate_id": "assessment_06",
+      "label": "重点的にケアする部位の確認はなかった",
+      "adoption_batch": "previous29",
+      "locations": [
+        "ratings.massage.note"
+      ],
+      "original_label": "特に確認はなかった",
+      "individual_evidence_ids": [
+        "ME-680085"
+      ],
+      "source_basis": "施術前に重点箇所を尋ねられなかったと明記する。",
+      "conditions": [
+        "希望確認、希望を伝えた事実、調整結果を混同しない。圧や手技から担当者の意欲を推測しない。 元の根拠は重点部位を尋ねられなかったという記述であり、すべての確認がなかったとは広げない。"
+      ]
+    },
+    {
+      "candidate_id": "assessment_07",
+      "label": "相談内容が施術に反映された",
+      "adoption_batch": "previous29",
+      "locations": [
+        "ratings.massage.note"
+      ],
+      "original_label": "相談内容が施術に反映された",
+      "individual_evidence_ids": [
+        "ME-691394"
+      ],
+      "source_basis": "伝えた希望が実際の施術に反映された。",
+      "conditions": [
+        "希望確認、希望を伝えた事実、調整結果を混同しない。圧や手技から担当者の意欲を推測しない。"
+      ]
+    },
+    {
+      "candidate_id": "pressure_07",
+      "label": "自分には弱かった",
+      "adoption_batch": "previous29",
+      "locations": [
+        "ratings.massage.note"
+      ],
+      "original_label": "自分には弱かった",
+      "individual_evidence_ids": [
+        "ME-697480",
+        "ME-680176"
+      ],
+      "source_basis": "本人にとって圧が弱く物足りなかった。",
+      "conditions": [
+        "希望確認、希望を伝えた事実、調整結果を混同しない。圧や手技から担当者の意欲を推測しない。"
+      ]
+    },
+    {
+      "candidate_id": "pressure_08",
+      "label": "強さはちょうどよかった",
+      "adoption_batch": "previous29",
+      "locations": [
+        "ratings.massage.note"
+      ],
+      "original_label": "強さはちょうどよかった",
+      "individual_evidence_ids": [
+        "ME-604702",
+        "ME-687360",
+        "ME-688337"
+      ],
+      "source_basis": "圧の強さが本人にちょうどよかった。",
+      "conditions": [
+        "希望確認、希望を伝えた事実、調整結果を混同しない。圧や手技から担当者の意欲を推測しない。"
+      ]
+    },
+    {
+      "candidate_id": "pace_05",
+      "label": "単調に感じた",
+      "adoption_batch": "previous29",
+      "locations": [
+        "ratings.massage.note"
+      ],
+      "original_label": "単調に感じた",
+      "individual_evidence_ids": [
+        "ME-691394",
+        "ME-700976"
+      ],
+      "source_basis": "施術を単調または機械的と感じた。",
+      "conditions": [
+        "希望確認、希望を伝えた事実、調整結果を混同しない。圧や手技から担当者の意欲を推測しない。"
+      ]
+    },
+    {
+      "candidate_id": "technique_01",
+      "label": "手つきが慣れていた",
+      "adoption_batch": "previous29",
+      "locations": [
+        "ratings.massage.note"
+      ],
+      "original_label": "手つきが慣れていた",
+      "individual_evidence_ids": [
+        "ME-688810",
+        "ME-687480"
+      ],
+      "source_basis": "施術者の手つきに慣れを感じた。",
+      "conditions": [
+        "希望確認、希望を伝えた事実、調整結果を混同しない。圧や手技から担当者の意欲を推測しない。"
+      ]
+    },
+    {
+      "candidate_id": "technique_03",
+      "label": "丁寧に流してくれた",
+      "adoption_batch": "previous29",
+      "locations": [
+        "ratings.massage.note"
+      ],
+      "original_label": "丁寧に流してくれた",
+      "individual_evidence_ids": [
+        "ME-701966"
+      ],
+      "source_basis": "オイルを丁寧に流したと記す。",
+      "conditions": [
+        "希望確認、希望を伝えた事実、調整結果を混同しない。圧や手技から担当者の意欲を推測しない。"
+      ]
+    },
+    {
+      "candidate_id": "technique_06",
+      "label": "手つきに不慣れさがあった",
+      "adoption_batch": "previous29",
+      "locations": [
+        "ratings.massage.note"
+      ],
+      "original_label": "手つきに不慣れさがあった",
+      "individual_evidence_ids": [
+        "ME-677219"
+      ],
+      "source_basis": "マッサージに慣れていない印象を受けた。",
+      "conditions": [
+        "希望確認、希望を伝えた事実、調整結果を混同しない。圧や手技から担当者の意欲を推測しない。"
+      ]
+    },
+    {
+      "candidate_id": "technique_07",
+      "label": "丁寧だが技術は普通",
+      "adoption_batch": "previous29",
+      "locations": [
+        "ratings.massage.note"
+      ],
+      "original_label": "丁寧だが技術は普通",
+      "individual_evidence_ids": [
+        "ME-699394"
+      ],
+      "source_basis": "丁寧だが標準的な手技と受け止めた。",
+      "conditions": [
+        "希望確認、希望を伝えた事実、調整結果を混同しない。圧や手技から担当者の意欲を推測しない。"
+      ]
+    },
+    {
+      "candidate_id": "technique_08",
+      "label": "自分の好みに合った",
+      "adoption_batch": "previous29",
+      "locations": [
+        "ratings.massage.note"
+      ],
+      "original_label": "自分の好みに合った",
+      "individual_evidence_ids": [
+        "ME-604702",
+        "ME-667277"
+      ],
+      "source_basis": "施術の圧や手つきが本人の好みに合った。",
+      "conditions": [
+        "希望確認、希望を伝えた事実、調整結果を混同しない。圧や手技から担当者の意欲を推測しない。"
+      ]
+    },
+    {
+      "candidate_id": "focus_06",
+      "label": "手のひらまでケア",
+      "adoption_batch": "previous29",
+      "locations": [
+        "flow.faceDown.checks",
+        "flow.oilSp.checks",
+        "flow.faceUp.checks"
+      ],
+      "original_label": "手のひらまでケア",
+      "individual_evidence_ids": [
+        "ME-691394"
+      ],
+      "source_basis": "手のひらまで入念に施術した。",
+      "conditions": [
+        "実際に起きた段階が分かるときだけ格納する。調査記事の段階を本人の訪問へ転用しない。"
+      ]
+    },
+    {
+      "candidate_id": "method_05",
+      "label": "ストレッチあり",
+      "adoption_batch": "previous29",
+      "locations": [
+        "flow.faceDown.checks",
+        "flow.oilSp.checks",
+        "flow.faceUp.checks"
+      ],
+      "original_label": "ストレッチあり",
+      "individual_evidence_ids": [
+        "ME-655259"
+      ],
+      "source_basis": "ストレッチを行ったと記す。",
+      "conditions": [
+        "実際に起きた段階が分かるときだけ格納する。調査記事の段階を本人の訪問へ転用しない。"
+      ]
+    },
+    {
+      "candidate_id": "aftercare_03",
+      "label": "見送りがあった",
+      "adoption_batch": "previous29",
+      "locations": [
+        "flow.after.checks"
+      ],
+      "original_label": "見送りがあった",
+      "individual_evidence_ids": [
+        "ME-691620"
+      ],
+      "source_basis": "終了後に見送られた。",
+      "conditions": [
+        "実際に起きた段階が分かるときだけ格納する。調査記事の段階を本人の訪問へ転用しない。"
+      ]
+    },
+    {
+      "candidate_id": "booking_response_03",
+      "label": "所在地の連絡を催促した",
+      "adoption_batch": "existing58",
+      "locations": [
+        "flow.downside"
+      ],
+      "original_label": "催促して返信が来た",
+      "individual_evidence_ids": [
+        "ME-695551"
+      ],
+      "source_basis": "所在地の連絡が来ず、催促したと述べる。",
+      "conditions": [
+        "原典は所在地の連絡が来ず催促したこと。予約への返信すべてが遅いと広げない。本人が残念に感じた場合だけ使う。"
+      ]
+    },
+    {
+      "candidate_id": "booking_flow_04",
+      "label": "入室後にコースの確認があった",
+      "adoption_batch": "existing58",
+      "locations": [
+        "flow.meeting.checks"
+      ],
+      "original_label": "予約内容の再確認があった",
+      "individual_evidence_ids": [
+        "ME-694023"
+      ],
+      "source_basis": "入室時にコースを確認された。",
+      "conditions": [
+        "入室後の確認を本人が経験した時だけ。予約前の連絡を対面の出来事にしない。"
+      ]
+    },
+    {
+      "candidate_id": "access_02",
+      "label": "駅から歩く距離があると感じた",
+      "adoption_batch": "existing58",
+      "locations": [
+        "flow.downside"
+      ],
+      "original_label": "駅から歩く距離があった",
+      "individual_evidence_ids": [
+        "ME-671206",
+        "ME-694759",
+        "ME-660936"
+      ],
+      "source_basis": "駅から距離があると感じた。",
+      "conditions": [
+        "本人が歩いて距離を不便に感じた場合。距離や徒歩分数を補わず、他の部屋や店全体へ一般化しない。"
+      ]
+    },
+    {
+      "candidate_id": "access_04",
+      "label": "場所を探して迷った",
+      "adoption_batch": "existing58",
+      "locations": [
+        "flow.downside"
+      ],
+      "original_label": "場所を探して迷った",
+      "individual_evidence_ids": [
+        "ME-671206"
+      ],
+      "source_basis": "建物を見つけられず迷った。",
+      "conditions": [
+        "本人が実際に迷ったことに限る。案内の誤り、担当者の落ち度、開始の遅れは追加しない。"
+      ]
+    },
+    {
+      "candidate_id": "welcome_03",
+      "label": "明るい応対だった",
+      "adoption_batch": "existing58",
+      "locations": [
+        "ratings.service.note"
+      ],
+      "original_label": "明るい対応だった",
+      "individual_evidence_ids": [
+        "ME-693779",
+        "ME-624755"
+      ],
+      "source_basis": "明るい雰囲気の接客と述べる。",
+      "conditions": [
+        "担当者の実際の応対への印象に限る。性格が常に明るいとの断定にしない。"
+      ]
+    },
+    {
+      "candidate_id": "welcome_05",
+      "label": "親しみやすい応対だった",
+      "adoption_batch": "existing58",
+      "locations": [
+        "ratings.service.note"
+      ],
+      "original_label": "親しみやすかった",
+      "individual_evidence_ids": [
+        "ME-694759",
+        "ME-701182"
+      ],
+      "source_basis": "親しみやすい応対だったと述べる。",
+      "conditions": [
+        "会話のしやすさだけを言いたい場合は既存conversation_style_03を使い、同義語を二重に入れない。"
+      ]
+    },
+    {
+      "candidate_id": "price_clarity_02",
+      "label": "入室後にコース・追加内容を確認して支払った",
+      "adoption_batch": "existing58",
+      "locations": [
+        "flow.meeting.checks"
+      ],
+      "original_label": "入室後に総額を確認",
+      "individual_evidence_ids": [
+        "ME-694023",
+        "ME-692367"
+      ],
+      "source_basis": "入室後にコース・追加内容を確認して支払った。",
+      "conditions": [
+        "原典basisはコース・追加内容の確認と支払。総額を明示して確認したとまでは自動補完しない。"
+      ]
+    },
+    {
+      "candidate_id": "price_clarity_05",
+      "label": "追加内容と料金の説明があった",
+      "adoption_batch": "existing58",
+      "locations": [
+        "flow.meeting.checks",
+        "flow.faceDown.checks",
+        "flow.oilSp.checks",
+        "flow.faceUp.checks",
+        "flow.climax.checks"
+      ],
+      "original_label": "追加料金を先に説明された",
+      "individual_evidence_ids": [
+        "ME-687357",
+        "ME-694023"
+      ],
+      "source_basis": "施術前に追加メニューと費用の案内があった。",
+      "conditions": [
+        "本人の説明を受けた段階がmeetingならそこへ格納。施術途中の提案なら実際の段階へ。価格の正確さや内訳説明の存在を推定しない。"
+      ]
+    },
+    {
+      "candidate_id": "price_clarity_07",
+      "label": "追加内容や料金の説明が分かりにくかった",
+      "adoption_batch": "existing58",
+      "locations": [
+        "flow.downside"
+      ],
+      "original_label": "説明が足りなかった",
+      "individual_evidence_ids": [
+        "ME-655259",
+        "ME-673503"
+      ],
+      "source_basis": "上位追加の違いや掲載価格との差を分かりづらく感じた。",
+      "conditions": [
+        "分かりにくかった対象を追記する。単なる高額・掲載との差だけで説明不足を確定しない。"
+      ]
+    },
+    {
+      "candidate_id": "upsell_01",
+      "label": "追加提案はなかった",
+      "adoption_batch": "existing58",
+      "locations": [
+        "ratings.service.note"
+      ],
+      "original_label": "追加提案はなかった",
+      "individual_evidence_ids": [
+        "ME-693774",
+        "ME-691394"
+      ],
+      "source_basis": "追加メニューを提案されなかったと述べる。",
+      "conditions": [
+        "提案がなかったという本人の経験だけ。追加メニューの不存在、拒否、対応範囲の狭さを意味させない。接客評価に関係した時だけ使う。"
+      ]
+    },
+    {
+      "candidate_id": "upsell_03",
+      "label": "有料追加を勧められた",
+      "adoption_batch": "existing58",
+      "locations": [
+        "flow.meeting.checks",
+        "flow.faceDown.checks",
+        "flow.oilSp.checks",
+        "flow.faceUp.checks",
+        "flow.climax.checks",
+        "flow.after.checks"
+      ],
+      "original_label": "おすすめを提案された",
+      "individual_evidence_ids": [
+        "ME-687357",
+        "ME-676914"
+      ],
+      "source_basis": "おすすめの有料追加を提案された。",
+      "conditions": [
+        "提案された段階に限る。選択・支払・実施の有無は別で、提案だけから実施を補わない。"
+      ]
+    },
+    {
+      "candidate_id": "upsell_04",
+      "label": "追加を断った後も丁寧だった",
+      "adoption_batch": "existing58",
+      "locations": [
+        "ratings.service.note"
+      ],
+      "original_label": "断っても対応は変わらなかった",
+      "individual_evidence_ids": [
+        "ME-678605"
+      ],
+      "source_basis": "追加を断った後も施術が丁寧だったと評価した。",
+      "conditions": [
+        "原典は断った後も施術が丁寧という評価。前後すべての対応が変わらなかったとの比較には広げない。"
+      ]
+    },
+    {
+      "candidate_id": "upsell_05",
+      "label": "追加提案を断りにくく感じた",
+      "adoption_batch": "existing58",
+      "locations": [
+        "ratings.service.note"
+      ],
+      "original_label": "断りにくく感じた",
+      "individual_evidence_ids": [
+        "ME-655259"
+      ],
+      "source_basis": "提案されると断りにくいと本人が述べた。",
+      "conditions": [
+        "本人の感情として記録する。威圧、強制、担当者の意図を追加しない。具体的に困った場合はdownsideにも自由記述できるが自動複製しない。"
+      ]
+    },
+    {
+      "candidate_id": "room_facility_01",
+      "label": "マットで施術",
+      "adoption_batch": "existing58",
+      "locations": [
+        "flow.faceDown.checks",
+        "flow.oilSp.checks",
+        "flow.faceUp.checks",
+        "flow.climax.checks"
+      ],
+      "original_label": "マットで施術",
+      "individual_evidence_ids": [
+        "ME-702159",
+        "ME-691373"
+      ],
+      "source_basis": "マットでの施術を記した。",
+      "conditions": [
+        "実際にマットで施術した段階に限る。部屋全体の設備一覧を各段階へ繰り返し入れない。"
+      ]
+    },
+    {
+      "candidate_id": "room_facility_02",
+      "label": "ベッドで施術",
+      "adoption_batch": "existing58",
+      "locations": [
+        "flow.faceDown.checks",
+        "flow.oilSp.checks",
+        "flow.faceUp.checks",
+        "flow.climax.checks"
+      ],
+      "original_label": "ベッドで施術",
+      "individual_evidence_ids": [
+        "ME-611571"
+      ],
+      "source_basis": "ベッドでの施術を記した。",
+      "conditions": [
+        "実際にベッドで施術した段階だけ。設備があっただけでは選ばない。"
+      ]
+    },
+    {
+      "candidate_id": "cleanliness_01",
+      "label": "部屋が清潔に感じられた",
+      "adoption_batch": "existing58",
+      "locations": [
+        "flow.meeting.note",
+        "flow.faceDown.note",
+        "flow.oilSp.note",
+        "flow.faceUp.note",
+        "flow.climax.note",
+        "flow.after.note"
+      ],
+      "original_label": "部屋が清潔だった",
+      "individual_evidence_ids": [
+        "ME-604702",
+        "ME-694023",
+        "ME-690955"
+      ],
+      "source_basis": "建物や室内を清潔と評価した。",
+      "conditions": [
+        "清潔さに気づいた実際の段階が分かる時だけ。担当者の接客能力の星へ置き換えず、衛生状態の客観検査とも扱わない。"
+      ]
+    },
+    {
+      "candidate_id": "cleanliness_04",
+      "label": "浴室の清掃が気になった",
+      "adoption_batch": "existing58",
+      "locations": [
+        "flow.downside"
+      ],
+      "original_label": "清掃が気になった",
+      "individual_evidence_ids": [
+        "ME-695551",
+        "ME-676632"
+      ],
+      "source_basis": "浴室のカビや汚れが気になった。",
+      "conditions": [
+        "原典は浴室のカビや汚れ。室内全体や担当者の衛生習慣に広げず、本人が見た状態を補う。"
+      ]
+    },
+    {
+      "candidate_id": "comfort_03",
+      "label": "照明が控えめだった",
+      "adoption_batch": "existing58",
+      "locations": [
+        "flow.meeting.note",
+        "flow.faceDown.note",
+        "flow.oilSp.note",
+        "flow.faceUp.note",
+        "flow.climax.note",
+        "flow.after.note"
+      ],
+      "original_label": "照明が控えめ",
+      "individual_evidence_ids": [
+        "ME-688698"
+      ],
+      "source_basis": "部屋の照明が薄暗かったと記す。",
+      "conditions": [
+        "気づいた段階に限る。暗さから雰囲気の良さ、危険性、接客意図を補わない。"
+      ]
+    },
+    {
+      "candidate_id": "amenities_01",
+      "label": "入室後に飲み物が出された",
+      "adoption_batch": "existing58",
+      "locations": [
+        "flow.meeting.checks"
+      ],
+      "original_label": "入室時に飲み物あり",
+      "individual_evidence_ids": [
+        "ME-693774",
+        "ME-694023",
+        "ME-691373"
+      ],
+      "source_basis": "入室後にお茶や飲み物を出された。",
+      "conditions": [
+        "入室後・施術前に本人が受けた提供に限る。飲み物の種類や温度は本人のメモで補う。"
+      ]
+    },
+    {
+      "candidate_id": "amenities_02",
+      "label": "終了後に飲み物があった",
+      "adoption_batch": "existing58",
+      "locations": [
+        "flow.after.checks"
+      ],
+      "original_label": "終了後に飲み物あり",
+      "individual_evidence_ids": [
+        "ME-689417",
+        "ME-684793"
+      ],
+      "source_basis": "終了後に茶を飲んだと記した。",
+      "conditions": [
+        "施術後の飲み物に限る。入室時の提供と取り違えない。"
+      ]
+    },
+    {
+      "candidate_id": "amenities_05",
+      "label": "備品の選択について説明があった",
+      "adoption_batch": "existing58",
+      "locations": [
+        "flow.meeting.checks",
+        "flow.faceDown.checks",
+        "flow.oilSp.checks",
+        "flow.faceUp.checks",
+        "flow.climax.checks",
+        "flow.after.checks"
+      ],
+      "original_label": "備品の説明あり",
+      "individual_evidence_ids": [
+        "ME-624755"
+      ],
+      "source_basis": "使用する備品の選択について説明された。",
+      "conditions": [
+        "原典は使用する備品の選択についての説明。備品の場所や全設備の説明へ広げない。実際に説明された段階へ置く。"
+      ]
+    },
+    {
+      "candidate_id": "shower_05",
+      "label": "お湯が温まるまで待った",
+      "adoption_batch": "existing58",
+      "locations": [
+        "flow.downside"
+      ],
+      "original_label": "お湯が出るまで待った",
+      "individual_evidence_ids": [
+        "ME-684793"
+      ],
+      "source_basis": "お湯が温まるまで待った。",
+      "conditions": [
+        "待ったことを本人が不便に感じた場合に使う。入浴の前後や待ち時間は推測せず必要ならメモする。"
+      ]
+    },
+    {
+      "candidate_id": "shower_06",
+      "label": "浴室が狭く感じられた",
+      "adoption_batch": "existing58",
+      "locations": [
+        "flow.downside"
+      ],
+      "original_label": "浴室が狭かった",
+      "individual_evidence_ids": [
+        "ME-676632"
+      ],
+      "source_basis": "浴室が狭いと感じた。",
+      "conditions": [
+        "本人が実際に使った浴室について。不便がなければ残念ポイントとして強制せず、段階が明確な時のphase.noteでも記録できる。"
+      ]
+    },
+    {
+      "candidate_id": "scent_03",
+      "label": "香水の香りがした",
+      "adoption_batch": "existing58",
+      "locations": [
+        "flow.meeting.note",
+        "flow.faceDown.note",
+        "flow.oilSp.note",
+        "flow.faceUp.note",
+        "flow.climax.note",
+        "flow.after.note"
+      ],
+      "original_label": "香水の香り",
+      "individual_evidence_ids": [
+        "ME-655259"
+      ],
+      "source_basis": "香水の香りがしたと述べる。",
+      "conditions": [
+        "本人が香水と認識した香りに限る。誰の香水か、製品名、好悪や強さは追加しない。"
+      ]
+    },
+    {
+      "candidate_id": "scent_06",
+      "label": "香水の香りが強く感じられた",
+      "adoption_batch": "existing58",
+      "locations": [
+        "flow.downside"
+      ],
+      "original_label": "香りが強く感じられた",
+      "individual_evidence_ids": [
+        "ME-655259"
+      ],
+      "source_basis": "香水の香りが強いと感じた。",
+      "conditions": [
+        "原典は香水。強い香りを不快に感じた時だけdownsideへ。全ての室内臭・体臭へ広げない。scent_03との同時追加で同じ文を繰り返さない。"
+      ]
+    },
+    {
+      "candidate_id": "appearance_02",
+      "label": "自然な雰囲気だった",
+      "adoption_batch": "existing58",
+      "locations": [
+        "ratings.face.note"
+      ],
+      "original_label": "自然な雰囲気",
+      "individual_evidence_ids": [
+        "ME-676632"
+      ],
+      "source_basis": "自然な印象と受け止めた。",
+      "conditions": [
+        "外見についての本人の主観に限る。素顔、加工の有無、性格の自然さを認定しない。"
+      ]
+    },
+    {
+      "candidate_id": "appearance_03",
+      "label": "華やかな雰囲気だった",
+      "adoption_batch": "existing58",
+      "locations": [
+        "ratings.face.note"
+      ],
+      "original_label": "華やかな雰囲気",
+      "individual_evidence_ids": [
+        "ME-694023"
+      ],
+      "source_basis": "華やかなメイクと雰囲気を記した。",
+      "conditions": [
+        "原典は華やかなメイクと雰囲気。衣装・性格・接客の派手さへ自動で広げない。"
+      ]
+    },
+    {
+      "candidate_id": "appearance_04",
+      "label": "落ち着いた雰囲気だった",
+      "adoption_batch": "existing58",
+      "locations": [
+        "ratings.face.note"
+      ],
+      "original_label": "落ち着いた雰囲気",
+      "individual_evidence_ids": [
+        "ME-701966",
+        "ME-680085"
+      ],
+      "source_basis": "落ち着いた雰囲気と感じた。",
+      "conditions": [
+        "見た目の印象に限る。年齢、経験、話し方、常に落ち着いた性格を推定しない。"
+      ]
+    },
+    {
+      "candidate_id": "appearance_06",
+      "label": "スポーティーな印象だった",
+      "adoption_batch": "existing58",
+      "locations": [
+        "ratings.style.note"
+      ],
+      "original_label": "スポーティーな印象",
+      "individual_evidence_ids": [
+        "ME-693779"
+      ],
+      "source_basis": "健康的で運動部のような印象と記した。",
+      "conditions": [
+        "運動歴や健康状態の事実ではない。本人が外見から受けた主観的印象として使う。"
+      ]
+    },
+    {
+      "candidate_id": "conversation_amount_01",
+      "label": "会話が多かった",
+      "adoption_batch": "existing58",
+      "locations": [
+        "ratings.service.note"
+      ],
+      "original_label": "会話が多かった",
+      "individual_evidence_ids": [
+        "ME-687357",
+        "ME-685554",
+        "ME-675282"
+      ],
+      "source_basis": "会話が多かったと明記する。",
+      "conditions": [
+        "会話量の観察だけ。会話が多かったことから楽しい・一方的・多すぎたを補わない。"
+      ]
+    },
+    {
+      "candidate_id": "conversation_amount_03",
+      "label": "施術中の会話は少なめだった",
+      "adoption_batch": "existing58",
+      "locations": [
+        "ratings.service.note"
+      ],
+      "original_label": "会話は少なめ",
+      "individual_evidence_ids": [
+        "ME-691394",
+        "ME-690955"
+      ],
+      "source_basis": "施術中の会話が少なかったと述べる。",
+      "conditions": [
+        "少なさを好悪へ変換しない。気まずさ、無愛想、静かに休めたという満足を推定しない。"
+      ]
+    },
+    {
+      "candidate_id": "conversation_amount_05",
+      "label": "場面によって会話量が変わった",
+      "adoption_batch": "existing58",
+      "locations": [
+        "ratings.service.note"
+      ],
+      "original_label": "場面によって会話量が変わった",
+      "individual_evidence_ids": [
+        "ME-697480",
+        "ME-666056",
+        "ME-679400"
+      ],
+      "source_basis": "場面により会話量が変わったと記す。",
+      "conditions": [
+        "本人が覚えている場面と増減を短く補足する。原典の場面順を本人の体験へ転用しない。具体化できなければ選択肢の固定追加を急がない。"
+      ]
+    },
+    {
+      "candidate_id": "conversation_amount_06",
+      "label": "こちらから話題を振ることが多かった",
+      "adoption_batch": "existing58",
+      "locations": [
+        "ratings.service.note"
+      ],
+      "original_label": "こちらから話すことが多かった",
+      "individual_evidence_ids": [
+        "ME-690955"
+      ],
+      "source_basis": "相手からの話題提供が少なく、質問を起点にした。",
+      "conditions": [
+        "相手から話題が少なく本人の質問を起点にした場合。相手が話す意思を持たなかったとは推定しない。"
+      ]
+    },
+    {
+      "candidate_id": "professionalism_05",
+      "label": "慣れた対応だった",
+      "adoption_batch": "existing58",
+      "locations": [
+        "ratings.service.note"
+      ],
+      "original_label": "慣れた対応だった",
+      "individual_evidence_ids": [
+        "ME-687480"
+      ],
+      "source_basis": "慣れた施術・案内と受け止めた。",
+      "conditions": [
+        "実際の案内・応対への印象として使う。施術の手つきだけを指す場合は既存technique_01を使い、勤続年数や職歴を推定しない。"
+      ]
+    },
+    {
+      "candidate_id": "professionalism_07",
+      "label": "準備が慌ただしく感じられた",
+      "adoption_batch": "existing58",
+      "locations": [
+        "ratings.service.note"
+      ],
+      "original_label": "慌ただしく感じた",
+      "individual_evidence_ids": [
+        "ME-692367"
+      ],
+      "source_basis": "準備が間に合わず、慌ただしいと感じた。",
+      "conditions": [
+        "原典は準備が間に合わない場面。対応全体がいつも慌ただしいとはしない。長い準備時間とは別の主観で、同一場面の重複記述を避ける。"
+      ]
+    },
+    {
+      "candidate_id": "assessment_05",
+      "label": "こちらから希望する部位を伝えた",
+      "adoption_batch": "existing58",
+      "locations": [
+        "ratings.massage.note"
+      ],
+      "original_label": "こちらから希望を伝えた",
+      "individual_evidence_ids": [
+        "ME-691394"
+      ],
+      "source_basis": "疲れた部位の希望を伝えた。",
+      "conditions": [
+        "原典は疲れた部位の希望。伝えただけで確認・調整・満足があったと補わない。"
+      ]
+    },
+    {
+      "candidate_id": "technique_05",
+      "label": "手順が一定だった",
+      "adoption_batch": "existing58",
+      "locations": [
+        "ratings.massage.note"
+      ],
+      "original_label": "手順が一定だった",
+      "individual_evidence_ids": [
+        "ME-680085"
+      ],
+      "source_basis": "一定の手順に沿った施術と感じた。",
+      "conditions": [
+        "手順が一定という本人の印象。マニュアルの存在、手抜き、機械的な意図を確定しない。"
+      ]
+    },
+    {
+      "candidate_id": "focus_02",
+      "label": "背中を中心にケア",
+      "adoption_batch": "existing58",
+      "locations": [
+        "flow.faceDown.checks",
+        "flow.oilSp.checks",
+        "flow.faceUp.checks",
+        "flow.climax.checks"
+      ],
+      "original_label": "背中を中心にケア",
+      "individual_evidence_ids": [
+        "ME-651913"
+      ],
+      "source_basis": "背面を長めに丁寧にほぐした。",
+      "conditions": [
+        "実際の段階が分かる時だけ。うつ伏せ前半と自動決定しない。施術時間の長さや丁寧さはメモで補う。"
+      ]
+    },
+    {
+      "candidate_id": "focus_04",
+      "label": "ふくらはぎを中心にケア",
+      "adoption_batch": "existing58",
+      "locations": [
+        "flow.faceDown.checks",
+        "flow.oilSp.checks",
+        "flow.faceUp.checks",
+        "flow.climax.checks"
+      ],
+      "original_label": "ふくらはぎを中心にケア",
+      "individual_evidence_ids": [
+        "ME-675068"
+      ],
+      "source_basis": "ふくらはぎの施術が長かった。",
+      "conditions": [
+        "実際に行われた段階だけ。部位から体勢や順番を推測しない。長めだったことは本人の記憶で補う。"
+      ]
+    },
+    {
+      "candidate_id": "focus_08",
+      "label": "疲れた部位を重点的にケア",
+      "adoption_batch": "existing58",
+      "locations": [
+        "ratings.massage.note"
+      ],
+      "original_label": "疲れた部位を重点的にケア",
+      "individual_evidence_ids": [
+        "ME-691394"
+      ],
+      "source_basis": "本人が疲れた部位を重点的に施術した。",
+      "conditions": [
+        "重点的にケアされた事実まで。症状が改善した、治療されたという効果は補わない。assessment_07と同じ内容しか増えない場合は併記しない。"
+      ]
+    },
+    {
+      "candidate_id": "method_02",
+      "label": "ドライマッサージ",
+      "adoption_batch": "existing58",
+      "locations": [
+        "flow.faceDown.checks",
+        "flow.oilSp.checks",
+        "flow.faceUp.checks",
+        "flow.climax.checks"
+      ],
+      "original_label": "ドライマッサージ",
+      "individual_evidence_ids": [
+        "ME-697079",
+        "ME-688698"
+      ],
+      "source_basis": "ドライマッサージから始まった。",
+      "conditions": [
+        "実際にドライで行われた段階だけ。指圧と同義ではないため既存の指圧へ自動統合しない。"
+      ]
+    },
+    {
+      "candidate_id": "method_03",
+      "label": "オイルマッサージ",
+      "adoption_batch": "existing58",
+      "locations": [
+        "flow.faceDown.checks",
+        "flow.oilSp.checks",
+        "flow.faceUp.checks",
+        "flow.climax.checks"
+      ],
+      "original_label": "オイルマッサージ",
+      "individual_evidence_ids": [
+        "ME-701966",
+        "ME-697480"
+      ],
+      "source_basis": "オイルマッサージを受けた。",
+      "conditions": [
+        "実際に受けた段階だけ。オイル使用だけで手技・効果・施術範囲を補わない。"
+      ]
+    },
+    {
+      "candidate_id": "pace_of_time_01",
+      "label": "施術時間は十分に感じられた",
+      "adoption_batch": "existing58",
+      "locations": [
+        "ratings.massage.note"
+      ],
+      "original_label": "十分な施術時間",
+      "individual_evidence_ids": [
+        "ME-668594"
+      ],
+      "source_basis": "時間を通して十分な施術と感じた。",
+      "conditions": [
+        "主観的な十分さとして記録し、予約時間すべてが施術時間だったと断定しない。"
+      ]
+    },
+    {
+      "candidate_id": "pace_of_time_02",
+      "label": "施術前の準備時間が長く感じられた",
+      "adoption_batch": "existing58",
+      "locations": [
+        "flow.meeting.note"
+      ],
+      "original_label": "準備時間が長かった",
+      "individual_evidence_ids": [
+        "ME-611571",
+        "ME-692367",
+        "ME-691373"
+      ],
+      "source_basis": "開始前の準備に時間がかかった。",
+      "conditions": [
+        "施術前の準備に限る。本人の体感で、具体的な分数を作らない。長さだけで後半短縮や担当者の不手際を推定しない。"
+      ]
+    },
+    {
+      "candidate_id": "pace_of_time_03",
+      "label": "途中で準備待ちがあった",
+      "adoption_batch": "existing58",
+      "locations": [
+        "flow.faceDown.checks",
+        "flow.oilSp.checks",
+        "flow.faceUp.checks",
+        "flow.climax.checks"
+      ],
+      "original_label": "途中で待ち時間があった",
+      "individual_evidence_ids": [
+        "ME-611571"
+      ],
+      "source_basis": "途中で準備待ちの時間があった。",
+      "conditions": [
+        "実際に待った段階が分かる時だけ。待ち時間やその理由が不明なら補完しない。"
+      ]
+    },
+    {
+      "candidate_id": "pace_of_time_04",
+      "label": "後半の施術時間を短く感じた",
+      "adoption_batch": "existing58",
+      "locations": [
+        "flow.downside"
+      ],
+      "original_label": "後半が駆け足だった",
+      "individual_evidence_ids": [
+        "ME-611571"
+      ],
+      "source_basis": "序盤の準備が長く、後半の施術が短めになった。",
+      "conditions": [
+        "原典は序盤準備が長く後半の施術が短め。手技が速かった、急いだ、意図的な短縮だったとはしない。"
+      ]
+    },
+    {
+      "candidate_id": "pace_of_time_05",
+      "label": "予約時間より早く終わった",
+      "adoption_batch": "existing58",
+      "locations": [
+        "flow.downside"
+      ],
+      "original_label": "予定より早く終わった",
+      "individual_evidence_ids": [
+        "ME-688337",
+        "ME-676632",
+        "ME-691373"
+      ],
+      "source_basis": "予約時間より早く終了したと述べる。",
+      "conditions": [
+        "本人が予定と終了を比較でき不満だった時。予約時間に準備・施術・退室の何を含むか、開始/終了時刻と概算の区別を補足し、契約違反を自動認定しない。"
+      ]
+    },
+    {
+      "candidate_id": "comfort_distance_01",
+      "label": "距離感が自分にちょうどよかった",
+      "adoption_batch": "existing58",
+      "locations": [
+        "ratings.service.note"
+      ],
+      "original_label": "自然な距離感",
+      "individual_evidence_ids": [
+        "ME-685554"
+      ],
+      "source_basis": "施術中の距離感がちょうどよいと感じた。",
+      "conditions": [
+        "本人が心地よいと感じた距離感だけ。親密さ・恋愛感情・性的な許容範囲を推定しない。"
+      ]
+    },
+    {
+      "candidate_id": "comfort_distance_02",
+      "label": "リラックスできた",
+      "adoption_batch": "existing58",
+      "locations": [
+        "ratings.service.note",
+        "ratings.massage.note",
+        "flow.meeting.note",
+        "flow.faceDown.note",
+        "flow.oilSp.note",
+        "flow.faceUp.note",
+        "flow.climax.note",
+        "flow.after.note"
+      ],
+      "original_label": "リラックスできた",
+      "individual_evidence_ids": [
+        "ME-685554",
+        "ME-651913"
+      ],
+      "source_basis": "施術や会話でリラックスできた。",
+      "conditions": [
+        "会話・応対が理由ならservice、施術が理由ならmassage。原因を覚えていなければ星の理由へ自動投入せず実際のphase.noteで記録する。両軸へ自動複製しない。"
+      ]
+    },
+    {
+      "candidate_id": "comfort_distance_03",
+      "label": "対面時に緊張した",
+      "adoption_batch": "existing58",
+      "locations": [
+        "flow.meeting.note"
+      ],
+      "original_label": "近さに緊張した",
+      "individual_evidence_ids": [
+        "ME-687357"
+      ],
+      "source_basis": "シャワー前の接客で緊張したと述べる。",
+      "conditions": [
+        "原典はシャワー前の接客で緊張した事実。近さが原因、拒否感、性的な緊張とまでは確認できないため元ラベルの因果を外す。"
+      ]
+    },
+    {
+      "candidate_id": "scope_confirmation_01",
+      "label": "対応範囲の説明があった",
+      "adoption_batch": "existing58",
+      "locations": [
+        "flow.meeting.checks",
+        "flow.faceDown.checks",
+        "flow.oilSp.checks",
+        "flow.faceUp.checks",
+        "flow.climax.checks",
+        "flow.after.checks"
+      ],
+      "original_label": "対応範囲の説明があった",
+      "individual_evidence_ids": [
+        "ME-679400"
+      ],
+      "source_basis": "対応範囲を口頭で説明された。",
+      "conditions": [
+        "本人が口頭説明を受けた段階へ置く。説明された範囲と実施内容を分け、寛容度や追加対応を推測しない。"
+      ]
+    },
+    {
+      "candidate_id": "scope_confirmation_02",
+      "label": "希望する施術部位を尋ねられた",
+      "adoption_batch": "existing58",
+      "locations": [
+        "ratings.massage.note"
+      ],
+      "original_label": "希望を確認された",
+      "individual_evidence_ids": [
+        "ME-624755"
+      ],
+      "source_basis": "希望する箇所を尋ねられた。",
+      "conditions": [
+        "原典は希望する箇所の質問。対応範囲・苦手な行為・同意全般の確認に広げない。"
+      ]
+    },
+    {
+      "candidate_id": "scope_confirmation_05",
+      "label": "断った施術手順は行われなかった",
+      "adoption_batch": "existing58",
+      "locations": [
+        "ratings.service.note"
+      ],
+      "original_label": "断った内容は行われなかった",
+      "individual_evidence_ids": [
+        "ME-680176"
+      ],
+      "source_basis": "本人が一つの施術手順を断り、行われなかった。",
+      "conditions": [
+        "原典は一つの施術手順を断り実施されなかった事実。すべての希望・拒否への対応や、未確認の行為まで一般化しない。"
+      ]
+    },
+    {
+      "candidate_id": "aftercare_02",
+      "label": "帰り支度を急かされなかった",
+      "adoption_batch": "existing58",
+      "locations": [
+        "flow.after.checks"
+      ],
+      "original_label": "帰り支度を急かされなかった",
+      "individual_evidence_ids": [
+        "ME-689417"
+      ],
+      "source_basis": "予約時間後も帰り支度を急かされなかった。",
+      "conditions": [
+        "帰り支度の場面の本人の受け止めに限る。施術時間が延長されたとはしない。"
+      ]
+    },
+    {
+      "candidate_id": "satisfaction_05",
+      "label": "受付・案内が丁寧だった",
+      "adoption_batch": "existing58",
+      "locations": [
+        "ratings.service.note",
+        "flow.meeting.note"
+      ],
+      "original_label": "丁寧な対応が良かった",
+      "individual_evidence_ids": [
+        "ME-604702",
+        "ME-677219"
+      ],
+      "source_basis": "丁寧な受付・案内を評価した。",
+      "conditions": [
+        "予約スタッフの応対だけを指す場合は担当者への接客星へ混ぜず、対面時のphase.note等で主体を明記する。"
+      ]
+    },
+    {
+      "candidate_id": "downside_07",
+      "label": "所在地や入口の案内が分かりにくかった",
+      "adoption_batch": "existing58",
+      "locations": [
+        "flow.downside"
+      ],
+      "original_label": "案内が分かりにくかった",
+      "individual_evidence_ids": [
+        "ME-671206",
+        "ME-695551"
+      ],
+      "source_basis": "所在地や入口の案内に困った。",
+      "conditions": [
+        "所在地・入口に関する本人の感想として使う。予約内容全般の不一致や説明不足へ拡張しない。access_04と同じ出来事なら一つの記述へまとめる。"
+      ]
+    },
+    {
+      "candidate_id": "value_03",
+      "label": "内容に対して割高に感じた",
+      "adoption_batch": "existing58",
+      "locations": [
+        "flow.downside"
+      ],
+      "original_label": "内容に対して割高",
+      "individual_evidence_ids": [
+        "ME-676914",
+        "ME-687360"
+      ],
+      "source_basis": "支払額に対して内容を割高と感じた。",
+      "conditions": [
+        "本人の支払額と受けた内容に対する主観。価格の客観的な不当性、他の利用者の支払額を断定しない。"
+      ]
+    },
+    {
+      "candidate_id": "comparison_03",
+      "label": "前回より物足りなく感じた",
+      "adoption_batch": "existing58",
+      "locations": [
+        "flow.downside"
+      ],
+      "original_label": "前回より物足りない",
+      "individual_evidence_ids": [
+        "ME-687360"
+      ],
+      "source_basis": "以前の同じ担当者との体験より物足りないと感じた。",
+      "conditions": [
+        "同じ担当者の実体験との比較であることと比較対象を明記する。他人の口コミや別担当者を前回扱いせず、何が物足りないかは本人のメモで補う。"
+      ]
+    }
+  ],
+  "historical_plans": {
+    "snapshot_file": "next-adoption-ledger.json",
+    "snapshot_csv": "next-adoption-ledger.csv",
+    "classifications_and_implemented_flags": "retained_at_their_original_29_candidate_planning_stage",
+    "latest_state": "this_decision_and_current_application",
+    "unselected_research_candidates": "retained_for_reference_only_no_new_question_implementation_approved"
+  },
+  "validation_record": "adoption58-validation.json",
+  "ui_screenshots": [
+    "screenshots/adoption58-desktop.png",
+    "screenshots/adoption58-mobile-390.png",
+    "screenshots/adoption58-mobile-320.png"
+  ],
+  "git": {
+    "commit": false,
+    "push": false
+  }
+}

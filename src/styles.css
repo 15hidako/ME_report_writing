@@ -138,6 +138,41 @@ input:focus, textarea:focus, select:focus {
 
 .phase { border-bottom: 1px solid #2c2545; padding-bottom: 8px; margin-bottom: 8px; }
 
+.candidate-details { grid-column: 1 / -1; width: 100%; min-width: 0; }
+details.sec .candidate-details > summary {
+  color: var(--text-dim);
+  font-size: 13px;
+  font-weight: 400;
+  min-height: 44px;
+  padding: 12px 0;
+}
+.candidate-details p, .legacy-caption {
+  color: var(--text-dim);
+  font-size: 12px;
+  margin: 0 0 8px;
+  line-height: 1.6;
+}
+.candidate-details h5 { font-size: 12px; color: var(--text-dim); margin: 10px 0 6px; }
+.candidate-details .chips { margin-top: 0; }
+.candidate-details .candidate-status { color: var(--gold); margin: 0; }
+.legacy-values { width: 100%; }
+.selection-order { width: 100%; min-width: 0; }
+.selection-order-caption { color: var(--text-dim); font-size: 12px; margin: 0 0 6px; line-height: 1.6; }
+.selection-order ol { display: flex; flex-wrap: wrap; gap: 6px 28px; margin: 0 0 8px; padding-left: 24px; font-size: 13px; line-height: 1.6; }
+.selection-order li { max-width: 100%; overflow-wrap: anywhere; }
+#visit-form .rating-row { grid-template-columns: minmax(0, 110px) minmax(0, 1fr); }
+#visit-form .rating-row input { min-width: 0; }
+#visit-form .chip { min-height: 44px; max-width: 100%; overflow-wrap: anywhere; text-align: left; }
+#visit-form .stars button.star { min-height: 44px; }
+#visit-form button:focus-visible, #visit-form summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+@media (max-width: 380px) {
+  #visit-form .rating-row { grid-template-columns: 1fr; }
+  #visit-form .stars { grid-column: 1; }
+}
+
 /* ボタン */
 button {
   font-family: inherit;

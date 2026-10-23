@@ -36,8 +36,10 @@ export interface BasicInfo {
   readonly age: number | null;
   readonly ageIsEstimate: boolean;
   readonly course: string;
+  readonly courseFee?: number | null;
   readonly optionSystem: string;
   readonly optionChosen: string;
+  readonly optionFee?: number | null;
   readonly nominationFee: number | null;
   readonly roomType: RoomType;
   readonly bookingMethod: BookingMethod;

@@ -1,0 +1,61 @@
+{
+  "scope": "read_only_feasibility_review_no_app_changes",
+  "current_path": {
+    "form": "src/ui/form.ts:renderForm -> collectRecord",
+    "interaction": "src/ui/widgets.ts:chipGroup/bindChips/chipValues; starWidget/bindStars/starValue",
+    "persistence": "src/main.ts:submitForm -> src/storage.ts:VisitStore.save -> src/record-validation.ts:parseVisitRecords",
+    "article": "src/prompt/serialize.ts:serializeRecord -> src/prompt/build-prompt.ts:buildSinglePrompt/buildRevisitPrompt/buildMatomePrompt"
+  },
+  "routes": [
+    {
+      "route": "existing_ratings_note",
+      "storage": "ratings.{face,style,service,massage,ero,tolerance}.note:string",
+      "serialization": "ratingsBlock prints stars plus nonempty note",
+      "schema": "rating.note is required string with no length enum",
+      "constraint": "Only six rating-axis reasons fit semantically. Existing value is editable text; any tap-fill behavior must preserve user edits and avoid repeated insertion."
+    },
+    {
+      "route": "existing_flow_checks",
+      "storage": "flow.{meeting,faceDown,oilSp,faceUp,climax,after}.checks:string[]",
+      "serialization": "flowBlock prints checks under phase label",
+      "schema": "phase.checks is required array of strings; no enum or maxItems",
+      "constraint": "Only events tied to that phase fit. renderForm renders only FLOW_PHASES choices; stored strings absent from current choice list are invisible during edit and dropped by collectRecord. Renamed labels have the same risk."
+    },
+    {
+      "route": "new_structured_fields",
+      "storage": "new VisitRecord fields",
+      "serialization": "No automatic article visibility; serializeRecord must explicitly include any field",
+      "schema": "New required properties would reject older records without normalization/migration; optional properties can preserve old imports",
+      "constraint": "Schema permits extra properties, but renderForm/collectRecord rebuild fixed fields and omit unknown fields on edit; validation, import/export, backup, fixtures and prompt paths need coordinated review."
+    }
+  ],
+  "existing_fees": {
+    "fields": "basic.courseFee?:number|null, optionFee?:number|null, nominationFee:number|null, optionSystem:string, optionChosen:string",
+    "form": "courseFee choices 10000–30000円 in 1000円 steps with legacy-value option; optionFee/nominationFee numeric inputs",
+    "validation": "feeValue accepts empty as null and only nonnegative safe integers; schema fee same",
+    "article": "serializeRecord includes optionSystem and optionChosen, but omits courseFee, optionFee, nominationFee and bookingMethod",
+    "missing": "No explicit paid-total, discount amount, or price-clarity field"
+  },
+  "focused_verification_if_implemented": [
+    "For ratings.note reuse: selected phrase plus manual edits survives collectRecord, save/load, edit, import/export, and appears once with its star in serializeRecord.",
+    "For flow.checks reuse: only phase-correct choices are serialized under their phase; legacy and unknown stored strings survive an edit or are explicitly handled; no global observation is silently cast as a phase event.",
+    "For new fields: old v1 JSON imports and re-saves safely; new values survive save/load/export/import/backup restore; schema rejects malformed values and serializeRecord includes only intended facts.",
+    "Fee changes: null versus 0 and legacy courseFee values retain existing behavior; numeric values appear in article output only if deliberately serialized."
+  ],
+  "sources": [
+    "src/types.ts:16-104,105-164",
+    "src/ui/form.ts:9-44,52-73,95-105,208-299",
+    "src/ui/widgets.ts:3-78",
+    "src/prompt/serialize.ts:9-100",
+    "src/prompt/build-prompt.ts:43-76,104-117",
+    "src/record-validation.ts:16-70",
+    "schema/visit-record.schema.json:59-190,194-342,403-445",
+    "src/storage.ts:17-61,80-118",
+    "src/course-selection.test.ts",
+    "src/cost-storage.test.ts",
+    "src/ui-regression.test.ts",
+    "src/prompt/build-prompt.test.ts",
+    "src/storage.test.ts"
+  ],
+  "review_phase": "pre-integration feasibility snapshot; current result in integration-validation.json"
+}
