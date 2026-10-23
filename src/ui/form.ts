@@ -1,14 +1,25 @@
-import type { BookingMethod, CupImpression, RepeatIntent, RoomType, TimeSlot, VisitRecord } from '../types';
+import type { BookingMethod, CupImpression, RepeatIntent, RoomType, SpeechTopic, TimeSlot, VisitOption, VisitRecord } from '../types';
 import {
   BODY_LABELS, CUP_IMPRESSION_LABELS, FLOW_PHASES, GENRE_LABELS,
-  RATING_LABELS, REPEAT_LABELS, SPEC_NOTE_LABELS,
+  RATING_LABELS, SPEC_NOTE_LABELS,
 } from '../types';
 import { localDate } from '../date';
 import { chipGroup, chipValues, esc, starValue, starWidget } from './widgets';
 import { renderDownsideSuggestions, renderFlowChecks, renderNoteSuggestions, renderPhaseNoteSuggestions } from './questionnaire-candidates';
+import { MAX_OPTIONS, OPTION_TYPE_LABELS } from '../options';
+import { renderVoiceFields } from './voice-patterns';
 
 const COURSE_TIMES = [70, 80, 90, 100, 110, 120].map((minutes) => `${minutes}分`);
 const COURSE_FEES = Array.from({ length: 21 }, (_, index) => 10000 + index * 1000);
+const LOCATION_OPTIONS = {
+  prefecture: [
+    { value: '東京都', label: '東京' },
+    { value: '神奈川県', label: '神奈川' },
+  ],
+  area: ['武蔵小杉', '恵比寿', '中目黒', '新宿', '蒲田'].map((value) => ({ value, label: value })),
+} as const;
+
+type LocationField = keyof typeof LOCATION_OPTIONS;
 
 function input(name: string, label: string, value = '', placeholder = '', type = 'text'): string {
   return `<label class="field"><span>${label}</span>
@@ -34,6 +45,20 @@ function courseFields(value: string): string {
   </div>`;
 }
 
+function locationField(name: LocationField, label: string, value: string): string {
+  const choices = LOCATION_OPTIONS[name];
+  const other = value !== '' && !choices.some((choice) => choice.value === value);
+  return `<label class="field"><span>${label}</span><select name="${name}" required aria-controls="${name}-other-field">
+    <option value="" disabled ${value === '' ? 'selected' : ''}>未選択</option>
+    ${choices.map((choice) => `<option value="${choice.value}" ${value === choice.value ? 'selected' : ''}>${choice.label}</option>`).join('')}
+    <option value="other" ${other ? 'selected' : ''}>その他</option>
+  </select></label>
+  <div id="${name}-other-field" ${other ? '' : 'hidden'}>
+    <label class="field"><span>その他の${name === 'prefecture' ? '都道府県' : 'エリア(駅)'}</span>
+      <input name="${name}Other" type="text" value="${esc(other ? value : '')}" ${other ? 'required' : 'disabled'} /></label>
+  </div>`;
+}
+
 function courseFeeSelect(value: number | null | undefined): string {
   const selected = value === null || value === undefined ? '' : String(value);
   const legacy = value !== null && value !== undefined && !COURSE_FEES.includes(value);
@@ -42,6 +67,36 @@ function courseFeeSelect(value: number | null | undefined): string {
     ${COURSE_FEES.map((fee) => `<option value="${fee}" ${selected === String(fee) ? 'selected' : ''}>${fee.toLocaleString('ja-JP')}円</option>`).join('')}
     ${legacy ? `<option value="${esc(selected)}" selected>${esc(value.toLocaleString('ja-JP'))}円（既存の値）</option>` : ''}
   </select></label>`;
+}
+
+function optionItem(index: number, option?: VisitOption): string {
+  const type = option?.type ?? '';
+  const label = `オプション${index + 1}`;
+  const custom = type !== '' && !Object.hasOwn(OPTION_TYPE_LABELS, type);
+  return `<fieldset class="option-item" data-option-index="${index}">
+    <legend>${label}</legend>
+    <label class="field"><span>${label} 種類</span><select name="optionType_${index}">
+      <option value="" ${type === '' ? 'selected' : ''}>未選択</option>
+      ${Object.entries(OPTION_TYPE_LABELS).map(([value, text]) => `<option value="${value}" ${type === value ? 'selected' : ''}>${text}</option>`).join('')}
+      ${custom ? `<option value="${esc(type)}" selected>${esc(type)}（保存済みの種類）</option>` : ''}
+    </select></label>
+    ${input(`optionDetail_${index}`, `${label} 種類詳細`, option?.detail ?? '', '衣装の内容、追加内容など')}
+    ${feeInput(`optionPrice_${index}`, `${label} 価格`, option?.price)}
+  </fieldset>`;
+}
+
+function optionFields(options: readonly VisitOption[] | undefined, legacy: string): string {
+  const count = options === undefined ? '' : String(options.length);
+  return `<label class="field"><span>オプションのタイプ数</span><select name="optionCount" aria-controls="option-fields">
+    <option value="" ${count === '' ? 'selected' : ''}>未確認</option>
+    ${Array.from({ length: MAX_OPTIONS + 1 }, (_, index) => `<option value="${index}" ${count === String(index) ? 'selected' : ''}>${index === 0 ? '0種類（なし）' : `${index}種類`}</option>`).join('')}
+  </select></label>
+  <div id="option-fields">${options?.map((option, index) => optionItem(index, option)).join('') ?? ''}</div>
+  <p class="field-hint" id="option-count-status" role="status" aria-live="polite"></p>
+  ${legacy === '' ? '<input type="hidden" name="optionSystem" value="" />' : `<details class="candidate-details">
+    <summary>以前のオプション体系</summary>
+    ${input('optionSystem', '保存済みの自由記述', legacy)}
+  </details>`}`;
 }
 
 function textarea(name: string, label: string, value = '', placeholder = ''): string {
@@ -84,8 +139,8 @@ export function renderForm(record: VisitRecord | null, revisitOf: VisitRecord | 
     <label class="field"><span>時間帯</span><select name="timeSlot">
       ${(['morning', 'afternoon', 'evening', 'night'] as TimeSlot[]).map((t) => `<option value="${t}" ${(record?.basic.timeSlot ?? 'evening') === t ? 'selected' : ''}>${{ morning: '午前', afternoon: '午後', evening: '夕方', night: '夜' }[t]}</option>`).join('')}
     </select></label>
-    ${input('prefecture', '都道府県(wakustカテゴリー)', b?.prefecture ?? '', '東京都')}
-    ${input('area', 'エリア(駅)', b?.area ?? '', '恵比寿・中目黒')}
+    ${locationField('prefecture', '都道府県(wakustカテゴリー)', b?.prefecture ?? '')}
+    ${locationField('area', 'エリア(駅)', b?.area ?? '')}
     ${input('shopName', '店名(有料部でのみ開示)', b?.shopName ?? '')}
     ${input('shopUrl', '店URL', b?.shopUrl ?? '', 'https://')}
     ${input('therapistName', 'セラピスト名(有料部でのみ開示)', b?.therapistName ?? '')}
@@ -97,9 +152,9 @@ export function renderForm(record: VisitRecord | null, revisitOf: VisitRecord | 
     </div>
     ${courseFields(record?.basic.course ?? '')}
     ${courseFeeSelect(record?.basic.courseFee)}
-    ${input('optionSystem', 'オプション体系', b?.optionSystem ?? '', '3種類(4K・5K・6K)')}
+    ${optionFields(record?.basic.options, b?.optionSystem ?? '')}
     ${input('optionChosen', '選択したオプション', record?.basic.optionChosen ?? '', '6K')}
-    ${feeInput('optionFee', 'オプション代', record?.basic.optionFee)}
+    ${feeInput('optionFee', '今回のオプション代合計', record?.basic.optionFee)}
     ${feeInput('nominationFee', '指名料', record?.basic.nominationFee)}
     <label class="field"><span>部屋タイプ</span><select name="roomType">
       ${(['mansion', 'room', 'other'] as RoomType[]).map((t) => `<option value="${t}" ${(b?.roomType ?? 'mansion') === t ? 'selected' : ''}>${{ mansion: 'マンション型', room: 'ルーム型', other: 'その他' }[t]}</option>`).join('')}
@@ -135,13 +190,7 @@ export function renderForm(record: VisitRecord | null, revisitOf: VisitRecord | 
 
   <details class="sec" open>
     <summary>E. 臨場感素材</summary>
-    ${input('herLine1', '彼女のセリフ 1', record?.voice.herLines[0] ?? '', '「気持ちいいですか〜♡」')}
-    ${input('herLine2', '彼女のセリフ 2', record?.voice.herLines[1] ?? '')}
-    ${input('herLine3', '彼女のセリフ 3', record?.voice.herLines[2] ?? '')}
-    ${input('inner1', '心の声・ツッコミ 1', record?.voice.innerVoice[0] ?? '', '(今は聞かないでくれ…)')}
-    ${input('inner2', '心の声・ツッコミ 2', record?.voice.innerVoice[1] ?? '')}
-    ${input('titleHook', 'タイトル用フック一言', record?.voice.titleHook ?? '', '元メンエス経験者のKWKWテクがヤバい')}
-    <h4>リピート意向</h4>${chipGroup('repeatIntent', Object.entries(REPEAT_LABELS).map(([value, label]) => ({ value, label })), [record?.voice.repeatIntent ?? 'unsure'], false)}
+    ${renderVoiceFields(record?.voice)}
   </details>
 
   <details class="sec">
@@ -153,6 +202,27 @@ export function renderForm(record: VisitRecord | null, revisitOf: VisitRecord | 
     <button type="submit" class="primary">保存</button>
   </div>
 </form>`;
+}
+
+export function bindLocationFields(root: HTMLElement, onChange: () => void): void {
+  for (const name of Object.keys(LOCATION_OPTIONS) as LocationField[]) {
+    const select = root.querySelector<HTMLSelectElement>(`select[name="${name}"]`);
+    const otherField = root.querySelector<HTMLElement>(`#${name}-other-field`);
+    const otherInput = root.querySelector<HTMLInputElement>(`input[name="${name}Other"]`);
+    if (select === null || otherField === null || otherInput === null) throw new Error('所在地の入力欄が見つかりません');
+    select.value = select.querySelector<HTMLOptionElement>('option[selected]')?.value ?? '';
+    const syncOther = (): void => {
+      const active = select.value === 'other';
+      otherField.hidden = !active;
+      otherInput.disabled = !active;
+      otherInput.required = active;
+    };
+    syncOther();
+    select.addEventListener('change', () => {
+      syncOther();
+      onChange();
+    });
+  }
 }
 
 export function bindCourseFields(root: HTMLElement, onChange: () => void): void {
@@ -178,6 +248,46 @@ export function bindCourseFields(root: HTMLElement, onChange: () => void): void 
     onChange();
   });
   fee.addEventListener('change', onChange);
+}
+
+export function bindOptionFields(root: HTMLElement, onChange: () => void): void {
+  const count = root.querySelector<HTMLSelectElement>('select[name="optionCount"]');
+  const fields = root.querySelector<HTMLElement>('#option-fields');
+  const status = root.querySelector<HTMLElement>('#option-count-status');
+  if (count === null || fields === null || status === null) throw new Error('オプションの入力欄が見つかりません');
+  for (const select of [count, ...fields.querySelectorAll<HTMLSelectElement>('select')]) {
+    select.value = select.querySelector<HTMLOptionElement>('option[selected]')?.value ?? '';
+  }
+  const sync = (): void => {
+    const active = optionCountValue(count.value) ?? 0;
+    for (let index = fields.children.length; index < active; index++) {
+      fields.insertAdjacentHTML('beforeend', optionItem(index));
+    }
+    for (const fieldset of fields.querySelectorAll<HTMLFieldSetElement>('[data-option-index]')) {
+      const hidden = Number(fieldset.dataset.optionIndex) >= active;
+      fieldset.hidden = hidden;
+      fieldset.disabled = hidden;
+    }
+  };
+  sync();
+  root.addEventListener('change', (event) => {
+    if (event.target === count) {
+      sync();
+      status.textContent = count.value === '' ? 'オプションのタイプ数は未確認です。' : `${count.value}種類の入力欄を表示しています。`;
+      onChange();
+    } else if (event.target instanceof HTMLSelectElement && fields.contains(event.target)) {
+      onChange();
+    }
+  });
+}
+
+function optionCountValue(value: string): number | undefined {
+  if (value === '') return undefined;
+  const count = Number(value);
+  if (!/^\d+$/.test(value) || !Number.isInteger(count) || count > MAX_OPTIONS) {
+    throw new Error('オプションのタイプ数を選び直してください');
+  }
+  return count;
 }
 
 function val(form: HTMLFormElement, name: string): string {
@@ -225,7 +335,10 @@ export function collectRecord(
   }
   const bestMoment = val(form, 'bestMoment');
   if (bestMoment === '') throw new Error('「一番良かった瞬間」は必須です');
-  if (val(form, 'prefecture') === '' || val(form, 'area') === '') {
+  const locationValue = (name: LocationField): string => val(form, name) === 'other' ? val(form, `${name}Other`) : val(form, name);
+  const prefecture = locationValue('prefecture');
+  const area = locationValue('area');
+  if (prefecture === '' || area === '') {
     throw new Error('都道府県とエリアは必須です');
   }
 
@@ -241,6 +354,12 @@ export function collectRecord(
   const cup = chipValues(formRoot, 'cup')[0] ?? null;
   const cupImpression = (chipValues(formRoot, 'cupImpression')[0] ?? null) as CupImpression | null;
   const repeatIntent = (chipValues(formRoot, 'repeatIntent')[0] ?? 'unsure') as RepeatIntent;
+  const optionCount = optionCountValue(val(form, 'optionCount'));
+  const options = optionCount === undefined ? undefined : Array.from({ length: optionCount }, (_, index) => ({
+    type: val(form, `optionType_${index}`),
+    detail: val(form, `optionDetail_${index}`),
+    price: feeValue(form, `optionPrice_${index}`, `オプション${index + 1}の価格`),
+  }));
 
   return {
     id: base.id,
@@ -252,8 +371,8 @@ export function collectRecord(
     basic: {
       visitDate: val(form, 'visitDate') || localDate(),
       timeSlot: (val(form, 'timeSlot') || 'evening') as TimeSlot,
-      prefecture: val(form, 'prefecture'),
-      area: val(form, 'area'),
+      prefecture,
+      area,
       shopName: val(form, 'shopName'),
       shopUrl: val(form, 'shopUrl'),
       therapistName: val(form, 'therapistName'),
@@ -264,6 +383,7 @@ export function collectRecord(
       course,
       courseFee: feeValue(form, 'courseFee', 'コース代'),
       optionSystem: val(form, 'optionSystem'),
+      ...(options === undefined ? {} : { options }),
       optionChosen: val(form, 'optionChosen'),
       optionFee: feeValue(form, 'optionFee', 'オプション代'),
       nominationFee: feeValue(form, 'nominationFee', '指名料'),
@@ -290,6 +410,7 @@ export function collectRecord(
       downside: val(form, 'downside'),
     },
     voice: {
+      speechTopics: chipValues(formRoot, 'speechTopics') as SpeechTopic[],
       herLines: [val(form, 'herLine1'), val(form, 'herLine2'), val(form, 'herLine3')].filter((l) => l !== ''),
       innerVoice: [val(form, 'inner1'), val(form, 'inner2')].filter((l) => l !== ''),
       titleHook: val(form, 'titleHook'),

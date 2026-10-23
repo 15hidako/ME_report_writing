@@ -1,0 +1,167 @@
+{
+  "date": "2026-10-23",
+  "baseline_commit": "e33c331",
+  "status": "pass",
+  "scope": "20 C vocabulary additions to existing typed genre/body/notes fields",
+  "execution": {
+    "models": "GPT only",
+    "external_model_calls": false,
+    "new_source_fetch": false
+  },
+  "counts": {
+    "added": 20,
+    "genre_before": 8,
+    "genre_after": 13,
+    "body_before": 5,
+    "body_after": 8,
+    "notes_before": 6,
+    "notes_after": 18,
+    "original_source_checked_parent_candidates": 5,
+    "design_vocabulary_outside_original332": 15
+  },
+  "checks": {
+    "all20_type_label_schema_values_agree": true,
+    "all_old_values_and_labels_preserved": true,
+    "csv_json_match": true,
+    "original_evidence184_pending148_total332_unchanged": true,
+    "no_independent_source_verification_claim_for_C_mapping": true,
+    "existing_fields_and_storage_keys_preserved": true,
+    "cup_single_select_unchanged": true,
+    "freeTags_and_body_tag_output_policies_unchanged": true,
+    "BD87_D_order_and_rejected10_question_groups_unchanged": true,
+    "local_links_valid": 14
+  },
+  "commands": [
+    {
+      "command": "npm test -- src/spec-vocabulary.test.ts",
+      "exit_code": 0,
+      "result": "3 tests passed"
+    },
+    {
+      "command": "npm test",
+      "exit_code": 0,
+      "result": "11 files,153 tests passed"
+    },
+    {
+      "command": "npm run build",
+      "exit_code": 0,
+      "result": "tsc noEmit and Vite build passed"
+    }
+  ],
+  "source_comparison": {
+    "baseline_files": 30,
+    "current_files": 31,
+    "changed_files": [
+      "schema/visit-record.schema.json",
+      "src/spec-vocabulary.test.ts",
+      "src/types.ts"
+    ]
+  },
+  "source_hashes": {
+    "package-lock.json": "9d3ea6db8fd1d114c7f2cfef7f19e06888c9b85779e05a8cdc15ba8d971c1d5b",
+    "package.json": "62ebe7850a74cccc2ef094d48b741a19ffc9438240316893d65e620b14680e88",
+    "schema/visit-record.schema.json": "625ba51ae036d949274b0e46ed88e8add02333a1a2e9e6487e63961fa7434ea1",
+    "src/clipboard.test.ts": "d967b47a28a5e37f216f2a3af4125cf45d80dc6743e936d89323e89937888688",
+    "src/cost-storage.test.ts": "4f6b5f9c9a7eb9559a89b89a0bff6c3f5ffd1f4e63670e978c57f1fcde04d1e7",
+    "src/course-selection.test.ts": "7df3c893c148f9342c7916aea0d3a1490277a9fb463cfbc2362874c47dd72fdb",
+    "src/date.test.ts": "d641e7190ff0adcdb37d7b2dec9696fd696e1657f10e844ba381cb991d538a9c",
+    "src/date.ts": "05f600191d818ae7fd36722ca88f42d5d183f7893ba005a6797ff7fc3234c390",
+    "src/main.ts": "f83edd5f5d40c88543907f96c15e0bae4711c7d4bbb1d51c8501dc973921b61c",
+    "src/prompt/build-prompt.test.ts": "039cbf7f0403e7c73b08be93581ad174de3f5e08434249c2e5369416896474c2",
+    "src/prompt/build-prompt.ts": "faa359e77b32bb2e3e544c65128e4eac7b84892ca714e9b8f1beb29a148559c3",
+    "src/prompt/publication.test.ts": "c981779890ff531580a57c799721d74e00d30bffcc510955a61b0422a56dd772",
+    "src/prompt/publication.ts": "8b0778a840ec03fcb87ffacab8a29aa8172c0ccc56ca63bbb1c32af84357af15",
+    "src/prompt/serialize.ts": "5a2dc6b4ef8b21e62827034790928df159e38290a38ea4959438b45ecd7d89e5",
+    "src/prompt/style-profile.ts": "36c3bb96895570f8637a51a90789c9f2b9d01336856af98abd1cb39fb6889e16",
+    "src/questionnaire-enrichment.test.ts": "9eb62e7d7cc8a4c7a43290083870df3f780aa86236ad75f758a0c67ec2cf11f2",
+    "src/questionnaire-options.ts": "64acaa4197fb60070a4f709ee7f76e5562723fe06ee2a884a59672914b96e301",
+    "src/record-validation.ts": "3232d4901ee40ee3cb10736c099316c9e308276c20ba562320924e51a278eb78",
+    "src/selection-order-output.test.ts": "58e124592e1ad9198e3144c4a5693aa46a99ff487bc9bd07a96c371305f1e5a0",
+    "src/spec-vocabulary.test.ts": "6d89ecc7cc14416586fbea696f14b0a96ca7731a9d1067e12ba98e36069bebbf",
+    "src/storage.test.ts": "3b7648802b3cfe2a76d7b1d6f9b5a2e1f070e618f64603741dee7f17c5d9938a",
+    "src/storage.ts": "95323b84fd2d917a22250605471e48df1fe17fa6be98382ff9cb9421ba3bab5d",
+    "src/styles.css": "4b6160343e51ddbc3e0557dd6ac68e5ac099b605f36d7283c200eadd2c5e8fbd",
+    "src/test-fixtures.ts": "b05e737b5d392dae5e01d9561e575b3567ae974b94be0334fd8080114b434367",
+    "src/thumbnail.ts": "3d1b87839a58d6528c705bfbdb912923c8abc4ca1a92021a6d4dca6358322edc",
+    "src/types.ts": "3c552c94096e7c94a1f23d50e54d1df2e735881f2b8d29bda92ed1b298ebf5e1",
+    "src/ui/form.ts": "ac0b8fdcc716879fe26a9a462238b0799d3845a2d253432b91d5bc4c936d08d5",
+    "src/ui/questionnaire-candidates.ts": "9bc7efe3cc573435fc561160a489818a507c7fe06f477299d70f4f544842f558",
+    "src/ui/widgets.ts": "86d606d3101d61c467733b80f2598176448920ecf39b57c309e8f9a1235c09a6",
+    "src/ui-regression.test.ts": "190934e072f0938162fc510f100c637f2322d1c3572c6aaef0c2e103fedfdbb2",
+    "src/url.ts": "afb2dd4bffd3e4535a0b4274a57d1c67b766c56b2c777d3d9e35bda49955ec20"
+  },
+  "browser": {
+    "tool": "cua_repl in-app browser",
+    "url": "http://127.0.0.1:5191/",
+    "isolation": "separate local origin with initially empty records; synthetic record only",
+    "verified": [
+      "genre2/body2/notes3 simultaneous selections -> save -> reload -> edit all restored",
+      "C counts13/8/18",
+      "all six stars remain3",
+      "console errors empty"
+    ],
+    "viewports": [
+      {
+        "width": 1280,
+        "height": 900,
+        "horizontal_overflow": false
+      },
+      {
+        "width": 390,
+        "height": 844,
+        "horizontal_overflow": false,
+        "min_chip_height": 44
+      },
+      {
+        "width": 320,
+        "height": 740,
+        "horizontal_overflow": false,
+        "min_chip_height": 44,
+        "chip_right_overflow_count": 0
+      }
+    ],
+    "viewport_reset": true,
+    "test_tab_closed": true,
+    "test_server_stopped": true,
+    "screenshots": [
+      "screenshots/c-vocabulary-desktop.png",
+      "screenshots/c-vocabulary-mobile-390.png"
+    ]
+  },
+  "reviews": [
+    {
+      "agent": "c_vocabulary_code_review",
+      "role": "code_reviewer",
+      "status": "pass",
+      "findings": []
+    },
+    {
+      "agent": "c_vocabulary_ts_review",
+      "role": "typescript_reviewer",
+      "status": "pass",
+      "findings": []
+    },
+    {
+      "agent": "c_vocabulary_research",
+      "role": "research_evidence_and_candidate_review",
+      "status": "candidate_review_pass"
+    }
+  ],
+  "git": {
+    "commit": false,
+    "push": false,
+    "preexisting_work_preserved": [
+      "docs/01-questionnaire.md existing updates",
+      "docs/archive/08-questionnaire-selection-order-handoff.md"
+    ]
+  },
+  "artifact_sha256": {
+    "docs/research/men-esthe-2026-10-23/planning/c-vocabulary-candidates.json": "41b4b655cf84dc95f3c47adc78984532d2bf5ac73bfeab7ad9a202d03cd50e5a",
+    "docs/research/men-esthe-2026-10-23/planning/c-vocabulary-candidates.csv": "3ef704dd6cbd8f2069b99b406570528bf85a6d4ce5f940184ec014635ba632e1",
+    "docs/01-questionnaire.md": "93e5847028d3e0ab8070bfeeb630c10a2508003d20e7ae6761dc6c8173051d80",
+    "docs/09-questionnaire-c-vocabulary-plan.md": "3a4509753573c27ff2fcd98d14f665f6bde3c1b16a3d0523395903c8343bfde7",
+    "docs/research/men-esthe-2026-10-23/planning/screenshots/c-vocabulary-desktop.png": "21b748b5bd2e01b1906b31c34c58e96fb2a05f01b85f958365db48444b2858bb",
+    "docs/research/men-esthe-2026-10-23/planning/screenshots/c-vocabulary-mobile-390.png": "77e906ed9051838cc69bbd1ef325d2f91c195f13e8e3db1486beb59e487f7cf0"
+  },
+  "record_scope": "implementation_validation_before_user_requested_commit"
+}

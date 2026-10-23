@@ -163,6 +163,19 @@
         "optionChosen": {
           "type": "string"
         },
+        "options": {
+          "type": "array",
+          "maxItems": 10,
+          "items": {
+            "type": "object",
+            "required": ["type", "detail", "price"],
+            "properties": {
+              "type": { "type": "string" },
+              "detail": { "type": "string" },
+              "price": { "$ref": "#/$defs/fee" }
+            }
+          }
+        },
         "optionFee": {
           "$ref": "#/$defs/fee"
         },
@@ -238,7 +251,12 @@
               "jukujo",
               "model",
               "genki",
-              "cool"
+              "cool",
+              "natural",
+              "flashy_impression",
+              "calm_impression",
+              "friendly_impression",
+              "sporty"
             ]
           }
         },
@@ -250,7 +268,10 @@
               "slender",
               "muchimuchi",
               "glamour",
-              "tall"
+              "tall",
+              "average_build",
+              "delicate_impression",
+              "long_limbs_impression"
             ]
           }
         },
@@ -278,7 +299,19 @@
               "just_joined",
               "tattoo",
               "nail",
-              "tanned"
+              "tanned",
+              "short_hair",
+              "bob_hair",
+              "medium_hair",
+              "long_hair",
+              "black_hair",
+              "brown_hair",
+              "light_hair_color",
+              "straight_hair",
+              "wavy_hair",
+              "light_makeup",
+              "flashy_makeup",
+              "glasses"
             ]
           }
         },
@@ -344,6 +377,13 @@
       "type": "object",
       "description": "臨場感素材",
       "properties": {
+        "speechTopics": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": ["welcome", "preference_check", "conversation", "aftercare"]
+          }
+        },
         "herLines": {
           "type": "array",
           "items": {
