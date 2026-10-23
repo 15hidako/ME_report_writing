@@ -5,7 +5,7 @@ import { serializeRecord } from './prompt/serialize';
 import { VisitStore } from './storage';
 import { fixtureRecord, MemoryStore } from './test-fixtures';
 import type { VisitRecord } from './types';
-import { collectRecord, renderForm } from './ui/form';
+import { bindLocationFields, collectRecord, renderForm } from './ui/form';
 import { bindNoteSuggestions } from './ui/questionnaire-candidates';
 import { bindChips, bindStars } from './ui/widgets';
 
@@ -20,6 +20,7 @@ const base = {
 function mount(record: VisitRecord | null = null, revisitOf: VisitRecord | null = null): HTMLElement {
   const root = document.createElement('div');
   root.innerHTML = renderForm(record, revisitOf);
+  bindLocationFields(root, () => {});
   return root;
 }
 
@@ -39,8 +40,15 @@ function note(root: HTMLElement, key: string): HTMLInputElement {
 }
 
 function completeRequired(root: HTMLElement): void {
-  root.querySelector<HTMLInputElement>('input[name="prefecture"]')!.value = '東京都';
-  root.querySelector<HTMLInputElement>('input[name="area"]')!.value = '確認用';
+  const prefecture = root.querySelector<HTMLSelectElement>('select[name="prefecture"]')!;
+  prefecture.value = '東京都';
+  prefecture.dispatchEvent(new Event('change', { bubbles: true }));
+  const area = root.querySelector<HTMLSelectElement>('select[name="area"]')!;
+  area.value = 'other';
+  area.dispatchEvent(new Event('change', { bubbles: true }));
+  const other = root.querySelector<HTMLInputElement>('input[name="areaOther"]')!;
+  other.value = '確認用';
+  other.dispatchEvent(new Event('input', { bubbles: true }));
   root.querySelector<HTMLTextAreaElement>('textarea[name="bestMoment"]')!.value = '今回の記録';
 }
 

@@ -11,6 +11,15 @@ import { renderVoiceFields } from './voice-patterns';
 
 const COURSE_TIMES = [70, 80, 90, 100, 110, 120].map((minutes) => `${minutes}分`);
 const COURSE_FEES = Array.from({ length: 21 }, (_, index) => 10000 + index * 1000);
+const LOCATION_OPTIONS = {
+  prefecture: [
+    { value: '東京都', label: '東京' },
+    { value: '神奈川県', label: '神奈川' },
+  ],
+  area: ['武蔵小杉', '恵比寿', '中目黒', '新宿', '蒲田'].map((value) => ({ value, label: value })),
+} as const;
+
+type LocationField = keyof typeof LOCATION_OPTIONS;
 
 function input(name: string, label: string, value = '', placeholder = '', type = 'text'): string {
   return `<label class="field"><span>${label}</span>
@@ -33,6 +42,20 @@ function courseFields(value: string): string {
   <div id="course-other-field" ${other ? '' : 'hidden'}>
     <label class="field"><span>その他のコース時間</span>
       <input name="courseOther" type="text" value="${esc(other ? value : '')}" placeholder="例: 150分" ${other ? 'required' : 'disabled'} /></label>
+  </div>`;
+}
+
+function locationField(name: LocationField, label: string, value: string): string {
+  const choices = LOCATION_OPTIONS[name];
+  const other = value !== '' && !choices.some((choice) => choice.value === value);
+  return `<label class="field"><span>${label}</span><select name="${name}" required aria-controls="${name}-other-field">
+    <option value="" disabled ${value === '' ? 'selected' : ''}>未選択</option>
+    ${choices.map((choice) => `<option value="${choice.value}" ${value === choice.value ? 'selected' : ''}>${choice.label}</option>`).join('')}
+    <option value="other" ${other ? 'selected' : ''}>その他</option>
+  </select></label>
+  <div id="${name}-other-field" ${other ? '' : 'hidden'}>
+    <label class="field"><span>その他の${name === 'prefecture' ? '都道府県' : 'エリア(駅)'}</span>
+      <input name="${name}Other" type="text" value="${esc(other ? value : '')}" ${other ? 'required' : 'disabled'} /></label>
   </div>`;
 }
 
@@ -116,8 +139,8 @@ export function renderForm(record: VisitRecord | null, revisitOf: VisitRecord | 
     <label class="field"><span>時間帯</span><select name="timeSlot">
       ${(['morning', 'afternoon', 'evening', 'night'] as TimeSlot[]).map((t) => `<option value="${t}" ${(record?.basic.timeSlot ?? 'evening') === t ? 'selected' : ''}>${{ morning: '午前', afternoon: '午後', evening: '夕方', night: '夜' }[t]}</option>`).join('')}
     </select></label>
-    ${input('prefecture', '都道府県(wakustカテゴリー)', b?.prefecture ?? '', '東京都')}
-    ${input('area', 'エリア(駅)', b?.area ?? '', '恵比寿・中目黒')}
+    ${locationField('prefecture', '都道府県(wakustカテゴリー)', b?.prefecture ?? '')}
+    ${locationField('area', 'エリア(駅)', b?.area ?? '')}
     ${input('shopName', '店名(有料部でのみ開示)', b?.shopName ?? '')}
     ${input('shopUrl', '店URL', b?.shopUrl ?? '', 'https://')}
     ${input('therapistName', 'セラピスト名(有料部でのみ開示)', b?.therapistName ?? '')}
@@ -179,6 +202,27 @@ export function renderForm(record: VisitRecord | null, revisitOf: VisitRecord | 
     <button type="submit" class="primary">保存</button>
   </div>
 </form>`;
+}
+
+export function bindLocationFields(root: HTMLElement, onChange: () => void): void {
+  for (const name of Object.keys(LOCATION_OPTIONS) as LocationField[]) {
+    const select = root.querySelector<HTMLSelectElement>(`select[name="${name}"]`);
+    const otherField = root.querySelector<HTMLElement>(`#${name}-other-field`);
+    const otherInput = root.querySelector<HTMLInputElement>(`input[name="${name}Other"]`);
+    if (select === null || otherField === null || otherInput === null) throw new Error('所在地の入力欄が見つかりません');
+    select.value = select.querySelector<HTMLOptionElement>('option[selected]')?.value ?? '';
+    const syncOther = (): void => {
+      const active = select.value === 'other';
+      otherField.hidden = !active;
+      otherInput.disabled = !active;
+      otherInput.required = active;
+    };
+    syncOther();
+    select.addEventListener('change', () => {
+      syncOther();
+      onChange();
+    });
+  }
 }
 
 export function bindCourseFields(root: HTMLElement, onChange: () => void): void {
@@ -291,7 +335,10 @@ export function collectRecord(
   }
   const bestMoment = val(form, 'bestMoment');
   if (bestMoment === '') throw new Error('「一番良かった瞬間」は必須です');
-  if (val(form, 'prefecture') === '' || val(form, 'area') === '') {
+  const locationValue = (name: LocationField): string => val(form, name) === 'other' ? val(form, `${name}Other`) : val(form, name);
+  const prefecture = locationValue('prefecture');
+  const area = locationValue('area');
+  if (prefecture === '' || area === '') {
     throw new Error('都道府県とエリアは必須です');
   }
 
@@ -324,8 +371,8 @@ export function collectRecord(
     basic: {
       visitDate: val(form, 'visitDate') || localDate(),
       timeSlot: (val(form, 'timeSlot') || 'evening') as TimeSlot,
-      prefecture: val(form, 'prefecture'),
-      area: val(form, 'area'),
+      prefecture,
+      area,
       shopName: val(form, 'shopName'),
       shopUrl: val(form, 'shopUrl'),
       therapistName: val(form, 'therapistName'),

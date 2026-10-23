@@ -15,6 +15,24 @@ const field = (name: string): HTMLInputElement | HTMLSelectElement => {
   return control;
 };
 
+function setLocation(name: 'prefecture' | 'area', value: string): void {
+  const presets = name === 'prefecture'
+    ? ['東京都', '神奈川県']
+    : ['武蔵小杉', '恵比寿', '中目黒', '新宿', '蒲田'];
+  const select = field(name);
+  select.value = presets.includes(value) || value === '' ? value : 'other';
+  select.dispatchEvent(new Event('change', { bubbles: true }));
+  if (select.value === 'other') {
+    const other = field(`${name}Other`);
+    other.value = value;
+    other.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+}
+
+function locationValue(name: 'prefecture' | 'area'): string {
+  return field(name).value === 'other' ? field(`${name}Other`).value : field(name).value;
+}
+
 async function start(records: unknown[] = []): Promise<void> {
   window.localStorage.setItem('me-report-writer/visits/v1', JSON.stringify(records));
   await import('./main');
@@ -35,6 +53,25 @@ afterEach(() => {
 });
 
 describe('起動からの画面操作', () => {
+  it.each([
+    ['prefecture', '神奈川県'],
+    ['area', '新宿'],
+  ] as const)('%sの選択だけでも破棄前に確認し、タブ移動後も保持する', async (name, value) => {
+    await start([fixtureRecord()]);
+    button('入力').click();
+    const select = field(name);
+    select.value = value;
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+    button('履歴').click();
+    const confirm = vi.fn(() => false);
+    vi.stubGlobal('confirm', confirm);
+    button('編集').click();
+    expect(confirm).toHaveBeenCalledOnce();
+    button('入力').click();
+    expect(field(name).value).toBe(value);
+    expect(document.getElementById(`${name}-other-field`)?.hidden).toBe(true);
+  });
+
   it.each(['optionCount', 'speechTopics'])('%sだけの変更もタブ移動で残し、破棄の前に確認する', async (target) => {
     await start([fixtureRecord()]);
     button('入力').click();
@@ -133,8 +170,8 @@ describe('起動からの画面操作', () => {
   it('費用の内訳を保存し、再編集で0円も含めて保持する', async () => {
     await start();
     button('入力').click();
-    field('prefecture').value = '東京都';
-    field('area').value = '動作確認';
+    setLocation('prefecture', '東京都');
+    setLocation('area', '動作確認');
     field('course').value = '90分';
     field('optionChosen').value = '追加コース';
     field('courseFee').value = '15000';
@@ -184,7 +221,7 @@ describe('起動からの画面操作', () => {
     expect(field('courseFee').value).toBe(expectedInput);
     expect(field('optionFee').value).toBe(expectedInput);
     expect(field('nominationFee').value).toBe(expectedInput);
-    field('area').value = '変更したエリア';
+    setLocation('area', '変更したエリア');
     button('保存').click();
     const saved = JSON.parse(window.localStorage.getItem('me-report-writer/visits/v1') ?? '[]') as VisitRecord[];
     expect(saved[0]?.basic).toMatchObject({ courseFee: amount, optionFee: amount, nominationFee: amount });
@@ -247,12 +284,11 @@ describe('起動からの画面操作', () => {
   it('未完成の入力とチップをタブ移動で失わない', async () => {
     await start();
     button('入力').click();
-    field('area').value = '未保存の入力';
-    field('area').dispatchEvent(new Event('input', { bubbles: true }));
+    setLocation('area', '未保存の入力');
     button('ギャル').click();
     button('履歴').click();
     button('入力').click();
-    expect(field('area').value).toBe('未保存の入力');
+    expect(locationValue('area')).toBe('未保存の入力');
     expect(button('ギャル').classList.contains('on')).toBe(true);
     expect(window.localStorage.getItem('me-report-writer/visits/v1')).toBe('[]');
   });
@@ -282,8 +318,8 @@ describe('起動からの画面操作', () => {
     await start([fixtureRecord()]);
     const before = window.localStorage.getItem('me-report-writer/visits/v1');
     button('入力').click();
-    field('prefecture').value = '東京都';
-    field('area').value = '保存失敗を確認';
+    setLocation('prefecture', '東京都');
+    setLocation('area', '保存失敗を確認');
     const best = document.querySelector<HTMLTextAreaElement>('textarea[name="bestMoment"]')!;
     best.value = '動作確認';
     const originalStorage = window.localStorage;
@@ -296,7 +332,7 @@ describe('起動からの画面操作', () => {
     });
     vi.spyOn(window, 'localStorage', 'get').mockReturnValue(failingStorage);
     button('保存').click();
-    expect(field('area').value).toBe('保存失敗を確認');
+    expect(locationValue('area')).toBe('保存失敗を確認');
     expect(best.value).toBe('動作確認');
     expect(window.localStorage.getItem('me-report-writer/visits/v1')).toBe(before);
     expect(document.body.textContent).toContain('保存に失敗');
@@ -305,8 +341,8 @@ describe('起動からの画面操作', () => {
   it('販売ポイントの0を100に書き換えない', async () => {
     await start();
     button('入力').click();
-    field('prefecture').value = '東京都';
-    field('area').value = '動作確認';
+    setLocation('prefecture', '東京都');
+    setLocation('area', '動作確認');
     field('points').value = '0';
     document.querySelector<HTMLTextAreaElement>('textarea[name="bestMoment"]')!.value = '動作確認';
     button('保存').click();
@@ -317,8 +353,7 @@ describe('起動からの画面操作', () => {
   it('JSON読込を取り消すと保存データも未保存入力も残る', async () => {
     await start([fixtureRecord()]);
     button('入力').click();
-    field('area').value = '破棄しない入力';
-    field('area').dispatchEvent(new Event('input', { bubbles: true }));
+    setLocation('area', '破棄しない入力');
     button('履歴').click();
     const before = window.localStorage.getItem('me-report-writer/visits/v1');
     let chooser: HTMLInputElement | undefined;
@@ -337,7 +372,7 @@ describe('起動からの画面操作', () => {
     await vi.waitFor(() => expect(confirm).toHaveBeenCalled());
     expect(window.localStorage.getItem('me-report-writer/visits/v1')).toBe(before);
     button('入力').click();
-    expect(field('area').value).toBe('破棄しない入力');
+    expect(locationValue('area')).toBe('破棄しない入力');
   });
 
   it('ファイルの読取失敗を成功扱いせずデータを保持する', async () => {
@@ -363,22 +398,20 @@ describe('起動からの画面操作', () => {
   it('別の記録への切替を取り消すと元の未保存入力を保持する', async () => {
     await start([fixtureRecord()]);
     button('入力').click();
-    field('area').value = '切替前の入力';
-    field('area').dispatchEvent(new Event('input', { bubbles: true }));
+    setLocation('area', '切替前の入力');
     button('履歴').click();
     const confirm = vi.fn(() => false);
     vi.stubGlobal('confirm', confirm);
     button('編集').click();
     expect(confirm).toHaveBeenCalled();
     button('入力').click();
-    expect(field('area').value).toBe('切替前の入力');
+    expect(locationValue('area')).toBe('切替前の入力');
   });
 
   it('編集中に履歴から登録した投稿URLを保存で巻き戻さない', async () => {
     await start([fixtureRecord()]);
     button('編集').click();
-    field('area').value = '更新したエリア';
-    field('area').dispatchEvent(new Event('input', { bubbles: true }));
+    setLocation('area', '更新したエリア');
     button('履歴').click();
     const prompt = vi.fn(() => 'https://wakust.com/reports/latest');
     vi.stubGlobal('prompt', prompt);
@@ -393,14 +426,13 @@ describe('起動からの画面操作', () => {
   it('編集中の記録を削除した後に古い入力から復活させない', async () => {
     await start([fixtureRecord()]);
     button('編集').click();
-    field('area').value = '削除する下書き';
-    field('area').dispatchEvent(new Event('input', { bubbles: true }));
+    setLocation('area', '削除する下書き');
     button('履歴').click();
     const confirm = vi.fn(() => true);
     vi.stubGlobal('confirm', confirm);
     button('削除').click();
     button('入力').click();
-    expect(field('area').value).toBe('');
+    expect(locationValue('area')).toBe('');
     expect(window.localStorage.getItem('me-report-writer/visits/v1')).toBe('[]');
   });
 
@@ -415,19 +447,18 @@ describe('起動からの画面操作', () => {
   it('新規入力の開始を取り消すと下書きを残し、承認したときだけ空にする', async () => {
     await start();
     button('入力').click();
-    field('area').value = 'まだ保存していない';
-    field('area').dispatchEvent(new Event('input', { bubbles: true }));
+    setLocation('area', 'まだ保存していない');
     button('履歴').click();
     const confirm = vi.fn(() => false);
     vi.stubGlobal('confirm', confirm);
     button('+ 新規入力').click();
     expect(confirm).toHaveBeenCalledOnce();
     button('入力').click();
-    expect(field('area').value).toBe('まだ保存していない');
+    expect(locationValue('area')).toBe('まだ保存していない');
     button('履歴').click();
     confirm.mockReturnValue(true);
     button('+ 新規入力').click();
-    expect(field('area').value).toBe('');
+    expect(locationValue('area')).toBe('');
   });
 
   it('通常の履歴から復元でき、取消時は現データを変えない', async () => {
