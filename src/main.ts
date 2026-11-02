@@ -7,6 +7,8 @@ import { renderShareProbe, bindShareProbe } from './ui/share-probe';
 import { openHandoffUpdate } from './ui/handoff-import';
 import { MAX_HANDOFF_FILE_BYTES } from './handoff-import';
 import { shareRecord, shareErrorMessage } from './share';
+import { FormValidationError, validateVisitForm } from './form-validation';
+import { bindFormFeedback, type FormFeedback } from './ui/form-feedback';
 import { buildCatalogPrompt, buildMatomePrompt, buildRevisitPrompt, buildSinglePrompt } from './prompt/build-prompt';
 import { specSummary } from './prompt/serialize';
 import { drawThumbnail, downloadCanvasPng, PALETTES } from './thumbnail';
@@ -201,7 +203,7 @@ function openContext(nextEdit: string | null, nextRevisit: string | null, replac
   switchTab('form');
 }
 
-function submitForm(event: SubmitEvent, draft: Draft): void {
+function submitForm(event: SubmitEvent, draft: Draft, feedback: FormFeedback): void {
   event.preventDefault();
   if (draft.sharing) return;
   try {
@@ -223,6 +225,7 @@ function submitForm(event: SubmitEvent, draft: Draft): void {
     });
     const reuseSaved = shareRequested && !draft.dirty && latest !== undefined;
     const record = reuseSaved ? latest : collected;
+    feedback.clear();
     if (!reuseSaved) db.save(record);
     if (shareRequested) {
       draft.id = record.id;
@@ -242,7 +245,8 @@ function submitForm(event: SubmitEvent, draft: Draft): void {
     toast(`#${record.seriesNo} を保存しました`);
     switchTab('list');
   } catch (err) {
-    toast(errText(err));
+    if (err instanceof FormValidationError) feedback.show(err.issues);
+    else feedback.showGeneral(errText(err));
   }
 }
 
@@ -304,8 +308,9 @@ function mountForm(): void {
   bindStars(form, markDirty);
   bindChips(form, markDirty);
   bindNoteSuggestions(form);
+  const feedback = bindFormFeedback(form, () => validateVisitForm(form));
   form.addEventListener('input', markDirty);
-  form.addEventListener('submit', (event) => submitForm(event, draft));
+  form.addEventListener('submit', (event) => submitForm(event, draft, feedback));
   formCache = draft;
   app.replaceChildren(node);
 }
