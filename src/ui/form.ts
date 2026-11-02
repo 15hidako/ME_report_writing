@@ -199,8 +199,10 @@ export function renderForm(record: VisitRecord | null, revisitOf: VisitRecord | 
   </details>
 
   <div class="actions">
-    <button type="submit" class="primary">保存</button>
+    <button type="submit">保存</button>
+    <button type="submit" class="primary" name="save-share">保存して共有</button>
   </div>
+  <p class="field-hint" id="save-share-status" role="status" aria-live="polite"></p>
 </form>`;
 }
 

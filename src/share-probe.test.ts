@@ -78,11 +78,11 @@ describe('Slack実機確認用のファイル共有', () => {
     expect(await text.text()).toBe(await json.text());
   });
 
-  it('JSONを共有できない場合はテキストを案内し、勝手に再共有しない', () => {
+  it('JSONを共有できない場合は理由を表示し、勝手に再共有しない', () => {
     canShare.mockReturnValue(false);
     button('json').click();
     expect(share).not.toHaveBeenCalled();
-    expect(status()).toContain('テキストを試してください');
+    expect(status()).toContain('JSONファイルを共有できません');
     canShare.mockReturnValue(true);
     button('txt').click();
     expect(share).toHaveBeenCalledOnce();

@@ -1,5 +1,6 @@
 import type { VisitRecord } from '../types';
 import { parseVisitRecords } from '../record-validation';
+import { shareFile, shareErrorMessage } from '../share';
 
 function syntheticRecord(): VisitRecord {
   const now = new Date().toISOString();
@@ -80,45 +81,26 @@ export function bindShareProbe(root: HTMLElement): void {
     button.addEventListener('click', () => {
       if (sharing) return;
       try {
-        if (!window.isSecureContext) throw new Error('共有にはHTTPSで開く必要があります。');
-        if (typeof navigator.share !== 'function' || typeof navigator.canShare !== 'function') {
-          throw new Error('このブラウザはファイル共有に対応していません。スマホの対応ブラウザで試してください。');
-        }
         body ??= JSON.stringify(parseVisitRecords([syntheticRecord()]), null, 2);
         const format = button.dataset.shareFormat === 'txt' ? 'txt' : 'json';
         const file = new File([body], `me-report-share-test.${format}`, {
           type: format === 'json' ? 'application/json' : 'text/plain',
         });
-        const data: ShareData = { files: [file] };
-        if (!navigator.canShare(data)) {
-          throw new Error(format === 'json'
-            ? 'この端末ではJSONファイルを共有できません。テキストを試してください。'
-            : 'この端末ではテキストファイルを共有できません。');
-        }
-        // 事前のawaitでユーザー操作の有効期間を失わないよう、クリック内で直接呼ぶ。
-        const result = navigator.share(data);
+        const result = shareFile(file);
         sharing = true;
         for (const item of buttons) item.disabled = true;
         status.textContent = '共有画面でSlackと宛先を選んでください。';
         void result.then(() => {
           status.textContent = '共有先に渡しました。Slackで投稿を確認し、PCで添付を取得して内容を確認してください。';
         }).catch((error: unknown) => {
-          status.textContent = shareError(error);
+          status.textContent = shareErrorMessage(error);
         }).finally(() => {
           sharing = false;
           for (const item of buttons) item.disabled = false;
         });
       } catch (error) {
-        status.textContent = shareError(error);
+        status.textContent = shareErrorMessage(error);
       }
     });
   }
-}
-
-function shareError(error: unknown): string {
-  if (error instanceof Error && error.name === 'AbortError') {
-    return '共有がキャンセルされたか、共有先が見つかりませんでした。もう一度試せます。';
-  }
-  const message = error instanceof Error ? error.message : String(error);
-  return `共有できませんでした: ${message}`;
 }

@@ -4,6 +4,9 @@ import { renderForm, collectRecord, bindCourseFields, bindOptionFields, bindLoca
 import { bindChips, bindStars, copyText, esc, toast } from './ui/widgets';
 import { bindNoteSuggestions } from './ui/questionnaire-candidates';
 import { renderShareProbe, bindShareProbe } from './ui/share-probe';
+import { openHandoffUpdate } from './ui/handoff-import';
+import { MAX_HANDOFF_FILE_BYTES } from './handoff-import';
+import { shareRecord, shareErrorMessage } from './share';
 import { buildCatalogPrompt, buildMatomePrompt, buildRevisitPrompt, buildSinglePrompt } from './prompt/build-prompt';
 import { specSummary } from './prompt/serialize';
 import { drawThumbnail, downloadCanvasPng, PALETTES } from './thumbnail';
@@ -26,6 +29,7 @@ interface Draft {
   seriesNo: number | null;
   createdAt: string | null;
   revisitOf: string | null;
+  sharing: boolean;
 }
 
 let currentTab: Tab = 'list';
@@ -108,14 +112,44 @@ function applyImport(text: string): void {
   render();
 }
 
-function pickImport(): void {
+function applyHandoffImport(text: string): void {
+  try {
+    const db = getStore();
+    const plan = db.prepareHandoffImport(text);
+    if (plan.kind === 'unchanged') {
+      toast('同じ回答のため変更はありません');
+      return;
+    }
+    const apply = (): boolean => {
+      if (!confirmDiscardDraft()) return false;
+      db.importHandoffJson(text, plan.snapshot);
+      clearContext();
+      toast(`#${plan.record.seriesNo} を${plan.kind === 'update' ? '更新' : '追加'}しました`);
+      render();
+      return true;
+    };
+    if (plan.kind === 'update') {
+      openHandoffUpdate(plan, apply);
+    } else if (plan.renumberedFrom === null || confirm(`通し番号 #${plan.renumberedFrom} は使用済みです。#${plan.record.seriesNo} として追加しますか?`)) {
+      apply();
+    }
+  } catch (error) {
+    toast(errText(error));
+  }
+}
+
+function pickImport(additive = false): void {
   const input = document.createElement('input');
   input.type = 'file';
-  input.accept = 'application/json';
+  input.accept = additive ? '.json,.txt,application/json,text/plain' : '.json,application/json';
   input.addEventListener('change', () => {
     const file = input.files?.[0];
     if (file === undefined) return;
-    void file.text().then(applyImport).catch((err: unknown) => toast(errText(err)));
+    if (additive && file.size > MAX_HANDOFF_FILE_BYTES) {
+      toast('引き継ぎファイルは1MB以下にしてください');
+      return;
+    }
+    void file.text().then(additive ? applyHandoffImport : applyImport).catch((err: unknown) => toast(errText(err)));
   });
   input.click();
 }
@@ -147,7 +181,8 @@ function restoreFromBackup(): void {
 
 function bindDataButtons(): void {
   document.getElementById('export')?.addEventListener('click', downloadRaw);
-  document.getElementById('import')?.addEventListener('click', pickImport);
+  document.getElementById('import')?.addEventListener('click', () => pickImport());
+  document.getElementById('import-handoff')?.addEventListener('click', () => pickImport(true));
   document.getElementById('restore')?.addEventListener('click', restoreFromBackup);
 }
 
@@ -166,8 +201,9 @@ function openContext(nextEdit: string | null, nextRevisit: string | null, replac
   switchTab('form');
 }
 
-function submitForm(event: Event, draft: Draft): void {
+function submitForm(event: SubmitEvent, draft: Draft): void {
   event.preventDefault();
+  if (draft.sharing) return;
   try {
     const db = getStore();
     const latest = draft.editingId === null ? undefined : db.get(draft.editingId);
@@ -177,19 +213,59 @@ function submitForm(event: Event, draft: Draft): void {
       switchTab('list');
       return;
     }
-    const record = collectRecord(draft.node, {
+    const shareRequested = event.submitter instanceof HTMLButtonElement && event.submitter.name === 'save-share';
+    const collected = collectRecord(draft.node, {
       id: draft.id ?? crypto.randomUUID(),
       seriesNo: draft.seriesNo ?? db.nextSeriesNo(),
       createdAt: draft.createdAt ?? new Date().toISOString(),
       revisitOf: draft.revisitOf,
       postedUrl: latest?.postedUrl ?? null,
     });
-    db.save(record);
+    const reuseSaved = shareRequested && !draft.dirty && latest !== undefined;
+    const record = reuseSaved ? latest : collected;
+    if (!reuseSaved) db.save(record);
+    if (shareRequested) {
+      draft.id = record.id;
+      draft.seriesNo = record.seriesNo;
+      draft.createdAt = record.createdAt;
+      draft.editingId = record.id;
+      draft.revisitOfId = null;
+      draft.dirty = false;
+      editingId = record.id;
+      revisitOfId = null;
+      const mode = draft.node.querySelector<HTMLElement>('.form-mode');
+      if (mode !== null) mode.textContent = `編集中: #${record.seriesNo}`;
+      shareSavedRecord(record, draft);
+      return;
+    }
     clearContext();
     toast(`#${record.seriesNo} を保存しました`);
     switchTab('list');
   } catch (err) {
     toast(errText(err));
+  }
+}
+
+function shareSavedRecord(record: VisitRecord, draft: Draft): void {
+  const status = draft.node.querySelector<HTMLElement>('#save-share-status');
+  if (status === null) throw new Error('保存と共有の状態表示が見つかりません');
+  const savedMessage = `#${record.seriesNo} は保存済みです。`;
+  try {
+    const result = shareRecord(record);
+    draft.sharing = true;
+    const buttons = [...draft.node.querySelectorAll<HTMLButtonElement>('button[type="submit"]')];
+    for (const button of buttons) button.disabled = true;
+    status.textContent = `${savedMessage}共有画面でSlackと宛先を選んでください。`;
+    void result.then(() => {
+      status.textContent = `${savedMessage}共有先に渡しました。投稿はSlackで確認してください。`;
+    }).catch((error: unknown) => {
+      status.textContent = `${savedMessage}${shareErrorMessage(error)}`;
+    }).finally(() => {
+      draft.sharing = false;
+      for (const button of buttons) button.disabled = false;
+    });
+  } catch (error) {
+    status.textContent = `${savedMessage}${shareErrorMessage(error)}`;
   }
 }
 
@@ -217,6 +293,7 @@ function mountForm(): void {
     seriesNo: editing?.seriesNo ?? null,
     createdAt: editing?.createdAt ?? null,
     revisitOf: editing?.revisitOf ?? revisitOf?.id ?? null,
+    sharing: false,
   };
   const markDirty = (): void => {
     draft.dirty = true;
@@ -323,6 +400,7 @@ function renderListTab(): void {
       <button id="matome">まとめ記事</button>
       <button id="export">保存(JSON)</button>
       <button id="import">読込(JSON)</button>
+      <button id="import-handoff">回答を追加読込</button>
       ${canRestore ? '<button id="restore">バックアップ復元</button>' : ''}
     </div>
     ${renderShareProbe()}

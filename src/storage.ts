@@ -1,5 +1,6 @@
 import type { VisitRecord } from './types';
 import { parseRecordsJson, parseVisitRecords } from './record-validation';
+import { prepareHandoffImport, type HandoffImportPlan } from './handoff-import';
 
 export interface KeyValueStore {
   getItem(key: string): string | null;
@@ -59,6 +60,21 @@ export class VisitStore {
 
   validateImport(json: string): VisitRecord[] {
     return parseRecordsJson(json);
+  }
+
+  prepareHandoffImport(json: string): HandoffImportPlan {
+    return prepareHandoffImport(this.loadAll(), json);
+  }
+
+  importHandoffJson(json: string, expectedSnapshot: string): VisitRecord[] {
+    const current = this.loadAll();
+    const plan = prepareHandoffImport(current, json);
+    if (plan.snapshot !== expectedSnapshot) throw new Error('回答が変更されています。ファイルを取り込み直して確認してください');
+    if (plan.kind === 'unchanged') return current;
+    const next = plan.kind === 'add'
+      ? [...current, plan.record]
+      : current.map((record) => record.id === plan.record.id ? plan.record : record);
+    return this.writeAll(next);
   }
 
   exportRawJson(): string {
