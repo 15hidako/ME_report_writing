@@ -3,6 +3,7 @@ import { VisitStore } from './storage';
 import { renderForm, collectRecord, bindCourseFields, bindOptionFields, bindLocationFields } from './ui/form';
 import { bindChips, bindStars, copyText, esc, toast } from './ui/widgets';
 import { bindNoteSuggestions } from './ui/questionnaire-candidates';
+import { renderShareProbe, bindShareProbe } from './ui/share-probe';
 import { buildCatalogPrompt, buildMatomePrompt, buildRevisitPrompt, buildSinglePrompt } from './prompt/build-prompt';
 import { specSummary } from './prompt/serialize';
 import { drawThumbnail, downloadCanvasPng, PALETTES } from './thumbnail';
@@ -324,8 +325,10 @@ function renderListTab(): void {
       <button id="import">読込(JSON)</button>
       ${canRestore ? '<button id="restore">バックアップ復元</button>' : ''}
     </div>
+    ${renderShareProbe()}
     ${records.length === 0 ? '<p class="empty">まだ訪問レコードがありません。「+ 新規入力」から始めてください。</p>' : rows}`;
 
+  bindShareProbe(app);
   document.getElementById('new-visit')?.addEventListener('click', () => openContext(null, null, true));
   document.getElementById('catalog')?.addEventListener('click', () => {
     const pref = prompt('対象の都道府県(wakustカテゴリー)は?', records[0]?.basic.prefecture ?? '東京都');
