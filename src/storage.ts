@@ -40,7 +40,11 @@ export class VisitStore {
   }
 
   delete(id: string): VisitRecord[] {
-    const next = this.loadAll().filter((r) => r.id !== id);
+    const all = this.loadAll();
+    if (all.some((record) => record.revisitOf === id)) {
+      throw new Error('再訪記録から参照されているため削除できません');
+    }
+    const next = all.filter((r) => r.id !== id);
     return this.writeAll(next);
   }
 

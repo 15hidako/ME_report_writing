@@ -8,6 +8,10 @@ import { SPEECH_TOPIC_LABELS } from '../voice-patterns';
 
 const stars = (n: number): string => '★'.repeat(n) + '☆'.repeat(5 - n);
 
+function formatFee(amount: number | null | undefined): string {
+  return amount === null || amount === undefined ? '未確認' : `${amount.toLocaleString('ja-JP')}円`;
+}
+
 function ratingsBlock(ratings: Ratings): string {
   return (Object.keys(RATING_LABELS) as (keyof Ratings)[])
     .map((k) => {
@@ -60,10 +64,11 @@ export function tagCandidates(record: VisitRecord): string[] {
 
 function optionsBlock(record: VisitRecord): string {
   const b = record.basic;
-  if (b.options === undefined) return `- オプション体系: ${b.optionSystem} → 選択: ${b.optionChosen}`;
+  const total = formatFee(b.optionFee);
+  if (b.options === undefined) return `- オプション体系: ${b.optionSystem} → 選択: ${b.optionChosen}
+- 今回のオプション代合計: ${total}`;
   const catalog = b.options.length === 0 ? 'なし' : `${b.options.length}種類\n${b.options
     .map((option, index) => `  - オプション${index + 1}: ${optionDescription(option)}`).join('\n')}`;
-  const total = b.optionFee === null || b.optionFee === undefined ? '未確認' : `${b.optionFee.toLocaleString('ja-JP')}円`;
   return `- オプション体系（メニューと設定価格）: ${catalog}
 ${b.optionSystem.trim() === '' ? '' : `- オプション体系の旧形式メモ（上の入力と食い違う場合は上を優先）: ${b.optionSystem}\n`}- 今回選択したオプション: ${b.optionChosen || '未入力'}
 - 今回のオプション代合計: ${total}`;
@@ -95,7 +100,9 @@ export function serializeRecord(record: VisitRecord, opts: { withIdentity: boole
 ${identity}
 - 年齢: ${age}
 - コース: ${b.course}
+- コース代: ${formatFee(b.courseFee)}
 ${optionsBlock(record)}
+- 指名料: ${formatFee(b.nominationFee)}
 - 部屋タイプ: ${{ mansion: 'マンション型', room: 'ルーム型', other: 'その他' }[b.roomType]}
 
 [スペック]

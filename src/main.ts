@@ -30,6 +30,7 @@ interface Draft {
   seriesNo: number | null;
   createdAt: string | null;
   revisitOf: string | null;
+  savedSnapshot: string | null;
   sharing: boolean;
 }
 
@@ -191,7 +192,9 @@ function openContext(nextEdit: string | null, nextRevisit: string | null, replac
   const same = formCache !== null
     && formCache.editingId === nextEdit
     && formCache.revisitOfId === nextRevisit;
-  if (same && !(replaceSameNew && formCache?.dirty === true)) {
+  const latest = same && nextEdit !== null ? getStore().get(nextEdit) : undefined;
+  const changed = latest !== undefined && formCache?.savedSnapshot !== editingSnapshot(latest);
+  if (same && !changed && !(replaceSameNew && formCache?.dirty === true)) {
     switchTab('form');
     return;
   }
@@ -200,6 +203,13 @@ function openContext(nextEdit: string | null, nextRevisit: string | null, replac
   editingId = nextEdit;
   revisitOfId = nextRevisit;
   switchTab('form');
+}
+
+function editingSnapshot(record: VisitRecord): string {
+  return JSON.stringify({ ...record, updatedAt: '', postedUrl: null }, (_key, value: unknown) => {
+    if (value === null || typeof value !== 'object' || Array.isArray(value)) return value;
+    return Object.fromEntries(Object.entries(value).sort(([a], [b]) => a.localeCompare(b)));
+  });
 }
 
 function submitForm(event: SubmitEvent, draft: Draft, feedback: FormFeedback): void {
@@ -215,6 +225,10 @@ function submitForm(event: SubmitEvent, draft: Draft, feedback: FormFeedback): v
       return;
     }
     const shareRequested = event.submitter instanceof HTMLButtonElement && event.submitter.name === 'save-share';
+    const reuseSaved = shareRequested && !draft.dirty && latest !== undefined;
+    if (!reuseSaved && latest !== undefined && draft.savedSnapshot !== editingSnapshot(latest)) {
+      throw new Error('別の画面で回答が変更されています。入力内容を控えてから、履歴の編集で開き直してください');
+    }
     const collected = collectRecord(draft.node, {
       id: draft.id ?? crypto.randomUUID(),
       seriesNo: draft.seriesNo ?? db.nextSeriesNo(),
@@ -222,10 +236,12 @@ function submitForm(event: SubmitEvent, draft: Draft, feedback: FormFeedback): v
       revisitOf: draft.revisitOf,
       postedUrl: latest?.postedUrl ?? null,
     });
-    const reuseSaved = shareRequested && !draft.dirty && latest !== undefined;
     const record = reuseSaved ? latest : collected;
     feedback.clear();
-    if (!reuseSaved) db.save(record);
+    if (!reuseSaved) {
+      db.save(record);
+      draft.savedSnapshot = editingSnapshot(record);
+    }
     if (shareRequested) {
       draft.id = record.id;
       draft.seriesNo = record.seriesNo;
@@ -296,6 +312,7 @@ function mountForm(): void {
     seriesNo: editing?.seriesNo ?? null,
     createdAt: editing?.createdAt ?? null,
     revisitOf: editing?.revisitOf ?? revisitOf?.id ?? null,
+    savedSnapshot: editing === null ? null : editingSnapshot(editing),
     sharing: false,
   };
   const markDirty = (): void => {

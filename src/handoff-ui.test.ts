@@ -170,6 +170,28 @@ describe('保存して共有', () => {
     expect(payload[0]).toEqual(records()[0]);
   });
 
+  it('未編集の再共有は最新の保存内容を渡し、その後の古いフォームからの上書きを止める', async () => {
+    const record = fixtureRecord();
+    await start([record]);
+    button('編集').click();
+    const latest = { ...record, basic: { ...record.basic, shopName: '別画面の修正' } };
+    const latestJson = JSON.stringify([latest]);
+    window.localStorage.setItem(STORAGE_KEY, latestJson);
+
+    button('保存して共有').click();
+    await vi.waitFor(() => expect(button('保存して共有').disabled).toBe(false));
+    const payload = JSON.parse(await share.mock.calls[0]![0]!.files![0]!.text()) as VisitRecord[];
+    expect(payload).toEqual([latest]);
+    expect(window.localStorage.getItem(STORAGE_KEY)).toBe(latestJson);
+    field('shopName').value = '手元の入力';
+    field('shopName').dispatchEvent(new Event('input', { bubbles: true }));
+    button('保存').click();
+
+    expect(window.localStorage.getItem(STORAGE_KEY)).toBe(latestJson);
+    expect(field('shopName').value).toBe('手元の入力');
+    expect(document.body.textContent).toMatch(/別の画面.*変更/);
+  });
+
   it('共有非対応でも保存済みの回答を残し、保存だけの操作を続けられる', async () => {
     await start();
     fillNew();

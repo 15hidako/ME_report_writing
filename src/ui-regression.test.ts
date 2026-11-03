@@ -543,4 +543,85 @@ describe('起動からの画面操作', () => {
     expect(document.body.textContent).toMatch(/循環|ループ/);
     expect(window.localStorage.getItem('me-report-writer/visits/v1')).toBe(before);
   });
+
+  it('再訪が参照する初回の削除を画面から試みても両方を残し、再訪用の生成を維持する', async () => {
+    const first = fixtureRecord({ postedUrl: 'https://wakust.com/u/first/' });
+    const revisit = fixtureRecord({ id: 'second-visit', seriesNo: 2, revisitOf: first.id, sales: { points: 100, articleType: 'revisit' } });
+    await start([first, revisit]);
+    const before = window.localStorage.getItem('me-report-writer/visits/v1');
+    vi.stubGlobal('confirm', vi.fn(() => true));
+    const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
+
+    document.querySelector<HTMLButtonElement>(`[data-id="${first.id}"] [data-act="del"]`)!.click();
+
+    expect(window.localStorage.getItem('me-report-writer/visits/v1')).toBe(before);
+    expect(document.body.textContent).toMatch(/再訪.*参照.*削除できません/);
+    document.querySelector<HTMLButtonElement>(`[data-id="${revisit.id}"] [data-act="prompt"]`)!.click();
+    await vi.waitFor(() => expect(copy).toHaveBeenCalledOnce());
+    expect(copy.mock.calls[0]![0]).toContain('https://wakust.com/u/first/');
+    expect(copy.mock.calls[0]![0]).toContain('再訪');
+  });
+
+  it.each(['保存', '保存して共有'])('別画面の変更後は%sで古い内容を上書きせず、手元の入力を残す', async (action) => {
+    const record = fixtureRecord();
+    await start([record]);
+    button('編集').click();
+    field('shopName').value = '手元の入力';
+    field('shopName').dispatchEvent(new Event('input', { bubbles: true }));
+    const latest = { ...record, basic: { ...record.basic, shopName: '別画面で保存した内容' } };
+    const latestJson = JSON.stringify([latest]);
+    window.localStorage.setItem('me-report-writer/visits/v1', latestJson);
+    const share = vi.fn();
+    vi.stubGlobal('navigator', { share, canShare: vi.fn(() => true) });
+
+    button(action).click();
+
+    expect(window.localStorage.getItem('me-report-writer/visits/v1')).toBe(latestJson);
+    expect(field('shopName').value).toBe('手元の入力');
+    expect(document.body.textContent).toMatch(/別の画面.*変更/);
+    expect(share).not.toHaveBeenCalled();
+  });
+
+  it('別画面でキーの並びと更新日時だけが変わっても編集を保存できる', async () => {
+    const record = fixtureRecord();
+    await start([record]);
+    button('編集').click();
+    field('shopName').value = '今回の修正';
+    const latest = { ...record, basic: Object.fromEntries(Object.entries(record.basic).reverse()), updatedAt: '2026-07-02T10:00:00.000Z' };
+    window.localStorage.setItem('me-report-writer/visits/v1', JSON.stringify([latest]));
+
+    button('保存').click();
+
+    const saved = JSON.parse(window.localStorage.getItem('me-report-writer/visits/v1')!) as VisitRecord[];
+    expect(saved[0]?.basic.shopName).toBe('今回の修正');
+  });
+
+  it('競合後の開き直しは未保存入力の破棄を確認し、承認後に最新内容を編集できる', async () => {
+    const record = fixtureRecord();
+    await start([record]);
+    button('編集').click();
+    field('shopName').value = '手元の入力';
+    field('shopName').dispatchEvent(new Event('input', { bubbles: true }));
+    const latest = { ...record, basic: { ...record.basic, shopName: '別画面の修正' } };
+    window.localStorage.setItem('me-report-writer/visits/v1', JSON.stringify([latest]));
+    button('保存').click();
+    button('履歴').click();
+    const confirm = vi.fn(() => false);
+    vi.stubGlobal('confirm', confirm);
+
+    button('編集').click();
+    expect(confirm).toHaveBeenCalledOnce();
+    button('入力').click();
+    expect(field('shopName').value).toBe('手元の入力');
+    button('履歴').click();
+    confirm.mockReturnValue(true);
+    button('編集').click();
+    expect(field('shopName').value).toBe('別画面の修正');
+    field('therapistName').value = '開き直した後の追記';
+    button('保存').click();
+
+    const saved = JSON.parse(window.localStorage.getItem('me-report-writer/visits/v1')!) as VisitRecord[];
+    expect(saved[0]?.basic).toMatchObject({ shopName: '別画面の修正', therapistName: '開き直した後の追記' });
+    expect(document.querySelector('#visit-form')).toBeNull();
+  });
 });

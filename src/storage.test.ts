@@ -40,6 +40,37 @@ describe('VisitStore', () => {
     expect(store.loadAll()).toEqual([]);
   });
 
+  it.each(['initial', 'second'])('再訪から参照される%sの削除を拒否し、保存データとバックアップを保つ', (id) => {
+    const kv = new MemoryStore();
+    const store = new VisitStore(kv);
+    const initial = fixtureRecord({ id: 'initial' });
+    const second = fixtureRecord({ id: 'second', seriesNo: 2, revisitOf: initial.id, sales: { points: 100, articleType: 'revisit' } });
+    const third = fixtureRecord({ id: 'third', seriesNo: 3, revisitOf: second.id, sales: { points: 100, articleType: 'revisit' } });
+    store.save(initial);
+    store.save(second);
+    store.save(third);
+    const before = store.exportRawJson();
+    const backup = kv.getItem('me-report-writer/visits/v1/backup');
+    const pending = kv.getItem('me-report-writer/visits/v1/backup/pending');
+
+    expect(() => store.delete(id)).toThrow(/再訪.*参照.*削除できません/);
+    expect(store.exportRawJson()).toBe(before);
+    expect(kv.getItem('me-report-writer/visits/v1/backup')).toBe(backup);
+    expect(kv.getItem('me-report-writer/visits/v1/backup/pending')).toBe(pending);
+  });
+
+  it('参照されていない再訪記録は削除でき、残る初回記録を保つ', () => {
+    const store = new VisitStore(new MemoryStore());
+    const initial = fixtureRecord();
+    const revisit = fixtureRecord({ id: 'revisit', seriesNo: 2, revisitOf: initial.id, sales: { points: 100, articleType: 'revisit' } });
+    store.save(initial);
+    store.save(revisit);
+
+    store.delete(revisit.id);
+    expect(store.loadAll()).toEqual([initial]);
+    expect(store.restoreBackup()).toEqual([initial, revisit]);
+  });
+
   it('破損データは意味のあるエラーを投げる', () => {
     const kv = new MemoryStore();
     kv.setItem('me-report-writer/visits/v1', '{broken');
