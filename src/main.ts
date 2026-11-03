@@ -3,7 +3,6 @@ import { VisitStore } from './storage';
 import { renderForm, collectRecord, bindCourseFields, bindOptionFields, bindLocationFields } from './ui/form';
 import { bindChips, bindStars, copyText, esc, toast } from './ui/widgets';
 import { bindNoteSuggestions } from './ui/questionnaire-candidates';
-import { renderShareProbe, bindShareProbe } from './ui/share-probe';
 import { openHandoffUpdate } from './ui/handoff-import';
 import { MAX_HANDOFF_FILE_BYTES } from './handoff-import';
 import { shareRecord, shareErrorMessage } from './share';
@@ -408,10 +407,8 @@ function renderListTab(): void {
       <button id="import-handoff">回答を追加読込</button>
       ${canRestore ? '<button id="restore">バックアップ復元</button>' : ''}
     </div>
-    ${renderShareProbe()}
     ${records.length === 0 ? '<p class="empty">まだ訪問レコードがありません。「+ 新規入力」から始めてください。</p>' : rows}`;
 
-  bindShareProbe(app);
   document.getElementById('new-visit')?.addEventListener('click', () => openContext(null, null, true));
   document.getElementById('catalog')?.addEventListener('click', () => {
     const pref = prompt('対象の都道府県(wakustカテゴリー)は?', records[0]?.basic.prefecture ?? '東京都');
