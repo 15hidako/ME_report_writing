@@ -1,5 +1,7 @@
 # ME Report Writer — プロジェクト計画(確定版)
 
+2026-11-06追記：Claude Codeの元の案・合意を原則として引き継ぐ。[原要件の移植先](14-claude-requirements.md)と[出典・後の資料との差異](15-requirements-history.md)を参照する。この計画の原文は保持し、後半の作業記録を根拠に原案を縮小しない。
+
 個人利用。メンズエステ訪問後、モバイルで簡易質問票に入力し、
 wakust へ投稿できる形(HTML本文・タイトル・タグ・サムネイル)まで成型するツール。
 
@@ -102,4 +104,7 @@ PCでは[start.bat](../start.bat)からローカル版を起動できる。ロ�
 - [01-questionnaire.md](01-questionnaire.md) — 質問票設計
 - [02-article-templates.md](02-article-templates.md) — 記事テンプレート4系統
 - [03-style-profile.md](03-style-profile.md) — 文体プロファイル+隠語辞書
+- [11-remaining-tasks.md](11-remaining-tasks.md) — 中・低優先タスクの順序と完了条件
+- [12-editorial-plan.md](12-editorial-plan.md) — 優先レビューと訪問記事以外の直近の執筆タスク
+- [13-session-handoff.md](13-session-handoff.md) — 11月6日の訂正と、11月3日の引き継ぎ履歴
 - [../schema/visit-record.schema.json](../schema/visit-record.schema.json) — 訪問レコードのデータスキーマ(PWAの真実源)
