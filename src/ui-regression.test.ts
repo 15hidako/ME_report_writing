@@ -533,6 +533,15 @@ describe('起動からの画面操作', () => {
     expect(copy.mock.calls[0]![0]).not.toContain('https://wakust.com/u/second/');
   });
 
+  it('名前公開版のボタンは店名・源氏名を無料部分で出すプロンプトをコピーする', async () => {
+    await start([fixtureRecord()]);
+    const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
+    button('名前公開版').click();
+    await vi.waitFor(() => expect(copy).toHaveBeenCalledOnce());
+    expect(copy.mock.calls[0]![0]).toContain('店名・源氏名は無料部分とタイトルで開示する');
+    expect(copy.mock.calls[0]![0]).not.toContain('有料部分でのみ開示');
+  });
+
   it('再訪参照の循環を通知し、新しい記録を作らない', async () => {
     const first = fixtureRecord({ revisitOf: 'cycle', sales: { points: 100, articleType: 'revisit' } });
     const second = { ...first, id: 'cycle', seriesNo: 2, revisitOf: first.id };

@@ -9,8 +9,10 @@ import { shareRecord, shareErrorMessage } from './share';
 import { FormValidationError, validateVisitForm } from './form-validation';
 import { bindFormFeedback, type FormFeedback } from './ui/form-feedback';
 import { buildCatalogPrompt, buildMatomePrompt, buildRevisitPrompt, buildSinglePrompt } from './prompt/build-prompt';
+import type { NameDisclosure } from './prompt/build-prompt';
 import { specSummary } from './prompt/serialize';
-import { drawThumbnail, downloadCanvasPng, PALETTES } from './thumbnail';
+import { drawThumbnail, downloadCanvasPng, LAYOUTS, PALETTES } from './thumbnail';
+import type { ThumbnailLayout } from './thumbnail';
 import { localDate } from './date';
 import { SUMMARY_MIN_THERAPISTS, countPublishedTherapists, isPublished } from './prompt/publication';
 import './styles.css';
@@ -401,6 +403,7 @@ function renderListTab(): void {
         <small>${esc(specSummary(r))}</small></div>
       <div class="card-actions">
         <button data-act="prompt">プロンプト</button>
+        <button data-act="prompt-names">名前公開版</button>
         <button data-act="edit">編集</button>
         <button data-act="revisit">再訪入力</button>
         <button data-act="url">投稿URL</button>
@@ -506,7 +509,10 @@ function findOriginalRecord(start: VisitRecord): VisitRecord | 'missing' | 'cycl
 function handleCardAction(act: string, record: VisitRecord): void {
   switch (act) {
     case 'prompt':
-      copyPrompt(record);
+      copyPrompt(record, 'paid');
+      break;
+    case 'prompt-names':
+      copyPrompt(record, 'free');
       break;
     case 'edit':
       openContext(record.id, null);
@@ -536,23 +542,23 @@ function handleCardAction(act: string, record: VisitRecord): void {
   }
 }
 
-function copyPrompt(record: VisitRecord): void {
+function copyPrompt(record: VisitRecord, disclosure: NameDisclosure): void {
   try {
     if (record.revisitOf !== null) {
       const first = findOriginalRecord(record);
       if (first === 'missing') {
         toast('初回レコードが見つかりません。単体として生成します');
-        copyGenerated(buildSinglePrompt(record));
+        copyGenerated(buildSinglePrompt(record, disclosure));
         return;
       }
       if (first === 'cycle') {
         toast('再訪の参照が循環しています');
         return;
       }
-      copyGenerated(buildRevisitPrompt(record, first));
+      copyGenerated(buildRevisitPrompt(record, first, disclosure));
       return;
     }
-    copyGenerated(buildSinglePrompt(record));
+    copyGenerated(buildSinglePrompt(record, disclosure));
   } catch (err) {
     toast(errText(err));
   }
@@ -596,13 +602,18 @@ function renderThumbTab(): void {
   const paletteBtns = PALETTES
     .map((p, i) => `<button type="button" class="chip${i === 0 ? ' on' : ''}" data-palette="${i}">${p.name}</button>`)
     .join('');
+  const layoutBtns = LAYOUTS
+    .map((l, i) => `<button type="button" class="chip${i === 0 ? ' on' : ''}" data-layout="${l.id}">${l.name}</button>`)
+    .join('');
 
   app.innerHTML = `
     <div class="thumb-form">
+      <div class="chips" id="layout-chips">${layoutBtns}</div>
       <label class="field"><span>エリア</span><input id="t-area" value="${esc(latest?.basic.area ?? '')}" placeholder="恵比寿・中目黒" /></label>
+      <label class="field" data-for="names"><span>店名</span><input id="t-shop" value="${esc(latest?.basic.shopName ?? '')}" /></label>
+      <label class="field" data-for="names"><span>セラピスト名</span><input id="t-therapist" value="${esc(latest?.basic.therapistName ?? '')}" /></label>
       <label class="field"><span>スペック行</span><input id="t-spec" value="${esc(latest === undefined ? '' : specSummary(latest))}" placeholder="小柄Fカップ・元メンエス経験者ギャル" /></label>
-      <label class="field"><span>シリーズラベル</span><input id="t-series" value="${esc(`体験談 #${latest?.seriesNo ?? 1}`)}" /></label>
-      <label class="field"><span>フック</span><input id="t-hook" value="${esc(latest?.voice.titleHook ?? '')}" placeholder="圧強KWKWテクでSKR不可避" /></label>
+      <label class="field" data-for="summary"><span>フック</span><input id="t-hook" value="${esc(latest?.voice.titleHook ?? '')}" placeholder="圧強KWKWテクでSKR不可避" /></label>
       <div class="chips" id="palette-chips">${paletteBtns}</div>
       <div class="actions">
         <button id="t-draw" class="primary">プレビュー更新</button>
@@ -613,15 +624,33 @@ function renderThumbTab(): void {
 
   const canvas = document.getElementById('thumb-canvas') as HTMLCanvasElement;
   let paletteIdx = 0;
+  let layout: ThumbnailLayout = LAYOUTS[0]!.id;
+  const showFields = (): void => {
+    document.querySelectorAll<HTMLElement>('.thumb-form [data-for]').forEach((el) => {
+      el.hidden = el.dataset['for'] !== layout;
+    });
+  };
   const redraw = (): void => {
     const get = (id: string): string => (document.getElementById(id) as HTMLInputElement).value.trim();
     drawThumbnail(canvas, {
       area: get('t-area') || 'エリア未入力',
+      shopName: get('t-shop'),
+      therapistName: get('t-therapist'),
       specLine: get('t-spec'),
-      seriesLabel: get('t-series') || '体験談',
       hook: get('t-hook'),
-    }, PALETTES[paletteIdx] ?? PALETTES[0]!);
+    }, PALETTES[paletteIdx] ?? PALETTES[0]!, layout);
   };
+  document.getElementById('layout-chips')?.addEventListener('click', (event) => {
+    const chip = (event.target as HTMLElement).closest<HTMLElement>('button[data-layout]');
+    const next = LAYOUTS.find((l) => l.id === chip?.dataset['layout']);
+    if (chip === null || next === undefined) return;
+    layout = next.id;
+    document.querySelectorAll('#layout-chips .chip').forEach((c) => c.classList.remove('on'));
+    chip.classList.add('on');
+    showFields();
+    redraw();
+  });
+  showFields();
   document.getElementById('palette-chips')?.addEventListener('click', (event) => {
     const chip = (event.target as HTMLElement).closest('button[data-palette]');
     if (chip === null) return;

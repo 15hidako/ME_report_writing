@@ -1,34 +1,63 @@
 import type { VisitRecord } from '../types';
-import { STYLE_PROFILE, WAKUST_RULES } from './style-profile';
+import { STYLE_PROFILE, wakustRules } from './style-profile';
+import type { NameDisclosure } from './style-profile';
+
+export type { NameDisclosure } from './style-profile';
 import { serializeRecord, specSummary, tagCandidates } from './serialize';
 import { countPublishedTherapists, isPublished, SUMMARY_MIN_THERAPISTS, therapistIdentity } from './publication';
 
-const OUTPUT_FORMAT = `## 出力形式(この4ブロックを順に、コードブロックで出力)
-1. タイトル: 【フック】+属性キーワード+展開の匂わせ+【シリーズ#N】。店名・源氏名は入れない
+const TITLE_NAME_RULE: Readonly<Record<NameDisclosure, string>> = {
+  paid: '店名・源氏名は入れない',
+  free: 'タイトルに店名と源氏名を入れる',
+};
+
+const outputFormat = (disclosure: NameDisclosure): string => `## 出力形式(この4ブロックを順に、コードブロックで出力)
+1. タイトル: 【フック】+属性キーワード+展開の匂わせ+【シリーズ#N】。${TITLE_NAME_RULE[disclosure]}
 2. タグ: 半角コンマ区切り(候補から取捨選択・追加可)
 3. 無料部分HTML: <h3><p><ul><li><a><strong><em><small><br />のみ使用
 4. 有料部分HTML: 同上`;
 
-const SINGLE_STRUCTURE = `## 記事構成(単体体験談)
+// 開示先で変わるのは、導入・セラピスト紹介・有料部分の説明・店舗情報の4行だけ
+const STRUCTURE_LINES: Readonly<Record<NameDisclosure, {
+  readonly intro: string; readonly profile: string; readonly paidSummary: string; readonly shopInfo: string;
+}>> = {
+  paid: {
+    intro: '- 導入フック1〜2文(エリア+スペックで釣る。店名は出さない)',
+    profile: '- <h3>今回のセラピスト(スペック)</h3> エリア/系統/体型/特記のul',
+    paidSummary: '- <h3>有料部分の内容</h3> 店名・源氏名開示/評価6軸/以降の全展開/実額 と免責のsmall',
+    shopInfo: '- <h3>店舗・セラピスト情報</h3> 店名/URL/源氏名/profile/X/コース/オプション。',
+  },
+  free: {
+    intro: '- 導入フック1〜2文(エリア+店名+源氏名+スペックで釣る)',
+    profile: '- <h3>今回のセラピスト</h3> 店名/源氏名/エリア/系統/体型/特記のul(リンクは付けない)',
+    paidSummary: '- <h3>有料部分の内容</h3> 評価6軸/以降の全展開/店・セラピストのリンク/実額 と免責のsmall',
+    shopInfo: '- <h3>店舗・セラピスト情報</h3> 店URL/profile/X/コース/オプション(店名・源氏名は無料部分で既出)。',
+  },
+};
+
+const singleStructure = (disclosure: NameDisclosure): string => {
+  const lines = STRUCTURE_LINES[disclosure];
+  return `## 記事構成(単体体験談)
 [無料部分]
-- 導入フック1〜2文(エリア+スペックで釣る。店名は出さない)
-- <h3>今回のセラピスト(スペック)</h3> エリア/系統/体型/特記のul
+${lines.intro}
+${lines.profile}
 - <h3>こんな方にお勧め</h3> 2〜3項目のul(★5の評価軸だけを売りにする。★4以下の軸を無料部で推すと有料部と矛盾しレビューが下がる)
 - <h3>ご対面</h3> 対面〜シャワーの序盤ストーリー(セリフ・心の声は記録がある場合だけ使い、未入力なら省く)
 - <h3>施術スタート(うつ伏せ)</h3> うつ伏せ前半
 - オイル投入の直前、空気が変わる一文で切る(クリフハンガー)
 - <p><strong>—— ここから先、彼女の本気が始まります。</strong></p>
-- <h3>有料部分の内容</h3> 店名・源氏名開示/評価6軸/以降の全展開/実額 と免責のsmall
+${lines.paidSummary}
 
 [有料部分]
-- <h3>店舗・セラピスト情報</h3> 店名/URL/源氏名/profile/X/コース/オプション。リンクは必ずURL文字列もテキストで併記する(例: <a href="URL">店名</a><br />URL — リンク切れ時に購入者が追えるように。規約1-6)
+${lines.shopInfo}リンクは必ずURL文字列もテキストで併記する(例: <a href="URL">店名</a><br />URL — リンク切れ時に購入者が追えるように。規約1-6)
 - <h3>評価</h3> 6軸ul(★+一言)
 - <h3>オイル投入から{展開名}へ</h3> <h3>仰向けへ</h3> <h3>クライマックス</h3> フローに沿って。見出しの{展開名}は実際の展開を表す語に置き換える(「…」等のプレースホルダのまま出力しない)
 - クライマックスは記事の山場として最も厚く書く(体勢・彼女の様子・セリフ・心の声は記録された素材だけを使い、未入力の言葉は省く)。入力データの素材が薄くて2〜3文しか書けない場合は、記事の後に「⚠ クライマックスの素材不足: 質問票に追記推奨」と一言添える
 - <h3>総評</h3> リピート意向+残念ポイントも正直に
 - <p><em>皆さまのご武運をお祈りいたします!</em></p>`;
+};
 
-function header(task: string): string {
+function header(task: string, disclosure: NameDisclosure = 'paid'): string {
   return `あなたはメンズエステ体験レポートの専属ライターです。以下の訪問データだけを素材に、${task}を作成してください。
 
 前提(確認不要でそのまま生成を開始してください):
@@ -39,16 +68,16 @@ function header(task: string): string {
 
 ${STYLE_PROFILE}
 
-${WAKUST_RULES}`;
+${wakustRules(disclosure)}`;
 }
 
 /** 単体体験談の生成プロンプト */
-export function buildSinglePrompt(record: VisitRecord): string {
-  return `${header('wakust投稿用の体験談記事')}
+export function buildSinglePrompt(record: VisitRecord, disclosure: NameDisclosure = 'paid'): string {
+  return `${header('wakust投稿用の体験談記事', disclosure)}
 
-${SINGLE_STRUCTURE}
+${singleStructure(disclosure)}
 
-${OUTPUT_FORMAT}
+${outputFormat(disclosure)}
 
 タグ候補: ${tagCandidates(record).join(', ')}
 販売ポイント案: ${record.sales.points}pt
@@ -57,17 +86,19 @@ ${serializeRecord(record)}`;
 }
 
 /** 再訪記事の生成プロンプト(初回レコードとの差分中心) */
-export function buildRevisitPrompt(record: VisitRecord, first: VisitRecord): string {
-  return `${header('wakust投稿用の再訪レポート記事')}
+export function buildRevisitPrompt(
+  record: VisitRecord, first: VisitRecord, disclosure: NameDisclosure = 'paid',
+): string {
+  return `${header('wakust投稿用の再訪レポート記事', disclosure)}
 
 ## 記事構成(再訪)
 - 無料部分の冒頭に必ず「初回の体験談はこちら → <a href="{初回記事URL}">体験談#${first.seriesNo}</a>(※本記事は再訪レポートです)」を入れる(規約要件)。初回記事URL: ${first.postedUrl ?? '{投稿後に差し替え}'}
 - 初回との差分・進展・変化を中心に書く(重複する基本描写は最小限)
 - それ以外の構成・カット位置は単体体験談と同じ
 
-${SINGLE_STRUCTURE}
+${singleStructure(disclosure)}
 
-${OUTPUT_FORMAT}
+${outputFormat(disclosure)}
 
 タグ候補: ${tagCandidates(record).join(', ')}
 
@@ -125,7 +156,7 @@ export function buildMatomePrompt(
 - 有料部分: 各人の店名・源氏名・リンク+体験の要約(元記事の再編集。丸コピーはしない)+単体記事へのリンク(テキスト併記)
 - 順位付けまたは推薦理由を明確に
 
-${OUTPUT_FORMAT}
+${outputFormat('paid')}
 
 ### 対象訪問データ(${records.length}件)
 ${data}`;

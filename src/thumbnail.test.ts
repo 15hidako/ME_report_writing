@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { fitLines, THUMB_H, THUMB_W, wrapText } from './thumbnail';
+import { fitLines, mixHex, splitHonorific, THUMB_H, THUMB_W, withAlpha, wrapText } from './thumbnail';
 import type { BlockSpec } from './thumbnail';
 
 // 1文字=10pxの固定幅で測る
@@ -8,8 +8,42 @@ const measure = (text: string): number => [...text].length * 10;
 const measureAt = (size: number) => (text: string): number => [...text].length * size;
 
 describe('サムネイルの寸法', () => {
-  it('wakustのトップ画像と同じ縦横比2:3で出力する', () => {
-    expect(THUMB_W * 3).toBe(THUMB_H * 2);
+  it('wakustのトップ画像と同じ縦:横=2:3の横長で出力する', () => {
+    expect(THUMB_H * 3).toBe(THUMB_W * 2);
+    expect(THUMB_W).toBeGreaterThan(THUMB_H);
+  });
+});
+
+describe('splitHonorific', () => {
+  it('名前だけなら敬称「さん」を補う', () => {
+    expect(splitHonorific('ともみ')).toEqual({ name: 'ともみ', honorific: 'さん' });
+  });
+
+  it('末尾の「さん」は名前から切り離し、二重にしない', () => {
+    expect(splitHonorific('ともみさん')).toEqual({ name: 'ともみ', honorific: 'さん' });
+  });
+
+  it('前後の空白を除く', () => {
+    expect(splitHonorific(' ともみ さん ')).toEqual({ name: 'ともみ', honorific: 'さん' });
+  });
+
+  it('空の名前には敬称を付けない', () => {
+    expect(splitHonorific('')).toEqual({ name: '', honorific: '' });
+  });
+});
+
+describe('配色の色計算', () => {
+  it('#rrggbbに透明度を付ける', () => {
+    expect(withAlpha('#ff4d8d', 0.5)).toBe('rgba(255, 77, 141, 0.5)');
+  });
+
+  it('2色を指定の比率で混ぜる', () => {
+    expect(mixHex('#000000', '#ffffff', 0.5)).toBe('rgb(128, 128, 128)');
+    expect(mixHex('#e8c66a', '#ffffff', 0)).toBe('rgb(232, 198, 106)');
+  });
+
+  it('#rrggbb以外の色指定は理由つきで拒否する', () => {
+    expect(() => withAlpha('red', 1)).toThrow('#rrggbb');
   });
 });
 

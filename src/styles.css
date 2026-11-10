@@ -225,9 +225,10 @@ button.danger { color: #ff7a7a; }
 
 /* サムネ */
 .thumb-form { margin-bottom: 14px; }
+.thumb-form [hidden] { display: none; }
 .thumb-preview {
   display: block;
-  width: min(100%, 320px);
+  width: min(100%, 480px);
   margin-inline: auto;
   border-radius: var(--radius);
   border: 1px solid #3a2f55;

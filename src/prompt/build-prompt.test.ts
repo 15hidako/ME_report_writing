@@ -76,6 +76,40 @@ describe('buildSinglePrompt', () => {
   });
 });
 
+describe('店名・セラピスト名の開示先', () => {
+  it('既定では店名・源氏名を有料部分だけで開示し、タイトルにも入れない', () => {
+    const p = buildSinglePrompt(fixtureRecord());
+    expect(p).toContain('店名・源氏名・リンクは有料部分でのみ開示');
+    expect(p).toContain('店名・源氏名は入れない');
+    expect(p).toContain('<h3>有料部分の内容</h3> 店名・源氏名開示');
+    // 名前の開示ルールは従来どおり規約節の先頭に置く
+    expect(p).toContain('## wakust規約の遵守(生成時必須)\n- 店名・源氏名・リンクは有料部分でのみ開示');
+  });
+
+  it('名前公開型では無料部分とタイトルで店名・源氏名を出し、有料部分は詳細レビューにする', () => {
+    const p = buildSinglePrompt(fixtureRecord(), 'free');
+    expect(p).toContain('店名・源氏名は無料部分とタイトルで開示する');
+    expect(p).toContain('タイトルに店名と源氏名を入れる');
+    expect(p).toContain('<h3>今回のセラピスト</h3> 店名/源氏名/エリア');
+    expect(p).not.toContain('有料部分でのみ開示');
+    expect(p).not.toContain('店名は出さない');
+    expect(p).not.toContain('店名・源氏名開示');
+    // リンクと詳細は有料部分に残す
+    expect(p).toContain('<h3>店舗・セラピスト情報</h3> 店URL/profile/X');
+  });
+
+  it('再訪記事でも名前公開型を選べる', () => {
+    const p = buildRevisitPrompt(fixtureRecord({ id: 'r2', seriesNo: 2 }), fixtureRecord(), 'free');
+    expect(p).toContain('店名・源氏名は無料部分とタイトルで開示する');
+    expect(p).not.toContain('有料部分でのみ開示');
+  });
+
+  it('カタログ記事は従来どおり店名・源氏名を伏せる', () => {
+    const p = buildCatalogPrompt([fixtureRecord({ postedUrl: 'https://wakust.com/u/1/' })], '東京都');
+    expect(p).toContain('店名・源氏名・リンクは有料部分でのみ開示');
+  });
+});
+
 describe('buildRevisitPrompt', () => {
   it('初回参照とリンク要件を含む', () => {
     const first = fixtureRecord({ postedUrl: 'https://wakust.com/u/111/' });
