@@ -226,7 +226,9 @@ button.danger { color: #ff7a7a; }
 /* サムネ */
 .thumb-form { margin-bottom: 14px; }
 .thumb-preview {
-  width: 100%;
+  display: block;
+  width: min(100%, 320px);
+  margin-inline: auto;
   border-radius: var(--radius);
   border: 1px solid #3a2f55;
 }
