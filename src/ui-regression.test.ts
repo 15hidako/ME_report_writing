@@ -534,7 +534,7 @@ describe('起動からの画面操作', () => {
     expect(copy.mock.calls[0]![0]).not.toContain('https://wakust.com/u/second/');
   });
 
-  it('生成時に在籍確認日を聞き、取得日を初期値にして記事の指示へ渡す', async () => {
+  it('生成時に出勤確認日を聞き、取得日を初期値にして記事の指示へ渡す', async () => {
     const base = fixtureRecord();
     const record = fixtureRecord({ basic: { ...base.basic, identityLookup: {
       // 取得日は利用者の現地日付で扱う。実行環境のタイムゾーンに依らないよう現地時刻から作る
@@ -547,10 +547,10 @@ describe('起動からの画面操作', () => {
     button('プロンプト').click();
     await vi.waitFor(() => expect(copy).toHaveBeenCalledOnce());
     expect(ask.mock.calls[0]![1]).toBe('2026-11-11');
-    expect(copy.mock.calls[0]![0]).toContain('<p>在籍確認: 2026年11月12日時点で店舗HPに掲載</p>');
+    expect(copy.mock.calls[0]![0]).toContain('<p>出勤確認: 2026年11月12日に店舗HPの出勤表で確認</p>');
   });
 
-  it('在籍確認日の入力を取り消すと、プロンプトをコピーしない', async () => {
+  it('出勤確認日の入力を取り消すと、プロンプトをコピーしない', async () => {
     await start([fixtureRecord()]);
     vi.stubGlobal('prompt', vi.fn(() => null));
     const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
@@ -559,12 +559,12 @@ describe('起動からの画面操作', () => {
     expect(copy).not.toHaveBeenCalled();
   });
 
-  it('不正な在籍確認日は理由を表示し、プロンプトをコピーしない', async () => {
+  it('不正な出勤確認日は理由を表示し、プロンプトをコピーしない', async () => {
     await start([fixtureRecord()]);
     vi.stubGlobal('prompt', vi.fn(() => '2026/11/11'));
     const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
     button('プロンプト').click();
-    await vi.waitFor(() => expect(document.body.textContent).toContain('在籍確認日はYYYY-MM-DD'));
+    await vi.waitFor(() => expect(document.body.textContent).toContain('出勤確認日はYYYY-MM-DD'));
     expect(copy).not.toHaveBeenCalled();
   });
 

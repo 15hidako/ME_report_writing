@@ -309,7 +309,7 @@ describe('タグの個数とNGタグの指示(C1)', () => {
   });
 });
 
-describe('今回の進め方と在籍確認日(C4)', () => {
+describe('今回の進め方と出勤確認日(C4)', () => {
   it('総評の前に、記録がある場合だけ今回の進め方を置く指示を入れる', () => {
     const p = buildSinglePrompt(fixtureRecord());
     expect(p).toContain('<h3>今回の進め方</h3>');
@@ -319,25 +319,25 @@ describe('今回の進め方と在籍確認日(C4)', () => {
     expect(p).toContain('今回の進め方(記録がある場合)');
   });
 
-  it('在籍確認日を渡すと、有料部分の店舗情報にその日付の行を入れる', () => {
+  it('出勤確認日を渡すと、有料部分の店舗情報にその日付の行を入れる', () => {
     const p = buildSinglePrompt(fixtureRecord(), 'paid', '2026-11-11');
-    expect(p).toContain('<p>在籍確認: 2026年11月11日時点で店舗HPに掲載</p>');
-    expect(p).not.toContain('在籍確認の行は出さない');
+    expect(p).toContain('<p>出勤確認: 2026年11月11日に店舗HPの出勤表で確認</p>');
+    expect(p).not.toContain('出勤確認の行は出さない');
   });
 
-  it('在籍確認日がなければ、行を出さない指示にする', () => {
+  it('出勤確認日がなければ、行を出さない指示にする', () => {
     const p = buildSinglePrompt(fixtureRecord());
-    expect(p).toContain('在籍確認の行は出さない');
-    expect(p).not.toContain('<p>在籍確認:');
+    expect(p).toContain('出勤確認の行は出さない');
+    expect(p).not.toContain('<p>出勤確認:');
   });
 
-  it('再訪記事にも在籍確認日を渡せる', () => {
+  it('再訪記事にも出勤確認日を渡せる', () => {
     const p = buildRevisitPrompt(fixtureRecord({ id: 'r2', seriesNo: 2 }), fixtureRecord(), 'free', '2026-11-03');
-    expect(p).toContain('<p>在籍確認: 2026年11月3日時点で店舗HPに掲載</p>');
+    expect(p).toContain('<p>出勤確認: 2026年11月3日に店舗HPの出勤表で確認</p>');
   });
 
-  it('不正な在籍確認日は生成前に止める', () => {
-    expect(() => buildSinglePrompt(fixtureRecord(), 'paid', '2026-13-01')).toThrow(/在籍確認日/);
+  it('不正な出勤確認日は生成前に止める', () => {
+    expect(() => buildSinglePrompt(fixtureRecord(), 'paid', '2026-13-01')).toThrow(/出勤確認日/);
   });
 
   it('まとめ記事に、条件で選ぶテーマの判定と見せ方の指示を入れる', () => {
@@ -372,5 +372,33 @@ describe('span style の装飾(H-01)', () => {
     expect(line).toContain('<span style>');
     expect(p).toContain('style属性は color と font-weight だけ');
     expect(p).toContain('記事の大半を装飾しない');
+  });
+});
+
+describe('タイトル先頭の【エリア｜出勤確認】(H-15)', () => {
+  const titleLine = (p: string): string => p.split('\n').find((l) => l.startsWith('1. タイトル')) ?? '';
+
+  it('出勤確認日があれば、先頭の【】をエリアと確認月にする', () => {
+    const p = buildSinglePrompt(fixtureRecord(), 'paid', '2026-11-11');
+    expect(titleLine(p)).toContain('先頭は必ず【恵比寿・中目黒｜11月出勤確認】');
+    expect(titleLine(p)).toContain('【メンズエステ体験談】');
+    expect(titleLine(p)).not.toContain('【フック】');
+  });
+
+  it('出勤確認日がなければ、先頭の【】はエリアだけにする', () => {
+    const p = buildSinglePrompt(fixtureRecord());
+    expect(titleLine(p)).toContain('先頭は必ず【恵比寿・中目黒】');
+    expect(titleLine(p)).not.toContain('出勤確認】');
+  });
+
+  it('フックは【】の外に出し、出勤予定日は入れない', () => {
+    const line = titleLine(buildSinglePrompt(fixtureRecord(), 'paid', '2026-11-11'));
+    expect(line).toContain('フックは【】で囲まず');
+    expect(line).toContain('出勤予定日は入れない');
+  });
+
+  it('再訪記事も同じ先頭にする', () => {
+    const p = buildRevisitPrompt(fixtureRecord({ id: 'r2', seriesNo: 2 }), fixtureRecord(), 'paid', '2026-12-01');
+    expect(titleLine(p)).toContain('先頭は必ず【恵比寿・中目黒｜12月出勤確認】');
   });
 });

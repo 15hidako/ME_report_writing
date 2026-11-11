@@ -577,7 +577,7 @@ function handleCardAction(act: string, record: VisitRecord): void {
   }
 }
 
-/** 在籍確認日の初期値。プロフィールURLから店舗情報を取得した日があれば使う */
+/** 出勤確認日の初期値。プロフィールURLから店舗情報を取得した日があれば使う */
 function defaultListingCheckDate(record: VisitRecord): string {
   const lookup = record.basic.identityLookup;
   if (lookup === undefined || lookup.sourceUrl !== record.basic.therapistProfileUrl) return '';
@@ -587,7 +587,7 @@ function defaultListingCheckDate(record: VisitRecord): string {
 
 function copyPrompt(record: VisitRecord, disclosure: NameDisclosure): void {
   const listingCheckedOn = prompt(
-    '在籍確認日(店舗HPで在籍を確かめた日。YYYY-MM-DD。空欄なら記事に書かない)',
+    '出勤確認日(店舗HPの出勤表で出勤を確かめた日。YYYY-MM-DD。空欄なら記事に書かない)',
     defaultListingCheckDate(record),
   );
   if (listingCheckedOn === null) return;

@@ -18,8 +18,26 @@ const TAG_RULE = '半角コンマ区切りで6個以内。都道府県は「東�
 /** wakustの投稿欄で保存後も残ることを確かめた装飾(C3)。色や強調の標準は固定しない。H-01 */
 const SPAN_STYLE_RULE = '- <span style> は強調したい一言にだけ使う。style属性は color と font-weight だけにし、記事の大半を装飾しない';
 
-const outputFormat = (disclosure: NameDisclosure): string => `## 出力形式(この4ブロックを順に、コードブロックで出力)
-1. タイトル: 【フック】+属性キーワード(系統・特記。年齢・体型・カップ数は入れない)+展開の匂わせ+【メンズエステ体験談】(通し番号は付けない)。${TITLE_NAME_RULE[disclosure]}
+const TITLE_BODY = '属性キーワード(系統・特記。年齢・体型・カップ数は入れない)+展開の匂わせ+【メンズエステ体験談】(通し番号は付けない)';
+
+/**
+ * 体験談タイトルの先頭の【】。地名を最初に見せ、出勤を確かめた月を添える(H-15)。
+ * 日付まで出すとセラピストを絞り込めるため、月だけにする。
+ */
+function titleLead(record: VisitRecord, listingCheckedOn: string | null): string | null {
+  const area = record.basic.area.trim();
+  const date = listingCheckedOn === null ? null : parseListingCheckDate(listingCheckedOn);
+  const checked = date === null ? null : `${Number(date.slice(5, 7))}月出勤確認`;
+  const parts = [area, checked].filter((part): part is string => part !== null && part !== '');
+  return parts.length === 0 ? null : `【${parts.join('｜')}】`;
+}
+
+const titleRule = (disclosure: NameDisclosure, lead: string | null): string => lead === null
+  ? `【フック】+${TITLE_BODY}。${TITLE_NAME_RULE[disclosure]}`
+  : `先頭は必ず${lead}。フックは【】で囲まず、先頭の直後に短く置く。続けて${TITLE_BODY}。出勤予定日は入れない。${TITLE_NAME_RULE[disclosure]}`;
+
+const outputFormat = (disclosure: NameDisclosure, lead: string | null = null): string => `## 出力形式(この4ブロックを順に、コードブロックで出力)
+1. タイトル: ${titleRule(disclosure, lead)}
 2. タグ: ${TAG_RULE}(候補から取捨選択・追加可)
 3. 無料部分HTML: <h3><p><ul><li><a><strong><em><small><span style><br />のみ使用
 4. 有料部分HTML: 同上
@@ -43,12 +61,12 @@ const STRUCTURE_LINES: Readonly<Record<NameDisclosure, {
   },
 };
 
-/** 在籍確認日の指示。本人が確かめた日だけを出し、確かめていなければ行ごと省く。H-13 */
+/** 出勤確認日の指示。本人が店舗HPの出勤表で確かめた日だけを出し、確かめていなければ行ごと省く。H-13・H-15 */
 function listingCheckLine(listingCheckedOn: string | null): string {
   const date = listingCheckedOn === null ? null : parseListingCheckDate(listingCheckedOn);
   return date === null
-    ? '- 在籍確認の行は出さない(本人が在籍を確かめた日の入力がない)'
-    : `- 店舗・セラピスト情報の末尾に <p>在籍確認: ${formatJapaneseDate(date)}時点で店舗HPに掲載</p> を入れる(日付を変えない)`;
+    ? '- 出勤確認の行は出さない(本人が出勤を確かめた日の入力がない)'
+    : `- 店舗・セラピスト情報の末尾に <p>出勤確認: ${formatJapaneseDate(date)}に店舗HPの出勤表で確認</p> を入れる(日付を変えない)`;
 }
 
 const singleStructure = (disclosure: NameDisclosure, listingCheckedOn: string | null): string => {
@@ -94,7 +112,7 @@ export function buildSinglePrompt(
 
 ${singleStructure(disclosure, listingCheckedOn)}
 
-${outputFormat(disclosure)}
+${outputFormat(disclosure, titleLead(record, listingCheckedOn))}
 
 タグ候補: ${tagCandidates(record).join(', ')}
 販売ポイント案: ${record.sales.points}pt
@@ -115,7 +133,7 @@ export function buildRevisitPrompt(
 
 ${singleStructure(disclosure, listingCheckedOn)}
 
-${outputFormat(disclosure)}
+${outputFormat(disclosure, titleLead(record, listingCheckedOn))}
 
 タグ候補: ${tagCandidates(record).join(', ')}
 

@@ -8,14 +8,14 @@ export function localDate(date = new Date()): string {
 const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
 
 /**
- * 在籍確認日の入力を検証する。空欄は「確認していない」として null を返す。
+ * 出勤確認日の入力を検証する。空欄は「確認していない」として null を返す。
  * 実在しない日付や別の書式は、記事に誤った日付を出さないよう拒否する。
  */
 export function parseListingCheckDate(input: string): string | null {
   const value = input.trim();
   if (value === '') return null;
   const match = ISO_DATE.exec(value);
-  const invalid = new Error(`在籍確認日はYYYY-MM-DDの実在する日付で入力してください: ${value}`);
+  const invalid = new Error(`出勤確認日はYYYY-MM-DDの実在する日付で入力してください: ${value}`);
   if (match === null) throw invalid;
   const [year, month, day] = [Number(match[1]), Number(match[2]), Number(match[3])];
   const date = new Date(year, month - 1, day);

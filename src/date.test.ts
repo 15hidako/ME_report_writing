@@ -11,7 +11,7 @@ describe('localDate', () => {
 });
 
 describe('parseListingCheckDate', () => {
-  it('空欄は在籍確認なしとして null を返す', () => {
+  it('空欄は出勤確認なしとして null を返す', () => {
     expect(parseListingCheckDate('')).toBeNull();
     expect(parseListingCheckDate('   ')).toBeNull();
   });
@@ -19,7 +19,7 @@ describe('parseListingCheckDate', () => {
     expect(parseListingCheckDate(' 2026-11-11 ')).toBe('2026-11-11');
   });
   it.each(['2026/11/11', '2026-13-01', '2026-02-30', '11月11日'])('%s は理由付きで拒否する', (input) => {
-    expect(() => parseListingCheckDate(input)).toThrow(/在籍確認日はYYYY-MM-DD/);
+    expect(() => parseListingCheckDate(input)).toThrow(/出勤確認日はYYYY-MM-DD/);
   });
 });
 
