@@ -18,6 +18,7 @@ import { drawThumbnail, downloadCanvasPng, LAYOUTS, PALETTES } from './thumbnail
 import type { ThumbnailLayout } from './thumbnail';
 import { localDate } from './date';
 import { SUMMARY_MIN_THERAPISTS, countPublishedTherapists, isPublished } from './prompt/publication';
+import { BUILD_ID, fetchLatestBuildId, updateUrl } from './update-check';
 import './styles.css';
 
 const appNode = document.getElementById('app');
@@ -719,7 +720,47 @@ function renderThumbTab(): void {
   redraw();
 }
 
+const RELOADED_FOR_KEY = 'me-report-writer/reloaded-for';
+
+function applyUpdate(latest: string): void {
+  sessionStorage.setItem(RELOADED_FOR_KEY, latest);
+  location.replace(updateUrl(location.href, latest));
+}
+
+function offerUpdate(latest: string): void {
+  if (document.getElementById('update-app') !== null) return;
+  const bar = document.createElement('div');
+  bar.className = 'actions';
+  bar.innerHTML = '<button type="button" id="update-app" class="primary">新しい版に更新</button>';
+  bar.addEventListener('click', () => {
+    if (confirmDiscardDraft()) applyUpdate(latest);
+  });
+  document.querySelector('header')?.append(bar);
+}
+
+/** 新しい版が公開されていれば読み込み直す。入力や共有の途中では勝手に読み込み直さず、ボタンを出す */
+async function checkForUpdate(): Promise<void> {
+  const latest = await fetchLatestBuildId();
+  if (latest === null || latest === BUILD_ID) return;
+  const busy = formCache !== null && (formCache.dirty || formCache.sharing);
+  // 同じ版へ読み込み直しても古いままなら、繰り返さずボタンに任せる
+  if (busy || sessionStorage.getItem(RELOADED_FOR_KEY) === latest) offerUpdate(latest);
+  else applyUpdate(latest);
+}
+
+function watchForUpdate(): void {
+  const check = (): void => {
+    if (document.visibilityState !== 'visible') return;
+    void checkForUpdate().catch((err: unknown) => toast(errText(err)));
+  };
+  document.addEventListener('visibilitychange', check);
+  window.addEventListener('pageshow', check);
+  check();
+}
+
 document.querySelectorAll('nav button').forEach((b) => {
   b.addEventListener('click', () => switchTab(b.getAttribute('data-tab') as Tab));
 });
 switchTab('list');
+// 開発サーバーとテストには version.json がないため、公開ビルドだけで確認する
+if (!import.meta.env.DEV) watchForUpdate();
