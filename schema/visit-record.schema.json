@@ -137,6 +137,21 @@
             }
           ]
         },
+        "identityLookup": {
+          "type": "object",
+          "description": "プロフィールURLから店とセラピストの情報を取得した記録(任意)",
+          "required": ["sourceUrl", "checkedAt", "filled"],
+          "properties": {
+            "sourceUrl": { "$ref": "#/$defs/httpUrl" },
+            "checkedAt": { "type": "string", "format": "date-time" },
+            "filled": {
+              "type": "array",
+              "description": "取得結果で埋めた項目。手入力の項目は含まない",
+              "uniqueItems": true,
+              "items": { "enum": ["shopName", "shopUrl", "therapistName", "therapistXUrl"] }
+            }
+          }
+        },
         "age": {
           "type": [
             "integer",

@@ -1,5 +1,6 @@
 import { parseRecordsJson, parseVisitRecords } from './record-validation';
-import type { VisitRecord } from './types';
+import { IDENTITY_FIELDS, pageKey } from './identity';
+import type { BasicInfo, VisitRecord } from './types';
 
 export const MAX_HANDOFF_FILE_BYTES = 1024 * 1024;
 
@@ -47,6 +48,16 @@ function changesBetween(before: unknown, after: unknown, path = ''): HandoffChan
   );
 }
 
+/** 同じプロフィールURLの再共有では、PC側で補完した店とセラピストの情報を空欄で消さない */
+function keepResolvedIdentity(previous: BasicInfo, incoming: BasicInfo): BasicInfo {
+  const page = pageKey(incoming.therapistProfileUrl);
+  if (page === null || page !== pageKey(previous.therapistProfileUrl)) return incoming;
+  const kept = Object.fromEntries(IDENTITY_FIELDS.flatMap((field) =>
+    incoming[field].trim() === '' && previous[field] !== '' ? [[field, previous[field]]] : []));
+  const identityLookup = incoming.identityLookup ?? previous.identityLookup;
+  return { ...incoming, ...kept, ...(identityLookup === undefined ? {} : { identityLookup }) };
+}
+
 function validateRevisit(record: VisitRecord, records: readonly VisitRecord[]): void {
   const byId = new Map(records.map((item) => [item.id, item]));
   const visited = new Set([record.id]);
@@ -73,7 +84,10 @@ export function prepareHandoffImport(currentRecords: readonly VisitRecord[], jso
   const previous = current.find((item) => item.id === record.id);
   const snapshot = JSON.stringify(canonicalValue(current));
   if (previous) {
-    const replacement = { ...record, seriesNo: previous.seriesNo, createdAt: previous.createdAt, postedUrl: previous.postedUrl };
+    const replacement = {
+      ...record, seriesNo: previous.seriesNo, createdAt: previous.createdAt, postedUrl: previous.postedUrl,
+      basic: keepResolvedIdentity(previous.basic, record.basic),
+    };
     validateRevisit(replacement, current.map((item) => item.id === replacement.id ? replacement : item));
     const changes = changesBetween(previous, replacement);
     return changes.length === 0

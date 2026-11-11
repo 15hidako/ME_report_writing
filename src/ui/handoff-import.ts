@@ -1,7 +1,8 @@
 import type { HandoffImportPlan } from '../handoff-import';
 import { optionDescription } from '../options';
 import { BODY_LABELS, CUP_IMPRESSION_LABELS, FLOW_PHASES, GENRE_LABELS, RATING_LABELS, REPEAT_LABELS, SPEC_NOTE_LABELS } from '../types';
-import type { VisitOption } from '../types';
+import type { IdentityLookup, VisitOption } from '../types';
+import { IDENTITY_LABELS } from './identity-autofill';
 import { SPEECH_TOPIC_LABELS } from '../voice-patterns';
 
 const labels: Record<string, string> = {
@@ -9,7 +10,9 @@ const labels: Record<string, string> = {
   'basic.visitDate': '訪問日', 'basic.timeSlot': '時間帯', 'basic.prefecture': '都道府県',
   'basic.area': 'エリア', 'basic.shopName': '店名', 'basic.shopUrl': '店URL',
   'basic.therapistName': 'セラピスト名', 'basic.therapistProfileUrl': 'プロフィールURL',
-  'basic.therapistXUrl': 'X URL', 'basic.age': '年齢', 'basic.ageIsEstimate': '年齢は推定',
+  'basic.therapistXUrl': 'X URL', 'basic.identityLookup': '店舗情報の取得記録',
+  'basic.identityLookup.sourceUrl': '店舗情報の取得元URL', 'basic.identityLookup.checkedAt': '店舗情報の取得日時',
+  'basic.identityLookup.filled': '取得で補完した項目', 'basic.age': '年齢', 'basic.ageIsEstimate': '年齢は推定',
   'basic.course': 'コース時間', 'basic.courseFee': 'コース代', 'basic.optionSystem': 'オプションの自由記述',
   'basic.options': 'オプション', 'basic.optionChosen': '選択したオプション',
   'basic.optionFee': 'オプション代合計', 'basic.nominationFee': '指名料',
@@ -36,6 +39,7 @@ const valueLabels: Record<string, Readonly<Record<string, string>>> = {
   'spec.genre': GENRE_LABELS, 'spec.body': BODY_LABELS, 'spec.notes': SPEC_NOTE_LABELS,
   'spec.cupImpression': CUP_IMPRESSION_LABELS, 'voice.speechTopics': SPEECH_TOPIC_LABELS,
   'voice.repeatIntent': REPEAT_LABELS, 'sales.articleType': { single: '初回', revisit: '再訪' },
+  'basic.identityLookup.filled': IDENTITY_LABELS,
 };
 
 function displayValue(path: string, value: unknown): string {
@@ -47,6 +51,10 @@ function displayValue(path: string, value: unknown): string {
     return value.map((item: unknown) => displayValue(path, item)).join('\n');
   }
   if (typeof value === 'string') return valueLabels[path]?.[value] ?? value;
+  if (path === 'basic.identityLookup' && typeof value === 'object') {
+    const { sourceUrl, checkedAt } = value as Partial<IdentityLookup>;
+    return [sourceUrl, checkedAt].filter((item) => item !== undefined).join('\n');
+  }
   return String(value);
 }
 

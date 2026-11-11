@@ -39,6 +39,19 @@ export class VisitStore {
     return this.writeAll(next);
   }
 
+  /** 確認画面を出している間に保存内容が変わっていないことを確かめ、複数の回答をまとめて更新する */
+  saveMany(records: readonly VisitRecord[], expectedRaw: string): VisitRecord[] {
+    if (this.exportRawJson() !== expectedRaw) {
+      throw new Error('回答が変更されています。取得結果を貼り付け直して確認してください');
+    }
+    const updates = new Map(parseVisitRecords(records).map((record) => [record.id, record]));
+    const all = this.loadAll();
+    if ([...updates.keys()].some((id) => !all.some((record) => record.id === id))) {
+      throw new Error('保存済みの回答が見つかりません。取得結果を貼り付け直して確認してください');
+    }
+    return this.writeAll(all.map((record) => updates.get(record.id) ?? record));
+  }
+
   delete(id: string): VisitRecord[] {
     const all = this.loadAll();
     if (all.some((record) => record.revisitOf === id)) {

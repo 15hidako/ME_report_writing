@@ -321,4 +321,26 @@ describe('回答の追加読込', () => {
     expect(document.querySelector('.handoff-dialog')).toBeNull();
     expect(document.body.textContent).not.toContain('追加しました');
   });
+  it('再共有では補完済みの店舗情報を保ち、取得記録の差分を読める形で示す', async () => {
+    const lookup = { sourceUrl: 'https://example.com/profile/1', checkedAt: '2026-11-11T03:00:00.000Z', filled: ['shopName'] as const };
+    const resolved = fixtureRecord({ basic: { ...fixtureRecord().basic, identityLookup: lookup } });
+    const { identityLookup: _dropped, ...phoneBasic } = resolved.basic;
+    const blank = { ...phoneBasic, shopName: '', shopUrl: '', therapistName: '', therapistXUrl: '' };
+    await start([resolved]);
+
+    await pickFile(JSON.stringify([{ ...resolved, basic: { ...blank, area: '新宿' } }]));
+    const kept = document.querySelector<HTMLDialogElement>('.handoff-dialog')!;
+    expect(kept.textContent).toContain('エリア');
+    expect(kept.textContent).not.toContain('店名');
+    button('更新する').click();
+    await vi.waitFor(() => expect(document.querySelector('.handoff-dialog')).toBeNull());
+    expect(records()[0]?.basic).toMatchObject({ area: '新宿', shopName: resolved.basic.shopName, identityLookup: lookup });
+
+    await pickFile(JSON.stringify([{ ...resolved, basic: { ...blank, area: '新宿', therapistProfileUrl: 'https://example.com/profile/2' } }]));
+    const replaced = document.querySelector<HTMLDialogElement>('.handoff-dialog')!;
+    expect(replaced.textContent).toContain('店舗情報の取得記録');
+    expect(replaced.textContent).toContain(lookup.sourceUrl);
+    expect(replaced.textContent).not.toContain('[object Object]');
+    expect(replaced.textContent).not.toContain('変更項目');
+  });
 });

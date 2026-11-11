@@ -199,3 +199,63 @@ describe('prepareHandoffImport', () => {
     expect(prepareHandoffImport([{ ...current, postedUrl: 'https://example.com/article' }], incoming).snapshot).not.toBe(snapshot);
   });
 });
+
+describe('再共有での店舗情報の保持', () => {
+  const lookup = { sourceUrl: 'https://example.com/profile/1', checkedAt: '2026-11-11T03:00:00.000Z', filled: ['shopName', 'therapistName'] as const };
+  const resolved = fixtureRecord({ basic: { ...fixtureRecord().basic, identityLookup: lookup } });
+  const blank = { shopName: '', shopUrl: '', therapistName: '', therapistXUrl: '' };
+
+  function phoneCopy(basic: Partial<VisitRecord['basic']> = {}, overrides: Partial<VisitRecord> = {}): VisitRecord {
+    const { identityLookup: _dropped, ...withoutLookup } = resolved.basic;
+    return { ...resolved, ...overrides, basic: { ...withoutLookup, ...blank, ...basic } };
+  }
+
+  it('同じプロフィールURLなら、空欄でPC側の値と取得記録を消さない', () => {
+    const incoming = phoneCopy({}, { voice: { ...resolved.voice, titleHook: '訪問後に追記' } });
+    const result = prepareHandoffImport([resolved], json(incoming));
+    expect(result).toMatchObject({
+      kind: 'update', record: { basic: resolved.basic, voice: { titleHook: '訪問後に追記' } },
+      changes: [{ path: 'voice.titleHook', before: resolved.voice.titleHook, after: '訪問後に追記' }],
+    });
+  });
+
+  it('末尾のスラッシュや www だけが違うURLも同じページとして扱う', () => {
+    const incoming = phoneCopy({ therapistProfileUrl: 'https://www.example.com/profile/1/' });
+    const result = prepareHandoffImport([resolved], json(incoming));
+    expect(result).toMatchObject({
+      kind: 'update', record: { basic: { shopName: resolved.basic.shopName, identityLookup: lookup } },
+      changes: [{ path: 'basic.therapistProfileUrl' }],
+    });
+  });
+
+  it('保持した結果ほかに違いがなければ変更なしにする', () => {
+    expect(prepareHandoffImport([resolved], json(phoneCopy()))).toMatchObject({ kind: 'unchanged', record: resolved });
+  });
+
+  it('取り込む側に値があれば、その値で更新する', () => {
+    const result = prepareHandoffImport([resolved], json(phoneCopy({ shopName: '直した店名' })));
+    expect(result).toMatchObject({
+      kind: 'update', record: { basic: { shopName: '直した店名', therapistName: resolved.basic.therapistName } },
+      changes: [{ path: 'basic.shopName', before: resolved.basic.shopName, after: '直した店名' }],
+    });
+  });
+
+  it.each([
+    ['別のプロフィールURL', 'https://example.com/profile/2'],
+    ['空のプロフィールURL', ''],
+  ])('%sなら空欄をそのまま反映し、差分として示す', (_name, therapistProfileUrl) => {
+    const result = prepareHandoffImport([resolved], json(phoneCopy({ therapistProfileUrl })));
+    if (result.kind !== 'update') throw new Error('更新の計画になっていません');
+    expect(result.record.basic).toMatchObject(blank);
+    expect(result.record.basic.identityLookup).toBeUndefined();
+    expect(result.changes.map((change) => change.path)).toEqual([
+      'basic.identityLookup', 'basic.shopName', 'basic.shopUrl', 'basic.therapistName',
+      'basic.therapistProfileUrl', 'basic.therapistXUrl',
+    ]);
+  });
+
+  it('新規に追加する回答は変更しない', () => {
+    const incoming = phoneCopy({}, { id: 'phone', seriesNo: 2 });
+    expect(prepareHandoffImport([resolved], json(incoming))).toMatchObject({ kind: 'add', record: incoming });
+  });
+});

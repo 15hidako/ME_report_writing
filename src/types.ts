@@ -50,6 +50,16 @@ export interface VisitOption {
   readonly price: number | null;
 }
 
+export type IdentityField = 'shopName' | 'shopUrl' | 'therapistName' | 'therapistXUrl';
+
+/** プロフィールURLから店とセラピストの情報を取得した記録 */
+export interface IdentityLookup {
+  readonly sourceUrl: string;
+  readonly checkedAt: string;
+  /** 取得結果で埋めた項目。手入力の項目は含まない */
+  readonly filled: readonly IdentityField[];
+}
+
 export interface BasicInfo {
   readonly visitDate: string;
   readonly timeSlot: TimeSlot;
@@ -60,6 +70,7 @@ export interface BasicInfo {
   readonly therapistName: string;
   readonly therapistProfileUrl: string;
   readonly therapistXUrl: string;
+  readonly identityLookup?: IdentityLookup;
   readonly age: number | null;
   readonly ageIsEstimate: boolean;
   readonly course: string;

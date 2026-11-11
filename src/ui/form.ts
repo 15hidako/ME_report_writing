@@ -1,4 +1,4 @@
-import type { BookingMethod, CupImpression, RepeatIntent, RoomType, SpeechTopic, TimeSlot, VisitOption, VisitRecord } from '../types';
+import type { BookingMethod, CupImpression, IdentityLookup, RepeatIntent, RoomType, SpeechTopic, TimeSlot, VisitOption, VisitRecord } from '../types';
 import {
   BODY_LABELS, CUP_IMPRESSION_LABELS, FLOW_PHASES, GENRE_LABELS,
   RATING_LABELS, SPEC_NOTE_LABELS,
@@ -146,10 +146,11 @@ export function renderForm(record: VisitRecord | null, revisitOf: VisitRecord | 
     </select></label>
     ${locationField('prefecture', '都道府県(wakustカテゴリー)', b?.prefecture ?? '')}
     ${locationField('area', 'エリア(駅)', b?.area ?? '')}
+    ${input('therapistProfileUrl', 'プロフィールURL(任意)', b?.therapistProfileUrl ?? '', 'https://', 'url')}
+    <p class="field-hint" id="identity-status" role="status" aria-live="polite"></p>
     ${input('shopName', '店名(有料部でのみ開示)', b?.shopName ?? '')}
     ${input('shopUrl', '店URL(任意)', b?.shopUrl ?? '', 'https://', 'url')}
     ${input('therapistName', 'セラピスト名(有料部でのみ開示)', b?.therapistName ?? '')}
-    ${input('therapistProfileUrl', 'プロフィールURL(任意)', b?.therapistProfileUrl ?? '', 'https://', 'url')}
     ${input('therapistXUrl', 'X URL(任意)', b?.therapistXUrl ?? '', 'https://x.com/', 'url')}
     <div class="row2">
       ${input('age', '年齢', b?.age === null || b === undefined ? '' : String(b.age), '', 'number')}
@@ -307,7 +308,10 @@ const clampStars = (n: number): 1 | 2 | 3 | 4 | 5 =>
 /** フォームDOMから VisitRecord を構築 */
 export function collectRecord(
   formRoot: HTMLElement,
-  base: { id: string; seriesNo: number; createdAt: string; revisitOf: string | null; postedUrl: string | null },
+  base: {
+    id: string; seriesNo: number; createdAt: string; revisitOf: string | null; postedUrl: string | null;
+    identityLookup?: IdentityLookup | undefined;
+  },
 ): VisitRecord {
   const form = formRoot.querySelector<HTMLFormElement>('#visit-form');
   if (form === null) throw new Error('フォームが見つかりません');
@@ -322,6 +326,9 @@ export function collectRecord(
   const locationValue = (name: LocationField): string => val(form, name) === 'other' ? val(form, `${name}Other`) : val(form, name);
   const prefecture = locationValue('prefecture');
   const area = locationValue('area');
+  const therapistProfileUrl = val(form, 'therapistProfileUrl');
+  // 取得記録はフォームに欄がないため、同じプロフィールURLのままなら保存済みの値を引き継ぐ。
+  const identityLookup = base.identityLookup?.sourceUrl === therapistProfileUrl ? base.identityLookup : undefined;
 
   const rating = (k: string) => ({
     stars: clampStars(starValue(formRoot, k)),
@@ -357,8 +364,9 @@ export function collectRecord(
       shopName: val(form, 'shopName'),
       shopUrl: val(form, 'shopUrl'),
       therapistName: val(form, 'therapistName'),
-      therapistProfileUrl: val(form, 'therapistProfileUrl'),
+      therapistProfileUrl,
       therapistXUrl: val(form, 'therapistXUrl'),
+      ...(identityLookup === undefined ? {} : { identityLookup }),
       age: ageStr === '' ? null : Number(ageStr),
       ageIsEstimate: checked(form, 'ageIsEstimate'),
       course,

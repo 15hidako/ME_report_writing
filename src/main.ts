@@ -4,6 +4,9 @@ import { renderForm, collectRecord, bindCourseFields, bindOptionFields, bindLoca
 import { bindChips, bindStars, copyText, esc, toast } from './ui/widgets';
 import { bindNoteSuggestions } from './ui/questionnaire-candidates';
 import { openHandoffUpdate } from './ui/handoff-import';
+import { bindIdentityAutofill } from './ui/identity-autofill';
+import { openIdentityLookup } from './ui/identity-lookup';
+import { buildLookupPrompt, lookupTargets, parseLookupResponse, planLookup } from './identity-lookup';
 import { MAX_HANDOFF_FILE_BYTES } from './handoff-import';
 import { shareRecord, shareErrorMessage } from './share';
 import { FormValidationError, validateVisitForm } from './form-validation';
@@ -190,6 +193,27 @@ function bindDataButtons(): void {
   document.getElementById('restore')?.addEventListener('click', restoreFromBackup);
 }
 
+function openLookup(targets: readonly VisitRecord[]): void {
+  const db = getStore();
+  let raw = '';
+  openIdentityLookup({
+    targets,
+    copyPrompt: () => copyGenerated(buildLookupPrompt(targets)),
+    plan: (response) => {
+      raw = db.exportRawJson();
+      return planLookup(db.loadAll(), parseLookupResponse(response), new Date().toISOString());
+    },
+    apply: (plan) => {
+      if (!confirmDiscardDraft()) return false;
+      db.saveMany(plan.updates.map((update) => update.record), raw);
+      clearContext();
+      toast(`${plan.updates.length}件の店舗情報を保存しました`);
+      render();
+      return true;
+    },
+  });
+}
+
 function openContext(nextEdit: string | null, nextRevisit: string | null, replaceSameNew = false): void {
   const same = formCache !== null
     && formCache.editingId === nextEdit
@@ -237,6 +261,7 @@ function submitForm(event: SubmitEvent, draft: Draft, feedback: FormFeedback): v
       createdAt: draft.createdAt ?? new Date().toISOString(),
       revisitOf: draft.revisitOf,
       postedUrl: latest?.postedUrl ?? null,
+      identityLookup: latest?.basic.identityLookup,
     });
     const record = reuseSaved ? latest : collected;
     feedback.clear();
@@ -326,6 +351,7 @@ function mountForm(): void {
   bindStars(form, markDirty);
   bindChips(form, markDirty);
   bindNoteSuggestions(form);
+  bindIdentityAutofill(form, db.loadAll(), editing?.id ?? null);
   const feedback = bindFormFeedback(form, () => validateVisitForm(form));
   form.addEventListener('input', markDirty);
   form.addEventListener('submit', (event) => submitForm(event, draft, feedback));
@@ -417,9 +443,11 @@ function renderListTab(): void {
   } catch {
     canRestore = false;
   }
+  const pendingLookups = lookupTargets(records);
   app.innerHTML = `
     <div class="toolbar">
       <button id="new-visit" class="primary">+ 新規入力</button>
+      ${pendingLookups.length === 0 ? '' : `<button id="identity-lookup">店舗情報を取得(${pendingLookups.length})</button>`}
       <button id="catalog">カタログ記事</button>
       <button id="matome">まとめ記事</button>
       <button id="export">保存(JSON)</button>
@@ -430,6 +458,13 @@ function renderListTab(): void {
     ${records.length === 0 ? '<p class="empty">まだ訪問レコードがありません。「+ 新規入力」から始めてください。</p>' : rows}`;
 
   document.getElementById('new-visit')?.addEventListener('click', () => openContext(null, null, true));
+  document.getElementById('identity-lookup')?.addEventListener('click', () => {
+    try {
+      openLookup(pendingLookups);
+    } catch (err) {
+      toast(errText(err));
+    }
+  });
   document.getElementById('catalog')?.addEventListener('click', () => {
     const pref = prompt('対象の都道府県(wakustカテゴリー)は?', records[0]?.basic.prefecture ?? '東京都');
     if (pref === null || pref.trim() === '') return;

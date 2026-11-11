@@ -305,3 +305,38 @@ button.danger { color: #ff7a7a; }
 @media (max-width: 720px) {
   #visit-form .actions { position: sticky; bottom: 0; z-index: 5; margin-bottom: 0; padding: 10px 0 calc(10px + env(safe-area-inset-bottom)); background: var(--bg); }
 }
+
+/* 店舗情報の取得 */
+.identity-lookup-dialog {
+  width: min(680px, calc(100% - 28px));
+  max-width: 680px;
+  max-height: min(80vh, 720px);
+  padding: 20px;
+  border: 1px solid #3a2f55;
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+}
+.identity-lookup-dialog::backdrop { background: #000b; }
+.identity-lookup-dialog [hidden] { display: none; }
+.lookup-title { margin: 0 0 16px; color: var(--gold); font-size: 18px; }
+.lookup-step { display: grid; gap: 12px; }
+.lookup-targets { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; font-size: 13px; line-height: 1.5; }
+.lookup-targets li { display: grid; grid-template-columns: 3em minmax(0, 1fr); gap: 8px; }
+.lookup-targets strong, .lookup-result h3 { color: var(--gold); }
+.lookup-targets span { color: var(--text-dim); overflow-wrap: anywhere; }
+.lookup-result { min-width: 0; padding: 12px; border-radius: 10px; background: var(--surface-2); }
+.lookup-result h3 { margin: 0 0 8px; font-size: 14px; }
+.lookup-result p { margin: 0; color: var(--text-dim); font-size: 13px; }
+.lookup-result dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 14px; margin: 0; font-size: 14px; line-height: 1.5; }
+.lookup-result dt { color: var(--text-dim); font-size: 12px; line-height: 21px; }
+.lookup-result dd { margin: 0; overflow-wrap: anywhere; }
+.lookup-notes { margin: 0; padding-left: 18px; color: var(--text-dim); font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
+.lookup-error { margin: 12px 0 0; color: #ff7a7a; overflow-wrap: anywhere; }
+.lookup-error:empty { display: none; }
+.lookup-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.identity-lookup-dialog button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+@media (max-width: 380px) {
+  .identity-lookup-dialog { padding: 16px; }
+  .lookup-actions button { flex: 1; min-width: 0; padding-inline: 8px; }
+}
