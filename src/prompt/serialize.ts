@@ -1,4 +1,4 @@
-import type { Ratings, VisitRecord } from '../types';
+import type { Ratings, SpecNote, VisitRecord } from '../types';
 import {
   BODY_LABELS, CUP_IMPRESSION_LABELS, FLOW_PHASES, GENRE_LABELS,
   RATING_LABELS, REPEAT_LABELS, SPEC_NOTE_LABELS,
@@ -50,6 +50,20 @@ export function specSummary(record: VisitRecord): string {
   return parts.join(' / ');
 }
 
+/** 無料部分に出さない特記。タトゥーは訴求にならず、人物の特定にもつながる */
+const PRIVATE_NOTES: ReadonlySet<SpecNote> = new Set<SpecNote>(['tattoo']);
+
+const publicNotes = (record: VisitRecord): string[] =>
+  record.spec.notes.filter((n) => !PRIVATE_NOTES.has(n)).map((n) => SPEC_NOTE_LABELS[n]);
+
+/**
+ * 無料部分(タイトル・タグ・カタログ記事・サムネイル)向けのスペック行。
+ * 年齢・体型・カップ数はセラピストの特定につながるため含めない。
+ */
+export function publicSpecSummary(record: VisitRecord): string {
+  return [...record.spec.genre.map((g) => GENRE_LABELS[g]), ...publicNotes(record)].join(' / ');
+}
+
 export function tagCandidates(record: VisitRecord): string[] {
   const s = record.spec;
   return [
@@ -57,7 +71,7 @@ export function tagCandidates(record: VisitRecord): string[] {
     record.basic.area,
     record.basic.prefecture,
     ...s.genre.map((g) => GENRE_LABELS[g]),
-    ...s.notes.map((n) => SPEC_NOTE_LABELS[n]),
+    ...publicNotes(record),
     ...s.freeTags,
   ].filter((t) => t.trim() !== '');
 }

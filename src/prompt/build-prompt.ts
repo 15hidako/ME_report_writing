@@ -3,7 +3,7 @@ import { STYLE_PROFILE, wakustRules } from './style-profile';
 import type { NameDisclosure } from './style-profile';
 
 export type { NameDisclosure } from './style-profile';
-import { serializeRecord, specSummary, tagCandidates } from './serialize';
+import { publicSpecSummary, serializeRecord, tagCandidates } from './serialize';
 import { countPublishedTherapists, isPublished, SUMMARY_MIN_THERAPISTS, therapistIdentity } from './publication';
 
 const TITLE_NAME_RULE: Readonly<Record<NameDisclosure, string>> = {
@@ -12,7 +12,7 @@ const TITLE_NAME_RULE: Readonly<Record<NameDisclosure, string>> = {
 };
 
 const outputFormat = (disclosure: NameDisclosure): string => `## 出力形式(この4ブロックを順に、コードブロックで出力)
-1. タイトル: 【フック】+属性キーワード+展開の匂わせ+【シリーズ#N】。${TITLE_NAME_RULE[disclosure]}
+1. タイトル: 【フック】+属性キーワード(系統・特記。年齢・体型・カップ数は入れない)+展開の匂わせ+【シリーズ#N】。${TITLE_NAME_RULE[disclosure]}
 2. タグ: 半角コンマ区切り(候補から取捨選択・追加可)
 3. 無料部分HTML: <h3><p><ul><li><a><strong><em><small><br />のみ使用
 4. 有料部分HTML: 同上`;
@@ -22,16 +22,16 @@ const STRUCTURE_LINES: Readonly<Record<NameDisclosure, {
   readonly intro: string; readonly profile: string; readonly paidSummary: string; readonly shopInfo: string;
 }>> = {
   paid: {
-    intro: '- 導入フック1〜2文(エリア+スペックで釣る。店名は出さない)',
-    profile: '- <h3>今回のセラピスト(スペック)</h3> エリア/系統/体型/特記のul',
-    paidSummary: '- <h3>有料部分の内容</h3> 店名・源氏名開示/評価6軸/以降の全展開/実額 と免責のsmall',
-    shopInfo: '- <h3>店舗・セラピスト情報</h3> 店名/URL/源氏名/profile/X/コース/オプション。',
+    intro: '- 導入フック1〜2文(エリア+系統+展開で釣る。店名は出さない)',
+    profile: '- <h3>今回のセラピスト</h3> エリア/系統/特記のul(年齢・体型・カップ数・タトゥーは書かない)',
+    paidSummary: '- <h3>有料部分の内容</h3> 店名・源氏名開示/年齢・体型/実額/評価6軸/ご対面からの全展開 と免責のsmall',
+    shopInfo: '- <h3>店舗・セラピスト情報</h3> 店名/URL/源氏名/profile/X/年齢・体型・カップ数/コース/オプション。',
   },
   free: {
-    intro: '- 導入フック1〜2文(エリア+店名+源氏名+スペックで釣る)',
-    profile: '- <h3>今回のセラピスト</h3> 店名/源氏名/エリア/系統/体型/特記のul(リンクは付けない)',
-    paidSummary: '- <h3>有料部分の内容</h3> 評価6軸/以降の全展開/店・セラピストのリンク/実額 と免責のsmall',
-    shopInfo: '- <h3>店舗・セラピスト情報</h3> 店URL/profile/X/コース/オプション(店名・源氏名は無料部分で既出)。',
+    intro: '- 導入フック1〜2文(エリア+店名+源氏名+系統+展開で釣る)',
+    profile: '- <h3>今回のセラピスト</h3> 店名/源氏名/エリア/系統/特記のul(リンクは付けない。年齢・体型・カップ数・タトゥーは書かない)',
+    paidSummary: '- <h3>有料部分の内容</h3> 店・セラピストのリンク/年齢・体型/実額/評価6軸/ご対面からの全展開 と免責のsmall',
+    shopInfo: '- <h3>店舗・セラピスト情報</h3> 店URL/profile/X/年齢・体型・カップ数/コース/オプション(店名・源氏名は無料部分で既出)。',
   },
 };
 
@@ -42,16 +42,13 @@ const singleStructure = (disclosure: NameDisclosure): string => {
 ${lines.intro}
 ${lines.profile}
 - <h3>こんな方にお勧め</h3> 2〜3項目のul(★5の評価軸だけを売りにする。★4以下の軸を無料部で推すと有料部と矛盾しレビューが下がる)
-- <h3>ご対面</h3> 対面〜シャワーの序盤ストーリー(セリフ・心の声は記録がある場合だけ使い、未入力なら省く)
-- <h3>施術スタート(うつ伏せ)</h3> うつ伏せ前半
-- オイル投入の直前、空気が変わる一文で切る(クリフハンガー)
-- <p><strong>—— ここから先、彼女の本気が始まります。</strong></p>
+- <h3>体験のダイジェスト</h3> ご対面からクライマックスの結果まで、展開の要所を時系列に1〜2文ずつ並べる。施術の前半で切らず、何が起きてどう終わったかを無料で見せる(売れ筋記事の型)。彼女のセリフは記録から1〜2個だけ(セリフ・心の声は記録がある場合だけ使い、未入力なら省く)。体位・細部の流れ・彼女の反応の詳細は本編に残す
 ${lines.paidSummary}
 
 [有料部分]
 ${lines.shopInfo}リンクは必ずURL文字列もテキストで併記する(例: <a href="URL">店名</a><br />URL — リンク切れ時に購入者が追えるように。規約1-6)
 - <h3>評価</h3> 6軸ul(★+一言)
-- <h3>オイル投入から{展開名}へ</h3> <h3>仰向けへ</h3> <h3>クライマックス</h3> フローに沿って。見出しの{展開名}は実際の展開を表す語に置き換える(「…」等のプレースホルダのまま出力しない)
+- 本編: <h3>ご対面</h3> <h3>施術スタート(うつ伏せ)</h3> <h3>オイル投入から{展開名}へ</h3> <h3>仰向けへ</h3> <h3>クライマックス</h3> フローに沿って、ご対面から最後まで。ダイジェストの文を繰り返さず、記録にある細部で書き直す。見出しの{展開名}は実際の展開を表す語に置き換える(「…」等のプレースホルダのまま出力しない)
 - クライマックスは記事の山場として最も厚く書く(体勢・彼女の様子・セリフ・心の声は記録された素材だけを使い、未入力の言葉は省く)。入力データの素材が薄くて2〜3文しか書けない場合は、記事の後に「⚠ クライマックスの素材不足: 質問票に追記推奨」と一言添える
 - <h3>総評</h3> リピート意向+残念ポイントも正直に
 - <p><em>皆さまのご武運をお祈りいたします!</em></p>`;
@@ -94,7 +91,7 @@ export function buildRevisitPrompt(
 ## 記事構成(再訪)
 - 無料部分の冒頭に必ず「初回の体験談はこちら → <a href="{初回記事URL}">体験談#${first.seriesNo}</a>(※本記事は再訪レポートです)」を入れる(規約要件)。初回記事URL: ${first.postedUrl ?? '{投稿後に差し替え}'}
 - 初回との差分・進展・変化を中心に書く(重複する基本描写は最小限)
-- それ以外の構成・カット位置は単体体験談と同じ
+- それ以外の構成(無料部分のダイジェストと有料部分の本編)は単体体験談と同じ
 
 ${singleStructure(disclosure)}
 
@@ -114,7 +111,7 @@ export function buildCatalogPrompt(records: readonly VisitRecord[], prefecture: 
   const targets = records.filter((r) => r.basic.prefecture === prefecture && isPublished(r));
   if (targets.length === 0) throw new Error('対象の都道府県に投稿済みの記事がありません');
   const data = targets
-    .map((r) => `- #${r.seriesNo} ${r.basic.area} / スペック: ${specSummary(r)} / エロ施術★${r.ratings.ero.stars} 寛容度★${r.ratings.tolerance.stars} / 記事URL: ${r.postedUrl ?? '{未投稿}'}`)
+    .map((r) => `- #${r.seriesNo} ${r.basic.area} / スペック: ${publicSpecSummary(r)} / エロ施術★${r.ratings.ero.stars} 寛容度★${r.ratings.tolerance.stars} / 記事URL: ${r.postedUrl ?? '{未投稿}'}`)
     .join('\n');
   return `${header(`${prefecture}の自分の体験談インデックス(宣伝用の無料記事)`)}
 
@@ -151,7 +148,7 @@ export function buildMatomePrompt(
   return `${header(`テーマ「${theme}」のまとめ記事(N選形式)`)}
 
 ## 記事構成(まとめ記事)
-- 無料部分: 選定基準の説明+各人のスペックと評価の一部だけ(店名・源氏名は伏せる)
+- 無料部分: 選定基準の説明+各人の系統と評価の一部だけ(店名・源氏名・年齢・体型・カップ数・タトゥーは伏せる)
 - 無料部分に必ず「※本記事には過去に販売した体験談の内容が含まれます」を明記(規約要件)
 - 有料部分: 各人の店名・源氏名・リンク+体験の要約(元記事の再編集。丸コピーはしない)+単体記事へのリンク(テキスト併記)
 - 順位付けまたは推薦理由を明確に

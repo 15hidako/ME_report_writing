@@ -13,7 +13,7 @@ import { FormValidationError, validateVisitForm } from './form-validation';
 import { bindFormFeedback, type FormFeedback } from './ui/form-feedback';
 import { buildCatalogPrompt, buildMatomePrompt, buildRevisitPrompt, buildSinglePrompt } from './prompt/build-prompt';
 import type { NameDisclosure } from './prompt/build-prompt';
-import { specSummary } from './prompt/serialize';
+import { publicSpecSummary, specSummary } from './prompt/serialize';
 import { drawThumbnail, downloadCanvasPng, LAYOUTS, PALETTES } from './thumbnail';
 import type { ThumbnailLayout } from './thumbnail';
 import { localDate } from './date';
@@ -647,7 +647,7 @@ function renderThumbTab(): void {
       <label class="field"><span>エリア</span><input id="t-area" value="${esc(latest?.basic.area ?? '')}" placeholder="恵比寿・中目黒" /></label>
       <label class="field" data-for="names"><span>店名</span><input id="t-shop" value="${esc(latest?.basic.shopName ?? '')}" /></label>
       <label class="field" data-for="names"><span>セラピスト名</span><input id="t-therapist" value="${esc(latest?.basic.therapistName ?? '')}" /></label>
-      <label class="field"><span>スペック行</span><input id="t-spec" value="${esc(latest === undefined ? '' : specSummary(latest))}" placeholder="小柄Fカップ・元メンエス経験者ギャル" /></label>
+      <label class="field"><span>スペック行</span><input id="t-spec" value="${esc(latest === undefined ? '' : publicSpecSummary(latest))}" placeholder="元メンエス経験者ギャル" /></label>
       <label class="field" data-for="summary"><span>フック</span><input id="t-hook" value="${esc(latest?.voice.titleHook ?? '')}" placeholder="圧強KWKWテクでSKR不可避" /></label>
       <div class="chips" id="palette-chips">${paletteBtns}</div>
       <div class="actions">

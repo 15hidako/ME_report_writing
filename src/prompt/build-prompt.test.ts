@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { fixtureRecord } from '../test-fixtures';
 import { buildCatalogPrompt, buildMatomePrompt, buildRevisitPrompt, buildSinglePrompt } from './build-prompt';
-import { serializeRecord, specSummary, tagCandidates } from './serialize';
+import { publicSpecSummary, serializeRecord, specSummary, tagCandidates } from './serialize';
 
 const publishedRecords = () => Array.from({ length: 6 }, (_, n) => fixtureRecord({
   id: `published-${n}`, seriesNo: n + 1, postedUrl: `https://wakust.com/u/${n}/`,
@@ -39,6 +39,58 @@ describe('specSummary / tagCandidates', () => {
     expect(tags).toContain('東京都');
     expect(tags).toContain('ギャル');
   });
+
+  it('タグ候補にタトゥーを入れない', () => {
+    const base = fixtureRecord();
+    const tags = tagCandidates(fixtureRecord({ spec: { ...base.spec, notes: ['tattoo', 'short_hair'] } }));
+    expect(tags).not.toContain('タトゥー');
+    expect(tags).toContain('ショートヘア');
+  });
+});
+
+describe('publicSpecSummary', () => {
+  it('無料部分用のスペックから体型・カップ・タトゥーを外す', () => {
+    const base = fixtureRecord();
+    const record = fixtureRecord({ spec: { ...base.spec, notes: ['ex_menesu', 'tattoo'] } });
+    expect(publicSpecSummary(record)).toBe('ギャル / 元メンエス経験者');
+  });
+});
+
+describe('無料部分に年齢・体型を出さない', () => {
+  it('無料部分は展開のダイジェスト、有料部分はご対面からの本編と年齢・体型にする', () => {
+    for (const disclosure of ['paid', 'free'] as const) {
+      const prompt = buildSinglePrompt(fixtureRecord(), disclosure);
+      const paidPart = prompt.slice(prompt.indexOf('[有料部分]'));
+      expect(prompt).toContain('クライマックスの結果まで');
+      expect(paidPart).toContain('<h3>ご対面</h3>');
+      expect(paidPart).toContain('年齢');
+    }
+  });
+
+  it('名前公開版でも、展開を有料部分だけに置くという旧ルールを残さない', () => {
+    const prompt = buildSinglePrompt(fixtureRecord(), 'free');
+    expect(prompt).not.toContain('オイル以降の展開は有料部分に置く');
+    expect(prompt).toContain('ご対面からの本編');
+  });
+
+  it('語り手の反応は地の文で許し、創作禁止は残す', () => {
+    const prompt = buildSinglePrompt(fixtureRecord());
+    expect(prompt).toContain('語り手の反応は書く');
+    expect(prompt).toContain('括弧書きの内心にはしない');
+    expect(prompt).toContain('創作・補完しない');
+  });
+
+  it('単体体験談のプロンプトに無料部分の非公開ルールを入れる', () => {
+    const prompt = buildSinglePrompt(fixtureRecord());
+    expect(prompt).toContain('年齢・身長・体型・カップ数');
+    expect(prompt).toContain('タトゥー');
+  });
+
+  it('カタログ記事には体型とカップを渡さない', () => {
+    const prompt = buildCatalogPrompt(publishedRecords(), '東京都');
+    expect(prompt).not.toContain('Fカップ');
+    expect(prompt).not.toContain('小柄');
+  });
 });
 
 describe('buildSinglePrompt', () => {
@@ -66,7 +118,8 @@ describe('buildSinglePrompt', () => {
     const p = buildSinglePrompt(fixtureRecord());
     expect(p).toContain('文体ルール');
     expect(p).toContain('wakust規約の遵守');
-    expect(p).toContain('クリフハンガー');
+    expect(p).toContain('体験のダイジェスト');
+    expect(p).not.toContain('クリフハンガー');
     expect(p).toContain('訪問データ #1');
     expect(p).toContain('天界のスパ'); // 有料部で開示するため入力には含む
   });

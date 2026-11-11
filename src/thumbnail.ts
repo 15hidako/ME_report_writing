@@ -5,7 +5,7 @@ export interface ThumbnailInput {
   readonly area: string;          // 例: 恵比寿・中目黒
   readonly shopName: string;      // 名前公開型だけで使う
   readonly therapistName: string; // 名前公開型だけで使う
-  readonly specLine: string;      // 例: 小柄Fカップ・元メンエス経験者ギャル
+  readonly specLine: string;      // 例: 元メンエス経験者 / ギャル(年齢・体型は載せない)
   readonly hook: string;          // 例: 圧強KWKWテクでSKR不可避(概要型だけで使う)
 }
 
