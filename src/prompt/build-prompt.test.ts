@@ -120,7 +120,8 @@ describe('buildSinglePrompt', () => {
     expect(p).toContain('wakust規約の遵守');
     expect(p).toContain('体験のダイジェスト');
     expect(p).not.toContain('クリフハンガー');
-    expect(p).toContain('訪問データ #1');
+    expect(p).toContain('### 訪問データ\n');
+    expect(p).not.toContain('#1');
     expect(p).toContain('天界のスパ'); // 有料部で開示するため入力には含む
   });
 
@@ -169,10 +170,18 @@ describe('buildRevisitPrompt', () => {
     const revisit = fixtureRecord({ id: 'r2', seriesNo: 5, revisitOf: 'test-id-1' });
     const p = buildRevisitPrompt(revisit, first);
     expect(p).toContain('再訪レポート');
-    expect(p).toContain('体験談#1');
     expect(p).toContain('https://wakust.com/u/111/');
     expect(p).toContain('初回訪問データ');
-    expect(p).toContain('訪問データ #5');
+  });
+
+  it('通し番号を記事に出させない', () => {
+    const first = fixtureRecord({ seriesNo: 3, postedUrl: 'https://wakust.com/u/111/' });
+    const revisit = fixtureRecord({ id: 'r2', seriesNo: 5, revisitOf: 'test-id-1' });
+    const p = buildRevisitPrompt(revisit, first);
+    expect(p).not.toMatch(/#[35]/);
+    expect(p).not.toContain('【シリーズ#N】');
+    expect(p).toContain('【メンズエステ体験談】(通し番号は付けない)');
+    expect(p).toContain('通し番号(#N)は本人の管理用。タイトル・本文・リンク文に書かない');
   });
 
   it('初回が未投稿ならプレースホルダを使う', () => {
@@ -203,6 +212,11 @@ describe('buildCatalogPrompt', () => {
     expect(p).toContain('対象訪問データ(1件)');
     expect(p).not.toContain('{未投稿}');
     expect(p).not.toContain('#99');
+  });
+
+  it('一覧に通し番号を載せない', () => {
+    const p = buildCatalogPrompt([fixtureRecord({ seriesNo: 42, postedUrl: 'https://wakust.com/u/1/' })], '東京都');
+    expect(p).not.toContain('#42');
   });
 
   it('対象地域に投稿済み記事がなければ生成を止める', () => {

@@ -107,7 +107,7 @@ export function serializeRecord(record: VisitRecord, opts: { withIdentity: boole
     ? `- 会話の話題（発言の引用ではない）: ${v.speechTopics.map((topic) => SPEECH_TOPIC_LABELS[topic]).join(' / ')}\n`
     : '';
 
-  return `### 訪問データ #${record.seriesNo}
+  return `### 訪問データ
 [基本情報]
 - 訪問日: ${b.visitDate}
 - エリア: ${b.prefecture} ${b.area}

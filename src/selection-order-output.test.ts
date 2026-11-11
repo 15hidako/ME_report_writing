@@ -97,13 +97,11 @@ describe('観察候補の配列順と記事素材', () => {
       basic: { ...fixtureRecord().basic, therapistName: `person-${index}` },
     }));
     const prompt = buildMatomePrompt(records, '順番の回帰確認');
-    for (const [index, record] of records.entries()) {
-      const start = prompt.indexOf(`### 訪問データ #${record.seriesNo}`);
-      const end = index + 1 === records.length
-        ? prompt.length
-        : prompt.indexOf(`### 訪問データ #${records[index + 1]!.seriesNo}`);
-      expect(start).toBeGreaterThanOrEqual(0);
-      expectPhaseOrder(prompt.slice(start, end), `まとめ${index}`);
+    // 見出しに通し番号を出さないため、見出しの出現順で各人の区間に分ける
+    const sections = prompt.split('### 訪問データ\n').slice(1);
+    expect(sections).toHaveLength(records.length);
+    for (const [index, section] of sections.entries()) {
+      expectPhaseOrder(section, `まとめ${index}`);
     }
     expectConservativePrompt(prompt);
   });

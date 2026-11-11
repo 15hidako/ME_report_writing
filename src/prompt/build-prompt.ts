@@ -12,7 +12,7 @@ const TITLE_NAME_RULE: Readonly<Record<NameDisclosure, string>> = {
 };
 
 const outputFormat = (disclosure: NameDisclosure): string => `## 出力形式(この4ブロックを順に、コードブロックで出力)
-1. タイトル: 【フック】+属性キーワード(系統・特記。年齢・体型・カップ数は入れない)+展開の匂わせ+【シリーズ#N】。${TITLE_NAME_RULE[disclosure]}
+1. タイトル: 【フック】+属性キーワード(系統・特記。年齢・体型・カップ数は入れない)+展開の匂わせ+【メンズエステ体験談】(通し番号は付けない)。${TITLE_NAME_RULE[disclosure]}
 2. タグ: 半角コンマ区切り(候補から取捨選択・追加可)
 3. 無料部分HTML: <h3><p><ul><li><a><strong><em><small><br />のみ使用
 4. 有料部分HTML: 同上`;
@@ -89,7 +89,7 @@ export function buildRevisitPrompt(
   return `${header('wakust投稿用の再訪レポート記事', disclosure)}
 
 ## 記事構成(再訪)
-- 無料部分の冒頭に必ず「初回の体験談はこちら → <a href="{初回記事URL}">体験談#${first.seriesNo}</a>(※本記事は再訪レポートです)」を入れる(規約要件)。初回記事URL: ${first.postedUrl ?? '{投稿後に差し替え}'}
+- 無料部分の冒頭に必ず「初回の体験談はこちら → <a href="{初回記事URL}">{初回記事URL}</a>(※本記事は再訪レポートです)」を入れる(規約要件)。初回記事URL: ${first.postedUrl ?? '{投稿後に差し替え}'}
 - 初回との差分・進展・変化を中心に書く(重複する基本描写は最小限)
 - それ以外の構成(無料部分のダイジェストと有料部分の本編)は単体体験談と同じ
 
@@ -111,7 +111,7 @@ export function buildCatalogPrompt(records: readonly VisitRecord[], prefecture: 
   const targets = records.filter((r) => r.basic.prefecture === prefecture && isPublished(r));
   if (targets.length === 0) throw new Error('対象の都道府県に投稿済みの記事がありません');
   const data = targets
-    .map((r) => `- #${r.seriesNo} ${r.basic.area} / スペック: ${publicSpecSummary(r)} / エロ施術★${r.ratings.ero.stars} 寛容度★${r.ratings.tolerance.stars} / 記事URL: ${r.postedUrl ?? '{未投稿}'}`)
+    .map((r) => `- ${r.basic.area} / スペック: ${publicSpecSummary(r)} / エロ施術★${r.ratings.ero.stars} 寛容度★${r.ratings.tolerance.stars} / 記事URL: ${r.postedUrl ?? '{未投稿}'}`)
     .join('\n');
   return `${header(`${prefecture}の自分の体験談インデックス(宣伝用の無料記事)`)}
 
