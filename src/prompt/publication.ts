@@ -3,11 +3,15 @@ import { isHttpUrl } from '../url';
 
 export const SUMMARY_MIN_THERAPISTS = 6;
 
-export function isPublished(record: VisitRecord): boolean {
-  if (record.postedUrl === null || !isHttpUrl(record.postedUrl)) return false;
-  const url = new URL(record.postedUrl);
+export function isWakustArticleUrl(value: string): boolean {
+  if (!isHttpUrl(value)) return false;
+  const url = new URL(value);
   return (url.hostname === 'wakust.com' || url.hostname === 'www.wakust.com')
     && url.username === '' && url.password === '' && url.pathname !== '/';
+}
+
+export function isPublished(record: VisitRecord): boolean {
+  return record.postedUrl !== null && isWakustArticleUrl(record.postedUrl);
 }
 
 export function therapistIdentity(record: VisitRecord): string | null {

@@ -51,6 +51,11 @@ nav button {
   padding: 10px 0 12px;
 }
 nav button.active { color: var(--text); border-bottom-color: var(--accent); }
+/* 記事ボードはPC専用。スマホ幅では入口を出さない */
+.board-link { display: none; }
+@media (min-width: 1024px) and (pointer: fine) {
+  .board-link { display: block; align-self: center; padding: 0 16px; color: var(--text-dim); font-size: 14px; }
+}
 
 main { padding: var(--space); max-width: 720px; margin: 0 auto; }
 

@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#12081f" />
+  <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+  <title>記事ボード | ME Report Writer</title>
+</head>
+<body class="board-page">
+  <header class="board-header">
+    <h1>記事ボード</h1>
+    <div class="chips" id="kind-filter" role="group" aria-label="記事タイプ"></div>
+    <div class="board-tools">
+      <button type="button" id="add-bundle" class="primary">+ 記事</button>
+      <button type="button" id="sync">同期</button>
+      <button type="button" id="pick-folder">フォルダ変更</button>
+      <button type="button" id="export-targets" hidden>確認対象を書き出す</button>
+      <button type="button" id="import-checks" hidden>確認結果を読み込む</button>
+      <button type="button" id="export-board">保存(JSON)</button>
+      <button type="button" id="import-board">読込(JSON)</button>
+      <a href="./">入力画面</a>
+    </div>
+  </header>
+  <main id="board"></main>
+  <dialog id="bundle-dialog" class="board-dialog"></dialog>
+  <script type="module" src="/src/board/main.ts"></script>
+</body>
+</html>
