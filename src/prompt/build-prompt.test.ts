@@ -349,3 +349,18 @@ describe('今回の進め方と在籍確認日(C4)', () => {
     expect(p).toContain('更新日と掲載人数');
   });
 });
+
+describe('カタログ記事のタイトル例(C2)', () => {
+  it('タイトル例にNGタグの語(都道府県の正式名・メンエス)を入れない', () => {
+    const published = fixtureRecord({ postedUrl: 'https://wakust.com/u/1/' });
+    const p = buildCatalogPrompt([published], '東京都');
+    const line = p.split('\n').find((l) => l.startsWith('1. タイトル')) ?? '';
+    // 例の後ろにある注意書きは除き、例そのものだけを見る
+    const example = line.split('。')[0] ?? '';
+    expect(example).toContain('【東京】');
+    expect(example).toContain('メンズエステ');
+    expect(example).not.toContain('東京都');
+    expect(example).not.toContain('メンエス');
+    expect(line).toContain('都道府県の正式名と「メンエス」は使わない');
+  });
+});

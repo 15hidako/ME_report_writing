@@ -4,7 +4,7 @@ import { STYLE_PROFILE, wakustRules } from './style-profile';
 import type { NameDisclosure } from './style-profile';
 
 export type { NameDisclosure } from './style-profile';
-import { publicSpecSummary, serializeRecord, tagCandidates } from './serialize';
+import { prefectureTag, publicSpecSummary, serializeRecord, tagCandidates } from './serialize';
 import { countPublishedTherapists, isPublished, SUMMARY_MIN_THERAPISTS, therapistIdentity } from './publication';
 
 const TITLE_NAME_RULE: Readonly<Record<NameDisclosure, string>> = {
@@ -139,7 +139,7 @@ export function buildCatalogPrompt(records: readonly VisitRecord[], prefecture: 
 - リンクは同カテゴリー(同都道府県)内の自分の記事のみ
 
 ## 出力形式
-1. タイトル(例: 【${prefecture}】実際に行ったメンエス体験談まとめ【随時更新】)
+1. タイトル(例: 【${prefectureTag(prefecture)}】実際に行ったメンズエステ体験談まとめ【随時更新】。タグへ流用しても入力できるよう、都道府県の正式名と「メンエス」は使わない)
 2. タグ: ${TAG_RULE}
 3. 記事HTML(無料記事なので1本)
 
