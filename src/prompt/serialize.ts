@@ -64,16 +64,27 @@ export function publicSpecSummary(record: VisitRecord): string {
   return [...record.spec.genre.map((g) => GENRE_LABELS[g]), ...publicNotes(record)].join(' / ');
 }
 
+/**
+ * 都道府県のタグ表記。wakustでは「東京都」「神奈川県」などの正式名がNGタグで入力できないため、
+ * 末尾の「都」「府」「県」を省いた地域名にする。「北海道」はそのまま使う。
+ */
+export function prefectureTag(prefecture: string): string {
+  const name = prefecture.trim();
+  return /^.+[都府県]$/.test(name) && name !== '京都' ? name.slice(0, -1) : name;
+}
+
+/** タグ候補。本数の上限(6個)は生成時の取捨選択に任せ、ここでは候補を重複なく並べる */
 export function tagCandidates(record: VisitRecord): string[] {
   const s = record.spec;
-  return [
+  const tags = [
     'メンズエステ',
     record.basic.area,
-    record.basic.prefecture,
+    prefectureTag(record.basic.prefecture),
     ...s.genre.map((g) => GENRE_LABELS[g]),
     ...publicNotes(record),
     ...s.freeTags,
-  ].filter((t) => t.trim() !== '');
+  ].map((t) => t.trim()).filter((t) => t !== '');
+  return [...new Set(tags)];
 }
 
 function optionsBlock(record: VisitRecord): string {

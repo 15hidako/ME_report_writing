@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { fixtureRecord } from '../test-fixtures';
 import { buildCatalogPrompt, buildMatomePrompt, buildRevisitPrompt, buildSinglePrompt } from './build-prompt';
-import { publicSpecSummary, serializeRecord, specSummary, tagCandidates } from './serialize';
+import { prefectureTag, publicSpecSummary, serializeRecord, specSummary, tagCandidates } from './serialize';
 
 const publishedRecords = () => Array.from({ length: 6 }, (_, n) => fixtureRecord({
   id: `published-${n}`, seriesNo: n + 1, postedUrl: `https://wakust.com/u/${n}/`,
@@ -36,8 +36,36 @@ describe('specSummary / tagCandidates', () => {
     const tags = tagCandidates(fixtureRecord());
     expect(tags).toContain('メンズエステ');
     expect(tags).toContain('恵比寿・中目黒');
-    expect(tags).toContain('東京都');
+    expect(tags).toContain('東京');
     expect(tags).toContain('ギャル');
+  });
+
+  it('都道府県は正式名のNGタグを出さず、都・府・県を省いた地域名にする', () => {
+    const base = fixtureRecord();
+    const tags = tagCandidates(fixtureRecord({ basic: { ...base.basic, prefecture: '神奈川県' } }));
+    expect(tags).toContain('神奈川');
+    expect(tags).not.toContain('神奈川県');
+    expect(tags).not.toContain('東京都');
+  });
+
+  it('同じ語のタグ候補を重複させない', () => {
+    const base = fixtureRecord();
+    const tags = tagCandidates(fixtureRecord({
+      basic: { ...base.basic, prefecture: '東京都', area: '東京' },
+      spec: { ...base.spec, freeTags: ['ギャル', 'メンズエステ'] },
+    }));
+    expect(tags.filter((t) => t === '東京')).toHaveLength(1);
+    expect(tags.filter((t) => t === 'ギャル')).toHaveLength(1);
+    expect(tags.filter((t) => t === 'メンズエステ')).toHaveLength(1);
+  });
+});
+
+describe('prefectureTag', () => {
+  it.each([
+    ['東京都', '東京'], ['神奈川県', '神奈川'], ['大阪府', '大阪'], ['京都府', '京都'],
+    ['北海道', '北海道'], ['東京', '東京'], [' 埼玉県 ', '埼玉'], ['', ''],
+  ])('%s → %s', (input, expected) => {
+    expect(prefectureTag(input)).toBe(expected);
   });
 
   it('タグ候補にタトゥーを入れない', () => {
@@ -256,5 +284,68 @@ describe('buildMatomePrompt', () => {
     const revisit = { ...first, id: 'revisit', seriesNo: 7, revisitOf: first.id, postedUrl: 'https://wakust.com/u/7/', sales: { points: 100, articleType: 'revisit' as const } };
     expect(() => buildMatomePrompt([first, revisit], 'theme', [...records, revisit])).toThrow(/同じセラピスト/);
     expect(buildMatomePrompt([revisit], 'theme', [...records, revisit])).toContain(revisit.postedUrl);
+  });
+});
+
+describe('タグの個数とNGタグの指示(C1)', () => {
+  it('単体・再訪・カタログの出力形式に、6個以内と正式名NGの指示を入れる', () => {
+    const published = fixtureRecord({ postedUrl: 'https://wakust.com/u/1/' });
+    const prompts = [
+      buildSinglePrompt(fixtureRecord()),
+      buildRevisitPrompt(fixtureRecord({ id: 'r2', seriesNo: 2 }), fixtureRecord()),
+      buildCatalogPrompt([published], '東京都'),
+    ];
+    for (const p of prompts) {
+      expect(p).toContain('6個以内');
+      expect(p).toContain('「東京都」「神奈川県」などの正式名と「メンエス」はNGタグ');
+    }
+  });
+
+  it('単体のタグ候補に正式名を渡さない', () => {
+    const p = buildSinglePrompt(fixtureRecord());
+    const line = p.split('\n').find((l) => l.startsWith('タグ候補: ')) ?? '';
+    expect(line).toContain('東京');
+    expect(line).not.toContain('東京都');
+  });
+});
+
+describe('今回の進め方と在籍確認日(C4)', () => {
+  it('総評の前に、記録がある場合だけ今回の進め方を置く指示を入れる', () => {
+    const p = buildSinglePrompt(fixtureRecord());
+    expect(p).toContain('<h3>今回の進め方</h3>');
+    expect(p).toContain('記録がなければ見出しごと省く');
+    expect(p).toContain('一般論の助言や記録にない攻略法は足さない');
+    expect(p.indexOf('<h3>今回の進め方</h3>')).toBeLessThan(p.indexOf('<h3>総評</h3>'));
+    expect(p).toContain('今回の進め方(記録がある場合)');
+  });
+
+  it('在籍確認日を渡すと、有料部分の店舗情報にその日付の行を入れる', () => {
+    const p = buildSinglePrompt(fixtureRecord(), 'paid', '2026-11-11');
+    expect(p).toContain('<p>在籍確認: 2026年11月11日時点で店舗HPに掲載</p>');
+    expect(p).not.toContain('在籍確認の行は出さない');
+  });
+
+  it('在籍確認日がなければ、行を出さない指示にする', () => {
+    const p = buildSinglePrompt(fixtureRecord());
+    expect(p).toContain('在籍確認の行は出さない');
+    expect(p).not.toContain('<p>在籍確認:');
+  });
+
+  it('再訪記事にも在籍確認日を渡せる', () => {
+    const p = buildRevisitPrompt(fixtureRecord({ id: 'r2', seriesNo: 2 }), fixtureRecord(), 'free', '2026-11-03');
+    expect(p).toContain('<p>在籍確認: 2026年11月3日時点で店舗HPに掲載</p>');
+  });
+
+  it('不正な在籍確認日は生成前に止める', () => {
+    expect(() => buildSinglePrompt(fixtureRecord(), 'paid', '2026-13-01')).toThrow(/在籍確認日/);
+  });
+
+  it('まとめ記事に、条件で選ぶテーマの判定と見せ方の指示を入れる', () => {
+    const records = publishedRecords();
+    const p = buildMatomePrompt(records.slice(0, 3), '再訪しない人と理由', records);
+    expect(p).toContain('条件は訪問データの記録だけで判定');
+    expect(p).toContain('誰がどの結果かは有料部分');
+    expect(p).toContain('再訪意向と残念ポイントの記録');
+    expect(p).toContain('更新日と掲載人数');
   });
 });

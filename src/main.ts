@@ -577,23 +577,36 @@ function handleCardAction(act: string, record: VisitRecord): void {
   }
 }
 
+/** 在籍確認日の初期値。プロフィールURLから店舗情報を取得した日があれば使う */
+function defaultListingCheckDate(record: VisitRecord): string {
+  const lookup = record.basic.identityLookup;
+  if (lookup === undefined || lookup.sourceUrl !== record.basic.therapistProfileUrl) return '';
+  const checkedAt = new Date(lookup.checkedAt);
+  return Number.isNaN(checkedAt.getTime()) ? '' : localDate(checkedAt);
+}
+
 function copyPrompt(record: VisitRecord, disclosure: NameDisclosure): void {
+  const listingCheckedOn = prompt(
+    '在籍確認日(店舗HPで在籍を確かめた日。YYYY-MM-DD。空欄なら記事に書かない)',
+    defaultListingCheckDate(record),
+  );
+  if (listingCheckedOn === null) return;
   try {
     if (record.revisitOf !== null) {
       const first = findOriginalRecord(record);
       if (first === 'missing') {
         toast('初回レコードが見つかりません。単体として生成します');
-        copyGenerated(buildSinglePrompt(record, disclosure));
+        copyGenerated(buildSinglePrompt(record, disclosure, listingCheckedOn));
         return;
       }
       if (first === 'cycle') {
         toast('再訪の参照が循環しています');
         return;
       }
-      copyGenerated(buildRevisitPrompt(record, first, disclosure));
+      copyGenerated(buildRevisitPrompt(record, first, disclosure, listingCheckedOn));
       return;
     }
-    copyGenerated(buildSinglePrompt(record, disclosure));
+    copyGenerated(buildSinglePrompt(record, disclosure, listingCheckedOn));
   } catch (err) {
     toast(errText(err));
   }

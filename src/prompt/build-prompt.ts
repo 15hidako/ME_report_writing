@@ -1,4 +1,5 @@
 import type { VisitRecord } from '../types';
+import { formatJapaneseDate, parseListingCheckDate } from '../date';
 import { STYLE_PROFILE, wakustRules } from './style-profile';
 import type { NameDisclosure } from './style-profile';
 
@@ -11,9 +12,12 @@ const TITLE_NAME_RULE: Readonly<Record<NameDisclosure, string>> = {
   free: 'タイトルに店名と源氏名を入れる',
 };
 
+/** wakustのタグ規則(上限6個、NGタグ)。H-07 */
+const TAG_RULE = '半角コンマ区切りで6個以内。都道府県は「東京」「神奈川」のように都・府・県を省いた地域名にする。「東京都」「神奈川県」などの正式名と「メンエス」はNGタグなので使わない。本文と関係のないタグは付けない';
+
 const outputFormat = (disclosure: NameDisclosure): string => `## 出力形式(この4ブロックを順に、コードブロックで出力)
 1. タイトル: 【フック】+属性キーワード(系統・特記。年齢・体型・カップ数は入れない)+展開の匂わせ+【メンズエステ体験談】(通し番号は付けない)。${TITLE_NAME_RULE[disclosure]}
-2. タグ: 半角コンマ区切り(候補から取捨選択・追加可)
+2. タグ: ${TAG_RULE}(候補から取捨選択・追加可)
 3. 無料部分HTML: <h3><p><ul><li><a><strong><em><small><br />のみ使用
 4. 有料部分HTML: 同上`;
 
@@ -24,18 +28,26 @@ const STRUCTURE_LINES: Readonly<Record<NameDisclosure, {
   paid: {
     intro: '- 導入フック1〜2文(エリア+系統+展開で釣る。店名は出さない)',
     profile: '- <h3>今回のセラピスト</h3> エリア/系統/特記のul(年齢・体型・カップ数・タトゥーは書かない)',
-    paidSummary: '- <h3>有料部分の内容</h3> 店名・源氏名開示/年齢・体型/実額/評価6軸/ご対面からの全展開 と免責のsmall',
+    paidSummary: '- <h3>有料部分の内容</h3> 店名・源氏名開示/年齢・体型/実額/評価6軸/ご対面からの全展開/今回の進め方(記録がある場合) と免責のsmall',
     shopInfo: '- <h3>店舗・セラピスト情報</h3> 店名/URL/源氏名/profile/X/年齢・体型・カップ数/コース/オプション。',
   },
   free: {
     intro: '- 導入フック1〜2文(エリア+店名+源氏名+系統+展開で釣る)',
     profile: '- <h3>今回のセラピスト</h3> 店名/源氏名/エリア/系統/特記のul(リンクは付けない。年齢・体型・カップ数・タトゥーは書かない)',
-    paidSummary: '- <h3>有料部分の内容</h3> 店・セラピストのリンク/年齢・体型/実額/評価6軸/ご対面からの全展開 と免責のsmall',
+    paidSummary: '- <h3>有料部分の内容</h3> 店・セラピストのリンク/年齢・体型/実額/評価6軸/ご対面からの全展開/今回の進め方(記録がある場合) と免責のsmall',
     shopInfo: '- <h3>店舗・セラピスト情報</h3> 店URL/profile/X/年齢・体型・カップ数/コース/オプション(店名・源氏名は無料部分で既出)。',
   },
 };
 
-const singleStructure = (disclosure: NameDisclosure): string => {
+/** 在籍確認日の指示。本人が確かめた日だけを出し、確かめていなければ行ごと省く。H-13 */
+function listingCheckLine(listingCheckedOn: string | null): string {
+  const date = listingCheckedOn === null ? null : parseListingCheckDate(listingCheckedOn);
+  return date === null
+    ? '- 在籍確認の行は出さない(本人が在籍を確かめた日の入力がない)'
+    : `- 店舗・セラピスト情報の末尾に <p>在籍確認: ${formatJapaneseDate(date)}時点で店舗HPに掲載</p> を入れる(日付を変えない)`;
+}
+
+const singleStructure = (disclosure: NameDisclosure, listingCheckedOn: string | null): string => {
   const lines = STRUCTURE_LINES[disclosure];
   return `## 記事構成(単体体験談)
 [無料部分]
@@ -47,9 +59,11 @@ ${lines.paidSummary}
 
 [有料部分]
 ${lines.shopInfo}リンクは必ずURL文字列もテキストで併記する(例: <a href="URL">店名</a><br />URL — リンク切れ時に購入者が追えるように。規約1-6)
+${listingCheckLine(listingCheckedOn)}
 - <h3>評価</h3> 6軸ul(★+一言)
 - 本編: <h3>ご対面</h3> <h3>施術スタート(うつ伏せ)</h3> <h3>オイル投入から{展開名}へ</h3> <h3>仰向けへ</h3> <h3>クライマックス</h3> フローに沿って、ご対面から最後まで。ダイジェストの文を繰り返さず、記録にある細部で書き直す。見出しの{展開名}は実際の展開を表す語に置き換える(「…」等のプレースホルダのまま出力しない)
 - クライマックスは記事の山場として最も厚く書く(体勢・彼女の様子・セリフ・心の声は記録された素材だけを使い、未入力の言葉は省く)。入力データの素材が薄くて2〜3文しか書けない場合は、記事の後に「⚠ クライマックスの素材不足: 質問票に追記推奨」と一言添える
+- <h3>今回の進め方</h3> 結果に至るまでに本人がしたこと(伝えた希望・声のかけ方・断られたこと・気をつけたこと)と、展開のきっかけがどちらからだったかを、訪問データに記録がある範囲で1〜3文。記録がなければ見出しごと省く。一般論の助言や記録にない攻略法は足さない
 - <h3>総評</h3> リピート意向+残念ポイントも正直に
 - <p><em>皆さまのご武運をお祈りいたします!</em></p>`;
 };
@@ -69,10 +83,12 @@ ${wakustRules(disclosure)}`;
 }
 
 /** 単体体験談の生成プロンプト */
-export function buildSinglePrompt(record: VisitRecord, disclosure: NameDisclosure = 'paid'): string {
+export function buildSinglePrompt(
+  record: VisitRecord, disclosure: NameDisclosure = 'paid', listingCheckedOn: string | null = null,
+): string {
   return `${header('wakust投稿用の体験談記事', disclosure)}
 
-${singleStructure(disclosure)}
+${singleStructure(disclosure, listingCheckedOn)}
 
 ${outputFormat(disclosure)}
 
@@ -84,7 +100,7 @@ ${serializeRecord(record)}`;
 
 /** 再訪記事の生成プロンプト(初回レコードとの差分中心) */
 export function buildRevisitPrompt(
-  record: VisitRecord, first: VisitRecord, disclosure: NameDisclosure = 'paid',
+  record: VisitRecord, first: VisitRecord, disclosure: NameDisclosure = 'paid', listingCheckedOn: string | null = null,
 ): string {
   return `${header('wakust投稿用の再訪レポート記事', disclosure)}
 
@@ -93,7 +109,7 @@ export function buildRevisitPrompt(
 - 初回との差分・進展・変化を中心に書く(重複する基本描写は最小限)
 - それ以外の構成(無料部分のダイジェストと有料部分の本編)は単体体験談と同じ
 
-${singleStructure(disclosure)}
+${singleStructure(disclosure, listingCheckedOn)}
 
 ${outputFormat(disclosure)}
 
@@ -124,7 +140,7 @@ export function buildCatalogPrompt(records: readonly VisitRecord[], prefecture: 
 
 ## 出力形式
 1. タイトル(例: 【${prefecture}】実際に行ったメンエス体験談まとめ【随時更新】)
-2. タグ(半角コンマ区切り)
+2. タグ: ${TAG_RULE}
 3. 記事HTML(無料記事なので1本)
 
 ### 対象訪問データ(${targets.length}件)
@@ -152,6 +168,9 @@ export function buildMatomePrompt(
 - 無料部分に必ず「※本記事には過去に販売した体験談の内容が含まれます」を明記(規約要件)
 - 有料部分: 各人の店名・源氏名・リンク+体験の要約(元記事の再編集。丸コピーはしない)+単体記事へのリンク(テキスト併記)
 - 順位付けまたは推薦理由を明確に
+- テーマが体験の条件(初回で〜だった人、裏OPの追加料金なしだった人など)の場合、条件は訪問データの記録だけで判定し、記録で確かめられない人は入れない。無料部分では選定条件と各人の系統だけを見せ、誰がどの結果かは有料部分で示す
+- 「再訪しない人と理由」のテーマでは、理由を再訪意向と残念ポイントの記録にある言葉で書く
+- 無料部分の冒頭に更新日と掲載人数を書く(人を追加するときは既存記事を編集する。規約1-9)
 
 ${outputFormat('paid')}
 

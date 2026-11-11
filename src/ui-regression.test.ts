@@ -526,6 +526,7 @@ describe('起動からの画面操作', () => {
     });
     const third = { ...revisit, id: 'third-visit', seriesNo: 3, revisitOf: revisit.id, postedUrl: null };
     await start([first, revisit, third]);
+    vi.stubGlobal('prompt', vi.fn(() => ''));
     const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
     button('プロンプト').click();
     await vi.waitFor(() => expect(copy).toHaveBeenCalledOnce());
@@ -533,8 +534,43 @@ describe('起動からの画面操作', () => {
     expect(copy.mock.calls[0]![0]).not.toContain('https://wakust.com/u/second/');
   });
 
+  it('生成時に在籍確認日を聞き、取得日を初期値にして記事の指示へ渡す', async () => {
+    const base = fixtureRecord();
+    const record = fixtureRecord({ basic: { ...base.basic, identityLookup: {
+      // 取得日は利用者の現地日付で扱う。実行環境のタイムゾーンに依らないよう現地時刻から作る
+      sourceUrl: base.basic.therapistProfileUrl, checkedAt: new Date(2026, 10, 11, 12, 0).toISOString(), filled: ['shopUrl'],
+    } } });
+    await start([record]);
+    const ask = vi.fn((_message?: string, _initial?: string) => '2026-11-12');
+    vi.stubGlobal('prompt', ask);
+    const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
+    button('プロンプト').click();
+    await vi.waitFor(() => expect(copy).toHaveBeenCalledOnce());
+    expect(ask.mock.calls[0]![1]).toBe('2026-11-11');
+    expect(copy.mock.calls[0]![0]).toContain('<p>在籍確認: 2026年11月12日時点で店舗HPに掲載</p>');
+  });
+
+  it('在籍確認日の入力を取り消すと、プロンプトをコピーしない', async () => {
+    await start([fixtureRecord()]);
+    vi.stubGlobal('prompt', vi.fn(() => null));
+    const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
+    button('プロンプト').click();
+    await Promise.resolve();
+    expect(copy).not.toHaveBeenCalled();
+  });
+
+  it('不正な在籍確認日は理由を表示し、プロンプトをコピーしない', async () => {
+    await start([fixtureRecord()]);
+    vi.stubGlobal('prompt', vi.fn(() => '2026/11/11'));
+    const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
+    button('プロンプト').click();
+    await vi.waitFor(() => expect(document.body.textContent).toContain('在籍確認日はYYYY-MM-DD'));
+    expect(copy).not.toHaveBeenCalled();
+  });
+
   it('名前公開版のボタンは店名・源氏名を無料部分で出すプロンプトをコピーする', async () => {
     await start([fixtureRecord()]);
+    vi.stubGlobal('prompt', vi.fn(() => ''));
     const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
     button('名前公開版').click();
     await vi.waitFor(() => expect(copy).toHaveBeenCalledOnce());
@@ -559,6 +595,7 @@ describe('起動からの画面操作', () => {
     await start([first, revisit]);
     const before = window.localStorage.getItem('me-report-writer/visits/v1');
     vi.stubGlobal('confirm', vi.fn(() => true));
+    vi.stubGlobal('prompt', vi.fn(() => ''));
     const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
 
     document.querySelector<HTMLButtonElement>(`[data-id="${first.id}"] [data-act="del"]`)!.click();
