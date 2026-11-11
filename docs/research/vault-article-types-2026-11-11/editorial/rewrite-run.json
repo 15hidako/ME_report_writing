@@ -1,0 +1,22 @@
+{
+  "status": "SUCCESS",
+  "route": "direct Antigravity CLI (agy -p --output-format json)",
+  "model": "gemini-3.8-flash-high",
+  "duration_seconds": 115.2,
+  "error": null,
+  "denied_actions": "not present in output",
+  "stderr": "empty",
+  "input_files": ["README.md"],
+  "input_excluded": ["article bodies", "store and therapist names", "URLs", "vault files"],
+  "parent_review": {
+    "all_rewrite_differences_read": true,
+    "adopted": ["字数の注記を概算と明記する一文"],
+    "rejected_reasons": [
+      "本稿・極めて・主たる購買動機など、硬い語や根拠を超えた断定が増えた",
+      "人物の特定を有料部分に委ねる など、モノを主語にした表現が入った",
+      "了承前の段階の記述が、変更していないという事実から変更しないという方針に変わった"
+    ],
+    "parent_finish_applied": "stop-ai-slop-jp"
+  },
+  "final_markdown_sha256": "960f53f8810c6c94b6662cba6470bfc5696883c626e43de5a63891e704eb2bd8"
+}
