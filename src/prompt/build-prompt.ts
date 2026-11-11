@@ -15,11 +15,15 @@ const TITLE_NAME_RULE: Readonly<Record<NameDisclosure, string>> = {
 /** wakustのタグ規則(上限6個、NGタグ)。H-07 */
 const TAG_RULE = '半角コンマ区切りで6個以内。都道府県は「東京」「神奈川」のように都・府・県を省いた地域名にする。「東京都」「神奈川県」などの正式名と「メンエス」はNGタグなので使わない。本文と関係のないタグは付けない';
 
+/** wakustの投稿欄で保存後も残ることを確かめた装飾(C3)。色や強調の標準は固定しない。H-01 */
+const SPAN_STYLE_RULE = '- <span style> は強調したい一言にだけ使う。style属性は color と font-weight だけにし、記事の大半を装飾しない';
+
 const outputFormat = (disclosure: NameDisclosure): string => `## 出力形式(この4ブロックを順に、コードブロックで出力)
 1. タイトル: 【フック】+属性キーワード(系統・特記。年齢・体型・カップ数は入れない)+展開の匂わせ+【メンズエステ体験談】(通し番号は付けない)。${TITLE_NAME_RULE[disclosure]}
 2. タグ: ${TAG_RULE}(候補から取捨選択・追加可)
-3. 無料部分HTML: <h3><p><ul><li><a><strong><em><small><br />のみ使用
-4. 有料部分HTML: 同上`;
+3. 無料部分HTML: <h3><p><ul><li><a><strong><em><small><span style><br />のみ使用
+4. 有料部分HTML: 同上
+${SPAN_STYLE_RULE}`;
 
 // 開示先で変わるのは、導入・セラピスト紹介・有料部分の説明・店舗情報の4行だけ
 const STRUCTURE_LINES: Readonly<Record<NameDisclosure, {

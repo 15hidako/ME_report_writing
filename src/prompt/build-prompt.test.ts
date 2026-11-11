@@ -364,3 +364,13 @@ describe('カタログ記事のタイトル例(C2)', () => {
     expect(line).toContain('都道府県の正式名と「メンエス」は使わない');
   });
 });
+
+describe('span style の装飾(H-01)', () => {
+  it('許可タグに span style を含め、文字色と太字に限って使う指示を入れる', () => {
+    const p = buildSinglePrompt(fixtureRecord());
+    const line = p.split('\n').find((l) => l.startsWith('3. 無料部分HTML')) ?? '';
+    expect(line).toContain('<span style>');
+    expect(p).toContain('style属性は color と font-weight だけ');
+    expect(p).toContain('記事の大半を装飾しない');
+  });
+});
