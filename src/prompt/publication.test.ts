@@ -1,6 +1,22 @@
 import { describe, expect, it } from 'vitest';
 import { fixtureRecord } from '../test-fixtures';
-import { countPublishedTherapists } from './publication';
+import { countPublishedTherapists, parsePostedUrlInput } from './publication';
+
+describe('parsePostedUrlInput', () => {
+  it.each(['', '   ', '\n\t'])('空欄や空白だけ(%j)は解除として null を返す', (input) => {
+    expect(parsePostedUrlInput(input)).toBeNull();
+  });
+
+  it('wakustの記事URLは前後の空白を除いて返す', () => {
+    expect(parsePostedUrlInput('  https://wakust.com/u/1/ \n')).toBe('https://wakust.com/u/1/');
+    expect(parsePostedUrlInput('https://www.wakust.com/u/1/')).toBe('https://www.wakust.com/u/1/');
+  });
+
+  it.each(['https://example.com/article', 'https://wakust.com/', 'wakust.com/u/1/', 'メモ'])(
+    'wakustの記事URLでない入力(%s)は理由を付けて拒む', (input) => {
+      expect(() => parsePostedUrlInput(input)).toThrow('wakust記事URLが必要です');
+    });
+});
 
 describe('countPublishedTherapists', () => {
   it('未投稿と再訪を6人分の投稿実績に含めない', () => {

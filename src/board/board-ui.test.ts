@@ -195,16 +195,52 @@ describe('回答カードの段階', () => {
     expect(toasts()).toEqual([]);
   });
 
-  // WP-4 で、確認のうえ投稿URLを外して戻せるように変える。そのときこのテストを書き直す
-  it('投稿済みの回答カードを別の段階へ動かすとエラーを出し、段階を変えない', async () => {
+  it('投稿済みの回答カードを別の段階へ動かすと、確認のうえ投稿URLを外して戻す', async () => {
     const record = fixtureRecord({ postedUrl: WAKUST_URL });
     await start([record]);
+    const confirm = vi.fn(() => true);
+    vi.stubGlobal('confirm', confirm);
     await moveTo(record.id, 'editing');
-    expect(toasts()).toEqual(['投稿済みの回答は、入力画面の「投稿URL」を空にすると戻せます']);
-    expect(savedVisits()[0]?.postedUrl).toBe(WAKUST_URL);
+    expect(confirm).toHaveBeenCalledExactlyOnceWith('投稿URLを外して戻しますか?');
+    expect(savedVisits()[0]?.postedUrl).toBeNull();
+    expect(savedVisits()[0]?.updatedAt).not.toBe(record.updatedAt);
+    expect(savedBoard().stages).toEqual({ [record.id]: 'editing' });
+    expect(stageOf(record.id)).toBe('editing');
+    expect(shownStage(record.id)).toBe('editing');
+    expect(toasts()).toEqual([]);
+  });
+
+  it('投稿済みの回答カードを「回答済み」へ戻すと、段階を保存せずに投稿URLだけ外す', async () => {
+    const record = fixtureRecord({ postedUrl: WAKUST_URL });
+    await start([record]);
+    vi.stubGlobal('confirm', vi.fn(() => true));
+    await moveTo(record.id, 'answered');
+    expect(savedVisits()[0]?.postedUrl).toBeNull();
+    expect(savedBoard().stages).toEqual({});
+    expect(stageOf(record.id)).toBe('answered');
+  });
+
+  it('投稿URLを外す確認を断ると、何も変えない', async () => {
+    const record = fixtureRecord({ postedUrl: WAKUST_URL });
+    await start([record]);
+    const before = window.localStorage.getItem(VISITS_KEY);
+    vi.stubGlobal('confirm', vi.fn(() => false));
+    await moveTo(record.id, 'editing');
+    expect(window.localStorage.getItem(VISITS_KEY)).toBe(before);
     expect(window.localStorage.getItem(BOARD_KEY)).toBeNull();
     expect(stageOf(record.id)).toBe('posted');
     expect(shownStage(record.id)).toBe('posted');
+    expect(toasts()).toEqual([]);
+  });
+
+  it('投稿URLを空欄で決定すると、保存せずに理由を知らせる', async () => {
+    const record = fixtureRecord();
+    await start([record]);
+    vi.stubGlobal('prompt', vi.fn(() => '  '));
+    await moveTo(record.id, 'posted');
+    expect(savedVisits()[0]?.postedUrl).toBeNull();
+    expect(shownStage(record.id)).toBe('answered');
+    expect(toasts()).toEqual(['wakust記事URLが必要です']);
   });
 });
 

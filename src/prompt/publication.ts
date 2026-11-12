@@ -10,6 +10,14 @@ export function isWakustArticleUrl(value: string): boolean {
     && url.username === '' && url.password === '' && url.pathname !== '/';
 }
 
+/** 投稿URLの入力を解釈する。空欄は null(解除)。wakustの記事URLでなければ Error */
+export function parsePostedUrlInput(input: string): string | null {
+  const url = input.trim();
+  if (url === '') return null;
+  if (!isWakustArticleUrl(url)) throw new Error('wakust記事URLが必要です');
+  return url;
+}
+
 export function isPublished(record: VisitRecord): boolean {
   return record.postedUrl !== null && isWakustArticleUrl(record.postedUrl);
 }

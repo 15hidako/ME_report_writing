@@ -3,7 +3,7 @@ import { parseChecksFile } from '../checks/files';
 import { localDate } from '../date';
 import { ARTICLE_DIR, folderNameOf } from '../local-setup';
 import { BOARD_WINDOW, takeParam } from '../links';
-import { isWakustArticleUrl } from '../prompt/publication';
+import { parsePostedUrlInput } from '../prompt/publication';
 import { toast, tryCopyText } from '../ui/widgets';
 import { ARTICLE_PARTS, VARIANT_DIRS } from '../prompt/article-files';
 import { advanceDrafted, readArticlePart, scanArticles, type ArticleDraft } from './articles';
@@ -85,17 +85,25 @@ function update(change: (state: BoardState) => BoardState): void {
 function askPostedUrl(current: string | null): string | null {
   const input = prompt('wakust投稿後の記事URL', current ?? '');
   if (input === null) return null;
-  const url = input.trim();
-  if (!isWakustArticleUrl(url)) throw new Error('wakust記事URLが必要です');
+  const url = parsePostedUrlInput(input);
+  // ボードでは空欄で解除しない。外すときは段階を戻す
+  if (url === null) throw new Error('wakust記事URLが必要です');
   return url;
 }
+
+const UNPOST_CONFIRM = '投稿URLを外して戻しますか?';
 
 function moveCard(card: Card, stage: Stage): void {
   if (card.stage === stage) return;
   if (card.source === 'record') {
     const record = visits.get(card.id);
     if (record === undefined) throw new Error('回答が見つかりません。画面を読み込み直してください');
-    if (card.stage === 'posted') throw new Error('投稿済みの回答は、入力画面の「投稿URL」を空にすると戻せます');
+    if (card.stage === 'posted' && stage !== 'posted') {
+      if (!confirm(UNPOST_CONFIRM)) return;
+      visits.save({ ...record, postedUrl: null, updatedAt: new Date().toISOString() });
+      update((state) => setRecordStage(state, card.id, stage));
+      return;
+    }
     if (stage === 'posted') {
       const postedUrl = askPostedUrl(null);
       if (postedUrl === null) return;
@@ -113,7 +121,7 @@ function moveCard(card: Card, stage: Stage): void {
     if (postedUrl !== null) update((state) => upsertBundle(state, { ...bundle, postedUrl }));
     return;
   }
-  if (bundle.postedUrl !== null && !confirm('投稿URLを外して戻しますか?')) return;
+  if (bundle.postedUrl !== null && !confirm(UNPOST_CONFIRM)) return;
   update((state) => upsertBundle(state, { ...bundle, stage, postedUrl: null }));
 }
 

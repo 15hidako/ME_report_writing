@@ -495,6 +495,53 @@ describe('起動からの画面操作', () => {
     expect(window.localStorage.getItem('me-report-writer/visits/v1')).toBe('null');
   });
 
+  it('投稿URLを空欄にすると投稿済みを解除する', async () => {
+    await start([fixtureRecord({ postedUrl: 'https://wakust.com/u/original/' })]);
+    expect(document.querySelector('.badge.posted')).not.toBeNull();
+    vi.stubGlobal('prompt', vi.fn(() => '  '));
+    button('投稿URL').click();
+    const saved = JSON.parse(window.localStorage.getItem('me-report-writer/visits/v1')!) as VisitRecord[];
+    expect(saved[0]?.postedUrl).toBeNull();
+    expect(document.querySelector('.badge.posted')).toBeNull();
+  });
+
+  describe('別の画面での変更', () => {
+    const posted = (): string => JSON.stringify([fixtureRecord({ postedUrl: 'https://wakust.com/u/from-board/' })]);
+    const changeElsewhere = (records: string): void => {
+      window.localStorage.setItem('me-report-writer/visits/v1', records);
+      window.dispatchEvent(new Event('storage'));
+    };
+
+    it('履歴タブを表示中なら描き直し、「投稿済」の表示を合わせる', async () => {
+      await start([fixtureRecord()]);
+      expect(document.querySelector('.badge.posted')).toBeNull();
+      changeElsewhere(posted());
+      expect(document.querySelector('.badge.posted')?.textContent).toBe('投稿済');
+      changeElsewhere(JSON.stringify([fixtureRecord()]));
+      expect(document.querySelector('.badge.posted')).toBeNull();
+    });
+
+    it('入力タブを表示中は描き直さず、入力中の値を残す', async () => {
+      await start([fixtureRecord()]);
+      button('編集').click();
+      setLocation('area', '入力中のエリア');
+      const form = document.querySelector('#visit-form');
+      changeElsewhere(posted());
+      expect(document.querySelector('#visit-form')).toBe(form);
+      expect(locationValue('area')).toBe('入力中のエリア');
+      button('履歴').click();
+      expect(document.querySelector('.badge.posted')?.textContent).toBe('投稿済');
+    });
+
+    it('サムネタブを表示中は描き直さない', async () => {
+      await start([fixtureRecord()]);
+      button('サムネ').click();
+      const shown = document.querySelector('#app')!.firstElementChild;
+      changeElsewhere(posted());
+      expect(document.querySelector('#app')!.firstElementChild).toBe(shown);
+    });
+  });
+
   it('投稿URLに別サイトを指定したら理由を示し、保存済みURLを保つ', async () => {
     await start([fixtureRecord({ postedUrl: 'https://wakust.com/u/original/' })]);
     const before = window.localStorage.getItem('me-report-writer/visits/v1');

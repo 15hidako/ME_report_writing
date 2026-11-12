@@ -17,7 +17,7 @@ import { publicSpecSummary, specSummary } from './prompt/serialize';
 import { drawThumbnail, downloadCanvasPng, LAYOUTS, PALETTES } from './thumbnail';
 import type { ThumbnailLayout } from './thumbnail';
 import { localDate } from './date';
-import { SUMMARY_MIN_THERAPISTS, countPublishedTherapists, isPublished } from './prompt/publication';
+import { SUMMARY_MIN_THERAPISTS, countPublishedTherapists, isPublished, parsePostedUrlInput } from './prompt/publication';
 import { BUILD_ID, fetchLatestBuildId, updateUrl } from './update-check';
 import { INPUT_WINDOW, boardLinkHtml, takeParam } from './links';
 import { articleSaveSection } from './prompt/article-files';
@@ -652,15 +652,10 @@ function copyPrompt(record: VisitRecord, disclosure: NameDisclosure): void {
 function savePostedUrl(record: VisitRecord): void {
   const url = prompt('wakust投稿後の記事URL(カタログ/まとめ/再訪から参照)', record.postedUrl ?? '');
   if (url === null) return;
-  const postedUrl = url.trim() === '' ? null : url.trim();
-  if (postedUrl !== null && !isPublished({ ...record, postedUrl })) {
-    toast('wakust記事URLが必要です');
-    return;
-  }
   try {
     getStore().save({
       ...record,
-      postedUrl,
+      postedUrl: parsePostedUrlInput(url),
       updatedAt: new Date().toISOString(),
     });
     render();
@@ -827,6 +822,10 @@ window.name = INPUT_WINDOW;
 // ボードからの移動などで、未保存の入力を黙って失わない
 window.addEventListener('beforeunload', (event) => {
   if (!leaveConfirmed && formCache?.dirty === true) event.preventDefault();
+});
+// ボードなど別の画面での変更を履歴に反映する。入力タブとサムネタブは入力中の値を消さないよう描き直さない
+window.addEventListener('storage', () => {
+  if (currentTab === 'list') render();
 });
 document.querySelectorAll('nav button').forEach((b) => {
   b.addEventListener('click', () => switchTab(b.getAttribute('data-tab') as Tab));
