@@ -578,6 +578,81 @@ describe('起動からの画面操作', () => {
     expect(copy.mock.calls[0]![0]).not.toContain('有料部分でのみ開示');
   });
 
+  describe('プロンプトのコピーとボードの段階', () => {
+    const BOARD_KEY = 'me-report-writer/board/v1';
+    const boardStages = (): unknown => {
+      const raw = window.localStorage.getItem(BOARD_KEY);
+      return raw === null ? null : (JSON.parse(raw) as { stages: unknown }).stages;
+    };
+    const boardWith = (stages: Record<string, string>): string =>
+      JSON.stringify({ version: 1, stages, angles: {}, bundles: [], scheduleUrls: {}, checks: [], acknowledged: {} });
+
+    it.each(['プロンプト', '名前公開版'])('「%s」をコピーできたら、回答を「プロンプト出力」へ進める', async (name) => {
+      const record = fixtureRecord();
+      await start([record]);
+      vi.stubGlobal('prompt', vi.fn(() => ''));
+      const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
+      button(name).click();
+      await vi.waitFor(() => expect(boardStages()).toEqual({ [record.id]: 'prompted' }));
+      expect(copy).toHaveBeenCalledOnce();
+    });
+
+    it('すでに先の段階にある回答は変えない', async () => {
+      const record = fixtureRecord();
+      const before = boardWith({ [record.id]: 'editing' });
+      window.localStorage.setItem(BOARD_KEY, before);
+      await start([record]);
+      vi.stubGlobal('prompt', vi.fn(() => ''));
+      const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
+      button('プロンプト').click();
+      await vi.waitFor(() => expect(document.querySelector('.toast')?.textContent).toBe('コピーしました'));
+      expect(copy).toHaveBeenCalledOnce();
+      expect(window.localStorage.getItem(BOARD_KEY)).toBe(before);
+    });
+
+    it('投稿済みの回答では段階を入れない', async () => {
+      await start([fixtureRecord({ postedUrl: 'https://wakust.com/u/first/' })]);
+      vi.stubGlobal('prompt', vi.fn(() => ''));
+      const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
+      button('プロンプト').click();
+      await vi.waitFor(() => expect(document.querySelector('.toast')?.textContent).toBe('コピーしました'));
+      expect(copy).toHaveBeenCalledOnce();
+      expect(boardStages()).toBeNull();
+    });
+
+    it('出勤確認日の入力を取り消したときは段階を入れない', async () => {
+      await start([fixtureRecord()]);
+      vi.stubGlobal('prompt', vi.fn(() => null));
+      vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
+      button('プロンプト').click();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(boardStages()).toBeNull();
+    });
+
+    it('コピーに失敗したときは段階を入れない', async () => {
+      await start([fixtureRecord()]);
+      vi.stubGlobal('prompt', vi.fn(() => ''));
+      vi.spyOn(navigator.clipboard, 'writeText').mockRejectedValue(new Error('denied'));
+      button('プロンプト').click();
+      await vi.waitFor(() => expect(document.querySelector('.toast')?.textContent).toBe('コピーに失敗しました'));
+      expect(boardStages()).toBeNull();
+    });
+
+    it('ボードの状態を読めないときも、コピーは成功のまま理由を知らせる', async () => {
+      window.localStorage.setItem(BOARD_KEY, '{');
+      await start([fixtureRecord()]);
+      vi.stubGlobal('prompt', vi.fn(() => ''));
+      const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
+      button('プロンプト').click();
+      await vi.waitFor(() => expect(document.querySelectorAll('.toast')).toHaveLength(2));
+      const messages = [...document.querySelectorAll('.toast')].map((item) => item.textContent);
+      expect(messages[0]).toBe('コピーしました');
+      expect(messages[1]).toContain('ボードの読み込みに失敗しました');
+      expect(copy).toHaveBeenCalledOnce();
+      expect(window.localStorage.getItem(BOARD_KEY)).toBe('{');
+    });
+  });
+
   it('再訪参照の循環を通知し、新しい記録を作らない', async () => {
     const first = fixtureRecord({ revisitOf: 'cycle', sales: { points: 100, articleType: 'revisit' } });
     const second = { ...first, id: 'cycle', seriesNo: 2, revisitOf: first.id };

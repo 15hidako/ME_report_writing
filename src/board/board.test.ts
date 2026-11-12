@@ -5,7 +5,7 @@ import { MemoryStore, fixtureRecord } from '../test-fixtures';
 import type { VisitRecord } from '../types';
 import { buildCards, buildTargets } from './cards';
 import {
-  BoardStore, EMPTY_BOARD, acknowledge, parseBoardState, removeBundle, setRecordStage, setArticleAngle, setScheduleUrl,
+  BoardStore, EMPTY_BOARD, acknowledge, markPrompted, parseBoardState, removeBundle, setRecordStage, setArticleAngle, setScheduleUrl,
   upsertBundle, withChecks, type BoardState, type BundleArticle,
 } from './state';
 import { boardHtml } from './view';
@@ -64,6 +64,16 @@ describe('カードの段階とタイプ', () => {
   it('既定の段階へ戻すと保存値を消す', () => {
     const state = setRecordStage(setRecordStage(EMPTY_BOARD, 'id-1', 'editing'), 'id-1', 'answered');
     expect(state.stages).toEqual({});
+  });
+
+  it('プロンプトを出した回答は、回答済みのときだけ「プロンプト出力」へ進める', () => {
+    expect(markPrompted(EMPTY_BOARD, 'id-1').stages).toEqual({ 'id-1': 'prompted' });
+    expect(EMPTY_BOARD.stages).toEqual({});
+  });
+
+  it.each(['prompted', 'editing'] as const)('すでに%sの回答は変えず、同じ状態をそのまま返す', (stage) => {
+    const state = setRecordStage(EMPTY_BOARD, 'id-1', stage);
+    expect(markPrompted(state, 'id-1')).toBe(state);
   });
 });
 

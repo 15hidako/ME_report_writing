@@ -22,6 +22,7 @@ import { BUILD_ID, fetchLatestBuildId, updateUrl } from './update-check';
 import { INPUT_WINDOW, boardLinkHtml, takeParam } from './links';
 import { articleSaveSection } from './prompt/article-files';
 import { ARTICLE_DIR, ARTICLE_DIR_ERROR, openClaudeApp } from './local-setup';
+import { BoardStore, markPrompted } from './board/state';
 import './styles.css';
 
 const appNode = document.getElementById('app');
@@ -53,12 +54,14 @@ function errText(err: unknown): string {
   return err instanceof Error ? err.message : String(err);
 }
 
+const kv = {
+  getItem: (key: string) => localStorage.getItem(key),
+  setItem: (key: string, value: string) => localStorage.setItem(key, value),
+};
+
 function getStore(): VisitStore {
   if (store !== undefined) return store;
-  store = new VisitStore({
-    getItem: (key: string) => localStorage.getItem(key),
-    setItem: (key: string, value: string) => localStorage.setItem(key, value),
-  });
+  store = new VisitStore(kv);
   return store;
 }
 
@@ -75,10 +78,27 @@ function confirmDiscardDraft(): boolean {
 }
 
 /** このPCの設定があるときは、コピーのあと Claude アプリを開いて貼り付けるだけにする */
-function copyGenerated(text: string, done?: string): void {
+function copyGenerated(text: string, done?: string, onCopied?: () => void): void {
   void tryCopyText(text, done)
-    .then((copied) => { if (copied && ARTICLE_DIR !== null) openClaudeApp(); })
+    .then((copied) => {
+      if (!copied) return;
+      onCopied?.();
+      if (ARTICLE_DIR !== null) openClaudeApp();
+    })
     .catch((err: unknown) => toast(errText(err)));
+}
+
+/** 記事プロンプトを出した回答を、ボードの「プロンプト出力」へ進める。失敗してもコピーは成功のままにし、理由だけ知らせる */
+function markPromptedOnBoard(record: VisitRecord): void {
+  if (isPublished(record)) return;
+  try {
+    const board = new BoardStore(kv);
+    const before = board.load();
+    const after = markPrompted(before, record.id);
+    if (after !== before) board.save(after);
+  } catch (err) {
+    toast(errText(err));
+  }
 }
 
 /** 記事プロンプトに店舗情報の確認を入れたときは、返答の貼り先を知らせる */
@@ -86,7 +106,7 @@ function copyArticlePrompt(record: VisitRecord, disclosure: NameDisclosure, text
   const full = ARTICLE_DIR === null ? text : `${text}\n\n${articleSaveSection(ARTICLE_DIR, record, disclosure)}`;
   copyGenerated(full, needsLookup(record)
     ? 'コピーしました。返答を「店舗情報を取得」に貼ると記録にも反映されます'
-    : undefined);
+    : undefined, () => markPromptedOnBoard(record));
 }
 
 function rawHasSavedData(): boolean {

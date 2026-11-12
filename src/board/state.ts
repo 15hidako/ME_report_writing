@@ -140,6 +140,11 @@ export function setRecordStage(state: BoardState, recordId: string, stage: Draft
   return { ...state, stages };
 }
 
+/** プロンプトを出した回答を「プロンプト出力」へ進める。すでに先の段階にある回答は変えない */
+export function markPrompted(state: BoardState, recordId: string): BoardState {
+  return state.stages[recordId] === undefined ? setRecordStage(state, recordId, 'prompted') : state;
+}
+
 export function setArticleAngle(state: BoardState, recordId: string, type: ArticleAngle | null): BoardState {
   const angles = type === null ? without(state.angles, recordId) : { ...state.angles, [recordId]: type };
   return { ...state, angles };
