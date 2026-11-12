@@ -99,6 +99,17 @@ input, textarea, select {
   font-size: 16px; /* iOSズーム防止 */
   padding: 12px;
 }
+/* iOS Safari の日付入力は固有の最小幅と中央寄せ・高さを持ち、width:100% から右にはみ出す */
+input[type="date"] {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 2.8em; /* select と同じ高さ */
+  text-align: left;
+}
+input[type="date"]::-webkit-date-and-time-value { text-align: left; margin: 0; }
 input:focus, textarea:focus, select:focus {
   outline: 2px solid var(--accent);
   border-color: transparent;
