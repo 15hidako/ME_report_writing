@@ -3,6 +3,7 @@ import type { CheckResult, CheckTarget, TargetsFile } from '../checks/files';
 import { pageKey, siteKey } from '../identity';
 import { isPublished } from '../prompt/publication';
 import type { ArticleKind, BoardState, ArticleAngle, Stage } from './state';
+import type { ArticleDraft } from './articles';
 
 /** 確認結果をこの日数より古いまま放置しない。週1回の実行が1回抜けたら知らせる */
 export const STALE_AFTER_DAYS = 8;
@@ -30,6 +31,8 @@ export interface Card {
   readonly postedUrl: string | null;
   /** 投稿済みで、プロフィールURLがある回答だけが追跡対象 */
   readonly tracking: Tracking | null;
+  /** 原稿フォルダに書き出された記事。読んでいない・ないときは null */
+  readonly draft: ArticleDraft | null;
 }
 
 function latestChecks(checks: readonly CheckResult[]): Map<string, CheckResult> {
@@ -67,7 +70,10 @@ function trackingOf(
   };
 }
 
-export function buildCards(records: readonly VisitRecord[], state: BoardState, now: Date): Card[] {
+export function buildCards(
+  records: readonly VisitRecord[], state: BoardState, now: Date,
+  drafts: ReadonlyMap<string, ArticleDraft> = new Map(),
+): Card[] {
   const checks = latestChecks(state.checks);
   const seriesNo = new Map(records.map((record) => [record.id, record.seriesNo]));
   const recordCards = [...records].sort((a, b) => b.seriesNo - a.seriesNo).map((record): Card => {
@@ -82,6 +88,7 @@ export function buildCards(records: readonly VisitRecord[], state: BoardState, n
       detail: `${record.basic.visitDate} / ${record.basic.area}`,
       postedUrl: record.postedUrl,
       tracking: trackingOf(record, state, checks, now),
+      draft: drafts.get(record.id) ?? null,
     };
   });
   const bundleCards = state.bundles.map((bundle): Card => {
@@ -96,6 +103,7 @@ export function buildCards(records: readonly VisitRecord[], state: BoardState, n
       detail: numbers.map((no) => `#${no}`).join(' '),
       postedUrl: bundle.postedUrl,
       tracking: null,
+      draft: null,
     };
   });
   return [...bundleCards, ...recordCards];

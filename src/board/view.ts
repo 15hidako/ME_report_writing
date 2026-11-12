@@ -5,6 +5,8 @@ import { INPUT_WINDOW, editHref } from '../links';
 import { esc } from '../ui/widgets';
 import type { Attention, Card } from './cards';
 import { ANGLES, STAGES, type ArticleKind, type ArticleAngle, type Stage } from './state';
+import { ARTICLE_PARTS } from '../prompt/article-files';
+import type { NameDisclosure } from '../prompt/style-profile';
 
 export const STAGE_LABELS: Readonly<Record<Stage, string>> = {
   answered: '回答済み', prompted: 'プロンプト出力', editing: '推敲中', posted: '投稿済み',
@@ -56,6 +58,31 @@ function angleHtml(card: Card): string {
   return `<div class="angle" role="group" aria-label="${esc(card.title)} の販売型">${buttons}</div>`;
 }
 
+/** 入力画面のプロンプトボタン(「プロンプト」「名前公開版」)と呼び方をそろえる */
+const DRAFT_LABELS: Readonly<Record<NameDisclosure, string>> = { paid: '原稿', free: '名前公開版' };
+
+function stamp(ms: number): string {
+  const date = new Date(ms);
+  const pad = (n: number): string => String(n).padStart(2, '0');
+  return `${date.getMonth() + 1}/${date.getDate()} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+function draftHtml(card: Card): string {
+  if (card.draft === null) return '';
+  const rows = card.draft.variants.map((variant) => {
+    const buttons = ARTICLE_PARTS.filter((part) => variant.parts.includes(part.id)).map((part) => `
+      <button type="button" data-act="copy-part" data-disclosure="${variant.disclosure}" data-part="${part.id}"
+        aria-label="${esc(DRAFT_LABELS[variant.disclosure])}の${part.label}をコピー">${part.short}</button>`).join('');
+    return `
+      <div class="draft-row">
+        <span class="draft-name">${DRAFT_LABELS[variant.disclosure]}</span>
+        <time datetime="${new Date(variant.updatedAt).toISOString()}">${stamp(variant.updatedAt)}</time>
+        <div class="draft-parts">${buttons}</div>
+      </div>`;
+  }).join('');
+  return `<div class="draft">${rows}</div>`;
+}
+
 function cardHtml(card: Card): string {
   const stageOptions = STAGES
     .map((stage) => `<option value="${stage}"${stage === card.stage ? ' selected' : ''}>${STAGE_LABELS[stage]}</option>`)
@@ -75,6 +102,7 @@ function cardHtml(card: Card): string {
         : `<a href="${esc(card.postedUrl)}" target="_blank" rel="noopener noreferrer">${esc(card.title)}</a>`}</h3>
       ${card.detail === '' ? '' : `<p class="board-card-detail">${esc(card.detail)}</p>`}
       ${angleHtml(card)}
+      ${draftHtml(card)}
       ${trackingHtml(card)}
       ${card.source === 'bundle' ? '<button type="button" class="danger" data-act="remove">削除</button>' : ''}
     </li>`;

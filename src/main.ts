@@ -1,7 +1,7 @@
 import type { VisitRecord } from './types';
 import { VisitStore } from './storage';
 import { renderForm, collectRecord, bindCourseFields, bindOptionFields, bindLocationFields } from './ui/form';
-import { bindChips, bindStars, copyText, esc, toast } from './ui/widgets';
+import { bindChips, bindStars, esc, toast, tryCopyText } from './ui/widgets';
 import { bindNoteSuggestions } from './ui/questionnaire-candidates';
 import { openHandoffUpdate } from './ui/handoff-import';
 import { bindIdentityAutofill } from './ui/identity-autofill';
@@ -20,6 +20,8 @@ import { localDate } from './date';
 import { SUMMARY_MIN_THERAPISTS, countPublishedTherapists, isPublished } from './prompt/publication';
 import { BUILD_ID, fetchLatestBuildId, updateUrl } from './update-check';
 import { INPUT_WINDOW, boardLinkHtml, takeParam } from './links';
+import { articleSaveSection } from './prompt/article-files';
+import { ARTICLE_DIR, ARTICLE_DIR_ERROR, openClaudeApp } from './local-setup';
 import './styles.css';
 
 const appNode = document.getElementById('app');
@@ -72,13 +74,17 @@ function confirmDiscardDraft(): boolean {
   return confirm('入力中の内容を破棄しますか?');
 }
 
+/** このPCの設定があるときは、コピーのあと Claude アプリを開いて貼り付けるだけにする */
 function copyGenerated(text: string, done?: string): void {
-  void copyText(text, done).catch((err: unknown) => toast(errText(err)));
+  void tryCopyText(text, done)
+    .then((copied) => { if (copied && ARTICLE_DIR !== null) openClaudeApp(); })
+    .catch((err: unknown) => toast(errText(err)));
 }
 
 /** 記事プロンプトに店舗情報の確認を入れたときは、返答の貼り先を知らせる */
-function copyArticlePrompt(record: VisitRecord, text: string): void {
-  copyGenerated(text, needsLookup(record)
+function copyArticlePrompt(record: VisitRecord, disclosure: NameDisclosure, text: string): void {
+  const full = ARTICLE_DIR === null ? text : `${text}\n\n${articleSaveSection(ARTICLE_DIR, record, disclosure)}`;
+  copyGenerated(full, needsLookup(record)
     ? 'コピーしました。返答を「店舗情報を取得」に貼ると記録にも反映されます'
     : undefined);
 }
@@ -607,17 +613,17 @@ function copyPrompt(record: VisitRecord, disclosure: NameDisclosure): void {
       const first = findOriginalRecord(record);
       if (first === 'missing') {
         toast('初回レコードが見つかりません。単体として生成します');
-        copyArticlePrompt(record, buildSinglePrompt(record, disclosure, listingCheckedOn));
+        copyArticlePrompt(record, disclosure, buildSinglePrompt(record, disclosure, listingCheckedOn));
         return;
       }
       if (first === 'cycle') {
         toast('再訪の参照が循環しています');
         return;
       }
-      copyArticlePrompt(record, buildRevisitPrompt(record, first, disclosure, listingCheckedOn));
+      copyArticlePrompt(record, disclosure, buildRevisitPrompt(record, first, disclosure, listingCheckedOn));
       return;
     }
-    copyArticlePrompt(record, buildSinglePrompt(record, disclosure, listingCheckedOn));
+    copyArticlePrompt(record, disclosure, buildSinglePrompt(record, disclosure, listingCheckedOn));
   } catch (err) {
     toast(errText(err));
   }
@@ -808,3 +814,4 @@ document.querySelectorAll('nav button').forEach((b) => {
 openFromUrl();
 // 開発サーバーとテストには version.json がないため、公開ビルドだけで確認する
 if (!import.meta.env.DEV) watchForUpdate();
+if (ARTICLE_DIR_ERROR !== null) toast(ARTICLE_DIR_ERROR);

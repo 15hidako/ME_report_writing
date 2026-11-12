@@ -3,7 +3,9 @@ import { parseChecksFile } from '../checks/files';
 import { localDate } from '../date';
 import { BOARD_WINDOW, takeParam } from '../links';
 import { isWakustArticleUrl } from '../prompt/publication';
-import { toast } from '../ui/widgets';
+import { toast, tryCopyText } from '../ui/widgets';
+import { ARTICLE_PARTS, VARIANT_DIRS } from '../prompt/article-files';
+import { advanceDrafted, readArticlePart, scanArticles, type ArticleDraft } from './articles';
 import { buildCards, buildTargets, type Card } from './cards';
 import { ensureAccess, folderSupported, pickFolder, readText, savedFolder, writeText, type Folder } from './folder';
 import {
@@ -50,13 +52,18 @@ function guarded<A extends unknown[]>(action: (...args: A) => void | Promise<voi
   };
 }
 
+const supported = folderSupported();
+
 function currentFilter(): KindFilter {
   const kind = new URLSearchParams(location.search).get('kind') ?? 'all';
   return FILTERS.includes(kind) ? kind as KindFilter : 'all';
 }
 
+/** 原稿フォルダから読んだ記事。保存はせず、読み直すたびに作り直す */
+let drafts: ReadonlyMap<string, ArticleDraft> = new Map();
+
 function cards(): Card[] {
-  return buildCards(visits.loadAll(), board.load(), new Date());
+  return buildCards(visits.loadAll(), board.load(), new Date(), drafts);
 }
 
 function render(): void {
@@ -107,6 +114,51 @@ function moveCard(card: Card, stage: Stage): void {
   }
   if (bundle.postedUrl !== null && !confirm('投稿URLを外して戻しますか?')) return;
   update((state) => upsertBundle(state, { ...bundle, stage, postedUrl: null }));
+}
+
+async function copyDraftPart(card: Card, button: HTMLElement): Promise<void> {
+  const disclosure = (Object.keys(VARIANT_DIRS) as (keyof typeof VARIANT_DIRS)[]).find((item) => item === button.dataset['disclosure']);
+  const part = ARTICLE_PARTS.find((item) => item.id === button.dataset['part']);
+  if (card.draft === null || disclosure === undefined || part === undefined) return;
+  const folder = await savedFolder('articles');
+  if (folder === null) throw new Error('原稿フォルダが未設定です。「原稿」から選んでください');
+  await ensureAccess(folder);
+  const copied = await tryCopyText(await readArticlePart(folder, card.draft, disclosure, part.id), `${part.label}をコピーしました`);
+  button.classList.toggle('copied', copied);
+}
+
+/** 原稿フォルダを読み、原稿がある回答を「推敲中」へ進める */
+async function loadDrafts(folder: Folder): Promise<number> {
+  drafts = await scanArticles(folder);
+  const records = new Map(cards().map((card) => [card.id, card.stage]));
+  const before = board.load();
+  const after = advanceDrafted(before, drafts, (id) => records.get(id));
+  if (after !== before) board.save(after);
+  render();
+  return drafts.size;
+}
+
+async function openArticles(): Promise<void> {
+  let folder = await savedFolder('articles');
+  if (folder === null) folder = await pickFolder('articles');
+  await ensureAccess(folder);
+  toast(`原稿 ${await loadDrafts(folder)}件(${folder.name})`);
+}
+
+let refreshing = false;
+
+/** 許可が残っているときだけ黙って読み直す。許可を求めるのはボタン操作の中だけ */
+async function refreshDrafts(): Promise<void> {
+  // フォーカスの出入りが続いても読み直しを重ねない
+  if (refreshing) return;
+  refreshing = true;
+  try {
+    const folder = await savedFolder('articles');
+    if (folder === null || await folder.queryPermission({ mode: 'readwrite' }) !== 'granted') return;
+    await loadDrafts(folder);
+  } finally {
+    refreshing = false;
+  }
 }
 
 function cardAction(card: Card, act: string): void {
@@ -223,7 +275,9 @@ boardNode.addEventListener('click', guarded((event: MouseEvent) => {
     update((state) => setArticleAngle(state, card.id, card.angle === type ? null : type));
     return;
   }
-  const act = target.closest<HTMLElement>('button[data-act]')?.dataset['act'];
+  const button = target.closest<HTMLElement>('button[data-act]');
+  const act = button?.dataset['act'];
+  if (act === 'copy-part' && button != null && card !== undefined) return copyDraftPart(card, button);
   if (act !== undefined && card !== undefined) cardAction(card, act);
 }));
 
@@ -287,11 +341,14 @@ element('import-board').addEventListener('click', guarded(() => pickJson((text) 
   render();
 })));
 
+const articlesButton = element('articles');
+articlesButton.hidden = !supported;
+articlesButton.addEventListener('click', guarded(openArticles));
+
 const syncButton = element('sync');
 const exportTargets = element('export-targets');
 const importChecks = element('import-checks');
 const pickFolderButton = element('pick-folder');
-const supported = folderSupported();
 syncButton.hidden = !supported;
 pickFolderButton.hidden = !supported;
 exportTargets.hidden = supported;
@@ -328,3 +385,9 @@ window.name = BOARD_WINDOW;
 window.addEventListener('storage', render);
 render();
 revealFromUrl();
+if (supported) {
+  const refresh = guarded(refreshDrafts);
+  refresh();
+  // Claude Code で書き出したあとボードへ戻ったときに反映する
+  window.addEventListener('focus', refresh);
+}

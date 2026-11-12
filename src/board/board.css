@@ -378,6 +378,38 @@
   color: #fff;
 }
 
+/* ── 原稿(Claude Code の書き出し) ───────────────────────────── */
+.draft { display: grid; gap: 6px; margin-top: 10px; }
+.draft-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  gap: 4px 8px;
+  padding: 7px 8px 8px;
+  border-radius: var(--b-radius-panel);
+  background: var(--surface);
+  box-shadow: inset 2px 0 0 var(--b-good);
+  font-size: 12px;
+}
+.draft-name { font-weight: 700; color: var(--text); }
+.draft-row time { justify-self: end; color: var(--b-muted); font-variant-numeric: tabular-nums; }
+.draft-parts { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+.draft-parts button {
+  min-width: 0;
+  padding: 4px 2px;
+  border: 1px solid var(--b-line);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--b-muted);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: background var(--b-fast) var(--b-ease), color var(--b-fast) var(--b-ease);
+}
+.draft-parts button:hover { background: var(--b-bg-card-hover); color: var(--text); }
+.draft-parts button:active { transform: translateY(1px); }
+.draft-parts button.copied { border-color: var(--b-good); color: var(--b-good); }
+
 /* ── 追跡 ───────────────────────────── */
 .track {
   --att: var(--b-caution);

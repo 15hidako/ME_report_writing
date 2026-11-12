@@ -10,7 +10,8 @@ type Picker = (options: { id: string; mode: 'readwrite' }) => Promise<Folder>;
 
 const DB_NAME = 'me-report-writer-board';
 const STORE = 'handles';
-const HANDLE_KEY = 'handoff';
+/** 週次確認との受け渡し用と、Claude Code が書き出す原稿用 */
+export type FolderSlot = 'handoff' | 'articles';
 
 function picker(): Picker | undefined {
   return (window as { showDirectoryPicker?: Picker }).showDirectoryPicker;
@@ -34,17 +35,17 @@ async function handleStore(mode: IDBTransactionMode): Promise<IDBObjectStore> {
   return db.transaction(STORE, mode).objectStore(STORE);
 }
 
-export async function savedFolder(): Promise<Folder | null> {
-  const handle: unknown = await request((await handleStore('readonly')).get(HANDLE_KEY));
+export async function savedFolder(slot: FolderSlot = 'handoff'): Promise<Folder | null> {
+  const handle: unknown = await request((await handleStore('readonly')).get(slot));
   return handle === undefined ? null : handle as Folder;
 }
 
 /** フォルダを選び直す。利用者の操作(クリック)の中から呼ぶ */
-export async function pickFolder(): Promise<Folder> {
+export async function pickFolder(slot: FolderSlot = 'handoff'): Promise<Folder> {
   const pick = picker();
   if (pick === undefined) throw new Error('このブラウザはフォルダの読み書きに対応していません');
-  const folder = await pick({ id: 'me-report-handoff', mode: 'readwrite' });
-  await request((await handleStore('readwrite')).put(folder, HANDLE_KEY));
+  const folder = await pick({ id: `me-report-${slot}`, mode: 'readwrite' });
+  await request((await handleStore('readwrite')).put(folder, slot));
   return folder;
 }
 
