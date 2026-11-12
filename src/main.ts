@@ -1,24 +1,23 @@
 import type { VisitRecord } from './types';
 import { VisitStore } from './storage';
 import { renderForm, collectRecord, bindCourseFields, bindOptionFields, bindLocationFields } from './ui/form';
-import { bindChips, bindStars, esc, toast, tryCopyText } from './ui/widgets';
+import { bindChips, bindStars, toast, tryCopyText } from './ui/widgets';
 import { bindNoteSuggestions } from './ui/questionnaire-candidates';
-import { openHandoffUpdate } from './ui/handoff-import';
 import { bindIdentityAutofill } from './ui/identity-autofill';
 import { openIdentityLookup } from './ui/identity-lookup';
-import { buildLookupPrompt, lookupTargets, needsLookup, parseLookupResponse, planLookup } from './identity-lookup';
-import { MAX_HANDOFF_FILE_BYTES } from './handoff-import';
+import { buildLookupPrompt, defaultListingCheckDate, lookupTargets, needsLookup, parseLookupResponse, planLookup } from './identity-lookup';
 import { shareRecord, shareErrorMessage } from './share';
 import { FormValidationError, validateVisitForm } from './form-validation';
 import { bindFormFeedback, type FormFeedback } from './ui/form-feedback';
 import { buildCatalogPrompt, buildMatomePrompt, buildRevisitPrompt, buildSinglePrompt } from './prompt/build-prompt';
 import type { NameDisclosure } from './prompt/build-prompt';
-import { publicSpecSummary, specSummary } from './prompt/serialize';
-import { drawThumbnail, downloadCanvasPng, LAYOUTS, PALETTES } from './thumbnail';
-import type { ThumbnailLayout } from './thumbnail';
-import { localDate } from './date';
 import { SUMMARY_MIN_THERAPISTS, countPublishedTherapists, isPublished, parsePostedUrlInput } from './prompt/publication';
-import { BUILD_ID, fetchLatestBuildId, updateUrl } from './update-check';
+import { seriesTargets } from './prompt/series';
+import { findOriginalRecord as findOriginalIn } from './revisit';
+import { watchForUpdate } from './update-watch';
+import { bindDataButtons as bindDataButtonsWith, canRestoreBackup, dataButtonsHtml } from './ui/data-buttons';
+import { renderListTab as renderListTabInto } from './ui/list-tab';
+import { renderThumbTab as renderThumbTabInto } from './ui/thumb-tab';
 import { INPUT_WINDOW, boardLinkHtml, takeParam } from './links';
 import { articleSaveSection } from './prompt/article-files';
 import { ARTICLE_DIR, ARTICLE_DIR_ERROR, openClaudeApp } from './local-setup';
@@ -109,123 +108,8 @@ function copyArticlePrompt(record: VisitRecord, disclosure: NameDisclosure, text
     : undefined, () => markPromptedOnBoard(record));
 }
 
-function rawHasSavedData(): boolean {
-  try {
-    const parsed: unknown = JSON.parse(getStore().exportRawJson());
-    return !(Array.isArray(parsed) && parsed.length === 0);
-  } catch {
-    return true;
-  }
-}
-
-function downloadRaw(): void {
-  let url: string | undefined;
-  try {
-    const blob = new Blob([getStore().exportRawJson()], { type: 'application/json' });
-    url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `me-report-backup-${localDate()}.json`;
-    a.click();
-  } catch (err) {
-    toast(errText(err));
-  } finally {
-    if (url !== undefined) URL.revokeObjectURL(url);
-  }
-}
-
-function applyImport(text: string): void {
-  try {
-    getStore().validateImport(text);
-    if (rawHasSavedData() && !confirm('保存済みの全レコードを置き換えますか?')) return;
-  } catch (err) {
-    toast(errText(err));
-    return;
-  }
-  if (!confirmDiscardDraft()) return;
-  try {
-    getStore().importJson(text);
-  } catch (err) {
-    toast(errText(err));
-    return;
-  }
-  clearContext();
-  toast('インポートしました');
-  render();
-}
-
-function applyHandoffImport(text: string): void {
-  try {
-    const db = getStore();
-    const plan = db.prepareHandoffImport(text);
-    if (plan.kind === 'unchanged') {
-      toast('同じ回答のため変更はありません');
-      return;
-    }
-    const apply = (): boolean => {
-      if (!confirmDiscardDraft()) return false;
-      db.importHandoffJson(text, plan.snapshot);
-      clearContext();
-      toast(`#${plan.record.seriesNo} を${plan.kind === 'update' ? '更新' : '追加'}しました`);
-      render();
-      return true;
-    };
-    if (plan.kind === 'update') {
-      openHandoffUpdate(plan, apply);
-    } else if (plan.renumberedFrom === null || confirm(`通し番号 #${plan.renumberedFrom} は使用済みです。#${plan.record.seriesNo} として追加しますか?`)) {
-      apply();
-    }
-  } catch (error) {
-    toast(errText(error));
-  }
-}
-
-function pickImport(additive = false): void {
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = additive ? '.json,.txt,application/json,text/plain' : '.json,application/json';
-  input.addEventListener('change', () => {
-    const file = input.files?.[0];
-    if (file === undefined) return;
-    if (additive && file.size > MAX_HANDOFF_FILE_BYTES) {
-      toast('引き継ぎファイルは1MB以下にしてください');
-      return;
-    }
-    void file.text().then(additive ? applyHandoffImport : applyImport).catch((err: unknown) => toast(errText(err)));
-  });
-  input.click();
-}
-
-function restoreFromBackup(): void {
-  let db: VisitStore;
-  try {
-    db = getStore();
-    if (!db.hasBackup()) {
-      toast('バックアップがありません');
-      return;
-    }
-  } catch (err) {
-    toast(errText(err));
-    return;
-  }
-  if (!confirm('バックアップで現在の全レコードを置き換えますか?')) return;
-  if (!confirmDiscardDraft()) return;
-  try {
-    db.restoreBackup();
-  } catch (err) {
-    toast(errText(err));
-    return;
-  }
-  clearContext();
-  toast('バックアップを復元しました');
-  render();
-}
-
 function bindDataButtons(): void {
-  document.getElementById('export')?.addEventListener('click', downloadRaw);
-  document.getElementById('import')?.addEventListener('click', () => pickImport());
-  document.getElementById('import-handoff')?.addEventListener('click', () => pickImport(true));
-  document.getElementById('restore')?.addEventListener('click', restoreFromBackup);
+  bindDataButtonsWith({ getStore, confirmDiscardDraft, clearContext, render });
 }
 
 function openLookup(targets: readonly VisitRecord[]): void {
@@ -405,20 +289,12 @@ function switchTab(tab: Tab): void {
 
 function renderRecovery(message: string): void {
   formCache?.node.remove();
-  let canRestore = false;
-  try {
-    canRestore = getStore().hasBackup();
-  } catch {
-    canRestore = false;
-  }
   const note = document.createElement('p');
   note.className = 'empty';
   note.textContent = message;
   const bar = document.createElement('div');
   bar.className = 'toolbar';
-  bar.innerHTML = `<button id="export">保存(JSON)</button><button id="import">読込(JSON)</button>${
-    canRestore ? '<button id="restore">バックアップ復元</button>' : ''
-  }`;
+  bar.innerHTML = dataButtonsHtml({ handoff: false, canRestore: canRestoreBackup(getStore) });
   app.replaceChildren(note, bar);
   bindDataButtons();
 }
@@ -454,85 +330,46 @@ function renderFormTab(): void {
 
 function renderListTab(): void {
   const records = [...getStore().loadAll()].sort((a, b) => b.seriesNo - a.seriesNo);
-  const rows = records.map((r) => `
-    <div class="card" data-id="${esc(r.id)}">
-      <div class="card-head">
-        <strong>#${esc(String(r.seriesNo))}</strong> ${esc(r.basic.visitDate)} / ${esc(r.basic.area)}
-        ${r.revisitOf !== null ? '<span class="badge">再訪</span>' : ''}
-        ${isPublished(r) ? '<span class="badge posted">投稿済</span>' : ''}
-      </div>
-      <div class="card-body">${esc(r.basic.shopName)} — ${esc(r.basic.therapistName)}<br />
-        <small>${esc(specSummary(r))}</small></div>
-      <div class="card-actions">
-        <button data-act="prompt">プロンプト</button>
-        <button data-act="prompt-names">名前公開版</button>
-        <button data-act="edit">編集</button>
-        <button data-act="revisit">再訪入力</button>
-        <button data-act="url">投稿URL</button>
-        <button data-act="del" class="danger">削除</button>
-        ${boardLinkHtml(r.id)}
-      </div>
-    </div>`).join('');
-
-  let canRestore = false;
-  try {
-    canRestore = getStore().hasBackup();
-  } catch {
-    canRestore = false;
-  }
   const pendingLookups = lookupTargets(records);
-  app.innerHTML = `
-    <div class="toolbar">
-      <button id="new-visit" class="primary">+ 新規入力</button>
-      ${pendingLookups.length === 0 ? '' : `<button id="identity-lookup">店舗情報を取得(${pendingLookups.length})</button>`}
-      <button id="catalog">カタログ記事</button>
-      <button id="matome">まとめ記事</button>
-      <button id="export">保存(JSON)</button>
-      <button id="import">読込(JSON)</button>
-      <button id="import-handoff">回答を追加読込</button>
-      ${canRestore ? '<button id="restore">バックアップ復元</button>' : ''}
-    </div>
-    ${records.length === 0 ? '<p class="empty">まだ訪問レコードがありません。「+ 新規入力」から始めてください。</p>' : rows}`;
-
-  document.getElementById('new-visit')?.addEventListener('click', () => openContext(null, null, true));
-  document.getElementById('identity-lookup')?.addEventListener('click', () => {
-    try {
-      openLookup(pendingLookups);
-    } catch (err) {
-      toast(errText(err));
-    }
-  });
-  document.getElementById('catalog')?.addEventListener('click', () => {
-    const pref = prompt('対象の都道府県(wakustカテゴリー)は?', records[0]?.basic.prefecture ?? '東京都');
-    if (pref === null || pref.trim() === '') return;
-    try {
-      copyGenerated(buildCatalogPrompt(records, pref.trim()));
-    } catch (err) {
-      toast(errText(err));
-    }
-  });
-  document.getElementById('matome')?.addEventListener('click', () => {
-    try {
-      openMatome(records);
-    } catch (err) {
-      toast(errText(err));
-    }
-  });
-  bindDataButtons();
-  app.querySelectorAll('.card').forEach((card) => {
-    card.addEventListener('click', (event) => {
-      const btn = (event.target as HTMLElement).closest('button[data-act]');
-      if (btn === null) return;
-      const id = card.getAttribute('data-id');
-      if (id === null) return;
+  renderListTabInto(app, {
+    records,
+    pendingLookups: pendingLookups.length,
+    canRestore: canRestoreBackup(getStore),
+  }, {
+    onNew: () => openContext(null, null, true),
+    onLookup: () => {
       try {
-        const record = getStore().get(id);
-        if (record === undefined) return;
-        handleCardAction(btn.getAttribute('data-act') ?? '', record);
+        openLookup(pendingLookups);
       } catch (err) {
         toast(errText(err));
       }
-    });
+    },
+    onCatalog: () => {
+      const pref = prompt('対象の都道府県(wakustカテゴリー)は?', records[0]?.basic.prefecture ?? '東京都');
+      if (pref === null || pref.trim() === '') return;
+      try {
+        copyGenerated(buildCatalogPrompt(records, pref.trim()));
+      } catch (err) {
+        toast(errText(err));
+      }
+    },
+    onMatome: () => {
+      try {
+        openMatome(records);
+      } catch (err) {
+        toast(errText(err));
+      }
+    },
+    onCardAction: (act, id) => {
+      try {
+        const record = getStore().get(id);
+        if (record === undefined) return;
+        handleCardAction(act, record);
+      } catch (err) {
+        toast(errText(err));
+      }
+    },
+    bindData: bindDataButtons,
   });
 }
 
@@ -550,32 +387,8 @@ function openMatome(records: VisitRecord[]): void {
   copyGenerated(buildMatomePrompt(targets, theme.trim(), records));
 }
 
-function seriesTargets(records: VisitRecord[], raw: string): VisitRecord[] {
-  const parts = raw.split(',').map((part) => part.trim());
-  if (parts.length === 0 || parts.some((part) => part === '')) {
-    throw new Error('通し番号をコンマ区切りで入力してください');
-  }
-  if (parts.some((part) => !/^-?\d+$/.test(part) || !Number.isSafeInteger(Number(part)))) {
-    throw new Error('通し番号は整数で指定してください');
-  }
-  const wanted = new Set(parts.map((part) => Number(part)));
-  const targets = records.filter((record) => wanted.has(record.seriesNo));
-  const found = new Set(targets.map((record) => record.seriesNo));
-  if ([...wanted].some((no) => !found.has(no))) throw new Error('存在しない通し番号があります');
-  return targets;
-}
-
 function findOriginalRecord(start: VisitRecord): VisitRecord | 'missing' | 'cycle' {
-  const seen = new Set<string>();
-  let current = start;
-  while (true) {
-    if (seen.has(current.id)) return 'cycle';
-    seen.add(current.id);
-    if (current.revisitOf === null) return current;
-    const next = getStore().get(current.revisitOf);
-    if (next === undefined) return 'missing';
-    current = next;
-  }
+  return findOriginalIn(start, (id) => getStore().get(id));
 }
 
 function handleCardAction(act: string, record: VisitRecord): void {
@@ -612,14 +425,6 @@ function handleCardAction(act: string, record: VisitRecord): void {
     default:
       break;
   }
-}
-
-/** 出勤確認日の初期値。プロフィールURLから店舗情報を取得した日があれば使う */
-function defaultListingCheckDate(record: VisitRecord): string {
-  const lookup = record.basic.identityLookup;
-  if (lookup === undefined || lookup.sourceUrl !== record.basic.therapistProfileUrl) return '';
-  const checkedAt = new Date(lookup.checkedAt);
-  return Number.isNaN(checkedAt.getTime()) ? '' : localDate(checkedAt);
 }
 
 function copyPrompt(record: VisitRecord, disclosure: NameDisclosure): void {
@@ -684,139 +489,11 @@ function renderThumbTab(): void {
   const requestedId = pendingThumbId;
   pendingThumbId = null;
   const records = [...getStore().loadAll()].sort((a, b) => b.seriesNo - a.seriesNo);
-  // 指定がなければ最新の回答
-  const initial = records.find((record) => record.id === requestedId) ?? records[0];
-  const recordOptions = records.map((record) => `<option value="${esc(record.id)}"${record === initial ? ' selected' : ''}>#${
-    esc(String(record.seriesNo))} ${esc(record.basic.shopName)} — ${esc(record.basic.therapistName)}</option>`).join('');
-  const paletteBtns = PALETTES
-    .map((p, i) => `<button type="button" class="chip${i === 0 ? ' on' : ''}" data-palette="${i}">${p.name}</button>`)
-    .join('');
-  const layoutBtns = LAYOUTS
-    .map((l, i) => `<button type="button" class="chip${i === 0 ? ' on' : ''}" data-layout="${l.id}">${l.name}</button>`)
-    .join('');
-
-  app.innerHTML = `
-    <div class="thumb-form">
-      ${records.length === 0 ? '' : `<label class="field"><select id="t-record" aria-label="サムネにする回答">${recordOptions}</select></label>`}
-      <div class="chips" id="layout-chips">${layoutBtns}</div>
-      <label class="field"><span>エリア</span><input id="t-area" placeholder="恵比寿・中目黒" /></label>
-      <label class="field" data-for="names"><span>店名</span><input id="t-shop" /></label>
-      <label class="field" data-for="names"><span>セラピスト名</span><input id="t-therapist" /></label>
-      <label class="field"><span>スペック行</span><input id="t-spec" placeholder="元メンエス経験者ギャル" /></label>
-      <label class="field" data-for="summary"><span>フック</span><input id="t-hook" placeholder="圧強KWKWテクでSKR不可避" /></label>
-      <div class="chips" id="palette-chips">${paletteBtns}</div>
-      <div class="actions">
-        <button id="t-draw" class="primary">プレビュー更新</button>
-        <button id="t-download">PNG保存</button>
-      </div>
-    </div>
-    <canvas id="thumb-canvas" class="thumb-preview"></canvas>`;
-
-  const canvas = document.getElementById('thumb-canvas') as HTMLCanvasElement;
-  const input = (id: string): HTMLInputElement => document.getElementById(id) as HTMLInputElement;
-  /** 入力欄を回答の値で入れ直す。レイアウトと配色の選択は変えない */
-  const fill = (record: VisitRecord | undefined): void => {
-    input('t-area').value = record?.basic.area ?? '';
-    input('t-shop').value = record?.basic.shopName ?? '';
-    input('t-therapist').value = record?.basic.therapistName ?? '';
-    input('t-spec').value = record === undefined ? '' : publicSpecSummary(record);
-    input('t-hook').value = record?.voice.titleHook ?? '';
-  };
-  fill(initial);
-  let paletteIdx = 0;
-  let layout: ThumbnailLayout = LAYOUTS[0]!.id;
-  const showFields = (): void => {
-    document.querySelectorAll<HTMLElement>('.thumb-form [data-for]').forEach((el) => {
-      el.hidden = el.dataset['for'] !== layout;
-    });
-  };
-  const redraw = (): void => {
-    const get = (id: string): string => input(id).value.trim();
-    drawThumbnail(canvas, {
-      area: get('t-area') || 'エリア未入力',
-      shopName: get('t-shop'),
-      therapistName: get('t-therapist'),
-      specLine: get('t-spec'),
-      hook: get('t-hook'),
-    }, PALETTES[paletteIdx] ?? PALETTES[0]!, layout);
-  };
-  document.getElementById('layout-chips')?.addEventListener('click', (event) => {
-    const chip = (event.target as HTMLElement).closest<HTMLElement>('button[data-layout]');
-    const next = LAYOUTS.find((l) => l.id === chip?.dataset['layout']);
-    if (chip === null || next === undefined) return;
-    layout = next.id;
-    document.querySelectorAll('#layout-chips .chip').forEach((c) => c.classList.remove('on'));
-    chip.classList.add('on');
-    showFields();
-    redraw();
-  });
-  showFields();
-  document.getElementById('t-record')?.addEventListener('change', (event) => {
-    const id = (event.target as HTMLSelectElement).value;
-    fill(records.find((record) => record.id === id));
-    redraw();
-  });
-  document.getElementById('palette-chips')?.addEventListener('click', (event) => {
-    const chip = (event.target as HTMLElement).closest('button[data-palette]');
-    if (chip === null) return;
-    paletteIdx = Number(chip.getAttribute('data-palette'));
-    document.querySelectorAll('#palette-chips .chip').forEach((c) => c.classList.remove('on'));
-    chip.classList.add('on');
-    redraw();
-  });
-  document.getElementById('t-draw')?.addEventListener('click', redraw);
-  document.getElementById('t-download')?.addEventListener('click', () => {
-    try {
-      redraw();
-      downloadCanvasPng(canvas, `thumb-${Date.now()}.png`);
-    } catch (err) {
-      toast(errText(err));
-    }
-  });
-  redraw();
+  renderThumbTabInto(app, records, requestedId);
 }
-
-const RELOADED_FOR_KEY = 'me-report-writer/reloaded-for';
 
 /** 破棄を確認済みのまま画面を離れるときは、ブラウザの確認を重ねない */
 let leaveConfirmed = false;
-
-function applyUpdate(latest: string): void {
-  leaveConfirmed = true;
-  sessionStorage.setItem(RELOADED_FOR_KEY, latest);
-  location.replace(updateUrl(location.href, latest));
-}
-
-function offerUpdate(latest: string): void {
-  if (document.getElementById('update-app') !== null) return;
-  const bar = document.createElement('div');
-  bar.className = 'actions';
-  bar.innerHTML = '<button type="button" id="update-app" class="primary">新しい版に更新</button>';
-  bar.addEventListener('click', () => {
-    if (confirmDiscardDraft()) applyUpdate(latest);
-  });
-  document.querySelector('header')?.append(bar);
-}
-
-/** 新しい版が公開されていれば読み込み直す。入力や共有の途中では勝手に読み込み直さず、ボタンを出す */
-async function checkForUpdate(): Promise<void> {
-  const latest = await fetchLatestBuildId();
-  if (latest === null || latest === BUILD_ID) return;
-  const busy = formCache !== null && (formCache.dirty || formCache.sharing);
-  // 同じ版へ読み込み直しても古いままなら、繰り返さずボタンに任せる
-  if (busy || sessionStorage.getItem(RELOADED_FOR_KEY) === latest) offerUpdate(latest);
-  else applyUpdate(latest);
-}
-
-function watchForUpdate(): void {
-  const check = (): void => {
-    if (document.visibilityState !== 'visible') return;
-    void checkForUpdate().catch((err: unknown) => toast(errText(err)));
-  };
-  document.addEventListener('visibilitychange', check);
-  window.addEventListener('pageshow', check);
-  check();
-}
 
 /** ボードから ?edit=<回答ID> で開かれたら、その回答の編集画面を出す */
 function openFromUrl(): void {
@@ -864,5 +541,14 @@ document.querySelectorAll('nav button').forEach((b) => {
 });
 openFromUrl();
 // 開発サーバーとテストには version.json がないため、公開ビルドだけで確認する
-if (!import.meta.env.DEV) watchForUpdate();
+if (!import.meta.env.DEV) {
+  watchForUpdate({
+    isBusy: () => formCache !== null && (formCache.dirty || formCache.sharing),
+    confirmLeave: confirmDiscardDraft,
+    onLeave: () => {
+      leaveConfirmed = true;
+    },
+    onError: (err) => toast(errText(err)),
+  });
+}
 if (ARTICLE_DIR_ERROR !== null) toast(ARTICLE_DIR_ERROR);

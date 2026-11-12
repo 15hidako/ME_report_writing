@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildLookupPrompt, lookupTargets, needsLookup, parseLookupResponse, planLookup } from './identity-lookup';
+import { buildLookupPrompt, defaultListingCheckDate, lookupTargets, needsLookup, parseLookupResponse, planLookup } from './identity-lookup';
 import { VisitStore } from './storage';
 import { fixtureRecord } from './test-fixtures';
 import type { VisitRecord } from './types';
@@ -248,3 +248,34 @@ describe('補完結果の保存', () => {
     expect(() => db.saveMany([record(7)], db.exportRawJson())).toThrow('保存済みの回答が見つかりません');
   });
 });
+
+describe('出勤確認日の初期値', () => {
+  const lookup = { sourceUrl: 'https://example.com/profile/1', checkedAt: '2026-07-02T03:00:00.000Z', filled: [] };
+
+  it('今のプロフィールURLで取得した日を使う', () => {
+    const record = fixtureRecord();
+    const withLookup = { ...record, basic: { ...record.basic, identityLookup: lookup } };
+    expect(defaultListingCheckDate(withLookup)).toBe(localDateOf(lookup.checkedAt));
+  });
+
+  it('取得していなければ空欄', () => {
+    expect(defaultListingCheckDate(fixtureRecord())).toBe('');
+  });
+
+  it('取得後にプロフィールURLが変わっていれば空欄', () => {
+    const record = fixtureRecord();
+    const moved = { ...record, basic: { ...record.basic, therapistProfileUrl: 'https://example.com/profile/2', identityLookup: lookup } };
+    expect(defaultListingCheckDate(moved)).toBe('');
+  });
+
+  it('取得日が壊れていれば空欄', () => {
+    const record = fixtureRecord();
+    const broken = { ...record, basic: { ...record.basic, identityLookup: { ...lookup, checkedAt: 'not-a-date' } } };
+    expect(defaultListingCheckDate(broken)).toBe('');
+  });
+});
+
+function localDateOf(iso: string): string {
+  const date = new Date(iso);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}

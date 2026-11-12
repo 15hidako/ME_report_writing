@@ -3,6 +3,7 @@ import { IDENTITY_FIELDS, blankFields, pageKey, shopUrlFromProfile, siteKey, sug
 import type { IdentityValues } from './identity';
 import type { IdentityField, VisitRecord } from './types';
 import { isHttpUrl } from './url';
+import { localDate } from './date';
 
 const MAX_RESPONSE_CHARS = 64 * 1024;
 const MAX_ANSWERS = 50;
@@ -233,4 +234,12 @@ export function planLookup(records: readonly VisitRecord[], answers: readonly Lo
     });
   }
   return { updates, notes };
+}
+
+/** 出勤確認日の初期値。プロフィールURLから店舗情報を取得した日があれば使う */
+export function defaultListingCheckDate(record: VisitRecord): string {
+  const lookup = record.basic.identityLookup;
+  if (lookup === undefined || lookup.sourceUrl !== record.basic.therapistProfileUrl) return '';
+  const checkedAt = new Date(lookup.checkedAt);
+  return Number.isNaN(checkedAt.getTime()) ? '' : localDate(checkedAt);
 }
