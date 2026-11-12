@@ -330,17 +330,20 @@
 }
 .board-card > button.danger:hover { border-color: var(--b-danger); background: #ff7a7a14; }
 
-.board-card-head .to-edit {
+.board-card-head :is(.to-edit, .to-thumb) {
   flex: none;
   white-space: nowrap;
-  margin-left: auto;
   padding: 2px 4px;
   color: var(--b-muted);
   font-size: 12px;
   text-underline-offset: 3px;
 }
-.board-card-head .to-edit:hover { color: var(--text); }
-.board-card-head .to-edit + select { max-width: 50%; }
+.board-card-head .to-edit { margin-left: auto; }
+.board-card-head :is(.to-edit, .to-thumb):hover { color: var(--text); }
+/* リンクが2つ入る回答カードは、入りきらないとき段階の選択だけを次の行へ送る */
+.board-card-head:has(.to-thumb) { flex-wrap: wrap; justify-content: flex-end; row-gap: 4px; }
+.board-card-head:has(.to-thumb) .kind { margin-right: auto; }
+.board-card-head .to-thumb + select { max-width: 50%; }
 
 /* 入力画面から開いたカード。輪郭を2回だけ光らせて場所を示す */
 .board-card.revealed { animation: board-card-reveal 900ms var(--b-ease) 2; }

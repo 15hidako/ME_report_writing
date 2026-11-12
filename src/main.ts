@@ -676,9 +676,18 @@ function deleteRecord(record: VisitRecord): void {
   render();
 }
 
+/** ?thumb= で指定された回答。サムネタブを次に描くときに1回だけ使う */
+let pendingThumbId: string | null = null;
+
 function renderThumbTab(): void {
+  // 読み込みに失敗しても指定が残らないよう、先に取り出す
+  const requestedId = pendingThumbId;
+  pendingThumbId = null;
   const records = [...getStore().loadAll()].sort((a, b) => b.seriesNo - a.seriesNo);
-  const latest = records[0];
+  // 指定がなければ最新の回答
+  const initial = records.find((record) => record.id === requestedId) ?? records[0];
+  const recordOptions = records.map((record) => `<option value="${esc(record.id)}"${record === initial ? ' selected' : ''}>#${
+    esc(String(record.seriesNo))} ${esc(record.basic.shopName)} — ${esc(record.basic.therapistName)}</option>`).join('');
   const paletteBtns = PALETTES
     .map((p, i) => `<button type="button" class="chip${i === 0 ? ' on' : ''}" data-palette="${i}">${p.name}</button>`)
     .join('');
@@ -688,12 +697,13 @@ function renderThumbTab(): void {
 
   app.innerHTML = `
     <div class="thumb-form">
+      ${records.length === 0 ? '' : `<label class="field"><select id="t-record" aria-label="サムネにする回答">${recordOptions}</select></label>`}
       <div class="chips" id="layout-chips">${layoutBtns}</div>
-      <label class="field"><span>エリア</span><input id="t-area" value="${esc(latest?.basic.area ?? '')}" placeholder="恵比寿・中目黒" /></label>
-      <label class="field" data-for="names"><span>店名</span><input id="t-shop" value="${esc(latest?.basic.shopName ?? '')}" /></label>
-      <label class="field" data-for="names"><span>セラピスト名</span><input id="t-therapist" value="${esc(latest?.basic.therapistName ?? '')}" /></label>
-      <label class="field"><span>スペック行</span><input id="t-spec" value="${esc(latest === undefined ? '' : publicSpecSummary(latest))}" placeholder="元メンエス経験者ギャル" /></label>
-      <label class="field" data-for="summary"><span>フック</span><input id="t-hook" value="${esc(latest?.voice.titleHook ?? '')}" placeholder="圧強KWKWテクでSKR不可避" /></label>
+      <label class="field"><span>エリア</span><input id="t-area" placeholder="恵比寿・中目黒" /></label>
+      <label class="field" data-for="names"><span>店名</span><input id="t-shop" /></label>
+      <label class="field" data-for="names"><span>セラピスト名</span><input id="t-therapist" /></label>
+      <label class="field"><span>スペック行</span><input id="t-spec" placeholder="元メンエス経験者ギャル" /></label>
+      <label class="field" data-for="summary"><span>フック</span><input id="t-hook" placeholder="圧強KWKWテクでSKR不可避" /></label>
       <div class="chips" id="palette-chips">${paletteBtns}</div>
       <div class="actions">
         <button id="t-draw" class="primary">プレビュー更新</button>
@@ -703,6 +713,16 @@ function renderThumbTab(): void {
     <canvas id="thumb-canvas" class="thumb-preview"></canvas>`;
 
   const canvas = document.getElementById('thumb-canvas') as HTMLCanvasElement;
+  const input = (id: string): HTMLInputElement => document.getElementById(id) as HTMLInputElement;
+  /** 入力欄を回答の値で入れ直す。レイアウトと配色の選択は変えない */
+  const fill = (record: VisitRecord | undefined): void => {
+    input('t-area').value = record?.basic.area ?? '';
+    input('t-shop').value = record?.basic.shopName ?? '';
+    input('t-therapist').value = record?.basic.therapistName ?? '';
+    input('t-spec').value = record === undefined ? '' : publicSpecSummary(record);
+    input('t-hook').value = record?.voice.titleHook ?? '';
+  };
+  fill(initial);
   let paletteIdx = 0;
   let layout: ThumbnailLayout = LAYOUTS[0]!.id;
   const showFields = (): void => {
@@ -711,7 +731,7 @@ function renderThumbTab(): void {
     });
   };
   const redraw = (): void => {
-    const get = (id: string): string => (document.getElementById(id) as HTMLInputElement).value.trim();
+    const get = (id: string): string => input(id).value.trim();
     drawThumbnail(canvas, {
       area: get('t-area') || 'エリア未入力',
       shopName: get('t-shop'),
@@ -731,6 +751,11 @@ function renderThumbTab(): void {
     redraw();
   });
   showFields();
+  document.getElementById('t-record')?.addEventListener('change', (event) => {
+    const id = (event.target as HTMLSelectElement).value;
+    fill(records.find((record) => record.id === id));
+    redraw();
+  });
   document.getElementById('palette-chips')?.addEventListener('click', (event) => {
     const chip = (event.target as HTMLElement).closest('button[data-palette]');
     if (chip === null) return;
@@ -795,12 +820,14 @@ function watchForUpdate(): void {
 
 /** ボードから ?edit=<回答ID> で開かれたら、その回答の編集画面を出す */
 function openFromUrl(): void {
-  const { value, rest } = takeParam(location.href, 'edit');
+  const edit = takeParam(location.href, 'edit');
+  const thumb = takeParam(edit.rest, 'thumb');
+  const value = edit.value ?? thumb.value;
   if (value === null) {
     switchTab('list');
     return;
   }
-  history.replaceState(history.state, '', rest);
+  history.replaceState(history.state, '', thumb.rest);
   let found: boolean;
   try {
     found = getStore().get(value) !== undefined;
@@ -809,8 +836,13 @@ function openFromUrl(): void {
     switchTab('list');
     return;
   }
-  if (found) {
+  if (found && edit.value !== null) {
     openContext(value, null);
+    return;
+  }
+  if (found) {
+    pendingThumbId = value;
+    switchTab('thumb');
     return;
   }
   switchTab('list');

@@ -6,6 +6,11 @@ export function editHref(recordId: string): string {
   return `./?edit=${encodeURIComponent(recordId)}`;
 }
 
+/** 入力画面のサムネタブを、指定した回答を選んだ状態で開く */
+export function thumbHref(recordId: string): string {
+  return `./?thumb=${encodeURIComponent(recordId)}`;
+}
+
 export function boardCardHref(recordId: string): string {
   return `./board.html?card=${encodeURIComponent(recordId)}`;
 }

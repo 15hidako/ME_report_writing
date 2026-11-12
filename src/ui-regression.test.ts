@@ -3,6 +3,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fixtureRecord } from './test-fixtures';
 import type { VisitRecord } from './types';
 
+// happy-dom には canvas の描画がない。サムネタブの入力欄を確かめられるよう、描画だけを差し替える
+vi.mock('./thumbnail', async (importOriginal) => ({
+  ...await importOriginal<typeof import('./thumbnail')>(),
+  drawThumbnail: vi.fn(),
+}));
+
 const button = (name: string): HTMLButtonElement => {
   const match = [...document.querySelectorAll('button')].find((item) => item.textContent?.trim() === name);
   if (!match) throw new Error(`button not found: ${name}`);
@@ -791,6 +797,111 @@ describe('起動からの画面操作', () => {
     const saved = JSON.parse(window.localStorage.getItem('me-report-writer/visits/v1')!) as VisitRecord[];
     expect(saved[0]?.basic).toMatchObject({ shopName: '別画面の修正', therapistName: '開き直した後の追記' });
     expect(document.querySelector('#visit-form')).toBeNull();
+  });
+});
+
+describe('サムネの対象回答', () => {
+  const base = fixtureRecord();
+  const second = fixtureRecord({
+    id: 'second-id', seriesNo: 2,
+    basic: { ...base.basic, area: '新宿', shopName: '月のスパ', therapistName: 'あや' },
+    voice: { ...base.voice, titleHook: '二人目のフック' },
+    spec: { ...base.spec, genre: [], notes: [] },
+  });
+  const value = (id: string): string => {
+    const input = document.getElementById(id);
+    if (!(input instanceof HTMLInputElement)) throw new Error(`input not found: ${id}`);
+    return input.value;
+  };
+  const recordSelect = (): HTMLSelectElement => {
+    const select = document.getElementById('t-record');
+    if (!(select instanceof HTMLSelectElement)) throw new Error('#t-record not found');
+    return select;
+  };
+  const shown = (): string[] => ['t-area', 't-shop', 't-therapist', 't-hook'].map(value);
+  const onChip = (group: string): string | null | undefined =>
+    document.querySelector(`#${group} .chip.on`)?.textContent;
+
+  afterEach(() => {
+    history.replaceState(null, '', '/');
+  });
+
+  it('何も指定しなければ最新の回答が入り、選択欄は新しい順に並ぶ', async () => {
+    await start([base, second]);
+    button('サムネ').click();
+    expect([...recordSelect().options].map((option) => [option.value, option.textContent])).toEqual([
+      [second.id, '#2 月のスパ — あや'],
+      [base.id, '#1 天界のスパ — えりか'],
+    ]);
+    expect(recordSelect().querySelector('option[selected]')?.getAttribute('value')).toBe(second.id);
+    expect(shown()).toEqual(['新宿', '月のスパ', 'あや', '二人目のフック']);
+  });
+
+  it('回答を選び直すと各入力欄が入れ替わり、レイアウトと配色は保つ', async () => {
+    await start([base, second]);
+    button('サムネ').click();
+    const layout = document.querySelectorAll<HTMLButtonElement>('#layout-chips .chip')[1]!;
+    const palette = document.querySelectorAll<HTMLButtonElement>('#palette-chips .chip')[1]!;
+    layout.click();
+    palette.click();
+    const form = document.querySelector('.thumb-form');
+    const specOfSecond = value('t-spec');
+
+    recordSelect().value = base.id;
+    recordSelect().dispatchEvent(new Event('change', { bubbles: true }));
+
+    expect(shown()).toEqual([base.basic.area, base.basic.shopName, base.basic.therapistName, base.voice.titleHook]);
+    expect(value('t-spec')).not.toBe('');
+    expect(value('t-spec')).not.toBe(specOfSecond);
+    expect(document.querySelector('.thumb-form')).toBe(form);
+    expect(onChip('layout-chips')).toBe(layout.textContent);
+    expect(onChip('palette-chips')).toBe(palette.textContent);
+  });
+
+  it('回答がないときは選択欄を出さない', async () => {
+    await start();
+    button('サムネ').click();
+    expect(document.getElementById('t-record')).toBeNull();
+    expect(value('t-area')).toBe('');
+  });
+
+  it('?thumb= で指定した回答を選んでサムネタブを開き、引数を消す', async () => {
+    history.replaceState(null, '', `/?thumb=${encodeURIComponent(base.id)}&x=1`);
+    await start([base, second]);
+    expect(document.querySelector('nav button.active')?.textContent).toBe('サムネ');
+    expect(recordSelect().querySelector('option[selected]')?.getAttribute('value')).toBe(base.id);
+    expect(shown()).toEqual([base.basic.area, base.basic.shopName, base.basic.therapistName, base.voice.titleHook]);
+    expect(location.search).toBe('?x=1');
+  });
+
+  it('?thumb= で開いたあとタブを開き直すと、最新の回答に戻る', async () => {
+    history.replaceState(null, '', `/?thumb=${encodeURIComponent(base.id)}`);
+    await start([base, second]);
+    button('履歴').click();
+    button('サムネ').click();
+    expect(value('t-shop')).toBe('月のスパ');
+  });
+
+  it('?thumb= の指定は、保存内容を読めずに描けなかったときも次に持ち越さない', async () => {
+    history.replaceState(null, '', `/?thumb=${encodeURIComponent(base.id)}`);
+    await start([base, second]);
+    const records = window.localStorage.getItem('me-report-writer/visits/v1')!;
+    button('履歴').click();
+    window.localStorage.setItem('me-report-writer/visits/v1', '{');
+    button('サムネ').click();
+    expect(document.getElementById('t-area')).toBeNull();
+    window.localStorage.setItem('me-report-writer/visits/v1', records);
+    button('サムネ').click();
+    expect(value('t-shop')).toBe('月のスパ');
+  });
+
+  it('?thumb= の回答が見つからなければ履歴を出して知らせる', async () => {
+    history.replaceState(null, '', '/?thumb=missing');
+    await start([base]);
+    expect(document.querySelector('nav button.active')?.textContent).toBe('履歴');
+    expect(document.getElementById('t-area')).toBeNull();
+    expect(document.querySelector('.toast')?.textContent).toBe('指定された回答が見つかりません。削除されたか、別の端末の回答です');
+    expect(location.search).toBe('');
   });
 });
 

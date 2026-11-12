@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { boardCardHref, editHref, takeParam } from './links';
+import { boardCardHref, editHref, takeParam, thumbHref } from './links';
 
 describe('入力画面とボードの行き来', () => {
   it('回答IDをURLに入れるときはエスケープする', () => {
     expect(editHref('a b&c')).toBe('./?edit=a%20b%26c');
     expect(boardCardHref('a b&c')).toBe('./board.html?card=a%20b%26c');
+    expect(thumbHref('a b&c')).toBe('./?thumb=a%20b%26c');
   });
 
   it('一度だけ使う引数を取り出し、ほかの引数とハッシュは残す', () => {
