@@ -5,8 +5,8 @@ import { MemoryStore, fixtureRecord } from '../test-fixtures';
 import type { VisitRecord } from '../types';
 import { buildCards, buildTargets } from './cards';
 import {
-  BoardStore, EMPTY_BOARD, acknowledge, parseBoardState, removeBundle, setRecordStage, setScheduleUrl, upsertBundle,
-  withChecks, type BoardState, type BundleArticle,
+  BoardStore, EMPTY_BOARD, acknowledge, parseBoardState, removeBundle, setRecordStage, setArticleAngle, setScheduleUrl,
+  upsertBundle, withChecks, type BoardState, type BundleArticle,
 } from './state';
 import { boardHtml } from './view';
 
@@ -64,6 +64,23 @@ describe('カードの段階とタイプ', () => {
   it('既定の段階へ戻すと保存値を消す', () => {
     const state = setRecordStage(setRecordStage(EMPTY_BOARD, 'id-1', 'editing'), 'id-1', 'answered');
     expect(state.stages).toEqual({});
+  });
+});
+
+describe('単体記事の販売型', () => {
+  it('単体記事だけが販売型を持ち、既定は未選択', () => {
+    const revisit = record(2, { revisitOf: 'id-1', sales: { points: 100, articleType: 'revisit' } });
+    const state = setArticleAngle(upsertBundle(EMPTY_BOARD, bundle), 'id-1', 'therapist');
+    const cards = buildCards([record(1), revisit, record(3)], state, NOW);
+    expect(cards.map((card) => [card.id, card.angle])).toEqual([
+      ['bundle-1', null], ['id-3', null], ['id-2', null], ['id-1', 'therapist'],
+    ]);
+  });
+
+  it('切り替えと解除ができ、解除すると保存値を消す', () => {
+    const therapist = setArticleAngle(EMPTY_BOARD, 'id-1', 'therapist');
+    expect(setArticleAngle(therapist, 'id-1', 'experience').angles).toEqual({ 'id-1': 'experience' });
+    expect(setArticleAngle(therapist, 'id-1', null).angles).toEqual({});
   });
 });
 
@@ -134,7 +151,7 @@ describe('ボードの保存', () => {
   it('保存した内容を読み戻す', () => {
     const store = new BoardStore(new MemoryStore());
     expect(store.load()).toEqual(EMPTY_BOARD);
-    const state = withChecks(upsertBundle(setRecordStage(EMPTY_BOARD, 'id-1', 'prompted'), bundle), [check()]);
+    const state = withChecks(upsertBundle(setArticleAngle(setRecordStage(EMPTY_BOARD, 'id-1', 'prompted'), 'id-1', 'experience'), bundle), [check()]);
     store.save(state);
     expect(store.load()).toEqual(state);
     expect(parseBoardState(store.exportRawJson())).toEqual(state);
@@ -146,7 +163,13 @@ describe('ボードの保存', () => {
     expect(removeBundle(state, bundle.id).bundles).toEqual([]);
   });
 
+  it('販売型を持たない以前の保存内容も読める', () => {
+    const { angles: _omitted, ...legacy } = EMPTY_BOARD;
+    expect(parseBoardState(JSON.stringify(legacy))).toEqual(EMPTY_BOARD);
+  });
+
   it.each([
+    ['販売型が未知', JSON.stringify({ ...EMPTY_BOARD, angles: { a: 'store' } }), '販売型'],
     ['JSONでない', 'x', 'JSON形式'],
     ['版が違う', JSON.stringify({ ...EMPTY_BOARD, version: 2 }), 'version 1'],
     ['段階が未知', JSON.stringify({ ...EMPTY_BOARD, stages: { a: 'posted' } }), '段階'],
@@ -191,6 +214,16 @@ describe('ボードの表示', () => {
     const root = mount(boardHtml(cards, 'matome'));
     expect([...root.querySelectorAll('.board-card')].map((node) => node.getAttribute('data-id'))).toEqual(['bundle-1']);
     expect(root.querySelector('.due')).toBeNull();
+  });
+
+  it('単体記事のカードだけに販売型の切り替えを出し、選択中を示す', () => {
+    const root = mount(boardHtml(buildCards(records, setArticleAngle(state, 'id-2', 'experience'), NOW), 'all'));
+    const pressed = (id: string): (string | null)[] => [...root.querySelectorAll(`.board-card[data-id="${id}"] [data-angle]`)]
+      .map((node) => node.getAttribute('aria-pressed'));
+    expect(pressed('id-2')).toEqual(['false', 'true']);
+    expect(pressed('id-1')).toEqual(['false', 'false']);
+    expect(pressed('bundle-1')).toEqual([]);
+    expect(root.querySelector('.board-card[data-id="id-2"]')?.getAttribute('data-angle')).toBe('experience');
   });
 
   it('回答の文字列をHTMLとして解釈しない', () => {

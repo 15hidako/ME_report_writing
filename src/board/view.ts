@@ -3,13 +3,16 @@ import type { Attendance, Enrollment } from '../checks/files';
 import { localDate } from '../date';
 import { esc } from '../ui/widgets';
 import type { Attention, Card } from './cards';
-import { STAGES, type ArticleKind, type Stage } from './state';
+import { ANGLES, STAGES, type ArticleKind, type ArticleAngle, type Stage } from './state';
 
 export const STAGE_LABELS: Readonly<Record<Stage, string>> = {
   answered: '回答済み', prompted: 'プロンプト出力', editing: '推敲中', posted: '投稿済み',
 };
 export const KIND_LABELS: Readonly<Record<ArticleKind, string>> = {
   single: '単体', revisit: '再訪', matome: 'まとめ', catalog: 'カタログ',
+};
+export const ANGLE_LABELS: Readonly<Record<ArticleAngle, string>> = {
+  therapist: 'セラピスト起点', experience: '体験内容起点',
 };
 export const ATTENTION_LABELS: Readonly<Record<Attention, string>> = {
   absent: '在籍なし', not_listed: '出勤なし', review: '要目視', stale: '確認が古い', unchecked: '未確認',
@@ -45,12 +48,20 @@ function trackingHtml(card: Card): string {
     </div>`;
 }
 
+function angleHtml(card: Card): string {
+  if (card.kind !== 'single') return '';
+  const buttons = ANGLES.map((type) => `
+    <button type="button" data-angle="${type}" aria-pressed="${type === card.angle}">${ANGLE_LABELS[type]}</button>`).join('');
+  return `<div class="angle" role="group" aria-label="${esc(card.title)} の販売型">${buttons}</div>`;
+}
+
 function cardHtml(card: Card): string {
   const stageOptions = STAGES
     .map((stage) => `<option value="${stage}"${stage === card.stage ? ' selected' : ''}>${STAGE_LABELS[stage]}</option>`)
     .join('');
   return `
-    <li class="board-card" draggable="true" data-id="${esc(card.id)}" data-source="${card.source}" data-kind="${card.kind}">
+    <li class="board-card" draggable="true" data-id="${esc(card.id)}" data-source="${card.source}" data-kind="${card.kind}"${
+      card.angle === null ? '' : ` data-angle="${card.angle}"`}>
       <div class="board-card-head">
         <span class="kind" data-kind="${card.kind}">${KIND_LABELS[card.kind]}</span>
         <select data-act="stage" aria-label="${esc(card.title)} の段階">${stageOptions}</select>
@@ -59,6 +70,7 @@ function cardHtml(card: Card): string {
         ? esc(card.title)
         : `<a href="${esc(card.postedUrl)}" target="_blank" rel="noopener noreferrer">${esc(card.title)}</a>`}</h3>
       ${card.detail === '' ? '' : `<p class="board-card-detail">${esc(card.detail)}</p>`}
+      ${angleHtml(card)}
       ${trackingHtml(card)}
       ${card.source === 'bundle' ? '<button type="button" class="danger" data-act="remove">削除</button>' : ''}
     </li>`;

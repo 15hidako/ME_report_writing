@@ -6,8 +6,8 @@ import { toast } from '../ui/widgets';
 import { buildCards, buildTargets, type Card } from './cards';
 import { ensureAccess, folderSupported, pickFolder, readText, savedFolder, writeText, type Folder } from './folder';
 import {
-  BoardStore, acknowledge, parseBoardState, removeBundle, setRecordStage, setScheduleUrl, upsertBundle, withChecks,
-  BUNDLE_KINDS, STAGES, type BoardState, type BundleKind, type Stage,
+  BoardStore, acknowledge, parseBoardState, removeBundle, setRecordStage, setArticleAngle, setScheduleUrl, upsertBundle,
+  withChecks, BUNDLE_KINDS, ANGLES, STAGES, type BoardState, type BundleKind, type Stage,
 } from './state';
 import { boardHtml, bundleDialogHtml, filterHtml, type KindFilter } from './view';
 import '../styles.css';
@@ -213,8 +213,16 @@ boardNode.addEventListener('click', guarded((event: MouseEvent) => {
     card?.querySelector<HTMLElement>('select')?.focus();
     return;
   }
-  const act = target.closest<HTMLElement>('button[data-act]')?.dataset['act'];
   const card = findCard(target);
+  const angle = target.closest<HTMLElement>('button[data-angle]')?.dataset['angle'];
+  if (angle !== undefined && card !== undefined) {
+    const type = ANGLES.find((item) => item === angle);
+    if (type === undefined) return;
+    // 選択中をもう一度押すと未選択へ戻す
+    update((state) => setArticleAngle(state, card.id, card.angle === type ? null : type));
+    return;
+  }
+  const act = target.closest<HTMLElement>('button[data-act]')?.dataset['act'];
   if (act !== undefined && card !== undefined) cardAction(card, act);
 }));
 

@@ -329,6 +329,36 @@
 }
 .board-card > button.danger:hover { border-color: var(--b-danger); background: #ff7a7a14; }
 
+/* ── 販売型(単体記事) ───────────────────────────── */
+.board-card .angle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-top: 10px;
+  padding: 2px;
+  border-radius: var(--b-radius-panel);
+  border: 1px dashed var(--b-line);
+}
+/* どちらか選ぶまでは破線で未決を示し、選んだら実線の溝にする */
+.board-card[data-angle] .angle { border-style: solid; border-color: var(--b-line-soft); background: var(--surface); }
+.board-card .angle button {
+  min-width: 0;
+  padding: 4px 2px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--b-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.board-card .angle button:hover { background: var(--b-bg-card-hover); color: var(--text); }
+.board-card .angle button[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--kind) 26%, var(--b-bg-card));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--kind) 60%, transparent);
+  color: #fff;
+}
+
 /* ── 追跡 ───────────────────────────── */
 .track {
   --att: var(--b-caution);

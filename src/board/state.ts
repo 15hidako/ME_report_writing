@@ -11,6 +11,10 @@ export const BUNDLE_KINDS = ['matome', 'catalog'] as const;
 export type BundleKind = (typeof BUNDLE_KINDS)[number];
 export type ArticleKind = 'single' | 'revisit' | BundleKind;
 
+/** 単体記事をどちらの型で売るか。名前を売るか、体験の中身を売るか */
+export const ANGLES = ['therapist', 'experience'] as const;
+export type ArticleAngle = (typeof ANGLES)[number];
+
 /** 複数の回答から作る記事。単体と再訪は回答そのものが記事になるので、ここには持たない */
 export interface BundleArticle {
   readonly id: string;
@@ -27,6 +31,8 @@ export interface BoardState {
   readonly version: 1;
   /** 回答ID → 投稿前の段階。投稿済みは回答の postedUrl から導く */
   readonly stages: Readonly<Record<string, DraftStage>>;
+  /** 回答ID → 単体記事の販売型。未選択は持たない */
+  readonly angles: Readonly<Record<string, ArticleAngle>>;
   readonly bundles: readonly BundleArticle[];
   /** 店のサイト(ホスト名) → 出勤表のURL */
   readonly scheduleUrls: Readonly<Record<string, string>>;
@@ -36,7 +42,7 @@ export interface BoardState {
 }
 
 export const EMPTY_BOARD: BoardState = {
-  version: 1, stages: {}, bundles: [], scheduleUrls: {}, checks: [], acknowledged: {},
+  version: 1, stages: {}, angles: {}, bundles: [], scheduleUrls: {}, checks: [], acknowledged: {},
 };
 
 const BOARD_KEY = 'me-report-writer/board/v1';
@@ -85,6 +91,9 @@ export function parseBoardState(json: string): BoardState {
     version: 1,
     stages: parseMap(parsed.stages, '段階', (item) =>
       typeof item === 'string' && DRAFT_STAGES.includes(item) ? item as DraftStage : undefined),
+    // 販売型を足す前の保存内容には項目がないため、空として読む
+    angles: parseMap(parsed.angles ?? {}, '販売型', (item) =>
+      ANGLES.find((type) => type === item)),
     bundles,
     scheduleUrls: parseMap(parsed.scheduleUrls, '出勤表URL', (item) =>
       typeof item === 'string' && isHttpUrl(item) ? item : undefined),
@@ -129,6 +138,11 @@ export function setRecordStage(state: BoardState, recordId: string, stage: Draft
   // 既定の段階は保存しない。回答を消したあとに残る値を減らす
   const stages = stage === 'answered' ? without(state.stages, recordId) : { ...state.stages, [recordId]: stage };
   return { ...state, stages };
+}
+
+export function setArticleAngle(state: BoardState, recordId: string, type: ArticleAngle | null): BoardState {
+  const angles = type === null ? without(state.angles, recordId) : { ...state.angles, [recordId]: type };
+  return { ...state, angles };
 }
 
 export function upsertBundle(state: BoardState, bundle: BundleArticle): BoardState {

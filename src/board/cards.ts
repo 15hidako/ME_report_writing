@@ -2,7 +2,7 @@ import type { VisitRecord } from '../types';
 import type { CheckResult, CheckTarget, TargetsFile } from '../checks/files';
 import { pageKey, siteKey } from '../identity';
 import { isPublished } from '../prompt/publication';
-import type { ArticleKind, BoardState, Stage } from './state';
+import type { ArticleKind, BoardState, ArticleAngle, Stage } from './state';
 
 /** 確認結果をこの日数より古いまま放置しない。週1回の実行が1回抜けたら知らせる */
 export const STALE_AFTER_DAYS = 8;
@@ -22,6 +22,8 @@ export interface Card {
   readonly id: string;
   readonly source: 'record' | 'bundle';
   readonly kind: ArticleKind;
+  /** 単体記事だけが持つ。未選択は null */
+  readonly angle: ArticleAngle | null;
   readonly stage: Stage;
   readonly title: string;
   readonly detail: string;
@@ -68,22 +70,27 @@ function trackingOf(
 export function buildCards(records: readonly VisitRecord[], state: BoardState, now: Date): Card[] {
   const checks = latestChecks(state.checks);
   const seriesNo = new Map(records.map((record) => [record.id, record.seriesNo]));
-  const recordCards = [...records].sort((a, b) => b.seriesNo - a.seriesNo).map((record): Card => ({
-    id: record.id,
-    source: 'record',
-    kind: record.revisitOf === null ? 'single' : 'revisit',
-    stage: isPublished(record) ? 'posted' : state.stages[record.id] ?? 'answered',
-    title: `#${record.seriesNo} ${record.basic.shopName} — ${record.basic.therapistName}`,
-    detail: `${record.basic.visitDate} / ${record.basic.area}`,
-    postedUrl: record.postedUrl,
-    tracking: trackingOf(record, state, checks, now),
-  }));
+  const recordCards = [...records].sort((a, b) => b.seriesNo - a.seriesNo).map((record): Card => {
+    const kind = record.revisitOf === null ? 'single' : 'revisit';
+    return {
+      id: record.id,
+      source: 'record',
+      kind,
+      angle: kind === 'single' ? state.angles[record.id] ?? null : null,
+      stage: isPublished(record) ? 'posted' : state.stages[record.id] ?? 'answered',
+      title: `#${record.seriesNo} ${record.basic.shopName} — ${record.basic.therapistName}`,
+      detail: `${record.basic.visitDate} / ${record.basic.area}`,
+      postedUrl: record.postedUrl,
+      tracking: trackingOf(record, state, checks, now),
+    };
+  });
   const bundleCards = state.bundles.map((bundle): Card => {
     const numbers = bundle.recordIds.flatMap((id) => seriesNo.get(id) ?? []).sort((a, b) => a - b);
     return {
       id: bundle.id,
       source: 'bundle',
       kind: bundle.kind,
+      angle: null,
       stage: bundle.postedUrl === null ? bundle.stage : 'posted',
       title: bundle.title,
       detail: numbers.map((no) => `#${no}`).join(' '),
