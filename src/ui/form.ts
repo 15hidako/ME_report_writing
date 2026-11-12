@@ -9,6 +9,7 @@ import { renderDownsideSuggestions, renderFlowChecks, renderNoteSuggestions, ren
 import { MAX_OPTIONS, OPTION_TYPE_LABELS } from '../options';
 import { renderVoiceFields } from './voice-patterns';
 import { FormValidationError, validateVisitForm, feeValue, optionCountValue } from '../form-validation';
+import { boardLinkHtml } from '../links';
 
 const COURSE_TIMES = [70, 80, 90, 100, 110, 120].map((minutes) => `${minutes}分`);
 const COURSE_FEES = Array.from({ length: 21 }, (_, index) => 10000 + index * 1000);
@@ -135,7 +136,10 @@ export function renderForm(record: VisitRecord | null, revisitOf: VisitRecord | 
     }).join('');
 
   return `<form id="visit-form" autocomplete="off" novalidate>
-  <p class="form-mode">${isEdit ? `編集中: #${record.seriesNo}` : revisitOf ? `再訪入力(初回: #${revisitOf.seriesNo} ${esc(revisitOf.basic.therapistName)})` : '新規入力'}</p>
+  <div class="form-head">
+    <p class="form-mode">${isEdit ? `編集中: #${record.seriesNo}` : revisitOf ? `再訪入力(初回: #${revisitOf.seriesNo} ${esc(revisitOf.basic.therapistName)})` : '新規入力'}</p>
+    ${isEdit ? boardLinkHtml(record.id) : ''}
+  </div>
   <p class="field-hint">必須：都道府県・エリア・一番良かった瞬間</p>
 
   <details class="sec" ${isEdit || revisitOf ? '' : 'open'}>

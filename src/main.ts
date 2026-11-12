@@ -19,6 +19,7 @@ import type { ThumbnailLayout } from './thumbnail';
 import { localDate } from './date';
 import { SUMMARY_MIN_THERAPISTS, countPublishedTherapists, isPublished } from './prompt/publication';
 import { BUILD_ID, fetchLatestBuildId, updateUrl } from './update-check';
+import { INPUT_WINDOW, boardLinkHtml, takeParam } from './links';
 import './styles.css';
 
 const appNode = document.getElementById('app');
@@ -281,6 +282,7 @@ function submitForm(event: SubmitEvent, draft: Draft, feedback: FormFeedback): v
       revisitOfId = null;
       const mode = draft.node.querySelector<HTMLElement>('.form-mode');
       if (mode !== null) mode.textContent = `編集中: #${record.seriesNo}`;
+      if (draft.node.querySelector('a.to-board') === null) mode?.insertAdjacentHTML('afterend', boardLinkHtml(record.id));
       shareSavedRecord(record, draft);
       return;
     }
@@ -435,6 +437,7 @@ function renderListTab(): void {
         <button data-act="revisit">再訪入力</button>
         <button data-act="url">投稿URL</button>
         <button data-act="del" class="danger">削除</button>
+        ${boardLinkHtml(r.id)}
       </div>
     </div>`).join('');
 
@@ -722,7 +725,11 @@ function renderThumbTab(): void {
 
 const RELOADED_FOR_KEY = 'me-report-writer/reloaded-for';
 
+/** 破棄を確認済みのまま画面を離れるときは、ブラウザの確認を重ねない */
+let leaveConfirmed = false;
+
 function applyUpdate(latest: string): void {
+  leaveConfirmed = true;
   sessionStorage.setItem(RELOADED_FOR_KEY, latest);
   location.replace(updateUrl(location.href, latest));
 }
@@ -758,9 +765,39 @@ function watchForUpdate(): void {
   check();
 }
 
+/** ボードから ?edit=<回答ID> で開かれたら、その回答の編集画面を出す */
+function openFromUrl(): void {
+  const { value, rest } = takeParam(location.href, 'edit');
+  if (value === null) {
+    switchTab('list');
+    return;
+  }
+  history.replaceState(history.state, '', rest);
+  let found: boolean;
+  try {
+    found = getStore().get(value) !== undefined;
+  } catch {
+    // 保存領域を読めないときは、履歴画面の復旧表示が原因と対処を示す
+    switchTab('list');
+    return;
+  }
+  if (found) {
+    openContext(value, null);
+    return;
+  }
+  switchTab('list');
+  toast('指定された回答が見つかりません。削除されたか、別の端末の回答です');
+}
+
+// ボードからのリンクがこのタブを使い回せるようにする
+window.name = INPUT_WINDOW;
+// ボードからの移動などで、未保存の入力を黙って失わない
+window.addEventListener('beforeunload', (event) => {
+  if (!leaveConfirmed && formCache?.dirty === true) event.preventDefault();
+});
 document.querySelectorAll('nav button').forEach((b) => {
   b.addEventListener('click', () => switchTab(b.getAttribute('data-tab') as Tab));
 });
-switchTab('list');
+openFromUrl();
 // 開発サーバーとテストには version.json がないため、公開ビルドだけで確認する
 if (!import.meta.env.DEV) watchForUpdate();

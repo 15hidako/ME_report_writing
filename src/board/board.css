@@ -329,6 +329,25 @@
 }
 .board-card > button.danger:hover { border-color: var(--b-danger); background: #ff7a7a14; }
 
+.board-card-head .to-edit {
+  flex: none;
+  white-space: nowrap;
+  margin-left: auto;
+  padding: 2px 4px;
+  color: var(--b-muted);
+  font-size: 12px;
+  text-underline-offset: 3px;
+}
+.board-card-head .to-edit:hover { color: var(--text); }
+.board-card-head .to-edit + select { max-width: 50%; }
+
+/* 入力画面から開いたカード。輪郭を2回だけ光らせて場所を示す */
+.board-card.revealed { animation: board-card-reveal 900ms var(--b-ease) 2; }
+@keyframes board-card-reveal {
+  0%, 100% { box-shadow: var(--b-shadow-card); }
+  40% { box-shadow: var(--b-shadow-card), 0 0 0 2px var(--accent), 0 0 24px -4px var(--accent); }
+}
+
 /* ── 販売型(単体記事) ───────────────────────────── */
 .board-card .angle {
   display: grid;

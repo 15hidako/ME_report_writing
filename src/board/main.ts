@@ -1,6 +1,7 @@
 import { VisitStore } from '../storage';
 import { parseChecksFile } from '../checks/files';
 import { localDate } from '../date';
+import { BOARD_WINDOW, takeParam } from '../links';
 import { isWakustArticleUrl } from '../prompt/publication';
 import { toast } from '../ui/widgets';
 import { buildCards, buildTargets, type Card } from './cards';
@@ -303,5 +304,27 @@ pickFolderButton.addEventListener('click', guarded(async () => {
 exportTargets.addEventListener('click', guarded(() => download(TARGETS_FILE, targetsJson())));
 importChecks.addEventListener('click', guarded(() => pickJson(applyChecks)));
 
+/** 入力画面から ?card=<回答ID> で開かれたら、そのカードを見える位置に出して目印を付ける */
+function revealFromUrl(): void {
+  const { value, rest } = takeParam(location.href, 'card');
+  if (value === null) return;
+  // 絞り込みで隠れないよう、すべて表示に戻す
+  const { rest: unfiltered } = takeParam(rest, 'kind');
+  history.replaceState(history.state, '', unfiltered);
+  render();
+  const node = [...boardNode.querySelectorAll<HTMLElement>('.board-card')].find((item) => item.dataset['id'] === value);
+  if (node === undefined) {
+    toast('指定された回答のカードが見つかりません');
+    return;
+  }
+  node.scrollIntoView({ block: 'center' });
+  node.querySelector<HTMLElement>('select')?.focus({ preventScroll: true });
+  node.classList.add('revealed');
+  node.addEventListener('animationend', () => node.classList.remove('revealed'), { once: true });
+}
+
+// 入力画面からのリンクがこのタブを使い回せるようにする
+window.name = BOARD_WINDOW;
 window.addEventListener('storage', render);
 render();
+revealFromUrl();

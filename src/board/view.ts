@@ -1,6 +1,7 @@
 import type { VisitRecord } from '../types';
 import type { Attendance, Enrollment } from '../checks/files';
 import { localDate } from '../date';
+import { INPUT_WINDOW, editHref } from '../links';
 import { esc } from '../ui/widgets';
 import type { Attention, Card } from './cards';
 import { ANGLES, STAGES, type ArticleKind, type ArticleAngle, type Stage } from './state';
@@ -64,6 +65,9 @@ function cardHtml(card: Card): string {
       card.angle === null ? '' : ` data-angle="${card.angle}"`}>
       <div class="board-card-head">
         <span class="kind" data-kind="${card.kind}">${KIND_LABELS[card.kind]}</span>
+        ${card.source === 'record'
+          ? `<a class="to-edit" href="${esc(editHref(card.id))}" target="${INPUT_WINDOW}" draggable="false">編集</a>`
+          : ''}
         <select data-act="stage" aria-label="${esc(card.title)} の段階">${stageOptions}</select>
       </div>
       <h3>${card.postedUrl === null

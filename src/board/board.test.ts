@@ -226,6 +226,14 @@ describe('ボードの表示', () => {
     expect(root.querySelector('.board-card[data-id="id-2"]')?.getAttribute('data-angle')).toBe('experience');
   });
 
+  it('回答のカードから入力画面の編集へ移れ、まとめ記事には出さない', () => {
+    const root = mount(boardHtml(cards, 'all'));
+    const link = root.querySelector<HTMLAnchorElement>('.board-card[data-id="id-2"] a.to-edit');
+    expect(link?.getAttribute('href')).toBe('./?edit=id-2');
+    expect(link?.getAttribute('target')).toBe('me-input');
+    expect(root.querySelector('.board-card[data-id="bundle-1"] a.to-edit')).toBeNull();
+  });
+
   it('回答の文字列をHTMLとして解釈しない', () => {
     const root = mount(boardHtml(cards, 'all'));
     expect(root.querySelector('.board-card b')).toBeNull();

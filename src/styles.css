@@ -52,15 +52,20 @@ nav button {
 }
 nav button.active { color: var(--text); border-bottom-color: var(--accent); }
 /* 記事ボードはPC専用。スマホ幅では入口を出さない */
-.board-link { display: none; }
+.board-link, .to-board { display: none; }
 @media (min-width: 1024px) and (pointer: fine) {
   .board-link { display: block; align-self: center; padding: 0 16px; color: var(--text-dim); font-size: 14px; }
+  .to-board { display: inline-flex; align-items: center; color: var(--text-dim); font-size: 13px; text-underline-offset: 3px; }
+  .to-board:hover { color: var(--text); }
+  .to-board::after { content: '↗'; margin-left: 3px; font-size: 11px; }
+  .card-actions .to-board { margin-left: auto; padding: 0 4px; }
 }
 
 main { padding: var(--space); max-width: 720px; margin: 0 auto; }
 
 /* フォーム */
-.form-mode { color: var(--gold); font-size: 13px; margin: 2px 0 10px; }
+.form-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 2px 0 10px; }
+.form-mode { color: var(--gold); font-size: 13px; margin: 0; }
 
 details.sec {
   background: var(--surface);

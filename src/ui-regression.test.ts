@@ -671,3 +671,68 @@ describe('起動からの画面操作', () => {
     expect(document.querySelector('#visit-form')).toBeNull();
   });
 });
+
+describe('記事ボードとの行き来', () => {
+  afterEach(() => {
+    history.replaceState(null, '', '/');
+  });
+
+  it('URLで指定した回答の編集画面を開き、引数を消す', async () => {
+    const record = fixtureRecord();
+    history.replaceState(null, '', `/?edit=${encodeURIComponent(record.id)}&x=1`);
+    await start([record]);
+    expect(document.querySelector('.form-mode')?.textContent).toContain(`編集中: #${record.seriesNo}`);
+    expect(location.search).toBe('?x=1');
+    expect(window.name).toBe('me-input');
+  });
+
+  it('見つからない回答を指定されたら履歴を出して知らせる', async () => {
+    history.replaceState(null, '', '/?edit=missing');
+    await start([fixtureRecord()]);
+    expect(document.querySelector('#visit-form')).toBeNull();
+    expect(document.querySelector('.toast')?.textContent).toContain('見つかりません');
+    expect(location.search).toBe('');
+  });
+
+  it('保存内容が壊れているときは「見つからない」と誤って知らせず、復旧表示に任せる', async () => {
+    history.replaceState(null, '', '/?edit=any');
+    window.localStorage.setItem('me-report-writer/visits/v1', '{');
+    await import('./main');
+    expect(document.querySelector('.toast')).toBeNull();
+    expect(document.querySelector('#import')).not.toBeNull();
+  });
+
+  it('履歴の各回答と編集画面から、ボードの該当カードへ移れる', async () => {
+    const record = fixtureRecord();
+    await start([record]);
+    const fromList = document.querySelector<HTMLAnchorElement>(`.card[data-id="${record.id}"] a.to-board`);
+    expect(fromList?.getAttribute('href')).toBe(`./board.html?card=${encodeURIComponent(record.id)}`);
+    expect(fromList?.target).toBe('me-board');
+    button('編集').click();
+    expect(document.querySelector<HTMLAnchorElement>('#visit-form a.to-board')?.getAttribute('href'))
+      .toBe(`./board.html?card=${encodeURIComponent(record.id)}`);
+  });
+
+  it('新規入力にはボードへの移動を出さない', async () => {
+    await start();
+    button('入力').click();
+    expect(document.querySelector('#visit-form a.to-board')).toBeNull();
+  });
+
+  it('未保存の入力があるときだけ、ページを離れる前に止める', async () => {
+    // 前のテストで読み込んだ画面のリスナーも window に残るため、今回登録されたものだけを呼ぶ
+    const add = vi.spyOn(window, 'addEventListener');
+    await start([fixtureRecord()]);
+    const handler = add.mock.calls.find(([type]) => type === 'beforeunload')?.[1] as ((event: Event) => void) | undefined;
+    if (handler === undefined) throw new Error('beforeunload のリスナーが登録されていません');
+    const leave = (): boolean => {
+      const event = new Event('beforeunload', { cancelable: true });
+      handler(event);
+      return event.defaultPrevented;
+    };
+    button('編集').click();
+    expect(leave()).toBe(false);
+    setLocation('area', '未保存');
+    expect(leave()).toBe(true);
+  });
+});
