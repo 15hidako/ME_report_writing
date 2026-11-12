@@ -64,6 +64,39 @@ function cardButton(id: string, name: string): HTMLButtonElement {
   return match;
 }
 
+interface FakeDir {
+  readonly kind: 'directory';
+  readonly name: string;
+  values(): AsyncGenerator<FakeDir>;
+  getDirectoryHandle(name: string): Promise<FakeDir>;
+  getFileHandle(name: string): Promise<{ getFile(): Promise<{ lastModified: number; text(): Promise<string> }> }>;
+  queryPermission(): Promise<'granted'>;
+}
+
+function notFound(): never {
+  throw new DOMException('not found', 'NotFoundError');
+}
+
+/** 原稿フォルダの代わり。scanArticles が使う範囲だけを持つ */
+function fakeDir(name: string, children: readonly FakeDir[] = [], files: readonly string[] = []): FakeDir {
+  return {
+    kind: 'directory',
+    name,
+    async *values() { yield* children; },
+    getDirectoryHandle: async (child) => children.find((item) => item.name === child) ?? notFound(),
+    getFileHandle: async (file) => files.includes(file)
+      ? { getFile: async () => ({ lastModified: Date.UTC(2026, 10, 12), text: async () => '' }) }
+      : notFound(),
+    queryPermission: async () => 'granted',
+  };
+}
+
+/** 回答1件ぶんの通常版の原稿(タイトルと無料部分)が入った原稿フォルダ */
+function articlesFolder(name: string, record: VisitRecord): FakeDir {
+  const standard = fakeDir('standard', [], ['title.txt', 'free-part.html']);
+  return fakeDir(name, [fakeDir(`${String(record.seriesNo).padStart(4, '0')}-${record.id}`, [standard])]);
+}
+
 /** 失敗の表示は操作のあとの非同期処理で出るので、1拍待つ */
 const settle = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -309,6 +342,7 @@ describe('フォルダの読み書きに対応していないブラウザ', () =
     expect(byId('sync').hidden).toBe(true);
     expect(byId('articles').hidden).toBe(true);
     expect(byId('pick-folder').hidden).toBe(true);
+    expect(byId('pick-articles').hidden).toBe(true);
     expect(folder.savedFolder).not.toHaveBeenCalled();
   });
 });
@@ -323,6 +357,7 @@ describe('フォルダの読み書きに対応しているブラウザ', () => {
     expect(byId('sync').hidden).toBe(false);
     expect(byId('articles').hidden).toBe(false);
     expect(byId('pick-folder').hidden).toBe(false);
+    expect(byId('pick-articles').hidden).toBe(false);
     expect(byId('export-targets').hidden).toBe(true);
     expect(byId('import-checks').hidden).toBe(true);
   });
@@ -371,5 +406,65 @@ describe('フォルダの読み書きに対応しているブラウザ', () => {
     expect(folder.pickFolder).toHaveBeenCalledOnce();
     expect(toasts()).toEqual(['確認対象を書き出しました。確認結果はまだありません']);
     expect(window.localStorage.getItem(BOARD_KEY)).toBeNull();
+  });
+
+  describe('原稿フォルダ', () => {
+    const draftNames = (id: string): string[] =>
+      [...card(id).querySelectorAll('.draft-name')].map((item) => item.textContent ?? '');
+
+    beforeEach(() => {
+      folder.ensureAccess.mockResolvedValue(undefined);
+    });
+
+    it('選び直すと、選んだフォルダの原稿をカードに出す', async () => {
+      const record = fixtureRecord();
+      const before = articlesFolder('drafts-old', fixtureRecord({ id: 'other-id' }));
+      const after = articlesFolder('drafts-new', record);
+      folder.savedFolder.mockImplementation(async (slot?: string) => slot === 'articles' ? before : null);
+      folder.pickFolder.mockResolvedValue(after);
+      await start([record]);
+      await vi.waitFor(() => expect(folder.savedFolder).toHaveBeenCalledWith('articles'));
+      expect(card(record.id).querySelector('.draft')).toBeNull();
+
+      byId('pick-articles').click();
+      await vi.waitFor(() => expect(toasts()).toEqual(['原稿 1件(drafts-new)']));
+      expect(folder.pickFolder).toHaveBeenCalledExactlyOnceWith('articles');
+      expect(folder.ensureAccess).toHaveBeenCalledWith(after);
+      expect(draftNames(record.id)).toEqual(['原稿']);
+      expect(card(record.id).querySelectorAll('[data-act="copy-part"]')).toHaveLength(2);
+      expect(stageOf(record.id)).toBe('editing');
+    });
+
+    it('選択を取り消したときは何も知らせず、表示を変えない', async () => {
+      const record = fixtureRecord();
+      folder.pickFolder.mockRejectedValue(new DOMException('aborted', 'AbortError'));
+      await start([record]);
+      byId('pick-articles').click();
+      await vi.waitFor(() => expect(folder.pickFolder).toHaveBeenCalledExactlyOnceWith('articles'));
+      await settle();
+      expect(toasts()).toEqual([]);
+      expect(card(record.id).querySelector('.draft')).toBeNull();
+      expect(stageOf(record.id)).toBe('answered');
+    });
+
+    it('「原稿」は、設定済みならフォルダを選ばせずに読み直す', async () => {
+      const record = fixtureRecord();
+      const saved = articlesFolder('drafts', record);
+      folder.savedFolder.mockImplementation(async (slot?: string) => slot === 'articles' ? saved : null);
+      await start([record]);
+      byId('articles').click();
+      await vi.waitFor(() => expect(toasts()).toEqual(['原稿 1件(drafts)']));
+      expect(folder.pickFolder).not.toHaveBeenCalled();
+      expect(draftNames(record.id)).toEqual(['原稿']);
+    });
+
+    it('「原稿」は、未設定ならフォルダを選ばせる', async () => {
+      const record = fixtureRecord();
+      folder.pickFolder.mockResolvedValue(articlesFolder('drafts', record));
+      await start([record]);
+      byId('articles').click();
+      await vi.waitFor(() => expect(toasts()).toEqual(['原稿 1件(drafts)']));
+      expect(folder.pickFolder).toHaveBeenCalledExactlyOnceWith('articles');
+    });
   });
 });

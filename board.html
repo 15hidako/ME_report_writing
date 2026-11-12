@@ -14,11 +14,16 @@
     <div class="chips" id="kind-filter" role="group" aria-label="記事タイプ"></div>
     <div class="board-tools">
       <button type="button" id="add-bundle" class="primary">+ 記事</button>
-      <button type="button" id="articles">原稿</button>
-      <button type="button" id="sync">同期</button>
-      <button type="button" id="pick-folder">フォルダ変更</button>
-      <button type="button" id="export-targets" hidden>確認対象を書き出す</button>
-      <button type="button" id="import-checks" hidden>確認結果を読み込む</button>
+      <div class="tool-group" role="group" aria-label="原稿">
+        <button type="button" id="articles">原稿</button>
+        <button type="button" id="pick-articles" hidden>フォルダ変更</button>
+      </div>
+      <div class="tool-group" role="group" aria-label="同期">
+        <button type="button" id="sync">同期</button>
+        <button type="button" id="pick-folder">フォルダ変更</button>
+        <button type="button" id="export-targets" hidden>確認対象を書き出す</button>
+        <button type="button" id="import-checks" hidden>確認結果を読み込む</button>
+      </div>
       <button type="button" id="export-board">保存(JSON)</button>
       <button type="button" id="import-board">読込(JSON)</button>
       <a href="./" target="me-input">入力画面</a>

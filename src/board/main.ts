@@ -138,11 +138,17 @@ async function loadDrafts(folder: Folder): Promise<number> {
   return drafts.size;
 }
 
-async function openArticles(): Promise<void> {
-  let folder = await savedFolder('articles');
-  if (folder === null) folder = await pickFolder('articles');
+async function showDrafts(folder: Folder): Promise<void> {
   await ensureAccess(folder);
   toast(`原稿 ${await loadDrafts(folder)}件(${folder.name})`);
+}
+
+async function openArticles(): Promise<void> {
+  await showDrafts(await savedFolder('articles') ?? await pickFolder('articles'));
+}
+
+async function pickArticles(): Promise<void> {
+  await showDrafts(await pickFolder('articles'));
 }
 
 let refreshing = false;
@@ -344,6 +350,9 @@ element('import-board').addEventListener('click', guarded(() => pickJson((text) 
 const articlesButton = element('articles');
 articlesButton.hidden = !supported;
 articlesButton.addEventListener('click', guarded(openArticles));
+const pickArticlesButton = element('pick-articles');
+pickArticlesButton.hidden = !supported;
+pickArticlesButton.addEventListener('click', guarded(pickArticles));
 
 const syncButton = element('sync');
 const exportTargets = element('export-targets');

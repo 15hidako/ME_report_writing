@@ -67,8 +67,9 @@
 .board-tools button:active { transform: translateY(1px); }
 .board-tools button.primary { background: var(--b-primary); border-color: var(--b-primary); padding-inline: 16px; }
 .board-tools button.primary:hover { background: #e0357a; }
-/* 追加 | 同期系 | JSON入出力 | 画面移動 のまとまりを間隔で分ける */
-.board-tools #sync, .board-tools #export-board { margin-left: 12px; }
+/* 追加 | 原稿 | 同期系 | JSON入出力 | 画面移動 のまとまりを間隔で分ける */
+.board-tools .tool-group { display: flex; align-items: center; gap: 6px; margin-left: 12px; }
+.board-tools #export-board { margin-left: 12px; }
 .board-tools a {
   margin-left: 12px;
   padding: 7px 4px;
