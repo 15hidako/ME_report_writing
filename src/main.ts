@@ -30,22 +30,36 @@ const app: HTMLElement = appNode;
 
 type Tab = 'form' | 'list' | 'thumb';
 
+/** フォームが開く対象。編集する回答か、再訪元の回答か、どちらもなければ新規 */
+interface FormContext {
+  readonly editingId: string | null;
+  readonly revisitOfId: string | null;
+}
+
+interface SavedIdentity {
+  readonly id: string;
+  readonly seriesNo: number;
+  readonly createdAt: string;
+}
+
 interface Draft {
-  node: HTMLElement;
-  editingId: string | null;
-  revisitOfId: string | null;
-  dirty: boolean;
-  id: string | null;
-  seriesNo: number | null;
-  createdAt: string | null;
-  revisitOf: string | null;
+  readonly node: HTMLElement;
+  /** いま画面にある対象 */
+  context: FormContext;
+  /** 保存済みの回答なら、その id・通し番号・作成日時 */
+  saved: SavedIdentity | null;
+  /** 回答に保存する再訪元 */
+  readonly revisitOf: string | null;
   savedSnapshot: string | null;
+  dirty: boolean;
   sharing: boolean;
 }
 
+const NEW_CONTEXT: FormContext = { editingId: null, revisitOfId: null };
+
 let currentTab: Tab = 'list';
-let editingId: string | null = null;
-let revisitOfId: string | null = null;
+/** フォームがないときに、次に開く対象。フォームがあるあいだは formCache.context が正 */
+let pending: FormContext = NEW_CONTEXT;
 let formCache: Draft | null = null;
 let store: VisitStore | undefined;
 
@@ -67,8 +81,7 @@ function getStore(): VisitStore {
 function clearContext(): void {
   formCache?.node.remove();
   formCache = null;
-  editingId = null;
-  revisitOfId = null;
+  pending = NEW_CONTEXT;
 }
 
 function confirmDiscardDraft(): boolean {
@@ -135,8 +148,8 @@ function openLookup(targets: readonly VisitRecord[]): void {
 
 function openContext(nextEdit: string | null, nextRevisit: string | null, replaceSameNew = false): void {
   const same = formCache !== null
-    && formCache.editingId === nextEdit
-    && formCache.revisitOfId === nextRevisit;
+    && formCache.context.editingId === nextEdit
+    && formCache.context.revisitOfId === nextRevisit;
   const latest = same && nextEdit !== null ? getStore().get(nextEdit) : undefined;
   const changed = latest !== undefined && formCache?.savedSnapshot !== editingSnapshot(latest);
   if (same && !changed && !(replaceSameNew && formCache?.dirty === true)) {
@@ -145,8 +158,7 @@ function openContext(nextEdit: string | null, nextRevisit: string | null, replac
   }
   if (!confirmDiscardDraft()) return;
   clearContext();
-  editingId = nextEdit;
-  revisitOfId = nextRevisit;
+  pending = { editingId: nextEdit, revisitOfId: nextRevisit };
   switchTab('form');
 }
 
@@ -162,8 +174,9 @@ function submitForm(event: SubmitEvent, draft: Draft, feedback: FormFeedback): v
   if (draft.sharing) return;
   try {
     const db = getStore();
-    const latest = draft.editingId === null ? undefined : db.get(draft.editingId);
-    if (draft.editingId !== null && latest === undefined) {
+    const { editingId } = draft.context;
+    const latest = editingId === null ? undefined : db.get(editingId);
+    if (editingId !== null && latest === undefined) {
       toast('編集中のレコードは削除されています');
       clearContext();
       switchTab('list');
@@ -175,9 +188,9 @@ function submitForm(event: SubmitEvent, draft: Draft, feedback: FormFeedback): v
       throw new Error('別の画面で回答が変更されています。入力内容を控えてから、履歴の編集で開き直してください');
     }
     const collected = collectRecord(draft.node, {
-      id: draft.id ?? crypto.randomUUID(),
-      seriesNo: draft.seriesNo ?? db.nextSeriesNo(),
-      createdAt: draft.createdAt ?? new Date().toISOString(),
+      id: draft.saved?.id ?? crypto.randomUUID(),
+      seriesNo: draft.saved?.seriesNo ?? db.nextSeriesNo(),
+      createdAt: draft.saved?.createdAt ?? new Date().toISOString(),
       revisitOf: draft.revisitOf,
       postedUrl: latest?.postedUrl ?? null,
       identityLookup: latest?.basic.identityLookup,
@@ -189,17 +202,7 @@ function submitForm(event: SubmitEvent, draft: Draft, feedback: FormFeedback): v
       draft.savedSnapshot = editingSnapshot(record);
     }
     if (shareRequested) {
-      draft.id = record.id;
-      draft.seriesNo = record.seriesNo;
-      draft.createdAt = record.createdAt;
-      draft.editingId = record.id;
-      draft.revisitOfId = null;
-      draft.dirty = false;
-      editingId = record.id;
-      revisitOfId = null;
-      const mode = draft.node.querySelector<HTMLElement>('.form-mode');
-      if (mode !== null) mode.textContent = `編集中: #${record.seriesNo}`;
-      if (draft.node.querySelector('a.to-board') === null) mode?.insertAdjacentHTML('afterend', boardLinkHtml(record.id));
+      continueAsEditing(draft, record);
       shareSavedRecord(record, draft);
       return;
     }
@@ -210,6 +213,16 @@ function submitForm(event: SubmitEvent, draft: Draft, feedback: FormFeedback): v
     if (err instanceof FormValidationError) feedback.show(err.issues);
     else feedback.showGeneral(errText(err));
   }
+}
+
+/** 「保存して共有」のあと、同じフォームのまま保存した回答の編集に切り替える */
+function continueAsEditing(draft: Draft, record: VisitRecord): void {
+  draft.saved = { id: record.id, seriesNo: record.seriesNo, createdAt: record.createdAt };
+  draft.context = { editingId: record.id, revisitOfId: null };
+  draft.dirty = false;
+  const mode = draft.node.querySelector<HTMLElement>('.form-mode');
+  if (mode !== null) mode.textContent = `編集中: #${record.seriesNo}`;
+  if (draft.node.querySelector('a.to-board') === null) mode?.insertAdjacentHTML('afterend', boardLinkHtml(record.id));
 }
 
 function shareSavedRecord(record: VisitRecord, draft: Draft): void {
@@ -237,27 +250,25 @@ function shareSavedRecord(record: VisitRecord, draft: Draft): void {
 
 function mountForm(): void {
   const db = getStore();
-  const editing = editingId === null ? null : db.get(editingId) ?? null;
-  if (editingId !== null && editing === null) {
+  const context = pending;
+  const editing = context.editingId === null ? null : db.get(context.editingId) ?? null;
+  if (context.editingId !== null && editing === null) {
     toast('編集中のレコードは削除されています');
     clearContext();
     currentTab = 'list';
     renderListTab();
     return;
   }
-  const revisitOf = revisitOfId === null ? null : db.get(revisitOfId) ?? null;
+  const revisitOf = context.revisitOfId === null ? null : db.get(context.revisitOfId) ?? null;
   const node = document.createElement('div');
   node.innerHTML = renderForm(editing, revisitOf);
   const form = node.querySelector<HTMLFormElement>('#visit-form');
   if (form === null) throw new Error('#visit-form が見つかりません');
   const draft: Draft = {
     node,
-    editingId,
-    revisitOfId,
+    context,
+    saved: editing === null ? null : { id: editing.id, seriesNo: editing.seriesNo, createdAt: editing.createdAt },
     dirty: false,
-    id: editing?.id ?? null,
-    seriesNo: editing?.seriesNo ?? null,
-    createdAt: editing?.createdAt ?? null,
     revisitOf: editing?.revisitOf ?? revisitOf?.id ?? null,
     savedSnapshot: editing === null ? null : editingSnapshot(editing),
     sharing: false,
@@ -301,12 +312,7 @@ function renderRecovery(message: string): void {
 
 function render(): void {
   try {
-    const reuse = currentTab === 'form'
-      && formCache !== null
-      && formCache.node.isConnected
-      && formCache.editingId === editingId
-      && formCache.revisitOfId === revisitOfId;
-    if (reuse) return;
+    if (currentTab === 'form' && formCache?.node.isConnected === true) return;
     formCache?.node.remove();
     if (currentTab === 'form') renderFormTab();
     else if (currentTab === 'list') renderListTab();
@@ -317,11 +323,7 @@ function render(): void {
 }
 
 function renderFormTab(): void {
-  if (formCache !== null && (formCache.editingId !== editingId || formCache.revisitOfId !== revisitOfId) && formCache.dirty) {
-    editingId = formCache.editingId;
-    revisitOfId = formCache.revisitOfId;
-  }
-  if (formCache !== null && formCache.editingId === editingId && formCache.revisitOfId === revisitOfId) {
+  if (formCache !== null) {
     app.replaceChildren(formCache.node);
     return;
   }
@@ -477,7 +479,7 @@ function deleteRecord(record: VisitRecord): void {
     toast(errText(err));
     return;
   }
-  if (formCache !== null && (formCache.editingId === record.id || formCache.id === record.id)) clearContext();
+  if (formCache !== null && (formCache.context.editingId === record.id || formCache.saved?.id === record.id)) clearContext();
   render();
 }
 
