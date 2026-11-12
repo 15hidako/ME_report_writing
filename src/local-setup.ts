@@ -26,6 +26,12 @@ const setup = load();
 export const ARTICLE_DIR: string | null = setup.dir;
 export const ARTICLE_DIR_ERROR: string | null = setup.error;
 
+/** 絶対パスの末尾のフォルダ名。ブラウザで選んだフォルダとは名前でしか比べられない。ルートは空文字 */
+export function folderNameOf(path: string): string {
+  const name = path.split(/[\\/]+/).filter((part) => part !== '').at(-1) ?? '';
+  return /^[A-Za-z]:$/.test(name) ? '' : name;
+}
+
 /** コピーのあとに Claude デスクトップアプリを前面に出す */
 export function openClaudeApp(): void {
   Object.assign(document.createElement('a'), { href: 'claude://' }).click();

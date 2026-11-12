@@ -1,6 +1,7 @@
 import { VisitStore } from '../storage';
 import { parseChecksFile } from '../checks/files';
 import { localDate } from '../date';
+import { ARTICLE_DIR, folderNameOf } from '../local-setup';
 import { BOARD_WINDOW, takeParam } from '../links';
 import { isWakustArticleUrl } from '../prompt/publication';
 import { toast, tryCopyText } from '../ui/widgets';
@@ -138,9 +139,22 @@ async function loadDrafts(folder: Folder): Promise<number> {
   return drafts.size;
 }
 
+/** 選んだフォルダの絶対パスは取れないので、プロンプトの保存先とは末尾のフォルダ名で比べる */
+function saveDirMismatch(folder: Folder): string | null {
+  if (ARTICLE_DIR === null) return null;
+  const expected = folderNameOf(ARTICLE_DIR);
+  // Windows は大文字小文字を区別しない
+  return expected === '' || expected.toLowerCase() === folder.name.toLowerCase()
+    ? null
+    : `原稿フォルダ「${folder.name}」は、プロンプトの保存先「${ARTICLE_DIR}」と名前が違います`;
+}
+
+/** ボタン操作で原稿を読む。自動の読み直し(refreshDrafts)では知らせを出さない */
 async function showDrafts(folder: Folder): Promise<void> {
   await ensureAccess(folder);
-  toast(`原稿 ${await loadDrafts(folder)}件(${folder.name})`);
+  const count = await loadDrafts(folder);
+  // トーストは重なって出るので、食い違いがあるときはそちらだけを知らせる
+  toast(saveDirMismatch(folder) ?? `原稿 ${count}件(${folder.name})`);
 }
 
 async function openArticles(): Promise<void> {

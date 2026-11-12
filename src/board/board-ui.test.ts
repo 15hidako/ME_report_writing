@@ -134,6 +134,8 @@ beforeEach(() => {
   document.body.innerHTML = pageBody();
   folder.folderSupported.mockReturnValue(false);
   folder.savedFolder.mockResolvedValue(null);
+  // このPCの .env.local に左右されないよう、保存先は未設定から始める
+  vi.stubEnv('VITE_ARTICLE_DIR', '');
 });
 
 afterEach(() => {
@@ -141,6 +143,7 @@ afterEach(() => {
   for (const [type, listener] of windowListeners) window.removeEventListener(type, listener);
   windowListeners = [];
   vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
   vi.resetAllMocks();
   document.body.innerHTML = '';
   window.localStorage.clear();
@@ -465,6 +468,68 @@ describe('フォルダの読み書きに対応しているブラウザ', () => {
       byId('articles').click();
       await vi.waitFor(() => expect(toasts()).toEqual(['原稿 1件(drafts)']));
       expect(folder.pickFolder).toHaveBeenCalledExactlyOnceWith('articles');
+    });
+  });
+
+  describe('プロンプトの保存先との食い違い', () => {
+    const SAVE_DIR = 'C:\\work\\articles';
+    const draftCount = (id: string): number => card(id).querySelectorAll('.draft-row').length;
+
+    beforeEach(() => {
+      folder.ensureAccess.mockResolvedValue(undefined);
+    });
+
+    it('選び直したフォルダの名前が保存先と違えば知らせ、読み込みは続ける', async () => {
+      const record = fixtureRecord();
+      vi.stubEnv('VITE_ARTICLE_DIR', SAVE_DIR);
+      folder.pickFolder.mockResolvedValue(articlesFolder('drafts', record));
+      await start([record]);
+      byId('pick-articles').click();
+      await vi.waitFor(() => expect(toasts()).toEqual([
+        `原稿フォルダ「drafts」は、プロンプトの保存先「${SAVE_DIR}」と名前が違います`,
+      ]));
+      expect(draftCount(record.id)).toBe(1);
+      expect(stageOf(record.id)).toBe('editing');
+    });
+
+    it('「原稿」で読み直したときも知らせる', async () => {
+      const record = fixtureRecord();
+      vi.stubEnv('VITE_ARTICLE_DIR', SAVE_DIR);
+      const saved = articlesFolder('drafts', record);
+      folder.savedFolder.mockImplementation(async (slot?: string) => slot === 'articles' ? saved : null);
+      await start([record]);
+      byId('articles').click();
+      await vi.waitFor(() => expect(toasts()).toEqual([
+        `原稿フォルダ「drafts」は、プロンプトの保存先「${SAVE_DIR}」と名前が違います`,
+      ]));
+      expect(draftCount(record.id)).toBe(1);
+    });
+
+    it.each([
+      ['C:\\work\\articles'],
+      ['C:\\work\\articles\\'],
+      ['/home/me/Articles'],
+    ])('保存先 %s と同じ名前のフォルダでは知らせない', async (dir) => {
+      const record = fixtureRecord();
+      vi.stubEnv('VITE_ARTICLE_DIR', dir);
+      folder.pickFolder.mockResolvedValue(articlesFolder('articles', record));
+      await start([record]);
+      byId('pick-articles').click();
+      await vi.waitFor(() => expect(toasts()).toEqual(['原稿 1件(articles)']));
+    });
+
+    it('フォーカスが戻ったときの自動読み直しでは知らせない', async () => {
+      const record = fixtureRecord();
+      vi.stubEnv('VITE_ARTICLE_DIR', SAVE_DIR);
+      const saved = articlesFolder('drafts', record);
+      folder.savedFolder.mockImplementation(async (slot?: string) => slot === 'articles' ? saved : null);
+      await start([record]);
+      await vi.waitFor(() => expect(draftCount(record.id)).toBe(1));
+      window.dispatchEvent(new Event('focus'));
+      await vi.waitFor(() => expect(folder.savedFolder).toHaveBeenCalledTimes(2));
+      await settle();
+      expect(toasts()).toEqual([]);
+      expect(draftCount(record.id)).toBe(1);
     });
   });
 });
