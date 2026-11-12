@@ -79,6 +79,16 @@ describe('返答の読み取り', () => {
     }]);
   });
 
+  it('記事の返答に含まれる複数のコードブロックから、店舗情報のJSONを取り出す', () => {
+    const fence = '```';
+    const article = [
+      `${fence}\n【恵比寿】タイトル\n${fence}`, `${fence}\n恵比寿,癒し系\n${fence}`,
+      `${fence}html\n<h3>今回のセラピスト</h3><p>[無料部分]</p>\n${fence}`, `${fence}json\n{"note":"x"}\n${fence}`,
+      `${fence}json\n${answer()}\n${fence}`,
+    ].join('\n\n');
+    expect(parseLookupResponse(article)).toEqual(parseLookupResponse(answer()));
+  });
+
   it('欠けた項目と空文字は null として扱う', () => {
     const parsed = parseLookupResponse(JSON.stringify([{ ref: 2, profileUrl: PROFILE, shopName: ' ', therapistName: 'あや' }]));
     expect(parsed[0]).toMatchObject({ shopName: null, shopUrl: null, therapistName: 'あや', therapistXUrl: null });

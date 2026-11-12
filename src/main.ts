@@ -6,7 +6,7 @@ import { bindNoteSuggestions } from './ui/questionnaire-candidates';
 import { openHandoffUpdate } from './ui/handoff-import';
 import { bindIdentityAutofill } from './ui/identity-autofill';
 import { openIdentityLookup } from './ui/identity-lookup';
-import { buildLookupPrompt, lookupTargets, parseLookupResponse, planLookup } from './identity-lookup';
+import { buildLookupPrompt, lookupTargets, needsLookup, parseLookupResponse, planLookup } from './identity-lookup';
 import { MAX_HANDOFF_FILE_BYTES } from './handoff-import';
 import { shareRecord, shareErrorMessage } from './share';
 import { FormValidationError, validateVisitForm } from './form-validation';
@@ -72,8 +72,15 @@ function confirmDiscardDraft(): boolean {
   return confirm('入力中の内容を破棄しますか?');
 }
 
-function copyGenerated(text: string): void {
-  void copyText(text).catch((err: unknown) => toast(errText(err)));
+function copyGenerated(text: string, done?: string): void {
+  void copyText(text, done).catch((err: unknown) => toast(errText(err)));
+}
+
+/** 記事プロンプトに店舗情報の確認を入れたときは、返答の貼り先を知らせる */
+function copyArticlePrompt(record: VisitRecord, text: string): void {
+  copyGenerated(text, needsLookup(record)
+    ? 'コピーしました。返答を「店舗情報を取得」に貼ると記録にも反映されます'
+    : undefined);
 }
 
 function rawHasSavedData(): boolean {
@@ -600,17 +607,17 @@ function copyPrompt(record: VisitRecord, disclosure: NameDisclosure): void {
       const first = findOriginalRecord(record);
       if (first === 'missing') {
         toast('初回レコードが見つかりません。単体として生成します');
-        copyGenerated(buildSinglePrompt(record, disclosure, listingCheckedOn));
+        copyArticlePrompt(record, buildSinglePrompt(record, disclosure, listingCheckedOn));
         return;
       }
       if (first === 'cycle') {
         toast('再訪の参照が循環しています');
         return;
       }
-      copyGenerated(buildRevisitPrompt(record, first, disclosure, listingCheckedOn));
+      copyArticlePrompt(record, buildRevisitPrompt(record, first, disclosure, listingCheckedOn));
       return;
     }
-    copyGenerated(buildSinglePrompt(record, disclosure, listingCheckedOn));
+    copyArticlePrompt(record, buildSinglePrompt(record, disclosure, listingCheckedOn));
   } catch (err) {
     toast(errText(err));
   }

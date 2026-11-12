@@ -112,10 +112,10 @@ export function toast(message: string): void {
   }, 2200);
 }
 
-export async function copyText(text: string): Promise<void> {
+export async function copyText(text: string, done = 'コピーしました'): Promise<void> {
   try {
     await navigator.clipboard.writeText(text);
-    toast('コピーしました');
+    toast(done);
     return;
   } catch {
     // クリップボードAPI不可の環境(非https等)向けフォールバック
@@ -134,7 +134,7 @@ export async function copyText(text: string): Promise<void> {
   } finally {
     if (ta !== undefined) ta.remove();
   }
-  toast(copied ? 'コピーしました(fallback)' : 'コピーに失敗しました');
+  toast(copied ? (done === 'コピーしました' ? 'コピーしました(fallback)' : done) : 'コピーに失敗しました');
 }
 
 export function esc(s: string): string {

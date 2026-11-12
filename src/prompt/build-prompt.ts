@@ -6,6 +6,7 @@ import type { NameDisclosure } from './style-profile';
 export type { NameDisclosure } from './style-profile';
 import { prefectureTag, publicSpecSummary, serializeRecord, tagCandidates } from './serialize';
 import { countPublishedTherapists, isPublished, SUMMARY_MIN_THERAPISTS, therapistIdentity } from './publication';
+import { articleLookupSection } from '../identity-lookup';
 
 const TITLE_NAME_RULE: Readonly<Record<NameDisclosure, string>> = {
   paid: '店名・源氏名は入れない',
@@ -36,12 +37,15 @@ const titleRule = (disclosure: NameDisclosure, lead: string | null): string => l
   ? `【フック】+${TITLE_BODY}。${TITLE_NAME_RULE[disclosure]}`
   : `先頭は必ず${lead}。フックは【】で囲まず、先頭の直後に短く置く。続けて${TITLE_BODY}。出勤予定日は入れない。${TITLE_NAME_RULE[disclosure]}`;
 
-const outputFormat = (disclosure: NameDisclosure, lead: string | null = null): string => `## 出力形式(この4ブロックを順に、コードブロックで出力)
+const outputFormat = (disclosure: NameDisclosure, lead: string | null = null, lookup = false): string => `## 出力形式(この${lookup ? 5 : 4}ブロックを順に、コードブロックで出力)
 1. タイトル: ${titleRule(disclosure, lead)}
 2. タグ: ${TAG_RULE}(候補から取捨選択・追加可)
 3. 無料部分HTML: <h3><p><ul><li><a><strong><em><small><span style><br />のみ使用
 4. 有料部分HTML: 同上
-${SPAN_STYLE_RULE}`;
+${lookup ? '5. 店舗情報JSON: 「店舗情報の確認」の形式\n' : ''}${SPAN_STYLE_RULE}`;
+
+/** 店舗情報の確認指示を、記事構成の前に差し込む */
+const lookupBlock = (section: string | null): string => section === null ? '' : `${section}\n\n`;
 
 // 開示先で変わるのは、導入・セラピスト紹介・有料部分の説明・店舗情報の4行だけ
 const STRUCTURE_LINES: Readonly<Record<NameDisclosure, {
@@ -108,11 +112,12 @@ ${wakustRules(disclosure)}`;
 export function buildSinglePrompt(
   record: VisitRecord, disclosure: NameDisclosure = 'paid', listingCheckedOn: string | null = null,
 ): string {
+  const lookup = articleLookupSection(record);
   return `${header('wakust投稿用の体験談記事', disclosure)}
 
-${singleStructure(disclosure, listingCheckedOn)}
+${lookupBlock(lookup)}${singleStructure(disclosure, listingCheckedOn)}
 
-${outputFormat(disclosure, titleLead(record, listingCheckedOn))}
+${outputFormat(disclosure, titleLead(record, listingCheckedOn), lookup !== null)}
 
 タグ候補: ${tagCandidates(record).join(', ')}
 販売ポイント案: ${record.sales.points}pt
@@ -124,16 +129,17 @@ ${serializeRecord(record)}`;
 export function buildRevisitPrompt(
   record: VisitRecord, first: VisitRecord, disclosure: NameDisclosure = 'paid', listingCheckedOn: string | null = null,
 ): string {
+  const lookup = articleLookupSection(record);
   return `${header('wakust投稿用の再訪レポート記事', disclosure)}
 
-## 記事構成(再訪)
+${lookupBlock(lookup)}## 記事構成(再訪)
 - 無料部分の冒頭に必ず「初回の体験談はこちら → <a href="{初回記事URL}">{初回記事URL}</a>(※本記事は再訪レポートです)」を入れる(規約要件)。初回記事URL: ${first.postedUrl ?? '{投稿後に差し替え}'}
 - 初回との差分・進展・変化を中心に書く(重複する基本描写は最小限)
 - それ以外の構成(無料部分のダイジェストと有料部分の本編)は単体体験談と同じ
 
 ${singleStructure(disclosure, listingCheckedOn)}
 
-${outputFormat(disclosure, titleLead(record, listingCheckedOn))}
+${outputFormat(disclosure, titleLead(record, listingCheckedOn), lookup !== null)}
 
 タグ候補: ${tagCandidates(record).join(', ')}
 
