@@ -152,10 +152,10 @@ export function renderForm(record: VisitRecord | null, revisitOf: VisitRecord | 
     ${locationField('area', 'エリア(駅)', b?.area ?? '')}
     ${input('therapistProfileUrl', 'プロフィールURL(任意)', b?.therapistProfileUrl ?? '', 'https://', 'url')}
     <p class="field-hint" id="identity-status" role="status" aria-live="polite"></p>
-    ${input('shopName', '店名(有料部でのみ開示)', b?.shopName ?? '')}
-    ${input('shopUrl', '店URL(任意)', b?.shopUrl ?? '', 'https://', 'url')}
     ${input('therapistName', 'セラピスト名(有料部でのみ開示)', b?.therapistName ?? '')}
     ${input('therapistXUrl', 'X URL(任意)', b?.therapistXUrl ?? '', 'https://x.com/', 'url')}
+    ${input('shopUrl', '店URL(任意)', b?.shopUrl ?? '', 'https://', 'url')}
+    ${input('shopName', '店名(有料部でのみ開示)', b?.shopName ?? '')}
     <div class="row2">
       ${input('age', '年齢', b?.age === null || b === undefined ? '' : String(b.age), '', 'number')}
       <label class="check"><input type="checkbox" name="ageIsEstimate" ${b?.ageIsEstimate === false ? '' : 'checked'} /> 推定</label>
@@ -170,7 +170,7 @@ export function renderForm(record: VisitRecord | null, revisitOf: VisitRecord | 
       ${(['mansion', 'room', 'other'] as RoomType[]).map((t) => `<option value="${t}" ${(b?.roomType ?? 'mansion') === t ? 'selected' : ''}>${{ mansion: 'マンション型', room: 'ルーム型', other: 'その他' }[t]}</option>`).join('')}
     </select></label>
     <label class="field"><span>予約方法</span><select name="bookingMethod">
-      ${(['x_dm', 'line', 'phone', 'web'] as BookingMethod[]).map((t) => `<option value="${t}" ${(b?.bookingMethod ?? 'x_dm') === t ? 'selected' : ''}>${{ x_dm: 'X DM', line: 'LINE', phone: '電話', web: 'Web' }[t]}</option>`).join('')}
+      ${(['x_dm', 'line', 'phone', 'web'] as BookingMethod[]).map((t) => `<option value="${t}" ${(b?.bookingMethod ?? 'web') === t ? 'selected' : ''}>${{ x_dm: 'X DM', line: 'LINE', phone: '電話', web: 'Web' }[t]}</option>`).join('')}
     </select></label>
     <label class="check important"><input type="checkbox" name="evidenceSaved" ${record?.basic.evidenceSaved ? 'checked' : ''} /> 予約スクショを保存した(規約2-1対策)</label>
   </details>
@@ -205,7 +205,7 @@ export function renderForm(record: VisitRecord | null, revisitOf: VisitRecord | 
 
   <details class="sec">
     <summary>F. 販売設定</summary>
-    ${input('points', '販売ポイント案', String(record?.sales.points ?? 100), '', 'number')}
+    ${input('points', '販売ポイント案', String(record?.sales.points ?? 1000), '', 'number')}
   </details>
 
   <div class="actions">
@@ -381,7 +381,7 @@ export function collectRecord(
       optionFee: feeValue(form, 'optionFee', 'オプション代'),
       nominationFee: feeValue(form, 'nominationFee', '指名料'),
       roomType: (val(form, 'roomType') || 'mansion') as RoomType,
-      bookingMethod: (val(form, 'bookingMethod') || 'x_dm') as BookingMethod,
+      bookingMethod: (val(form, 'bookingMethod') || 'web') as BookingMethod,
       evidenceSaved: checked(form, 'evidenceSaved'),
     },
     ratings: {
@@ -411,7 +411,7 @@ export function collectRecord(
     },
     sales: {
       // 数値の 0 は未入力ではない。空だけ 100 にし、非数は検証側で落とす
-      points: pointsStr === '' ? 100 : Number(pointsStr),
+      points: pointsStr === '' ? 1000 : Number(pointsStr),
       articleType: base.revisitOf === null ? 'single' : 'revisit',
     },
   };
