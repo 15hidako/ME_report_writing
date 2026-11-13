@@ -142,6 +142,13 @@ export function markPrompted(state: BoardState, recordId: string): BoardState {
   return state.stages[recordId] === undefined ? setRecordStage(state, recordId, 'prompted') : state;
 }
 
+/** まとめのプロンプトを出した記事を「プロンプト出力」へ進める。先の段階や投稿済みの記事は変えない */
+export function markBundlePrompted(state: BoardState, bundleId: string): BoardState {
+  const bundle = state.bundles.find((item) => item.id === bundleId);
+  if (bundle === undefined || bundle.stage !== 'answered' || bundle.postedUrl !== null) return state;
+  return upsertBundle(state, { ...bundle, stage: 'prompted' });
+}
+
 export function setArticleAngle(state: BoardState, recordId: string, type: ArticleAngle | null): BoardState {
   const angles = type === null ? without(state.angles, recordId) : { ...state.angles, [recordId]: type };
   return { ...state, angles };

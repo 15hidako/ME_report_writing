@@ -3,6 +3,7 @@ import type { Attendance, Enrollment } from '../checks/files';
 import { localDate } from '../date';
 import { INPUT_WINDOW, editHref, thumbHref } from '../links';
 import { esc } from '../ui/widgets';
+import { isPublished } from '../prompt/publication';
 import type { Attention, Card } from './cards';
 import { ANGLES, STAGES, type ArticleKind, type ArticleAngle, type Stage } from './state';
 import { ARTICLE_PARTS } from '../prompt/article-files';
@@ -108,7 +109,9 @@ function cardHtml(card: Card): string {
       ${angleHtml(card)}
       ${draftHtml(card)}
       ${trackingHtml(card)}
-      ${card.source === 'bundle' ? '<button type="button" class="danger" data-act="remove">削除</button>' : ''}
+      ${card.source === 'bundle' ? `<div class="bundle-actions">${
+        card.kind === 'matome' ? '<button type="button" data-act="matome-prompt">プロンプト</button>' : ''}
+        <button type="button" class="danger" data-act="remove">削除</button></div>` : ''}
     </li>`;
 }
 
@@ -140,9 +143,14 @@ export function filterHtml(filter: KindFilter): string {
       kind === 'all' ? 'すべて' : KIND_LABELS[kind]}</button>`).join('');
 }
 
+/**
+ * 記事を追加するダイアログ。種類の初期値はまとめなので、未投稿の回答は選べない状態で出す。
+ * 種類を変えたときの切り替えは board/main.ts の syncBundleChoices が行う
+ */
 export function bundleDialogHtml(records: readonly VisitRecord[]): string {
   const rows = [...records].sort((a, b) => b.seriesNo - a.seriesNo).map((record) => `
-    <label class="check"><input type="checkbox" name="recordIds" value="${esc(record.id)}" />
+    <label class="check"><input type="checkbox" name="recordIds" value="${esc(record.id)}" data-published="${isPublished(record)}"${
+      isPublished(record) ? '' : ' disabled'} />
       #${esc(String(record.seriesNo))} ${esc(record.basic.shopName)} — ${esc(record.basic.therapistName)}</label>`).join('');
   return `
     <form method="dialog" id="bundle-form">

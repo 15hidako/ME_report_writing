@@ -729,6 +729,59 @@ describe('起動からの画面操作', () => {
     });
   });
 
+  describe('まとめ記事', () => {
+    /** まとめの解禁に要る、別々のセラピストの投稿済み単体記事 */
+    const publishedSix = (): VisitRecord[] => [1, 2, 3, 4, 5, 6].map((no) => {
+      const base = fixtureRecord();
+      return fixtureRecord({
+        id: `posted-${no}`, seriesNo: no, postedUrl: `https://wakust.com/reports/${no}`,
+        basic: { ...base.basic, therapistName: `セラピスト${no}` },
+      });
+    });
+
+    it('投稿済みの回答をチェックで選び、テーマを入れてコピーする', async () => {
+      const draft = fixtureRecord({ id: 'draft', seriesNo: 7 });
+      await start([...publishedSix(), draft]);
+      const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
+      button('まとめ記事').click();
+      const dialog = document.querySelector<HTMLDialogElement>('dialog.input-dialog')!;
+      const boxes = [...dialog.querySelectorAll<HTMLInputElement>('input[type="checkbox"]')];
+      // 未投稿の回答は選択肢に出さない。新しい順に並べる
+      expect(boxes.map((box) => box.value)).toEqual(['posted-6', 'posted-5', 'posted-4', 'posted-3', 'posted-2', 'posted-1']);
+      boxes.find((box) => box.value === 'posted-2')!.checked = true;
+      boxes.find((box) => box.value === 'posted-5')!.checked = true;
+      dialog.querySelector<HTMLInputElement>('input[name="theme"]')!.value = ' 寛容度★4以上だった2人 ';
+      button('決定').click();
+      await vi.waitFor(() => expect(copy).toHaveBeenCalledOnce());
+      const text = copy.mock.calls[0]![0];
+      expect(text).toContain('テーマ「寛容度★4以上だった2人」のまとめ記事');
+      expect(text).toContain('### 対象訪問データ(2件)');
+      expect(text).toContain('https://wakust.com/reports/5');
+      expect(text).not.toContain('https://wakust.com/reports/1');
+      expect(dialog.isConnected).toBe(false);
+    });
+
+    it('テーマが空か対象を選んでいなければ、ダイアログに理由を出してコピーしない', async () => {
+      await start(publishedSix());
+      const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
+      button('まとめ記事').click();
+      button('決定').click();
+      expect(dialogError()).toBe('まとめのテーマを入力してください');
+      document.querySelector<HTMLInputElement>('dialog.input-dialog input[name="theme"]')!.value = 'テーマ';
+      button('決定').click();
+      expect(dialogError()).toBe('まとめ記事の対象には投稿済みの記事を選んでください');
+      await Promise.resolve();
+      expect(copy).not.toHaveBeenCalled();
+    });
+
+    it('解禁人数に届かないときはダイアログを開かずに知らせる', async () => {
+      await start(publishedSix().slice(0, 5));
+      button('まとめ記事').click();
+      expect(document.querySelector('dialog.input-dialog')).toBeNull();
+      expect(document.querySelector('.toast')?.textContent).toBe('まとめ記事は投稿済み6人到達後に解禁(規約1-7)。現在5人');
+    });
+  });
+
   it('再訪参照の循環を通知し、新しい記録を作らない', async () => {
     const first = fixtureRecord({ revisitOf: 'cycle', sales: { points: 100, articleType: 'revisit' } });
     const second = { ...first, id: 'cycle', seriesNo: 2, revisitOf: first.id };

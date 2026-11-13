@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { openInputDialog } from './ui/input-dialog';
+import { openInputDialog, type InputValues } from './ui/input-dialog';
 
 const dialog = (): HTMLDialogElement | null => document.querySelector<HTMLDialogElement>('dialog.input-dialog');
 
@@ -36,11 +36,12 @@ describe('入力ダイアログ', () => {
     const opener = document.createElement('button');
     document.body.append(opener);
     opener.focus();
-    const onSubmit = vi.fn();
+    const onSubmit = vi.fn((_values: InputValues) => undefined);
     openInputDialog({ title: '出勤確認日', fields: [{ name: 'day', label: '日付', type: 'date' }], onSubmit });
     dialog()!.querySelector('input')!.value = '2026-11-12';
     press('決定');
-    expect(onSubmit).toHaveBeenCalledExactlyOnceWith({ day: '2026-11-12' });
+    expect(onSubmit).toHaveBeenCalledOnce();
+    expect(onSubmit.mock.calls[0]![0].text('day')).toBe('2026-11-12');
     expect(dialog()).toBeNull();
     expect(document.activeElement).toBe(opener);
   });
@@ -70,9 +71,33 @@ describe('入力ダイアログ', () => {
   });
 
   it('入力欄で Enter を押すと決定と同じく送る', () => {
-    const onSubmit = vi.fn();
+    const onSubmit = vi.fn((_values: InputValues) => undefined);
     openInputDialog({ title: '投稿URL', fields: [{ name: 'url', label: 'URL', type: 'url', value: 'x' }], onSubmit });
     dialog()!.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-    expect(onSubmit).toHaveBeenCalledExactlyOnceWith({ url: 'x' });
+    expect(onSubmit).toHaveBeenCalledOnce();
+    expect(onSubmit.mock.calls[0]![0].text('url')).toBe('x');
+  });
+
+  it('チェックの欄は選んだ値を選択肢の順で返し、文字の欄と並べて使える', () => {
+    const onSubmit = vi.fn((_values: InputValues) => undefined);
+    openInputDialog({
+      title: 'まとめ記事',
+      fields: [
+        { name: 'targets', label: '対象', type: 'checks', options: [{ value: 'a', label: '#1' }, { value: 'b', label: '#2' }, { value: 'c', label: '#3' }] },
+        { name: 'theme', label: 'テーマ', type: 'text' },
+      ],
+      onSubmit,
+    });
+    const boxes = [...dialog()!.querySelectorAll<HTMLInputElement>('input[type="checkbox"]')];
+    expect(boxes.map((box) => box.closest('label')?.textContent)).toEqual(['#1', '#2', '#3']);
+    expect(document.activeElement).toBe(boxes[0]);
+    boxes[2]!.checked = true;
+    boxes[0]!.checked = true;
+    dialog()!.querySelector<HTMLInputElement>('input[name="theme"]')!.value = '寛容度★4';
+    press('決定');
+    const values = onSubmit.mock.calls[0]![0];
+    expect(values.list('targets')).toEqual(['a', 'c']);
+    expect(values.text('theme')).toBe('寛容度★4');
+    expect(values.text('missing')).toBe('');
   });
 });

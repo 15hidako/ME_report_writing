@@ -267,7 +267,7 @@ describe('回答カードの段階', () => {
 
 describe('まとめ・カタログの記事', () => {
   it('「+ 記事」でまとめを追加できる', async () => {
-    const record = fixtureRecord();
+    const record = fixtureRecord({ postedUrl: WAKUST_URL });
     await start([record]);
     const dialog = byId<HTMLDialogElement>('bundle-dialog');
     byId('add-bundle').click();
@@ -283,6 +283,26 @@ describe('まとめ・カタログの記事', () => {
     expect(added.dataset['kind']).toBe('matome');
     expect(added.querySelector('h3')?.textContent).toBe('恵比寿まとめ');
     expect(added.querySelector('.board-card-detail')?.textContent).toBe(`#${record.seriesNo}`);
+  });
+
+  it('種類が「まとめ」のときは未投稿の回答を選べず、「カタログ」に変えると選べる', async () => {
+    const posted = fixtureRecord({ postedUrl: WAKUST_URL });
+    const draft = fixtureRecord({ id: 'draft', seriesNo: 2 });
+    await start([posted, draft]);
+    byId('add-bundle').click();
+    const box = (id: string): HTMLInputElement =>
+      byId('bundle-form').querySelector<HTMLInputElement>(`input[name="recordIds"][value="${id}"]`)!;
+    expect(box(posted.id).disabled).toBe(false);
+    expect(box(draft.id).disabled).toBe(true);
+    const kind = byId('bundle-form').querySelector<HTMLSelectElement>('select[name="kind"]')!;
+    kind.value = 'catalog';
+    kind.dispatchEvent(new Event('change', { bubbles: true }));
+    expect(box(draft.id).disabled).toBe(false);
+    box(draft.id).checked = true;
+    kind.value = 'matome';
+    kind.dispatchEvent(new Event('change', { bubbles: true }));
+    expect(box(draft.id).disabled).toBe(true);
+    expect(box(draft.id).checked).toBe(false);
   });
 
   it('タイトルが空なら追加せず、ダイアログを残す', async () => {
@@ -320,6 +340,81 @@ describe('まとめ・カタログの記事', () => {
     cardButton(bundle.id, '削除').click();
     expect(savedBoard().bundles).toEqual([]);
     expect(cardIds()).toEqual([]);
+  });
+});
+
+describe('まとめ記事のプロンプト', () => {
+  /** まとめの解禁に要る、別々のセラピストの投稿済み単体記事 */
+  const publishedSix = (): VisitRecord[] => [1, 2, 3, 4, 5, 6].map((no) => {
+    const base = fixtureRecord();
+    return fixtureRecord({
+      id: `posted-${no}`,
+      seriesNo: no,
+      postedUrl: `https://wakust.com/reports/${no}`,
+      basic: { ...base.basic, therapistName: `セラピスト${no}` },
+    });
+  });
+  const matome = (recordIds: readonly string[], stage: 'answered' | 'editing' = 'answered') => ({
+    id: 'matome-1', kind: 'matome', title: '寛容度★4以上だった3人', recordIds, stage, postedUrl: null,
+    createdAt: '2026-07-02T10:00:00.000Z',
+  } as const);
+
+  it('対象の回答とタイトルでプロンプトを作ってコピーし、「プロンプト出力」へ進める', async () => {
+    const records = publishedSix();
+    await start(records, emptyBoard({ bundles: [matome(['posted-1', 'posted-3'])] }));
+    const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
+    cardButton('matome-1', 'プロンプト').click();
+    await vi.waitFor(() => expect(savedBoard().bundles[0]?.stage).toBe('prompted'));
+    const text = copy.mock.calls[0]![0];
+    expect(text).toContain('テーマ「寛容度★4以上だった3人」のまとめ記事');
+    expect(text).toContain('### 対象訪問データ(2件)');
+    expect(text).toContain('https://wakust.com/reports/1');
+    expect(text).toContain('https://wakust.com/reports/3');
+    expect(text).not.toContain('https://wakust.com/reports/2');
+    expect(stageOf('matome-1')).toBe('prompted');
+  });
+
+  it('先の段階にある記事は、コピーしても段階を変えない', async () => {
+    await start(publishedSix(), emptyBoard({ bundles: [matome(['posted-1'], 'editing')] }));
+    vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
+    cardButton('matome-1', 'プロンプト').click();
+    await vi.waitFor(() => expect(toasts()).toEqual(['コピーしました']));
+    expect(savedBoard().bundles[0]?.stage).toBe('editing');
+  });
+
+  it('解禁人数に届かないときは理由を知らせ、コピーも段階の変更もしない', async () => {
+    const records = publishedSix().slice(0, 5);
+    const before = JSON.stringify(emptyBoard({ bundles: [matome(['posted-1'])] }));
+    await start(records, JSON.parse(before) as BoardState);
+    const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
+    cardButton('matome-1', 'プロンプト').click();
+    await vi.waitFor(() => expect(toasts()).toEqual(['まとめ記事は異なる6人の個別体験談を投稿した後に生成できます']));
+    expect(copy).not.toHaveBeenCalled();
+    expect(window.localStorage.getItem(BOARD_KEY)).toBe(before);
+  });
+
+  it('対象の回答が消えていれば理由を知らせ、段階を変えない', async () => {
+    await start(publishedSix(), emptyBoard({ bundles: [matome(['posted-1', 'gone'])] }));
+    const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
+    cardButton('matome-1', 'プロンプト').click();
+    await vi.waitFor(() => expect(toasts()).toEqual(['対象の回答が見つかりません。削除されたか、別の端末の回答です']));
+    expect(copy).not.toHaveBeenCalled();
+    expect(savedBoard().bundles[0]?.stage).toBe('answered');
+  });
+
+  it('コピーに失敗したときは段階を変えない', async () => {
+    await start(publishedSix(), emptyBoard({ bundles: [matome(['posted-1'])] }));
+    vi.spyOn(navigator.clipboard, 'writeText').mockRejectedValue(new Error('denied'));
+    cardButton('matome-1', 'プロンプト').click();
+    await vi.waitFor(() => expect(toasts()).toEqual(['コピーに失敗しました']));
+    expect(savedBoard().bundles[0]?.stage).toBe('answered');
+  });
+
+  it('カタログのカードには「プロンプト」を出さない', async () => {
+    const catalog = { ...matome([]), id: 'catalog-1', kind: 'catalog', title: '東京カタログ' } as const;
+    await start([], emptyBoard({ bundles: [catalog] }));
+    expect(() => cardButton('catalog-1', 'プロンプト')).toThrow('button not found');
+    expect(cardButton('catalog-1', '削除')).toBeDefined();
   });
 });
 

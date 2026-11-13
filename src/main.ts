@@ -12,7 +12,6 @@ import { bindFormFeedback, type FormFeedback } from './ui/form-feedback';
 import { buildCatalogPrompt, buildMatomePrompt, buildRevisitPrompt, buildSinglePrompt } from './prompt/build-prompt';
 import type { NameDisclosure } from './prompt/build-prompt';
 import { SUMMARY_MIN_THERAPISTS, countPublishedTherapists, isPublished, parsePostedUrlInput } from './prompt/publication';
-import { seriesTargets } from './prompt/series';
 import { findOriginalRecord as findOriginalIn } from './revisit';
 import { watchForUpdate } from './update-watch';
 import { parseListingCheckDate } from './date';
@@ -380,12 +379,29 @@ function openMatome(records: VisitRecord[]): void {
     toast(`まとめ記事は投稿済み${SUMMARY_MIN_THERAPISTS}人到達後に解禁(規約1-7)。現在${published}人`);
     return;
   }
-  const nums = prompt('対象の通し番号をコンマ区切りで(例: 1,3,5)');
-  if (nums === null) return;
-  const targets = seriesTargets(records, nums);
-  const theme = prompt('まとめのテーマは?(例: 寛容度★4以上だった3人)') ?? '';
-  if (theme.trim() === '') return;
-  copyGenerated(buildMatomePrompt(targets, theme.trim(), records));
+  // records は新しい順。対象に選べるのは投稿済みの回答だけ
+  const candidates = records.filter(isPublished);
+  openInputDialog({
+    title: 'まとめ記事',
+    fields: [
+      {
+        name: 'targets',
+        label: '対象',
+        type: 'checks',
+        options: candidates.map((record) => ({
+          value: record.id,
+          label: `#${record.seriesNo} ${record.basic.shopName} — ${record.basic.therapistName}`,
+        })),
+      },
+      { name: 'theme', label: 'テーマ', type: 'text', placeholder: '例: 寛容度★4以上だった3人' },
+    ],
+    onSubmit: (values) => {
+      const theme = values.text('theme').trim();
+      if (theme === '') throw new Error('まとめのテーマを入力してください');
+      const ids = new Set(values.list('targets'));
+      copyGenerated(buildMatomePrompt(candidates.filter((record) => ids.has(record.id)), theme, records));
+    },
+  });
 }
 
 function findOriginalRecord(start: VisitRecord): VisitRecord | 'missing' | 'cycle' {
@@ -433,7 +449,7 @@ function copyPrompt(record: VisitRecord, disclosure: NameDisclosure): void {
     title: '出勤確認日',
     fields: [{ name: 'listingCheckedOn', label: '店舗HPの出勤表で確かめた日(空欄なら記事に書かない)', type: 'date', value: defaultListingCheckDate(record) }],
     // 不正な日付などの生成時のエラーは、ダイアログに残して直せるようにする
-    onSubmit: (values) => copyPromptWith(record, disclosure, values['listingCheckedOn'] ?? ''),
+    onSubmit: (values) => copyPromptWith(record, disclosure, values.text('listingCheckedOn')),
   });
 }
 
@@ -464,7 +480,7 @@ function savePostedUrl(record: VisitRecord): void {
     onSubmit: (values) => {
       getStore().save({
         ...record,
-        postedUrl: parsePostedUrlInput(values['postedUrl'] ?? ''),
+        postedUrl: parsePostedUrlInput(values.text('postedUrl')),
         updatedAt: new Date().toISOString(),
       });
       render();

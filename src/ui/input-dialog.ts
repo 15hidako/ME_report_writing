@@ -1,12 +1,34 @@
 import { element } from './dom';
 import { errText } from '../guards';
 
-export interface InputField {
+export interface TextField {
   readonly name: string;
   readonly label: string;
   readonly type: 'date' | 'url' | 'text';
   readonly value?: string;
   readonly placeholder?: string;
+}
+
+export interface CheckOption {
+  readonly value: string;
+  readonly label: string;
+}
+
+/** 複数を選ぶ欄。選んだ値は InputValues.list で受け取る */
+export interface ChecksField {
+  readonly name: string;
+  readonly label: string;
+  readonly type: 'checks';
+  readonly options: readonly CheckOption[];
+}
+
+export type InputField = TextField | ChecksField;
+
+export interface InputValues {
+  /** 文字の入力欄の値。欄がなければ空文字 */
+  text(name: string): string;
+  /** チェックした値。入力した順ではなく選択肢の順 */
+  list(name: string): string[];
 }
 
 export interface InputDialogOptions {
@@ -17,7 +39,47 @@ export interface InputDialogOptions {
    * クリップボードへの書き込みは利用者の操作の直後でないと拒否されることがあるため、
    * Promise を挟まずにこの中で同期的に進める。
    */
-  readonly onSubmit: (values: Readonly<Record<string, string>>) => void;
+  readonly onSubmit: (values: InputValues) => void;
+}
+
+function textField(field: TextField): { node: HTMLElement; focusable: HTMLInputElement } {
+  const label = element('label', 'field');
+  const input = element('input', '');
+  input.type = field.type;
+  input.name = field.name;
+  input.value = field.value ?? '';
+  if (field.placeholder !== undefined) input.placeholder = field.placeholder;
+  if (field.type === 'url') input.inputMode = 'url';
+  input.autocomplete = 'off';
+  label.append(element('span', '', field.label), input);
+  return { node: label, focusable: input };
+}
+
+function checksField(field: ChecksField): { node: HTMLElement; focusable: HTMLInputElement | null } {
+  const set = element('fieldset', 'input-dialog-checks');
+  set.append(element('legend', '', field.label));
+  const boxes = field.options.map((option) => {
+    const label = element('label', 'check');
+    const box = element('input', '');
+    box.type = 'checkbox';
+    box.name = field.name;
+    box.value = option.value;
+    label.append(box, element('span', '', option.label));
+    set.append(label);
+    return box;
+  });
+  return { node: set, focusable: boxes[0] ?? null };
+}
+
+function valuesOf(form: HTMLFormElement): InputValues {
+  const data = new FormData(form);
+  return {
+    text: (name) => {
+      const value = data.get(name);
+      return typeof value === 'string' ? value : '';
+    },
+    list: (name) => data.getAll(name).filter((value): value is string => typeof value === 'string'),
+  };
 }
 
 /** 値を入れてもらう画面内のダイアログ。取り消しでは何もしない */
@@ -31,20 +93,8 @@ export function openInputDialog(options: InputDialogOptions): void {
 
   const form = element('form', 'input-dialog-form');
   form.noValidate = true;
-  const inputs = options.fields.map((field, index) => {
-    const label = element('label', 'field');
-    const input = element('input', '');
-    input.type = field.type;
-    input.name = field.name;
-    input.value = field.value ?? '';
-    if (field.placeholder !== undefined) input.placeholder = field.placeholder;
-    if (field.type === 'url') input.inputMode = 'url';
-    input.autocomplete = 'off';
-    if (index === 0) input.autofocus = true;
-    label.append(element('span', '', field.label), input);
-    form.append(label);
-    return input;
-  });
+  const built = options.fields.map((field) => (field.type === 'checks' ? checksField(field) : textField(field)));
+  form.append(...built.map((item) => item.node));
 
   const error = element('p', 'input-dialog-error');
   error.setAttribute('role', 'alert');
@@ -60,9 +110,8 @@ export function openInputDialog(options: InputDialogOptions): void {
   form.addEventListener('submit', (event) => {
     event.preventDefault();
     error.textContent = '';
-    const values = Object.fromEntries(inputs.map((input) => [input.name, input.value]));
     try {
-      options.onSubmit(values);
+      options.onSubmit(valuesOf(form));
     } catch (cause) {
       error.textContent = errText(cause);
       return;
@@ -82,5 +131,5 @@ export function openInputDialog(options: InputDialogOptions): void {
     dialog.remove();
     throw cause;
   }
-  inputs[0]?.focus();
+  built.find((item) => item.focusable !== null)?.focusable?.focus();
 }

@@ -5,7 +5,7 @@ import { MemoryStore, fixtureRecord } from '../test-fixtures';
 import type { VisitRecord } from '../types';
 import { buildCards, buildTargets } from './cards';
 import {
-  BoardStore, EMPTY_BOARD, acknowledge, markPrompted, parseBoardState, removeBundle, setRecordStage, setArticleAngle, setScheduleUrl,
+  BoardStore, EMPTY_BOARD, acknowledge, markBundlePrompted, markPrompted, parseBoardState, removeBundle, setRecordStage, setArticleAngle, setScheduleUrl,
   upsertBundle, withChecks, type BoardState, type BundleArticle,
 } from './state';
 import { boardHtml } from './view';
@@ -74,6 +74,20 @@ describe('カードの段階とタイプ', () => {
   it.each(['prompted', 'editing'] as const)('すでに%sの回答は変えず、同じ状態をそのまま返す', (stage) => {
     const state = setRecordStage(EMPTY_BOARD, 'id-1', stage);
     expect(markPrompted(state, 'id-1')).toBe(state);
+  });
+
+  it('まとめの記事は、回答済みで未投稿のときだけ「プロンプト出力」へ進める', () => {
+    const bundle: BundleArticle = {
+      id: 'b-1', kind: 'matome', title: 'まとめ', recordIds: [], stage: 'answered', postedUrl: null, createdAt: NOW.toISOString(),
+    };
+    const answered = upsertBundle(EMPTY_BOARD, bundle);
+    expect(markBundlePrompted(answered, 'b-1').bundles[0]?.stage).toBe('prompted');
+    expect(answered.bundles[0]?.stage).toBe('answered');
+    const editing = upsertBundle(EMPTY_BOARD, { ...bundle, stage: 'editing' });
+    expect(markBundlePrompted(editing, 'b-1')).toBe(editing);
+    const posted = upsertBundle(EMPTY_BOARD, { ...bundle, postedUrl: POSTED });
+    expect(markBundlePrompted(posted, 'b-1')).toBe(posted);
+    expect(markBundlePrompted(answered, 'missing')).toBe(answered);
   });
 });
 

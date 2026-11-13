@@ -363,15 +363,18 @@
 .board-card button { font-size: 12px; padding: 5px 10px; border-radius: var(--b-radius-panel); transition: transform var(--b-fast) var(--b-ease); }
 .board-card button:hover { background: var(--surface); border-color: #5a4a80; }
 .board-card button:active { transform: translateY(1px); }
-.board-card > button.danger {
-  display: block;
-  margin: 8px 0 0 auto;
+/* まとめ・カタログのカードの操作。主操作を左、削除を右端に離す */
+.bundle-actions { display: flex; align-items: center; gap: 6px; margin-top: 10px; }
+.bundle-actions button.danger {
+  margin-left: auto;
   padding: 3px 6px;
   border-color: transparent;
   background: transparent;
   color: var(--b-danger);
 }
-.board-card > button.danger:hover { border-color: var(--b-danger); background: #ff7a7a14; }
+.bundle-actions button.danger:hover { border-color: var(--b-danger); background: #ff7a7a14; }
+.bundle-records .check:has(input:disabled) { color: var(--b-muted); cursor: not-allowed; opacity: 0.55; }
+.bundle-records .check:has(input:disabled):hover { background: none; }
 
 .board-card-head :is(.to-edit, .to-thumb) {
   flex: none;

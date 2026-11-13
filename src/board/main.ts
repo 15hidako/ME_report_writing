@@ -1,9 +1,11 @@
 import { VisitStore } from '../storage';
 import { parseChecksFile } from '../checks/files';
 import { localDate } from '../date';
-import { ARTICLE_DIR, folderNameOf } from '../local-setup';
+import { ARTICLE_DIR, folderNameOf, openClaudeApp } from '../local-setup';
 import { BOARD_WINDOW, takeParam } from '../links';
-import { parsePostedUrlInput } from '../prompt/publication';
+import { isPublished, parsePostedUrlInput } from '../prompt/publication';
+import { buildMatomePrompt } from '../prompt/build-prompt';
+import type { VisitRecord } from '../types';
 import { toast, tryCopyText } from '../ui/widgets';
 import { downloadJson, pickFile } from '../ui/file-io';
 import { errText } from '../guards';
@@ -13,7 +15,7 @@ import { advanceDrafted, readArticlePart, scanArticles, type ArticleDraft } from
 import { buildCards, buildTargets, type Card } from './cards';
 import { ensureAccess, folderSupported, pickFolder, readText, savedFolder, writeText, type Folder } from './folder';
 import {
-  BoardStore, acknowledge, parseBoardState, removeBundle, setRecordStage, setArticleAngle, setScheduleUrl, upsertBundle,
+  BoardStore, acknowledge, markBundlePrompted, parseBoardState, removeBundle, setRecordStage, setArticleAngle, setScheduleUrl, upsertBundle,
   withChecks, BUNDLE_KINDS, ANGLES, STAGES, type BoardState, type BundleKind, type Stage,
 } from './state';
 import { KIND_FILTERS, boardHtml, bundleDialogHtml, filterHtml, type KindFilter } from './view';
@@ -87,7 +89,7 @@ function askPostedUrl(current: string | null, save: (url: string) => void): void
     title: '投稿URL',
     fields: [{ name: 'postedUrl', label: 'wakust投稿後の記事URL', type: 'url', value: current ?? '' }],
     onSubmit: (values) => {
-      const url = parsePostedUrlInput(values['postedUrl'] ?? '');
+      const url = parsePostedUrlInput(values.text('postedUrl'));
       // ボードでは空欄で解除しない。外すときは段階を戻す
       if (url === null) throw new Error('wakust記事URLが必要です');
       save(url);
@@ -137,6 +139,22 @@ async function copyDraftPart(card: Card, button: HTMLElement): Promise<void> {
   await ensureAccess(folder);
   const copied = await tryCopyText(await readArticlePart(folder, card.draft, disclosure, part.id), `${part.label}をコピーしました`);
   button.classList.toggle('copied', copied);
+}
+
+/** まとめのテーマはカードのタイトル。コピーできたら「プロンプト出力」へ進める */
+async function copyMatomePrompt(card: Card): Promise<void> {
+  const bundle = board.load().bundles.find((item) => item.id === card.id);
+  if (bundle === undefined) throw new Error('記事が見つかりません。画面を読み込み直してください');
+  const records = visits.loadAll();
+  const targets = bundle.recordIds.map((id) => records.find((record) => record.id === id));
+  if (targets.some((record) => record === undefined)) {
+    throw new Error('対象の回答が見つかりません。削除されたか、別の端末の回答です');
+  }
+  // コピーの許可を保つため、プロンプトを作ってすぐコピーする
+  const copied = await tryCopyText(buildMatomePrompt(targets as VisitRecord[], bundle.title, records));
+  if (!copied) return;
+  update((state) => markBundlePrompted(state, bundle.id));
+  if (ARTICLE_DIR !== null) openClaudeApp();
 }
 
 /** 原稿フォルダを読み、原稿がある回答を「推敲中」へ進める */
@@ -204,7 +222,7 @@ function cardAction(card: Card, act: string): void {
       title: `${tracking.site} の出勤表URL`,
       fields: [{ name: 'scheduleUrl', label: 'プロフィールと別ページの店だけ(空欄で解除)', type: 'url', value: tracking.scheduleUrl ?? '' }],
       onSubmit: (values) => {
-        const input = (values['scheduleUrl'] ?? '').trim();
+        const input = values.text('scheduleUrl').trim();
         // URLの検証は setScheduleUrl が行い、誤りはダイアログに出る
         update((state) => setScheduleUrl(state, tracking.site, input === '' ? null : input));
       },
@@ -258,16 +276,33 @@ function openBundleDialog(): void {
   dialog.showModal();
 }
 
+/** まとめの対象は投稿済みの回答だけ。カタログでは未投稿も選べる */
+function syncBundleChoices(form: HTMLFormElement): void {
+  const matome = form.querySelector<HTMLSelectElement>('select[name="kind"]')?.value === 'matome';
+  for (const box of form.querySelectorAll<HTMLInputElement>('input[name="recordIds"]')) {
+    const locked = matome && box.dataset['published'] !== 'true';
+    box.disabled = locked;
+    if (locked) box.checked = false;
+  }
+}
+
 function submitBundle(form: HTMLFormElement): void {
   const data = new FormData(form);
   const kind = String(data.get('kind'));
   const title = String(data.get('title') ?? '').trim();
   if (!(BUNDLE_KINDS as readonly string[]).includes(kind) || title === '') throw new Error('種類とタイトルを入力してください');
+  const recordIds = data.getAll('recordIds').map(String);
+  if (kind === 'matome') {
+    // ダイアログを開いたあとに別の画面で投稿URLが外れた場合に備え、保存の直前にも確かめる
+    const records = visits.loadAll();
+    const unpublished = recordIds.some((id) => !records.some((record) => record.id === id && isPublished(record)));
+    if (unpublished) throw new Error('まとめ記事の対象には投稿済みの記事を選んでください');
+  }
   update((state) => upsertBundle(state, {
     id: crypto.randomUUID(),
     kind: kind as BundleKind,
     title,
-    recordIds: data.getAll('recordIds').map(String),
+    recordIds,
     stage: 'answered',
     postedUrl: null,
     createdAt: new Date().toISOString(),
@@ -307,6 +342,7 @@ boardNode.addEventListener('click', guarded((event: MouseEvent) => {
   const button = target.closest<HTMLElement>('button[data-act]');
   const act = button?.dataset['act'];
   if (act === 'copy-part' && button != null && card !== undefined) return copyDraftPart(card, button);
+  if (act === 'matome-prompt' && card !== undefined) return copyMatomePrompt(card);
   if (act !== undefined && card !== undefined) cardAction(card, act);
 }));
 
@@ -350,6 +386,10 @@ filterNode.addEventListener('click', (event) => {
 
 dialog.addEventListener('click', (event) => {
   if ((event.target as HTMLElement).closest('[data-act="cancel"]') !== null) dialog.close();
+});
+dialog.addEventListener('change', (event) => {
+  const target = event.target as HTMLElement;
+  if (target instanceof HTMLSelectElement && target.name === 'kind' && target.form !== null) syncBundleChoices(target.form);
 });
 dialog.addEventListener('submit', (event) => {
   // 入力に不備があるときはダイアログを閉じず、内容を残す
