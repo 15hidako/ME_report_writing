@@ -1,0 +1,217 @@
+<mxfile host="drawio" version="24.7.17">
+  <diagram id="overview" name="全体像">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="title" value="ME Report Writer の全体像" style="text;html=1;fontSize=20;fontStyle=1;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="500" height="40" as="geometry" />
+        </mxCell>
+
+        <mxCell id="phone" value="スマホ / GitHub Pages" style="swimlane;html=1;startSize=30;rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="90" width="300" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="phone-input" value="入力画面" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="phone">
+          <mxGeometry x="70" y="50" width="160" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="phone-ls" value="localStorage&lt;br&gt;(回答)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;size=10;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="phone">
+          <mxGeometry x="90" y="140" width="120" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="pc" value="PC / localhost:5173(start.bat)" style="swimlane;html=1;startSize=30;rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="420" y="90" width="560" height="400" as="geometry" />
+        </mxCell>
+        <mxCell id="pc-input" value="入力画面" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="pc">
+          <mxGeometry x="40" y="60" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="pc-board" value="記事ボード(PC専用)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="pc">
+          <mxGeometry x="340" y="60" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="pc-ls" value="localStorage&lt;br&gt;(回答、ボードの状態)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;size=10;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="pc">
+          <mxGeometry x="190" y="200" width="180" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="pc-idb" value="IndexedDB&lt;br&gt;(フォルダの記憶)" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;size=10;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="pc">
+          <mxGeometry x="370" y="300" width="150" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="pc-env" value=".env.local&lt;br&gt;VITE_ARTICLE_DIR" style="shape=note;whiteSpace=wrap;html=1;size=14;fillColor=#ffffff;strokeColor=#666666;fontSize=11;" vertex="1" parent="pc">
+          <mxGeometry x="40" y="300" width="150" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="slack" value="Slack(共有先)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="110" y="420" width="160" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="claude" value="Claude アプリ / Claude Code" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="100" width="200" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="drafts" value="原稿フォルダ&lt;br&gt;(リポジトリ外)" style="shape=folder;whiteSpace=wrap;html=1;tabWidth=40;tabHeight=12;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="230" width="160" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="handoff" value="受け渡しフォルダ&lt;br&gt;(リポジトリ外)" style="shape=folder;whiteSpace=wrap;html=1;tabWidth=40;tabHeight=12;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="390" width="160" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="weekly" value="scripts/weekly-check.mjs&lt;br&gt;(Node.js)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="560" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="shops" value="店舗サイト&lt;br&gt;(プロフィール、出勤表)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="700" width="180" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="wakust" value="wakust(本人が手で投稿)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1">
+          <mxGeometry x="610" y="600" width="180" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e-phone-ls" value="" style="endArrow=classic;startArrow=classic;html=1;strokeColor=#1f5fa8;strokeWidth=2;" edge="1" parent="phone" source="phone-input" target="phone-ls">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-share" value="回答JSON&lt;br&gt;(保存して共有、宛先は本人が選ぶ)" style="endArrow=classic;html=1;strokeColor=#d9822b;strokeWidth=2;dashed=1;fontSize=11;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="phone" target="slack">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-import" value="回答JSON&lt;br&gt;(回答を追加読込)" style="endArrow=classic;html=1;strokeColor=#d9822b;strokeWidth=2;dashed=1;fontSize=11;labelBackgroundColor=#ffffff;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="slack" target="pc-input">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="380" y="445" />
+              <mxPoint x="380" y="175" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-pc-ls-input" value="" style="endArrow=classic;startArrow=classic;html=1;strokeColor=#1f5fa8;strokeWidth=2;" edge="1" parent="pc" source="pc-input" target="pc-ls">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-pc-ls-board" value="" style="endArrow=classic;startArrow=classic;html=1;strokeColor=#1f5fa8;strokeWidth=2;" edge="1" parent="pc" source="pc-board" target="pc-ls">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-pc-idb" value="" style="endArrow=classic;startArrow=classic;html=1;strokeColor=#1f5fa8;strokeWidth=2;" edge="1" parent="pc" source="pc-board" target="pc-idb">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-env" value="保存先(起動時に読む)" style="endArrow=classic;html=1;strokeColor=#1f5fa8;strokeWidth=2;fontSize=11;labelBackgroundColor=#ffffff;" edge="1" parent="pc" source="pc-env" target="pc-input">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-prompt" value="プロンプト&lt;br&gt;(コピーは自動、貼るのは本人)" style="endArrow=classic;html=1;strokeColor=#d9822b;strokeWidth=2;dashed=1;fontSize=11;labelBackgroundColor=#ffffff;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="pc-input" target="claude">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="550" y="125" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-write" value="原稿4ファイル" style="endArrow=classic;html=1;strokeColor=#1f5fa8;strokeWidth=2;fontSize=11;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="claude" target="drafts">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-read" value="原稿4ファイル&lt;br&gt;(フォルダの許可は本人)" style="endArrow=classic;html=1;strokeColor=#1f5fa8;strokeWidth=2;fontSize=11;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="drafts" target="pc-board">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-targets" value="targets.json、&lt;br&gt;board-backup.json(同期)" style="endArrow=classic;html=1;strokeColor=#1f5fa8;strokeWidth=2;fontSize=11;labelBackgroundColor=#ffffff;exitX=1;exitY=0.75;entryX=0;entryY=0.25;" edge="1" parent="1" source="pc" target="handoff">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-checks-board" value="checks.json(同期)" style="endArrow=classic;html=1;strokeColor=#1f5fa8;strokeWidth=2;fontSize=11;labelBackgroundColor=#ffffff;exitX=0;exitY=0.75;entryX=1;entryY=0.9;" edge="1" parent="1" source="handoff" target="pc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-run" value="targets.json を読み&lt;br&gt;checks.json を書く(実行は本人)" style="endArrow=classic;startArrow=classic;html=1;strokeColor=#1f5fa8;strokeWidth=2;fontSize=11;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="handoff" target="weekly">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-fetch" value="在籍と出勤の確認" style="endArrow=classic;html=1;strokeColor=#1f5fa8;strokeWidth=2;fontSize=11;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="weekly" target="shops">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-post" value="原稿をコピーして貼る" style="endArrow=classic;html=1;strokeColor=#d9822b;strokeWidth=2;dashed=1;fontSize=11;labelBackgroundColor=#ffffff;exitX=0.6;exitY=1;entryX=0.5;entryY=0;" edge="1" parent="1" source="pc" target="wakust">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="756" y="540" />
+              <mxPoint x="700" y="540" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-url" value="投稿URL(本人が登録)" style="endArrow=classic;html=1;strokeColor=#d9822b;strokeWidth=2;dashed=1;fontSize=11;labelBackgroundColor=#ffffff;exitX=0;exitY=0.5;entryX=0.2;entryY=1;edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="wakust" target="pc">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend" value="凡例" style="swimlane;html=1;startSize=26;rounded=1;fillColor=#ffffff;strokeColor=#666666;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="600" width="300" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="lg-auto-line" value="" style="endArrow=classic;html=1;strokeColor=#1f5fa8;strokeWidth=2;" edge="1" parent="legend">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="20" y="55" as="sourcePoint" />
+            <mxPoint x="90" y="55" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="lg-auto" value="実線(青):アプリやスクリプトが行う" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;" vertex="1" parent="legend">
+          <mxGeometry x="100" y="40" width="190" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="lg-manual-line" value="" style="endArrow=classic;html=1;strokeColor=#d9822b;strokeWidth=2;dashed=1;" edge="1" parent="legend">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="20" y="95" as="sourcePoint" />
+            <mxPoint x="90" y="95" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="lg-manual" value="破線(橙):本人が手で行う" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;" vertex="1" parent="legend">
+          <mxGeometry x="100" y="80" width="190" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="stages" name="記事の段階">
+    <mxGraphModel dx="1400" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="520" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="s-title" value="記事の段階(記事ボードの列)" style="text;html=1;fontSize=20;fontStyle=1;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="500" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="answered" value="回答済み" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="40" y="120" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="prompted" value="プロンプト出力" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="460" y="120" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="editing" value="推敲中" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="880" y="120" width="160" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="posted" value="投稿済み" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=14;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="120" width="160" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="t1" value="記事プロンプトをコピー&lt;br&gt;(入力画面の履歴、ボードのまとめカード)" style="endArrow=classic;html=1;strokeColor=#1f5fa8;strokeWidth=2;fontSize=11;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="answered" target="prompted">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t2" value="ボードで原稿フォルダを読み込む&lt;br&gt;(単体と再訪。回答済みからも進む)" style="endArrow=classic;html=1;strokeColor=#1f5fa8;strokeWidth=2;fontSize=11;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="prompted" target="editing">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t3" value="投稿URLを登録&lt;br&gt;(wakust への投稿は本人)" style="endArrow=classic;html=1;strokeColor=#d9822b;strokeWidth=2;dashed=1;fontSize=11;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="editing" target="posted">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="t4" value="投稿URLを外す(確認のあと別の段階へ)" style="endArrow=classic;html=1;strokeColor=#d9822b;strokeWidth=2;dashed=1;fontSize=11;labelBackgroundColor=#ffffff;edgeStyle=orthogonalEdgeStyle;exitX=0.5;exitY=1;entryX=0.5;entryY=1;" edge="1" parent="1" source="posted" target="editing">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1380" y="250" />
+              <mxPoint x="960" y="250" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="note-manual" value="どの段階へも、ボードの段階の選択肢やドラッグで本人が動かせる。&lt;br&gt;先の段階にある記事は、プロンプトをコピーしても戻らない。" style="text;html=1;align=left;verticalAlign=top;fontSize=12;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="40" y="300" width="700" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s-legend" value="凡例" style="swimlane;html=1;startSize=26;rounded=1;fillColor=#ffffff;strokeColor=#666666;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="370" width="360" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="s-lg-auto-line" value="" style="endArrow=classic;html=1;strokeColor=#1f5fa8;strokeWidth=2;" edge="1" parent="s-legend">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="20" y="55" as="sourcePoint" />
+            <mxPoint x="90" y="55" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="s-lg-auto" value="実線(青):操作に合わせてアプリが進める" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;" vertex="1" parent="s-legend">
+          <mxGeometry x="100" y="40" width="250" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="s-lg-manual-line" value="" style="endArrow=classic;html=1;strokeColor=#d9822b;strokeWidth=2;dashed=1;" edge="1" parent="s-legend">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="20" y="95" as="sourcePoint" />
+            <mxPoint x="90" y="95" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="s-lg-manual" value="破線(橙):本人が手で行う" style="text;html=1;align=left;verticalAlign=middle;fontSize=12;" vertex="1" parent="s-legend">
+          <mxGeometry x="100" y="80" width="250" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

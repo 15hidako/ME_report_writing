@@ -10,6 +10,7 @@ import { toast, tryCopyText } from '../ui/widgets';
 import { downloadJson, pickFile } from '../ui/file-io';
 import { errText } from '../guards';
 import { openInputDialog } from '../ui/input-dialog';
+import { watchForUpdate } from '../update-watch';
 import { ARTICLE_PARTS, VARIANT_DIRS } from '../prompt/article-files';
 import { advanceDrafted, readArticlePart, scanArticles, type ArticleDraft } from './articles';
 import { buildCards, buildTargets, type Card } from './cards';
@@ -474,4 +475,19 @@ if (supported) {
   refresh();
   // Claude Code で書き出したあとボードへ戻ったときに反映する
   window.addEventListener('focus', refresh);
+}
+
+/** 記事の追加や値の入力のダイアログが開いているか。ボードの未保存の入力はここにしかない */
+function editing(): boolean {
+  return dialog.open || document.querySelector('dialog.input-dialog') !== null;
+}
+
+// 開いたままのボードも新しい版に気づけるようにする。開発サーバーとテストには version.json がないため、公開ビルドだけで確認する
+if (!import.meta.env.DEV) {
+  watchForUpdate({
+    isBusy: editing,
+    confirmLeave: () => !editing() || confirm('入力中の内容を破棄しますか?'),
+    onLeave: () => undefined,
+    onError: (error) => toast(errText(error)),
+  });
 }
