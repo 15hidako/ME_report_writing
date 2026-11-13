@@ -124,7 +124,7 @@ describe('都道府県とエリアの選択', () => {
     const store = new VisitStore(new MemoryStore());
     store.save(collected);
     const restored = new VisitStore(new MemoryStore());
-    restored.importJson(store.exportJson());
+    restored.importJson(store.exportRawJson());
     expect(restored.get(base.id)?.basic).toMatchObject({
       prefecture: original.basic.prefecture, area: original.basic.area,
     });

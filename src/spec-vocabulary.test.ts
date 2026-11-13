@@ -57,7 +57,7 @@ describe('C の追加語彙', () => {
     const saved = new VisitStore(new MemoryStore());
     saved.save(collected);
     const imported = new VisitStore(new MemoryStore());
-    imported.importJson(saved.exportJson());
+    imported.importJson(saved.exportRawJson());
     const loaded = imported.get(base.id)!;
     expect(loaded.spec).toEqual(collected.spec);
     expect(collectRecord(mount(loaded), base).spec).toEqual(collected.spec);

@@ -67,10 +67,6 @@ export class VisitStore {
     return max + 1;
   }
 
-  exportJson(): string {
-    return JSON.stringify(this.loadAll(), null, 2);
-  }
-
   importJson(json: string): VisitRecord[] {
     return this.writeAll(this.validateImport(json));
   }

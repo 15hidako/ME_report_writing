@@ -16,7 +16,7 @@ describe('VisitStore の追加料金', () => {
       store.save(record);
       expect(store.get(record.id)?.basic).toHaveProperty(field, amount);
 
-      const exported = store.exportJson();
+      const exported = store.exportRawJson();
       expect(JSON.parse(exported)[0].basic).toHaveProperty(field, amount);
       const restored = new VisitStore(new MemoryStore());
       restored.importJson(exported);
@@ -72,7 +72,7 @@ describe('VisitStore の追加料金', () => {
 
     store.save(oldRecord);
     store.save(newRecord);
-    const exported = store.exportJson();
+    const exported = store.exportRawJson();
     const restored = new VisitStore(new MemoryStore());
     restored.importJson(exported);
 

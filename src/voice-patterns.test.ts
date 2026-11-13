@@ -97,7 +97,7 @@ describe('臨場感素材', () => {
     const source = new VisitStore(new MemoryStore());
     source.save(collected);
     const target = new VisitStore(new MemoryStore());
-    target.importJson(source.exportJson());
+    target.importJson(source.exportRawJson());
     expect(target.get(record.id)?.voice.speechTopics).toEqual(['aftercare']);
   });
 

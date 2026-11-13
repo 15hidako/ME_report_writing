@@ -171,7 +171,7 @@ describe('次の既存欄へ採用する58語', () => {
     store.save(collectRecord(root, base));
     expect(store.loadAll()[0]?.flow.downside).toBe(appended);
     const restored = new VisitStore(new MemoryStore());
-    restored.importJson(store.exportJson());
+    restored.importJson(store.exportRawJson());
     const loaded = restored.loadAll()[0]!;
     expect(loaded.flow.downside).toBe(appended);
     expect(collectRecord(mount(loaded), base).flow.downside).toBe(appended);
@@ -249,7 +249,7 @@ describe('保存済みの段階別観察', () => {
     expect(store.loadAll()[0]?.flow.faceDown.checks).toContain('');
 
     const restored = new VisitStore(new MemoryStore());
-    restored.importJson(store.exportJson());
+    restored.importJson(store.exportRawJson());
     const again = mount(restored.loadAll()[0]);
     const collected = collectRecord(again, base);
     expect(collected.flow.faceDown.checks).toContain(legacy);

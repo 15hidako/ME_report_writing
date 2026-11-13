@@ -112,10 +112,6 @@ export function toast(message: string): void {
   }, 2200);
 }
 
-export async function copyText(text: string, done = 'コピーしました'): Promise<void> {
-  await tryCopyText(text, done);
-}
-
 /** コピーして結果を知らせる。コピーできたかどうかを返す */
 export async function tryCopyText(text: string, done = 'コピーしました'): Promise<boolean> {
   try {

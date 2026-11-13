@@ -81,7 +81,7 @@ describe('VisitStore', () => {
   it('エクスポート→インポートで復元できる', () => {
     const store = new VisitStore(new MemoryStore());
     store.save(fixtureRecord());
-    const json = store.exportJson();
+    const json = store.exportRawJson();
 
     const store2 = new VisitStore(new MemoryStore());
     store2.importJson(json);
@@ -97,9 +97,9 @@ describe('VisitStore', () => {
   it('不完全なJSONを読んでも既存データを書き換えない', () => {
     const store = new VisitStore(new MemoryStore());
     store.save(fixtureRecord());
-    const before = store.exportJson();
+    const before = store.exportRawJson();
     expect(() => store.importJson('[{"id":"incomplete"}]')).toThrow();
-    expect(store.exportJson()).toBe(before);
+    expect(store.exportRawJson()).toBe(before);
   });
 
   it('保存データの配列要素も検証し、破損時は書換えを拒否する', () => {

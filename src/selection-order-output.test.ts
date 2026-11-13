@@ -52,7 +52,7 @@ describe('観察候補の配列順と記事素材', () => {
     }
 
     const imported = new VisitStore(new MemoryStore());
-    imported.importJson(store.exportJson());
+    imported.importJson(store.exportRawJson());
     expect(imported.get(record.id)?.flow).toEqual(record.flow);
 
     imported.importJson('[]');

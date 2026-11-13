@@ -159,7 +159,7 @@ describe('オプション種類の保存と出力', () => {
     const store = new VisitStore(new MemoryStore());
     store.save(current);
     store.save(old);
-    const json = store.exportJson();
+    const json = store.exportRawJson();
     const restored = new VisitStore(new MemoryStore());
     restored.importJson(json);
 
