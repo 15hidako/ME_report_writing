@@ -36,9 +36,14 @@ function cardHtml(r: VisitRecord): string {
         <button data-act="prompt">プロンプト</button>
         <button data-act="prompt-names">名前公開版</button>
         <button data-act="edit">編集</button>
-        <button data-act="revisit">再訪入力</button>
-        <button data-act="url">投稿URL</button>
-        <button data-act="del" class="danger">削除</button>
+        <details class="more-actions">
+          <summary aria-label="その他の操作">⋯</summary>
+          <div class="more-actions-body">
+            <button data-act="revisit">再訪入力</button>
+            <button data-act="url">投稿URL</button>
+            <button data-act="del" class="danger">削除</button>
+          </div>
+        </details>
         ${boardLinkHtml(r.id)}
       </div>
     </div>`;
@@ -52,7 +57,12 @@ export function renderListTab(app: HTMLElement, view: ListTabView, handlers: Lis
       ${pendingLookups === 0 ? '' : `<button id="identity-lookup">店舗情報を取得(${pendingLookups})</button>`}
       <button id="catalog">カタログ記事</button>
       <button id="matome">まとめ記事</button>
-      ${dataButtonsHtml({ handoff: true, canRestore })}
+      <details class="more-actions data-actions">
+        <summary>データ</summary>
+        <div class="more-actions-body">
+          ${dataButtonsHtml({ handoff: true, canRestore })}
+        </div>
+      </details>
     </div>
     ${records.length === 0 ? '<p class="empty">まだ訪問レコードがありません。「+ 新規入力」から始めてください。</p>' : records.map(cardHtml).join('')}`;
 

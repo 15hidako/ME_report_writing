@@ -363,6 +363,22 @@ describe('出勤表URL', () => {
   });
 });
 
+describe('ツールバーの折りたたみ', () => {
+  it('フォルダとデータの操作は閉じた中にあり、選ぶか外を押すと閉じる', async () => {
+    await start([fixtureRecord()]);
+    const menu = byId<HTMLDetailsElement>('tool-menu');
+    expect(menu.open).toBe(false);
+    expect(menu.contains(byId('export-board'))).toBe(true);
+    expect(menu.contains(byId('pick-articles'))).toBe(true);
+    menu.open = true;
+    byId('board').click();
+    expect(menu.open).toBe(false);
+    menu.open = true;
+    byId('import-board').click();
+    expect(menu.open).toBe(false);
+  });
+});
+
 describe('記事タイプの絞り込み', () => {
   const filterButton = (kind: string): HTMLButtonElement =>
     byId('kind-filter').querySelector<HTMLButtonElement>(`[data-filter="${kind}"]`)!;

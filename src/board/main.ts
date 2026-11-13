@@ -393,6 +393,20 @@ pickFolderButton.addEventListener('click', guarded(async () => {
 exportTargets.addEventListener('click', guarded(() => downloadJson(TARGETS_FILE, targetsJson())));
 importChecks.addEventListener('click', guarded(() => pickJson(applyChecks)));
 
+// フォルダとデータの操作は折りたたんでおく。選んだあとや外を押したときは閉じる
+const toolMenu = byId<HTMLDetailsElement>('tool-menu');
+toolMenu.addEventListener('click', (event) => {
+  if ((event.target as HTMLElement).closest('.tool-menu-body button') !== null) toolMenu.open = false;
+});
+document.addEventListener('click', (event) => {
+  if (toolMenu.open && !toolMenu.contains(event.target as Node)) toolMenu.open = false;
+});
+toolMenu.addEventListener('keydown', (event) => {
+  if (event.key !== 'Escape' || !toolMenu.open) return;
+  toolMenu.open = false;
+  toolMenu.querySelector('summary')?.focus();
+});
+
 /** 入力画面から ?card=<回答ID> で開かれたら、そのカードを見える位置に出して目印を付ける */
 function revealFromUrl(): void {
   const { value, rest } = takeParam(location.href, 'card');

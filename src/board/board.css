@@ -67,9 +67,10 @@
 .board-tools button:active { transform: translateY(1px); }
 .board-tools button.primary { background: var(--b-primary); border-color: var(--b-primary); padding-inline: 16px; }
 .board-tools button.primary:hover { background: #e0357a; }
-/* 追加 | 原稿 | 同期系 | JSON入出力 | 画面移動 のまとまりを間隔で分ける */
-.board-tools .tool-group { display: flex; align-items: center; gap: 6px; margin-left: 12px; }
-.board-tools #export-board { margin-left: 12px; }
+/* 記事 | 週次確認 | その他(フォルダとJSON) | 画面移動 のまとまりを間隔で分ける */
+.board-tools .tool-group { display: flex; align-items: center; gap: 6px; }
+.board-tools .tool-group + .tool-group,
+.board-tools .tool-menu { margin-left: 12px; }
 .board-tools a {
   margin-left: 12px;
   padding: 7px 4px;
@@ -78,6 +79,48 @@
   text-underline-offset: 3px;
 }
 .board-tools a:hover { color: var(--text); }
+
+/* 使う頻度の低い操作。開くとツールバーの下に重ねて出す */
+.tool-menu { position: relative; }
+.tool-menu > summary {
+  display: grid;
+  place-items: center;
+  min-width: 36px;
+  padding: 7px 10px;
+  border: 1px solid var(--b-line);
+  border-radius: var(--b-radius-panel);
+  color: var(--b-muted);
+  font-size: 13px;
+  line-height: 1;
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--b-fast) var(--b-ease), color var(--b-fast) var(--b-ease);
+}
+.tool-menu > summary::-webkit-details-marker { display: none; }
+.tool-menu > summary:hover { background: var(--surface-2); color: var(--text); }
+.tool-menu[open] > summary { border-color: var(--accent); color: var(--text); }
+.tool-menu-body {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 20;
+  display: grid;
+  gap: 10px;
+  min-width: 220px;
+  padding: 10px;
+  border: 1px solid var(--b-line);
+  border-radius: var(--b-radius-card);
+  background: var(--surface);
+  box-shadow: var(--b-shadow-lift);
+}
+.tool-menu[open] > .tool-menu-body { animation: board-dialog-in var(--b-fast) var(--b-ease); }
+.tool-menu-group { display: grid; gap: 4px; }
+/* 前のまとまりが隠れているとき(フォルダ非対応のブラウザ)は区切り線を出さない */
+.tool-menu-group:has(button:not([hidden])) + .tool-menu-group { padding-top: 10px; border-top: 1px solid var(--b-line-soft); }
+.tool-menu-group:not(:has(button:not([hidden]))) { display: none; }
+.board-tools .tool-menu-body button { width: 100%; text-align: left; border-color: transparent; }
+.board-tools .tool-menu-body button:hover { border-color: var(--b-line); }
 
 /* ── 本体 ───────────────────────────── */
 .board-page main {
