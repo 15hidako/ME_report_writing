@@ -34,7 +34,7 @@ export function renderThumbTab(
       <label class="field" data-for="names"><span>店名</span><input id="t-shop" /></label>
       <label class="field" data-for="names"><span>セラピスト名</span><input id="t-therapist" /></label>
       <label class="field"><span>スペック行</span><input id="t-spec" placeholder="元メンエス経験者ギャル" /></label>
-      <label class="field" data-for="summary"><span>フック</span><input id="t-hook" placeholder="圧強KWKWテクでSKR不可避" /></label>
+      <label class="field" data-for="summary"><span>フック</span><input id="t-hook" placeholder="圧強KWKWテクで/SKR不可避" /></label>
       <div class="chips" id="palette-chips">${paletteBtns}</div>
       <div class="actions">
         <button id="t-draw" class="primary">プレビュー更新</button>

@@ -58,7 +58,8 @@ interface Wrapped {
   readonly brokeWord: boolean;
 }
 
-function wrapTokens(text: string, maxWidth: number, measure: MeasureText): Wrapped {
+/** 1段落を前から詰めて折り返す。収まらない語は文字単位で分割する */
+function wrapGreedy(tokens: readonly string[], maxWidth: number, measure: MeasureText): Wrapped {
   const lines: string[] = [];
   let line = '';
   let brokeWord = false;
@@ -67,7 +68,7 @@ function wrapTokens(text: string, maxWidth: number, measure: MeasureText): Wrapp
     if (trimmed !== '') lines.push(trimmed);
     line = '';
   };
-  for (const token of text.split(BREAK_AFTER)) {
+  for (const token of tokens) {
     if (measure((line + token).trimEnd()) <= maxWidth) {
       line += token;
       continue;
@@ -85,9 +86,80 @@ function wrapTokens(text: string, maxWidth: number, measure: MeasureText): Wrapp
   return { lines, brokeWord };
 }
 
-/** 区切り文字(・、。空白)の直後と英数字の並びの直前を優先して折り返す。収まらない語は文字単位で分割する。 */
+// 行の長さをそろえるときに試す分け方の上限。超える長文は前から詰めた結果のまま使う
+const MAX_BALANCE_CANDIDATES = 2000;
+
+function countCombinations(n: number, k: number): number {
+  let c = 1;
+  for (let i = 0; i < k; i += 1) c = (c * (n - i)) / (i + 1);
+  return c;
+}
+
+/**
+ * 前から詰めたときと同じ行数のまま、折り返し候補の位置で分け直して各行の長さをそろえる。
+ * 最も長い行が短い分け方を選び、同じなら最も短い行が長い分け方を選ぶ。
+ */
+function balanceLines(
+  tokens: readonly string[], lineCount: number, maxWidth: number, measure: MeasureText,
+): string[] | undefined {
+  const gaps = tokens.length - 1;
+  const cuts = lineCount - 1;
+  if (cuts <= 0 || cuts > gaps || countCombinations(gaps, cuts) > MAX_BALANCE_CANDIDATES) return undefined;
+
+  const widthOf = (from: number, to: number): number => measure(tokens.slice(from, to).join('').trim());
+  let best: { readonly ends: readonly number[]; readonly max: number; readonly min: number } | undefined;
+  const search = (start: number, ends: readonly number[]): void => {
+    if (ends.length === cuts) {
+      const all = [...ends, tokens.length];
+      const widths = all.map((end, i) => widthOf(i === 0 ? 0 : all[i - 1]!, end));
+      if (widths.some((w) => w > maxWidth || w === 0)) return;
+      const max = Math.max(...widths);
+      const min = Math.min(...widths);
+      if (best === undefined || max < best.max || (max === best.max && min > best.min)) best = { ends, max, min };
+      return;
+    }
+    // 残りの行に少なくとも1語ずつ残す
+    for (let end = start + 1; end <= tokens.length - (cuts - ends.length); end += 1) {
+      search(end, [...ends, end]);
+    }
+  };
+  search(0, []);
+  if (best === undefined) return undefined;
+  const all = [...best.ends, tokens.length];
+  return all.map((end, i) => tokens.slice(i === 0 ? 0 : all[i - 1]!, end).join('').trim());
+}
+
+function wrapParagraph(paragraph: string, maxWidth: number, measure: MeasureText, balance: boolean): Wrapped {
+  const tokens = paragraph.split(BREAK_AFTER).filter((token) => token !== '');
+  const greedy = wrapGreedy(tokens, maxWidth, measure);
+  if (!balance || greedy.brokeWord) return greedy;
+  const balanced = balanceLines(tokens, greedy.lines.length, maxWidth, measure);
+  return balanced === undefined ? greedy : { lines: balanced, brokeWord: false };
+}
+
+/**
+ * 改行文字で必ず改行し、各段落を折り返す。
+ * balance が false なら前から詰めるだけにする。行数と語の分割の有無は balance によらず同じ
+ */
+function wrapTokens(text: string, maxWidth: number, measure: MeasureText, balance = true): Wrapped {
+  const wrapped = text.split('\n').map((paragraph) => wrapParagraph(paragraph, maxWidth, measure, balance));
+  return {
+    lines: wrapped.flatMap((w) => w.lines),
+    brokeWord: wrapped.some((w) => w.brokeWord),
+  };
+}
+
+/**
+ * 改行文字で必ず改行し、区切り文字(・、。空白)の直後と英数字の並びの直前を優先して折り返す。
+ * 行数は前から詰めたときと同じにし、各行の長さをそろえる。収まらない語は文字単位で分割する。
+ */
 export function wrapText(text: string, maxWidth: number, measure: MeasureText): string[] {
   return wrapTokens(text, maxWidth, measure).lines;
+}
+
+/** 入力欄で改行位置を指定するスラッシュ(/ ／)を改行文字に置き換える。空の行は除く */
+export function manualLineBreaks(text: string): string {
+  return text.split(/[/／]/u).map((part) => part.trim()).filter((part) => part !== '').join('\n');
 }
 
 export interface TextBlock {
@@ -125,8 +197,9 @@ function ellipsize(line: string, maxWidth: number, measure: MeasureText): string
 export function fitLines(
   text: string, maxWidth: number, spec: BlockSpec, measureAt: (size: number) => MeasureText,
 ): TextBlock {
-  const layout = (size: number): TextBlock & { readonly brokeWord: boolean } => ({
-    ...wrapTokens(text, maxWidth, measureAt(size)),
+  // サイズを決めるまでは前から詰めるだけにし、行の長さをそろえるのは採用したサイズで1回だけ行う
+  const layout = (size: number, balance = false): TextBlock & { readonly brokeWord: boolean } => ({
+    ...wrapTokens(text, maxWidth, measureAt(size), balance),
     size,
     lineHeight: Math.round(size * spec.lineRatio),
   });
@@ -140,14 +213,14 @@ export function fitLines(
   for (let size = spec.basePx; size > spec.minPx; size -= 4) {
     const block = layout(size);
     if (block.lines.length > lineLimit(block.lineHeight)) continue;
-    if (!block.brokeWord) return toBlock(block);
+    if (!block.brokeWord) return toBlock(layout(size, true));
     fallback ??= toBlock(block);
   }
   if (fallback !== undefined) return fallback;
 
   const smallest = layout(spec.minPx);
   const limit = lineLimit(smallest.lineHeight);
-  if (smallest.lines.length <= limit) return toBlock(smallest);
+  if (smallest.lines.length <= limit) return toBlock(smallest.brokeWord ? smallest : layout(spec.minPx, true));
   const kept = smallest.lines.slice(0, limit);
   const last = kept.pop();
   const lines = last === undefined ? [] : [...kept, ellipsize(last, maxWidth, measureAt(spec.minPx))];
@@ -368,7 +441,7 @@ function drawSummaryBody(
   );
   if (input.hook === '') return;
   // 上下に BODY_GAP 以上の余白を残せる高さに収める
-  const hook = fitBlock(ctx, input.hook, GOTHIC, '900', {
+  const hook = fitBlock(ctx, manualLineBreaks(input.hook), GOTHIC, '900', {
     basePx: 150, minPx: 64, maxLines: 3, maxHeight: bottomRule - header.ruleBottom - BODY_GAP * 2, lineRatio: 1.18,
   });
   drawCentered([textVBlock(ctx, hook, '900', palette.text, true)], header.ruleBottom, bottomRule);

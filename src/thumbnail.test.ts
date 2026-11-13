@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { fitLines, mixHex, splitHonorific, THUMB_H, THUMB_W, withAlpha, wrapText } from './thumbnail';
+import {
+  fitLines, manualLineBreaks, mixHex, splitHonorific, THUMB_H, THUMB_W, withAlpha, wrapText,
+} from './thumbnail';
 import type { BlockSpec } from './thumbnail';
 
 // 1文字=10pxの固定幅で測る
@@ -77,6 +79,37 @@ describe('wrapText', () => {
   it('空文字列は行を作らない', () => {
     expect(wrapText('', 100, measure)).toEqual([]);
   });
+
+  it('行数を変えずに各行の長さをそろえ、最後の行だけ短く残さない', () => {
+    expect(wrapText('あいう・えおか・き', 80, measure)).toEqual(['あいう・', 'えおか・き']);
+  });
+
+  it('3行でも各行の長さをそろえる', () => {
+    // 前から詰めると ['あいう・えお・', 'かきく・けこ・', 'さ'] になる
+    expect(wrapText('あいう・えお・かきく・けこ・さ', 70, measure)).toEqual(['あいう・', 'えお・かきく・', 'けこ・さ']);
+  });
+
+  it('改行文字では必ず改行する', () => {
+    expect(wrapText('圧強KWKW\nテクでSKR不可避', 1000, measure)).toEqual(['圧強KWKW', 'テクでSKR不可避']);
+  });
+
+  it('改行で分けた各段落の中でも折り返す', () => {
+    expect(wrapText('あ\nいう・えお', 30, measure)).toEqual(['あ', 'いう・', 'えお']);
+  });
+});
+
+describe('manualLineBreaks', () => {
+  it('半角と全角のスラッシュを改行に置き換える', () => {
+    expect(manualLineBreaks('圧強KWKWテクで/SKR不可避／確定')).toBe('圧強KWKWテクで\nSKR不可避\n確定');
+  });
+
+  it('区切りの前後の空白と空の行を除く', () => {
+    expect(manualLineBreaks(' 圧強 / / 不可避 ')).toBe('圧強\n不可避');
+  });
+
+  it('スラッシュがなければそのまま返す', () => {
+    expect(manualLineBreaks('圧強KWKWテク')).toBe('圧強KWKWテク');
+  });
 });
 
 describe('fitLines', () => {
@@ -108,6 +141,16 @@ describe('fitLines', () => {
   it('高さの上限を超えるブロックを返さない', () => {
     const block = fitLines('あ'.repeat(100), 200, { ...spec, maxLines: 5, maxHeight: 70 }, measureAt);
     expect(block.lines.length * block.lineHeight).toBeLessThanOrEqual(70);
+  });
+
+  it('採用したサイズで各行の長さをそろえる', () => {
+    expect(fitLines('あいう・えおか・き', 80, { ...spec, basePx: 10, minPx: 8 }, measureAt).lines)
+      .toEqual(['あいう・', 'えおか・き']);
+  });
+
+  it('改行の数が行数の上限を超えるときは上限の行数で打ち切る', () => {
+    const block = fitLines('あ\nい\nう', 200, spec, measureAt);
+    expect(block.lines).toEqual(['あ', 'い…']);
   });
 
   it('高さの余地がないときは行を返さない', () => {
