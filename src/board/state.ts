@@ -3,6 +3,8 @@ import { parseCheckResults, type CheckResult } from '../checks/files';
 import { isWakustArticleUrl } from '../prompt/publication';
 import { isHttpUrl } from '../url';
 import { isObject } from '../guards';
+import type { NameDisclosure } from '../prompt/style-profile';
+import type { ThumbnailLayout } from '../thumbnail';
 
 export const STAGES = ['answered', 'prompted', 'editing', 'posted'] as const;
 export type Stage = (typeof STAGES)[number];
@@ -15,6 +17,23 @@ export type ArticleKind = 'single' | 'revisit' | BundleKind;
 /** 単体記事をどちらの型で売るか。名前を売るか、体験の中身を売るか */
 export const ANGLES = ['therapist', 'experience'] as const;
 export type ArticleAngle = (typeof ANGLES)[number];
+
+/**
+ * 販売型と、名前の出し方・サムネのレイアウトの対応。ほかの場所で対応を書かない(2026-11-12 本人回答、H-11)。
+ * セラピスト起点 = 名前公開版(名前を無料部分で出す)、体験内容起点 = 通常のプロンプト(名前は有料部分)
+ */
+const ANGLE_VARIANTS: Readonly<Record<ArticleAngle, { readonly disclosure: NameDisclosure; readonly layout: ThumbnailLayout }>> = {
+  therapist: { disclosure: 'free', layout: 'names' },
+  experience: { disclosure: 'paid', layout: 'summary' },
+};
+
+export function disclosureOfAngle(angle: ArticleAngle): NameDisclosure {
+  return ANGLE_VARIANTS[angle].disclosure;
+}
+
+export function layoutOfAngle(angle: ArticleAngle): ThumbnailLayout {
+  return ANGLE_VARIANTS[angle].layout;
+}
 
 /** 複数の回答から作る記事。単体と再訪は回答そのものが記事になるので、ここには持たない */
 export interface BundleArticle {

@@ -5,7 +5,7 @@ import { MemoryStore, fixtureRecord } from '../test-fixtures';
 import type { VisitRecord } from '../types';
 import { buildCards, buildTargets } from './cards';
 import {
-  BoardStore, EMPTY_BOARD, acknowledge, markBundlePrompted, markPrompted, parseBoardState, removeBundle, setRecordStage, setArticleAngle, setScheduleUrl,
+  BoardStore, EMPTY_BOARD, acknowledge, disclosureOfAngle, layoutOfAngle, markBundlePrompted, markPrompted, parseBoardState, removeBundle, setRecordStage, setArticleAngle, setScheduleUrl,
   upsertBundle, withChecks, type BoardState, type BundleArticle,
 } from './state';
 import { boardHtml } from './view';
@@ -105,6 +105,13 @@ describe('単体記事の販売型', () => {
     const therapist = setArticleAngle(EMPTY_BOARD, 'id-1', 'therapist');
     expect(setArticleAngle(therapist, 'id-1', 'experience').angles).toEqual({ 'id-1': 'experience' });
     expect(setArticleAngle(therapist, 'id-1', null).angles).toEqual({});
+  });
+
+  it('セラピスト起点は名前公開版、体験内容起点は通常のプロンプトに当たる', () => {
+    expect(disclosureOfAngle('therapist')).toBe('free');
+    expect(disclosureOfAngle('experience')).toBe('paid');
+    expect(layoutOfAngle('therapist')).toBe('names');
+    expect(layoutOfAngle('experience')).toBe('summary');
   });
 });
 

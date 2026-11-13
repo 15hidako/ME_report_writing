@@ -9,7 +9,13 @@ import { errText } from '../guards';
  * サムネタブを描く。records は新しい順。
  * initialId の回答を選んだ状態で開き、指定がない・見つからないときは最新の回答を入れる。
  */
-export function renderThumbTab(app: HTMLElement, records: readonly VisitRecord[], initialId: string | null): void {
+export function renderThumbTab(
+  app: HTMLElement,
+  records: readonly VisitRecord[],
+  initialId: string | null,
+  /** 販売型に対応するレイアウト。販売型が未選択なら null で、今のレイアウトを保つ */
+  layoutFor: (recordId: string) => ThumbnailLayout | null = () => null,
+): void {
   const initial = records.find((record) => record.id === initialId) ?? records[0];
   const recordOptions = records.map((record) => `<option value="${esc(record.id)}"${record === initial ? ' selected' : ''}>#${
     esc(String(record.seriesNo))} ${esc(record.basic.shopName)} — ${esc(record.basic.therapistName)}</option>`).join('');
@@ -55,6 +61,16 @@ export function renderThumbTab(app: HTMLElement, records: readonly VisitRecord[]
       el.hidden = el.dataset['for'] !== layout;
     });
   };
+  const selectLayout = (next: ThumbnailLayout): void => {
+    layout = next;
+    document.querySelectorAll<HTMLElement>('#layout-chips .chip').forEach((c) => c.classList.toggle('on', c.dataset['layout'] === next));
+    showFields();
+  };
+  /** 選んだ回答に販売型があれば、対応するレイアウトへ切り替える。手で切り替えられるまま残す */
+  const followAngle = (record: VisitRecord | undefined): void => {
+    const next = record === undefined ? null : layoutFor(record.id);
+    if (next !== null) selectLayout(next);
+  };
   const redraw = (): void => {
     const get = (id: string): string => input(id).value.trim();
     drawThumbnail(canvas, {
@@ -69,16 +85,16 @@ export function renderThumbTab(app: HTMLElement, records: readonly VisitRecord[]
     const chip = (event.target as HTMLElement).closest<HTMLElement>('button[data-layout]');
     const next = LAYOUTS.find((l) => l.id === chip?.dataset['layout']);
     if (chip === null || next === undefined) return;
-    layout = next.id;
-    document.querySelectorAll('#layout-chips .chip').forEach((c) => c.classList.remove('on'));
-    chip.classList.add('on');
-    showFields();
+    selectLayout(next.id);
     redraw();
   });
   showFields();
+  followAngle(initial);
   document.getElementById('t-record')?.addEventListener('change', (event) => {
     const id = (event.target as HTMLSelectElement).value;
-    fill(records.find((record) => record.id === id));
+    const record = records.find((item) => item.id === id);
+    fill(record);
+    followAngle(record);
     redraw();
   });
   document.getElementById('palette-chips')?.addEventListener('click', (event) => {

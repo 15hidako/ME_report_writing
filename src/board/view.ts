@@ -5,7 +5,7 @@ import { INPUT_WINDOW, editHref, thumbHref } from '../links';
 import { esc } from '../ui/widgets';
 import { isPublished } from '../prompt/publication';
 import type { Attention, Card } from './cards';
-import { ANGLES, STAGES, type ArticleKind, type ArticleAngle, type Stage } from './state';
+import { ANGLES, STAGES, disclosureOfAngle, type ArticleKind, type ArticleAngle, type Stage } from './state';
 import { ARTICLE_PARTS } from '../prompt/article-files';
 import { DISCLOSURE_LABELS } from '../prompt/style-profile';
 
@@ -70,7 +70,12 @@ function stamp(ms: number): string {
 
 function draftHtml(card: Card): string {
   if (card.draft === null) return '';
-  const rows = card.draft.variants.map((variant) => {
+  // 販売型を選んでいれば、対応する側の原稿を先に並べる。もう一方も残す
+  const preferred = card.angle === null ? null : disclosureOfAngle(card.angle);
+  const variants = preferred === null
+    ? card.draft.variants
+    : [...card.draft.variants].sort((a, b) => Number(b.disclosure === preferred) - Number(a.disclosure === preferred));
+  const rows = variants.map((variant) => {
     const buttons = ARTICLE_PARTS.filter((part) => variant.parts.includes(part.id)).map((part) => `
       <button type="button" data-act="copy-part" data-disclosure="${variant.disclosure}" data-part="${part.id}"
         aria-label="${esc(DISCLOSURE_LABELS[variant.disclosure])}の${part.label}をコピー">${part.short}</button>`).join('');

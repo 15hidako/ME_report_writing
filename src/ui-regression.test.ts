@@ -981,6 +981,89 @@ describe('サムネの対象回答', () => {
   });
 });
 
+describe('ボードで選んだ販売型', () => {
+  const BOARD_KEY = 'me-report-writer/board/v1';
+  const withAngles = (angles: Record<string, string>): void => {
+    window.localStorage.setItem(BOARD_KEY, JSON.stringify({
+      version: 1, stages: {}, angles, bundles: [], scheduleUrls: {}, checks: [], acknowledged: {},
+    }));
+  };
+  const cardButton = (id: string, act: string): HTMLButtonElement =>
+    document.querySelector<HTMLButtonElement>(`.card[data-id="${id}"] button[data-act="${act}"]`)!;
+  const isPrimary = (id: string, act: string): boolean => cardButton(id, act).classList.contains('primary');
+
+  it('セラピスト起点の回答では「名前公開版」を主ボタンにし、「プロンプト」も押せる', async () => {
+    const record = fixtureRecord();
+    withAngles({ [record.id]: 'therapist' });
+    await start([record]);
+    expect(isPrimary(record.id, 'prompt-names')).toBe(true);
+    expect(isPrimary(record.id, 'prompt')).toBe(false);
+    cardButton(record.id, 'prompt').click();
+    expect(document.querySelector('dialog.input-dialog')).not.toBeNull();
+  });
+
+  it('体験内容起点の回答では「プロンプト」を主ボタンにする', async () => {
+    const record = fixtureRecord();
+    withAngles({ [record.id]: 'experience' });
+    await start([record]);
+    expect(isPrimary(record.id, 'prompt')).toBe(true);
+    expect(isPrimary(record.id, 'prompt-names')).toBe(false);
+  });
+
+  it('販売型が未選択の回答と再訪の回答は見た目を変えない', async () => {
+    const single = fixtureRecord();
+    const revisit = fixtureRecord({ id: 'revisit', seriesNo: 2, revisitOf: single.id, sales: { points: 100, articleType: 'revisit' } });
+    withAngles({ [revisit.id]: 'therapist' });
+    await start([single, revisit]);
+    for (const id of [single.id, revisit.id]) {
+      expect(isPrimary(id, 'prompt')).toBe(false);
+      expect(isPrimary(id, 'prompt-names')).toBe(false);
+    }
+  });
+
+  it('ボードの状態が壊れていても履歴を出す', async () => {
+    window.localStorage.setItem(BOARD_KEY, '{');
+    const record = fixtureRecord();
+    await start([record]);
+    expect(cardButton(record.id, 'prompt')).not.toBeNull();
+    expect(isPrimary(record.id, 'prompt-names')).toBe(false);
+  });
+
+  it('ボードで販売型を変えると、履歴の主ボタンが入れ替わる', async () => {
+    const record = fixtureRecord();
+    await start([record]);
+    withAngles({ [record.id]: 'therapist' });
+    window.dispatchEvent(new Event('storage'));
+    expect(isPrimary(record.id, 'prompt-names')).toBe(true);
+  });
+
+  it('サムネタブでは、選んだ回答の販売型に対応するレイアウトを初期選択にする', async () => {
+    const base = fixtureRecord();
+    const experience = fixtureRecord({ id: 'experience', seriesNo: 2 });
+    const plain = fixtureRecord({ id: 'plain', seriesNo: 3 });
+    withAngles({ [base.id]: 'therapist', [experience.id]: 'experience' });
+    await start([base, experience, plain]);
+    button('サムネ').click();
+    const layout = (): string | undefined => document.querySelector<HTMLElement>('#layout-chips .chip.on')?.dataset['layout'];
+    const select = document.getElementById('t-record') as HTMLSelectElement;
+    const choose = (id: string): void => {
+      select.value = id;
+      select.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+    // 最新の回答は販売型が未選択なので、既定のレイアウトのまま
+    expect(layout()).toBe('names');
+    choose(experience.id);
+    expect(layout()).toBe('summary');
+    expect(document.querySelector<HTMLElement>('[data-for="summary"]')?.hidden).toBe(false);
+    choose(base.id);
+    expect(layout()).toBe('names');
+    // 手で切り替えられ、販売型のない回答を選んでも今のレイアウトを保つ
+    document.querySelector<HTMLButtonElement>('#layout-chips .chip[data-layout="summary"]')!.click();
+    choose(plain.id);
+    expect(layout()).toBe('summary');
+  });
+});
+
 describe('記事ボードとの行き来', () => {
   afterEach(() => {
     history.replaceState(null, '', '/');

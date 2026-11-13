@@ -4,7 +4,7 @@ import { fixtureRecord } from '../test-fixtures';
 import { articleFolderName, articleSaveSection, recordIdOfFolder } from '../prompt/article-files';
 import { advanceDrafted, type ArticleDraft } from './articles';
 import { buildCards } from './cards';
-import { EMPTY_BOARD, setRecordStage, type Stage } from './state';
+import { EMPTY_BOARD, setArticleAngle, setRecordStage, type Stage } from './state';
 import { boardHtml } from './view';
 
 const record = { ...fixtureRecord(), id: 'rec-abc', seriesNo: 7 };
@@ -60,6 +60,23 @@ describe('カードの原稿表示', () => {
     expect(html).toContain('data-part="title"');
     expect(html).toContain('data-part="freePart"');
     expect(html).not.toContain('data-part="paidPart"');
+  });
+
+  it('販売型に対応する側の原稿を先に並べ、もう一方も残す', () => {
+    const both: ArticleDraft = {
+      ...draft(record.id),
+      variants: [
+        { disclosure: 'paid', parts: ['title'], updatedAt: Date.parse('2026-11-12T05:03:00Z') },
+        { disclosure: 'free', parts: ['title'], updatedAt: Date.parse('2026-11-12T05:04:00Z') },
+      ],
+    };
+    const order = (state: typeof EMPTY_BOARD): string[] => {
+      const html = boardHtml(buildCards([record], state, new Date(), new Map([[record.id, both]])), 'all');
+      return [...html.matchAll(/class="draft-name">([^<]+)</g)].map((match) => match[1]!);
+    };
+    expect(order(EMPTY_BOARD)).toEqual(['通常版', '名前公開版']);
+    expect(order(setArticleAngle(EMPTY_BOARD, record.id, 'therapist'))).toEqual(['名前公開版', '通常版']);
+    expect(order(setArticleAngle(EMPTY_BOARD, record.id, 'experience'))).toEqual(['通常版', '名前公開版']);
   });
 
   it('原稿がなければ何も出さない', () => {

@@ -22,7 +22,7 @@ import { openInputDialog } from './ui/input-dialog';
 import { INPUT_WINDOW, boardLinkHtml, takeParam } from './links';
 import { articleSaveSection } from './prompt/article-files';
 import { ARTICLE_DIR, ARTICLE_DIR_ERROR, openClaudeApp } from './local-setup';
-import { BoardStore, markPrompted } from './board/state';
+import { BoardStore, disclosureOfAngle, layoutOfAngle, markPrompted, type ArticleAngle } from './board/state';
 import './styles.css';
 import { errText } from './guards';
 
@@ -328,11 +328,22 @@ function renderFormTab(): void {
   mountForm();
 }
 
+/** ボードで選んだ販売型。ボードの状態を読めないときは未選択として扱い、入力画面の表示を止めない */
+function boardAngles(): Readonly<Record<string, ArticleAngle>> {
+  try {
+    return new BoardStore(kv).load().angles;
+  } catch {
+    return {};
+  }
+}
+
 function renderListTab(): void {
   const records = [...getStore().loadAll()].sort((a, b) => b.seriesNo - a.seriesNo);
   const pendingLookups = lookupTargets(records);
+  const angles = boardAngles();
   renderListTabInto(app, {
     records,
+    preferred: new Map(Object.entries(angles).map(([id, angle]) => [id, disclosureOfAngle(angle)])),
     pendingLookups: pendingLookups.length,
     canRestore: canRestoreBackup(getStore),
   }, {
@@ -508,7 +519,11 @@ function renderThumbTab(): void {
   const requestedId = pendingThumbId;
   pendingThumbId = null;
   const records = [...getStore().loadAll()].sort((a, b) => b.seriesNo - a.seriesNo);
-  renderThumbTabInto(app, records, requestedId);
+  const angles = boardAngles();
+  renderThumbTabInto(app, records, requestedId, (id) => {
+    const angle = angles[id];
+    return angle === undefined ? null : layoutOfAngle(angle);
+  });
 }
 
 /** 破棄を確認済みのまま画面を離れるときは、ブラウザの確認を重ねない */

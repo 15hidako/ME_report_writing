@@ -4,6 +4,7 @@ import { specSummary } from '../prompt/serialize';
 import { isPublished } from '../prompt/publication';
 import { boardLinkHtml } from '../links';
 import { dataButtonsHtml } from './data-buttons';
+import type { NameDisclosure } from '../prompt/style-profile';
 
 export interface ListTabHandlers {
   readonly onNew: () => void;
@@ -18,11 +19,16 @@ export interface ListTabHandlers {
 export interface ListTabView {
   /** 新しい順 */
   readonly records: readonly VisitRecord[];
+  /** ボードで販売型を選んだ単体記事の、対応する名前の出し方。未選択の回答は含まない */
+  readonly preferred: ReadonlyMap<string, NameDisclosure>;
   readonly pendingLookups: number;
   readonly canRestore: boolean;
 }
 
-function cardHtml(r: VisitRecord): string {
+function cardHtml(r: VisitRecord, preferred: NameDisclosure | undefined): string {
+  // 販売型を選べるのは単体記事だけ。再訪はボタンの見た目を変えない
+  const primary = (disclosure: NameDisclosure): string =>
+    r.revisitOf === null && preferred === disclosure ? ' class="primary"' : '';
   return `
     <div class="card" data-id="${esc(r.id)}">
       <div class="card-head">
@@ -33,8 +39,8 @@ function cardHtml(r: VisitRecord): string {
       <div class="card-body">${esc(r.basic.shopName)} — ${esc(r.basic.therapistName)}<br />
         <small>${esc(specSummary(r))}</small></div>
       <div class="card-actions">
-        <button data-act="prompt">プロンプト</button>
-        <button data-act="prompt-names">名前公開版</button>
+        <button data-act="prompt"${primary('paid')}>プロンプト</button>
+        <button data-act="prompt-names"${primary('free')}>名前公開版</button>
         <button data-act="edit">編集</button>
         <details class="more-actions">
           <summary aria-label="その他の操作">⋯</summary>
@@ -50,7 +56,7 @@ function cardHtml(r: VisitRecord): string {
 }
 
 export function renderListTab(app: HTMLElement, view: ListTabView, handlers: ListTabHandlers): void {
-  const { records, pendingLookups, canRestore } = view;
+  const { records, preferred, pendingLookups, canRestore } = view;
   app.innerHTML = `
     <div class="toolbar">
       <button id="new-visit" class="primary">+ 新規入力</button>
@@ -64,7 +70,7 @@ export function renderListTab(app: HTMLElement, view: ListTabView, handlers: Lis
         </div>
       </details>
     </div>
-    ${records.length === 0 ? '<p class="empty">まだ訪問レコードがありません。「+ 新規入力」から始めてください。</p>' : records.map(cardHtml).join('')}`;
+    ${records.length === 0 ? '<p class="empty">まだ訪問レコードがありません。「+ 新規入力」から始めてください。</p>' : records.map((record) => cardHtml(record, preferred.get(record.id))).join('')}`;
 
   document.getElementById('new-visit')?.addEventListener('click', handlers.onNew);
   document.getElementById('identity-lookup')?.addEventListener('click', handlers.onLookup);
