@@ -7,6 +7,7 @@ import { parsePostedUrlInput } from '../prompt/publication';
 import { toast, tryCopyText } from '../ui/widgets';
 import { downloadJson, pickFile } from '../ui/file-io';
 import { errText } from '../guards';
+import { openInputDialog } from '../ui/input-dialog';
 import { ARTICLE_PARTS, VARIANT_DIRS } from '../prompt/article-files';
 import { advanceDrafted, readArticlePart, scanArticles, type ArticleDraft } from './articles';
 import { buildCards, buildTargets, type Card } from './cards';
@@ -80,13 +81,18 @@ function update(change: (state: BoardState) => BoardState): void {
   render();
 }
 
-function askPostedUrl(current: string | null): string | null {
-  const input = prompt('wakust投稿後の記事URL', current ?? '');
-  if (input === null) return null;
-  const url = parsePostedUrlInput(input);
-  // ボードでは空欄で解除しない。外すときは段階を戻す
-  if (url === null) throw new Error('wakust記事URLが必要です');
-  return url;
+/** 投稿URLを尋ね、決定されたら save に渡す。誤りはダイアログに出して入力を残す */
+function askPostedUrl(current: string | null, save: (url: string) => void): void {
+  openInputDialog({
+    title: '投稿URL',
+    fields: [{ name: 'postedUrl', label: 'wakust投稿後の記事URL', type: 'url', value: current ?? '' }],
+    onSubmit: (values) => {
+      const url = parsePostedUrlInput(values['postedUrl'] ?? '');
+      // ボードでは空欄で解除しない。外すときは段階を戻す
+      if (url === null) throw new Error('wakust記事URLが必要です');
+      save(url);
+    },
+  });
 }
 
 const UNPOST_CONFIRM = '投稿URLを外して戻しますか?';
@@ -103,10 +109,10 @@ function moveCard(card: Card, stage: Stage): void {
       return;
     }
     if (stage === 'posted') {
-      const postedUrl = askPostedUrl(null);
-      if (postedUrl === null) return;
-      visits.save({ ...record, postedUrl, updatedAt: new Date().toISOString() });
-      update((state) => setRecordStage(state, card.id, 'answered'));
+      askPostedUrl(null, (postedUrl) => {
+        visits.save({ ...record, postedUrl, updatedAt: new Date().toISOString() });
+        update((state) => setRecordStage(state, card.id, 'answered'));
+      });
       return;
     }
     update((state) => setRecordStage(state, card.id, stage));
@@ -115,8 +121,7 @@ function moveCard(card: Card, stage: Stage): void {
   const bundle = board.load().bundles.find((item) => item.id === card.id);
   if (bundle === undefined) throw new Error('記事が見つかりません。画面を読み込み直してください');
   if (stage === 'posted') {
-    const postedUrl = askPostedUrl(bundle.postedUrl);
-    if (postedUrl !== null) update((state) => upsertBundle(state, { ...bundle, postedUrl }));
+    askPostedUrl(bundle.postedUrl, (postedUrl) => update((state) => upsertBundle(state, { ...bundle, postedUrl })));
     return;
   }
   if (bundle.postedUrl !== null && !confirm(UNPOST_CONFIRM)) return;
@@ -195,9 +200,15 @@ function cardAction(card: Card, act: string): void {
     const { profileKey, check } = tracking;
     update((state) => acknowledge(state, profileKey, check.checkedAt));
   } else if (act === 'schedule' && tracking !== null) {
-    const input = prompt(`${tracking.site} の出勤表URL(プロフィールと別ページの店だけ。空欄で解除)`, tracking.scheduleUrl ?? '');
-    if (input === null) return;
-    update((state) => setScheduleUrl(state, tracking.site, input.trim() === '' ? null : input.trim()));
+    openInputDialog({
+      title: `${tracking.site} の出勤表URL`,
+      fields: [{ name: 'scheduleUrl', label: 'プロフィールと別ページの店だけ(空欄で解除)', type: 'url', value: tracking.scheduleUrl ?? '' }],
+      onSubmit: (values) => {
+        const input = (values['scheduleUrl'] ?? '').trim();
+        // URLの検証は setScheduleUrl が行い、誤りはダイアログに出る
+        update((state) => setScheduleUrl(state, tracking.site, input === '' ? null : input));
+      },
+    });
   }
 }
 

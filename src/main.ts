@@ -15,9 +15,11 @@ import { SUMMARY_MIN_THERAPISTS, countPublishedTherapists, isPublished, parsePos
 import { seriesTargets } from './prompt/series';
 import { findOriginalRecord as findOriginalIn } from './revisit';
 import { watchForUpdate } from './update-watch';
+import { parseListingCheckDate } from './date';
 import { bindDataButtons as bindDataButtonsWith, canRestoreBackup, dataButtonsHtml } from './ui/data-buttons';
 import { renderListTab as renderListTabInto } from './ui/list-tab';
 import { renderThumbTab as renderThumbTabInto } from './ui/thumb-tab';
+import { openInputDialog } from './ui/input-dialog';
 import { INPUT_WINDOW, boardLinkHtml, takeParam } from './links';
 import { articleSaveSection } from './prompt/article-files';
 import { ARTICLE_DIR, ARTICLE_DIR_ERROR, openClaudeApp } from './local-setup';
@@ -427,45 +429,47 @@ function handleCardAction(act: string, record: VisitRecord): void {
 }
 
 function copyPrompt(record: VisitRecord, disclosure: NameDisclosure): void {
-  const listingCheckedOn = prompt(
-    '出勤確認日(店舗HPの出勤表で出勤を確かめた日。YYYY-MM-DD。空欄なら記事に書かない)',
-    defaultListingCheckDate(record),
-  );
-  if (listingCheckedOn === null) return;
-  try {
-    if (record.revisitOf !== null) {
-      const first = findOriginalRecord(record);
-      if (first === 'missing') {
-        toast('初回レコードが見つかりません。単体として生成します');
-        copyArticlePrompt(record, disclosure, buildSinglePrompt(record, disclosure, listingCheckedOn));
-        return;
-      }
-      if (first === 'cycle') {
-        toast('再訪の参照が循環しています');
-        return;
-      }
-      copyArticlePrompt(record, disclosure, buildRevisitPrompt(record, first, disclosure, listingCheckedOn));
+  openInputDialog({
+    title: '出勤確認日',
+    fields: [{ name: 'listingCheckedOn', label: '店舗HPの出勤表で確かめた日(空欄なら記事に書かない)', type: 'date', value: defaultListingCheckDate(record) }],
+    // 不正な日付などの生成時のエラーは、ダイアログに残して直せるようにする
+    onSubmit: (values) => copyPromptWith(record, disclosure, values['listingCheckedOn'] ?? ''),
+  });
+}
+
+function copyPromptWith(record: VisitRecord, disclosure: NameDisclosure, listingCheckedOn: string): void {
+  // 再訪元が見つからないときの知らせより先に、入力の誤りを返す
+  parseListingCheckDate(listingCheckedOn);
+  if (record.revisitOf !== null) {
+    const first = findOriginalRecord(record);
+    if (first === 'missing') {
+      toast('初回レコードが見つかりません。単体として生成します');
+      copyArticlePrompt(record, disclosure, buildSinglePrompt(record, disclosure, listingCheckedOn));
       return;
     }
-    copyArticlePrompt(record, disclosure, buildSinglePrompt(record, disclosure, listingCheckedOn));
-  } catch (err) {
-    toast(errText(err));
+    if (first === 'cycle') {
+      toast('再訪の参照が循環しています');
+      return;
+    }
+    copyArticlePrompt(record, disclosure, buildRevisitPrompt(record, first, disclosure, listingCheckedOn));
+    return;
   }
+  copyArticlePrompt(record, disclosure, buildSinglePrompt(record, disclosure, listingCheckedOn));
 }
 
 function savePostedUrl(record: VisitRecord): void {
-  const url = prompt('wakust投稿後の記事URL(カタログ/まとめ/再訪から参照)', record.postedUrl ?? '');
-  if (url === null) return;
-  try {
-    getStore().save({
-      ...record,
-      postedUrl: parsePostedUrlInput(url),
-      updatedAt: new Date().toISOString(),
-    });
-    render();
-  } catch (err) {
-    toast(errText(err));
-  }
+  openInputDialog({
+    title: '投稿URL',
+    fields: [{ name: 'postedUrl', label: 'wakust投稿後の記事URL(空欄で解除)', type: 'url', value: record.postedUrl ?? '' }],
+    onSubmit: (values) => {
+      getStore().save({
+        ...record,
+        postedUrl: parsePostedUrlInput(values['postedUrl'] ?? ''),
+        updatedAt: new Date().toISOString(),
+      });
+      render();
+    },
+  });
 }
 
 function deleteRecord(record: VisitRecord): void {

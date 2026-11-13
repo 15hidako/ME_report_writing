@@ -39,6 +39,27 @@ function locationValue(name: 'prefecture' | 'area'): string {
   return field(name).value === 'other' ? field(`${name}Other`).value : field(name).value;
 }
 
+/** 開いている入力ダイアログに値を入れて「決定」を押す。null なら「キャンセル」を押す */
+function answerInput(value: string | null): HTMLDialogElement {
+  const dialog = document.querySelector<HTMLDialogElement>('dialog.input-dialog');
+  if (dialog === null) throw new Error('input dialog not open');
+  const press = (name: string): void => {
+    const match = [...dialog.querySelectorAll('button')].find((item) => item.textContent?.trim() === name);
+    if (match === undefined) throw new Error(`dialog button not found: ${name}`);
+    match.click();
+  };
+  if (value === null) {
+    press('キャンセル');
+    return dialog;
+  }
+  dialog.querySelector('input')!.value = value;
+  press('決定');
+  return dialog;
+}
+
+/** ダイアログに出た誤りの文 */
+const dialogError = (): string => document.querySelector('dialog.input-dialog [role="alert"]')?.textContent ?? '';
+
 async function start(records: unknown[] = []): Promise<void> {
   window.localStorage.setItem('me-report-writer/visits/v1', JSON.stringify(records));
   await import('./main');
@@ -419,9 +440,8 @@ describe('起動からの画面操作', () => {
     button('編集').click();
     setLocation('area', '更新したエリア');
     button('履歴').click();
-    const prompt = vi.fn(() => 'https://wakust.com/reports/latest');
-    vi.stubGlobal('prompt', prompt);
     button('投稿URL').click();
+    answerInput('https://wakust.com/reports/latest');
     button('入力').click();
     button('保存').click();
     const saved = JSON.parse(window.localStorage.getItem('me-report-writer/visits/v1') ?? '[]') as { postedUrl: string; basic: { area: string } }[];
@@ -504,8 +524,8 @@ describe('起動からの画面操作', () => {
   it('投稿URLを空欄にすると投稿済みを解除する', async () => {
     await start([fixtureRecord({ postedUrl: 'https://wakust.com/u/original/' })]);
     expect(document.querySelector('.badge.posted')).not.toBeNull();
-    vi.stubGlobal('prompt', vi.fn(() => '  '));
     button('投稿URL').click();
+    answerInput('  ');
     const saved = JSON.parse(window.localStorage.getItem('me-report-writer/visits/v1')!) as VisitRecord[];
     expect(saved[0]?.postedUrl).toBeNull();
     expect(document.querySelector('.badge.posted')).toBeNull();
@@ -551,10 +571,11 @@ describe('起動からの画面操作', () => {
   it('投稿URLに別サイトを指定したら理由を示し、保存済みURLを保つ', async () => {
     await start([fixtureRecord({ postedUrl: 'https://wakust.com/u/original/' })]);
     const before = window.localStorage.getItem('me-report-writer/visits/v1');
-    vi.stubGlobal('prompt', vi.fn(() => 'https://example.com/article'));
     button('投稿URL').click();
+    const dialog = answerInput('https://example.com/article');
     expect(window.localStorage.getItem('me-report-writer/visits/v1')).toBe(before);
-    expect(document.body.textContent).toMatch(/wakust.*URL|URL.*wakust/);
+    expect(dialogError()).toMatch(/wakust.*URL|URL.*wakust/);
+    expect(dialog.open).toBe(true);
   });
 
   it('再訪の記録から次の再訪を作っても初回記事を参照する', async () => {
@@ -579,9 +600,9 @@ describe('起動からの画面操作', () => {
     });
     const third = { ...revisit, id: 'third-visit', seriesNo: 3, revisitOf: revisit.id, postedUrl: null };
     await start([first, revisit, third]);
-    vi.stubGlobal('prompt', vi.fn(() => ''));
     const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
     button('プロンプト').click();
+    answerInput('');
     await vi.waitFor(() => expect(copy).toHaveBeenCalledOnce());
     expect(copy.mock.calls[0]![0]).toContain('https://wakust.com/u/first/');
     expect(copy.mock.calls[0]![0]).not.toContain('https://wakust.com/u/second/');
@@ -594,38 +615,40 @@ describe('起動からの画面操作', () => {
       sourceUrl: base.basic.therapistProfileUrl, checkedAt: new Date(2026, 10, 11, 12, 0).toISOString(), filled: ['shopUrl'],
     } } });
     await start([record]);
-    const ask = vi.fn((_message?: string, _initial?: string) => '2026-11-12');
-    vi.stubGlobal('prompt', ask);
     const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
     button('プロンプト').click();
+    expect(document.querySelector<HTMLInputElement>('dialog.input-dialog input[type="date"]')!.value).toBe('2026-11-11');
+    answerInput('2026-11-12');
     await vi.waitFor(() => expect(copy).toHaveBeenCalledOnce());
-    expect(ask.mock.calls[0]![1]).toBe('2026-11-11');
     expect(copy.mock.calls[0]![0]).toContain('<p>出勤確認: 2026年11月12日に店舗HPの出勤表で確認</p>');
   });
 
   it('出勤確認日の入力を取り消すと、プロンプトをコピーしない', async () => {
     await start([fixtureRecord()]);
-    vi.stubGlobal('prompt', vi.fn(() => null));
     const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
     button('プロンプト').click();
+    answerInput(null);
     await Promise.resolve();
     expect(copy).not.toHaveBeenCalled();
   });
 
   it('不正な出勤確認日は理由を表示し、プロンプトをコピーしない', async () => {
     await start([fixtureRecord()]);
-    vi.stubGlobal('prompt', vi.fn(() => '2026/11/11'));
     const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
     button('プロンプト').click();
-    await vi.waitFor(() => expect(document.body.textContent).toContain('出勤確認日はYYYY-MM-DD'));
+    // 日付入力のないブラウザでは文字入力になり、どんな書式でも入る。その場合を再現する
+    document.querySelector<HTMLInputElement>('dialog.input-dialog input')!.type = 'text';
+    const dialog = answerInput('2026/11/11');
+    await vi.waitFor(() => expect(dialogError()).toContain('出勤確認日はYYYY-MM-DD'));
+    expect(dialog.open).toBe(true);
     expect(copy).not.toHaveBeenCalled();
   });
 
   it('名前公開版のボタンは店名・源氏名を無料部分で出すプロンプトをコピーする', async () => {
     await start([fixtureRecord()]);
-    vi.stubGlobal('prompt', vi.fn(() => ''));
     const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
     button('名前公開版').click();
+    answerInput('');
     await vi.waitFor(() => expect(copy).toHaveBeenCalledOnce());
     expect(copy.mock.calls[0]![0]).toContain('店名・源氏名は無料部分とタイトルで開示する');
     expect(copy.mock.calls[0]![0]).not.toContain('有料部分でのみ開示');
@@ -643,9 +666,9 @@ describe('起動からの画面操作', () => {
     it.each(['プロンプト', '名前公開版'])('「%s」をコピーできたら、回答を「プロンプト出力」へ進める', async (name) => {
       const record = fixtureRecord();
       await start([record]);
-      vi.stubGlobal('prompt', vi.fn(() => ''));
       const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
       button(name).click();
+      answerInput('');
       await vi.waitFor(() => expect(boardStages()).toEqual({ [record.id]: 'prompted' }));
       expect(copy).toHaveBeenCalledOnce();
     });
@@ -655,9 +678,9 @@ describe('起動からの画面操作', () => {
       const before = boardWith({ [record.id]: 'editing' });
       window.localStorage.setItem(BOARD_KEY, before);
       await start([record]);
-      vi.stubGlobal('prompt', vi.fn(() => ''));
       const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
       button('プロンプト').click();
+      answerInput('');
       await vi.waitFor(() => expect(document.querySelector('.toast')?.textContent).toBe('コピーしました'));
       expect(copy).toHaveBeenCalledOnce();
       expect(window.localStorage.getItem(BOARD_KEY)).toBe(before);
@@ -665,9 +688,9 @@ describe('起動からの画面操作', () => {
 
     it('投稿済みの回答では段階を入れない', async () => {
       await start([fixtureRecord({ postedUrl: 'https://wakust.com/u/first/' })]);
-      vi.stubGlobal('prompt', vi.fn(() => ''));
       const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
       button('プロンプト').click();
+      answerInput('');
       await vi.waitFor(() => expect(document.querySelector('.toast')?.textContent).toBe('コピーしました'));
       expect(copy).toHaveBeenCalledOnce();
       expect(boardStages()).toBeNull();
@@ -675,18 +698,18 @@ describe('起動からの画面操作', () => {
 
     it('出勤確認日の入力を取り消したときは段階を入れない', async () => {
       await start([fixtureRecord()]);
-      vi.stubGlobal('prompt', vi.fn(() => null));
       vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
       button('プロンプト').click();
+      answerInput(null);
       await new Promise((resolve) => setTimeout(resolve, 0));
       expect(boardStages()).toBeNull();
     });
 
     it('コピーに失敗したときは段階を入れない', async () => {
       await start([fixtureRecord()]);
-      vi.stubGlobal('prompt', vi.fn(() => ''));
       vi.spyOn(navigator.clipboard, 'writeText').mockRejectedValue(new Error('denied'));
       button('プロンプト').click();
+      answerInput('');
       await vi.waitFor(() => expect(document.querySelector('.toast')?.textContent).toBe('コピーに失敗しました'));
       expect(boardStages()).toBeNull();
     });
@@ -694,9 +717,9 @@ describe('起動からの画面操作', () => {
     it('ボードの状態を読めないときも、コピーは成功のまま理由を知らせる', async () => {
       window.localStorage.setItem(BOARD_KEY, '{');
       await start([fixtureRecord()]);
-      vi.stubGlobal('prompt', vi.fn(() => ''));
       const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
       button('プロンプト').click();
+      answerInput('');
       await vi.waitFor(() => expect(document.querySelectorAll('.toast')).toHaveLength(2));
       const messages = [...document.querySelectorAll('.toast')].map((item) => item.textContent);
       expect(messages[0]).toBe('コピーしました');
@@ -723,7 +746,6 @@ describe('起動からの画面操作', () => {
     await start([first, revisit]);
     const before = window.localStorage.getItem('me-report-writer/visits/v1');
     vi.stubGlobal('confirm', vi.fn(() => true));
-    vi.stubGlobal('prompt', vi.fn(() => ''));
     const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
 
     document.querySelector<HTMLButtonElement>(`[data-id="${first.id}"] [data-act="del"]`)!.click();
@@ -731,6 +753,7 @@ describe('起動からの画面操作', () => {
     expect(window.localStorage.getItem('me-report-writer/visits/v1')).toBe(before);
     expect(document.body.textContent).toMatch(/再訪.*参照.*削除できません/);
     document.querySelector<HTMLButtonElement>(`[data-id="${revisit.id}"] [data-act="prompt"]`)!.click();
+    answerInput('');
     await vi.waitFor(() => expect(copy).toHaveBeenCalledOnce());
     expect(copy.mock.calls[0]![0]).toContain('https://wakust.com/u/first/');
     expect(copy.mock.calls[0]![0]).toContain('再訪');

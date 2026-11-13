@@ -97,6 +97,27 @@ function articlesFolder(name: string, record: VisitRecord): FakeDir {
   return fakeDir(name, [fakeDir(`${String(record.seriesNo).padStart(4, '0')}-${record.id}`, [standard])]);
 }
 
+/** 開いている入力ダイアログに値を入れて「決定」を押す。null なら「キャンセル」を押す */
+function answerInput(value: string | null): HTMLDialogElement {
+  const dialog = document.querySelector<HTMLDialogElement>('dialog.input-dialog');
+  if (dialog === null) throw new Error('input dialog not open');
+  const press = (name: string): void => {
+    const match = [...dialog.querySelectorAll('button')].find((item) => item.textContent?.trim() === name);
+    if (match === undefined) throw new Error(`dialog button not found: ${name}`);
+    match.click();
+  };
+  if (value === null) {
+    press('キャンセル');
+    return dialog;
+  }
+  dialog.querySelector('input')!.value = value;
+  press('決定');
+  return dialog;
+}
+
+/** ダイアログに出た誤りの文 */
+const dialogError = (): string => document.querySelector('dialog.input-dialog [role="alert"]')?.textContent ?? '';
+
 /** 失敗の表示は操作のあとの非同期処理で出るので、1拍待つ */
 const settle = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -164,32 +185,32 @@ describe('回答カードの段階', () => {
   it('「投稿済み」にすると投稿URLを尋ね、wakustのURLなら回答に保存する', async () => {
     const record = fixtureRecord();
     await start([record], emptyBoard({ stages: { [record.id]: 'editing' } }));
-    const prompt = vi.fn(() => ` ${WAKUST_URL} `);
-    vi.stubGlobal('prompt', prompt);
     await moveTo(record.id, 'posted');
-    expect(prompt).toHaveBeenCalledOnce();
+    const dialog = answerInput(` ${WAKUST_URL} `);
+    expect(dialog.open).toBe(false);
     expect(savedVisits()[0]?.postedUrl).toBe(WAKUST_URL);
     expect(savedBoard().stages).toEqual({});
     expect(stageOf(record.id)).toBe('posted');
   });
 
-  it('wakust以外のURLでは保存せず、選択肢を元の段階へ戻す', async () => {
+  it('wakust以外のURLでは保存せず、選択肢を元の段階へ戻して理由をダイアログに出す', async () => {
     const record = fixtureRecord();
     await start([record], emptyBoard({ stages: { [record.id]: 'editing' } }));
-    vi.stubGlobal('prompt', vi.fn(() => 'https://example.com/article'));
     await moveTo(record.id, 'posted');
+    const dialog = answerInput('https://example.com/article');
     expect(savedVisits()[0]?.postedUrl).toBeNull();
     expect(savedBoard().stages).toEqual({ [record.id]: 'editing' });
     expect(stageOf(record.id)).toBe('editing');
     expect(shownStage(record.id)).toBe('editing');
-    expect(toasts()).toEqual(['wakust記事URLが必要です']);
+    expect(dialog.open).toBe(true);
+    expect(dialogError()).toBe('wakust記事URLが必要です');
   });
 
   it('投稿URLの入力を取り消すと何も変えない', async () => {
     const record = fixtureRecord();
     await start([record]);
-    vi.stubGlobal('prompt', vi.fn(() => null));
     await moveTo(record.id, 'posted');
+    answerInput(null);
     expect(savedVisits()[0]?.postedUrl).toBeNull();
     expect(shownStage(record.id)).toBe('answered');
     expect(toasts()).toEqual([]);
@@ -236,11 +257,11 @@ describe('回答カードの段階', () => {
   it('投稿URLを空欄で決定すると、保存せずに理由を知らせる', async () => {
     const record = fixtureRecord();
     await start([record]);
-    vi.stubGlobal('prompt', vi.fn(() => '  '));
     await moveTo(record.id, 'posted');
+    answerInput('  ');
     expect(savedVisits()[0]?.postedUrl).toBeNull();
     expect(shownStage(record.id)).toBe('answered');
-    expect(toasts()).toEqual(['wakust記事URLが必要です']);
+    expect(dialogError()).toBe('wakust記事URLが必要です');
   });
 });
 
@@ -315,6 +336,30 @@ describe('販売型', () => {
     cardButton(record.id, '体験内容起点').click();
     expect(savedBoard().angles).toEqual({});
     expect(cardButton(record.id, '体験内容起点').getAttribute('aria-pressed')).toBe('false');
+  });
+});
+
+describe('出勤表URL', () => {
+  it('入力ダイアログで店ごとに登録し、空欄で解除する', async () => {
+    const record = fixtureRecord({ postedUrl: WAKUST_URL });
+    await start([record]);
+    cardButton(record.id, '出勤表URL').click();
+    answerInput(' https://example.com/schedule ');
+    expect(Object.values(savedBoard().scheduleUrls)).toEqual(['https://example.com/schedule']);
+    cardButton(record.id, '出勤表URL✓').click();
+    expect(document.querySelector<HTMLInputElement>('dialog.input-dialog input')!.value).toBe('https://example.com/schedule');
+    answerInput('');
+    expect(savedBoard().scheduleUrls).toEqual({});
+  });
+
+  it('http(s) でないURLは保存せず、ダイアログに理由を出す', async () => {
+    const record = fixtureRecord({ postedUrl: WAKUST_URL });
+    await start([record]);
+    cardButton(record.id, '出勤表URL').click();
+    const dialog = answerInput('javascript:alert(1)');
+    expect(dialog.open).toBe(true);
+    expect(dialogError()).toBe('出勤表のURLは http(s) で入力してください');
+    expect(window.localStorage.getItem(BOARD_KEY)).toBeNull();
   });
 });
 

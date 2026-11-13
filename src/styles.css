@@ -361,3 +361,26 @@ button.danger { color: #ff7a7a; }
   .identity-lookup-dialog { padding: 16px; }
   .lookup-actions button { flex: 1; min-width: 0; padding-inline: 8px; }
 }
+
+/* 値の入力(出勤確認日・投稿URL・出勤表URL) */
+.input-dialog {
+  width: min(480px, calc(100% - 28px));
+  max-width: 480px;
+  max-height: min(80vh, 720px);
+  padding: 20px;
+  border: 1px solid #3a2f55;
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+}
+.input-dialog::backdrop { background: #000b; }
+.input-dialog-title { margin: 0 0 16px; color: var(--gold); font-size: 18px; }
+.input-dialog .field input { width: 100%; min-height: 44px; font-size: 16px; }
+.input-dialog-error { margin: 12px 0 0; color: #ff7a7a; overflow-wrap: anywhere; }
+.input-dialog-error:empty { display: none; }
+.input-dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.input-dialog button:focus-visible, .input-dialog input:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+@media (max-width: 380px) {
+  .input-dialog { padding: 16px; }
+  .input-dialog-actions button { flex: 1; min-width: 0; padding-inline: 8px; }
+}
