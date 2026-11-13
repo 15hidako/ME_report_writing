@@ -46,3 +46,17 @@ describe('マークアップの依頼', () => {
     expect(prompt).toContain('URLの文字列も次の行にテキストで残す');
   });
 });
+
+describe('締めの一文の定型', () => {
+  it('記事プロンプトとマークアップの依頼で、締めの「！」を全角にする', () => {
+    const record = fixtureRecord({ id: 'rec-1', seriesNo: 5 });
+    const prompts = [
+      buildArticlePrompt(record, [record], 'paid', '', 'C:\repo\data\articles').text,
+      buildMarkupPrompt('C:\repo\data\articles', '0005-rec-1', 'paid'),
+    ];
+    for (const text of prompts) {
+      expect(text).toContain('皆さまのご武運をお祈りいたします！');
+      expect(text).not.toContain('お祈りいたします!');
+    }
+  });
+});
