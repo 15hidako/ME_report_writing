@@ -7,7 +7,7 @@ import { isPublished } from '../prompt/publication';
 import type { Attention, Card } from './cards';
 import { ANGLES, STAGES, disclosureOfAngle, type ArticleKind, type ArticleAngle, type Stage } from './state';
 import { ARTICLE_PARTS } from '../prompt/article-files';
-import { DISCLOSURE_LABELS } from '../prompt/style-profile';
+import { DISCLOSURE_LABELS, type NameDisclosure } from '../prompt/style-profile';
 
 export const STAGE_LABELS: Readonly<Record<Stage, string>> = {
   answered: '回答済み', prompted: 'プロンプト出力', editing: '推敲中', posted: '投稿済み',
@@ -89,6 +89,34 @@ function draftHtml(card: Card): string {
   return `<div class="draft">${rows}</div>`;
 }
 
+/** 回答カードから記事プロンプトを出す。販売型に合う側を主ボタンにし、原稿ができたあとは控えめにする */
+function promptHtml(card: Card): string {
+  if (card.source !== 'record' || card.stage === 'posted') return '';
+  const preferred = card.draft !== null ? null : card.angle === null ? 'paid' : disclosureOfAngle(card.angle);
+  const buttons = (Object.keys(DISCLOSURE_LABELS) as NameDisclosure[]).map((disclosure) => `
+    <button type="button" data-act="prompt" data-disclosure="${disclosure}"${disclosure === preferred ? ' class="primary"' : ''}>${
+      disclosure === 'paid' ? 'プロンプト' : DISCLOSURE_LABELS[disclosure]}</button>`).join('');
+  return `<div class="prompt-actions" role="group" aria-label="${esc(card.title)} の記事プロンプト">${buttons}</div>`;
+}
+
+/** data/answers に届いて、まだボードにない回答 */
+export interface InboxView {
+  readonly answers: readonly { readonly label: string; readonly update: boolean }[];
+  readonly errors: readonly string[];
+}
+
+function inboxHtml(inbox: InboxView | null): string {
+  if (inbox === null || (inbox.answers.length === 0 && inbox.errors.length === 0)) return '';
+  const answers = inbox.answers.length === 0 ? '' : `
+    <h2 id="inbox-heading">新しい回答<span class="count">${inbox.answers.length}</span></h2>
+    <ul>${inbox.answers.map((answer) => `
+      <li>${answer.update ? '<strong>更新</strong>' : ''}${esc(answer.label)}</li>`).join('')}
+    </ul>
+    <button type="button" class="primary" data-act="import-answers">取り込む</button>`;
+  const errors = inbox.errors.map((error) => `<p class="inbox-error" role="alert">${esc(error)}</p>`).join('');
+  return `<section class="inbox"${inbox.answers.length === 0 ? '' : ' aria-labelledby="inbox-heading"'}>${answers}${errors}</section>`;
+}
+
 function cardHtml(card: Card): string {
   const stageOptions = STAGES
     .map((stage) => `<option value="${stage}"${stage === card.stage ? ' selected' : ''}>${STAGE_LABELS[stage]}</option>`)
@@ -109,6 +137,7 @@ function cardHtml(card: Card): string {
         : `<a href="${esc(card.postedUrl)}" target="_blank" rel="noopener noreferrer">${esc(card.title)}</a>`}</h3>
       ${card.detail === '' ? '' : `<p class="board-card-detail">${esc(card.detail)}</p>`}
       ${angleHtml(card)}
+      ${promptHtml(card)}
       ${draftHtml(card)}
       ${trackingHtml(card)}
       ${card.source === 'bundle' ? `<div class="bundle-actions">${
@@ -117,7 +146,7 @@ function cardHtml(card: Card): string {
     </li>`;
 }
 
-export function boardHtml(cards: readonly Card[], filter: KindFilter): string {
+export function boardHtml(cards: readonly Card[], filter: KindFilter, inbox: InboxView | null = null): string {
   const visible = cards.filter((card) => filter === 'all' || card.kind === filter);
   const due = visible.filter((card) => card.tracking !== null && card.tracking.attention !== null);
   const columns = STAGES.map((stage) => {
@@ -136,7 +165,7 @@ export function boardHtml(cards: readonly Card[], filter: KindFilter): string {
           <strong>${ATTENTION_LABELS[card.tracking!.attention!]}</strong>${esc(card.title)}</a></li>`).join('')}
       </ul>
     </section>`;
-  return `${dueHtml}<div class="columns">${columns}</div>`;
+  return `${inboxHtml(inbox)}${dueHtml}<div class="columns">${columns}</div>`;
 }
 
 export function filterHtml(filter: KindFilter): string {

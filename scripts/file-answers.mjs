@@ -1,16 +1,13 @@
 // ダウンロードフォルダに届いた回答JSON(me-report-*.json)を回答データフォルダへ移す。
-//   node scripts/file-answers.mjs <回答データフォルダ> [ダウンロードフォルダ]
-//   node scripts/file-answers.mjs   (.env.local の ME_ANSWER_DIR を使う。start.bat が起動時に呼ぶ)
-// 回答データフォルダはリポジトリの外に置く。実データをリポジトリへ入れない。
+//   node scripts/file-answers.mjs [回答データフォルダ] [ダウンロードフォルダ]
+//   回答データフォルダを省くと PJ内の data/answers(gitignore済み)に移す。start.bat が起動時に呼ぶ。
+// 実データは data/ の外へ出さず、リポジトリにも入れない。
 // 移し先に同じ中身があるときは、ダウンロード側の重複を消す。訪問記録でないファイルには触らない。
 import { createHash } from 'node:crypto';
 import { copyFile, mkdir, readdir, readFile, realpath, rename, unlink } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { parseEnv } from 'node:util';
 import { isAnswerFileName, looksLikeVisitRecords, planFiling } from '../src/answers/files.ts';
-
-const ANSWER_DIR_KEY = 'ME_ANSWER_DIR';
 
 const sha256 =(bytes) => createHash('sha256').update(bytes).digest('hex');
 
@@ -38,29 +35,15 @@ async function moveFile(from, to) {
   }
 }
 
-/** 引数がなければ .env.local の ME_ANSWER_DIR を使う。VITE_ を付けないのは、ブラウザ側へ渡さないため */
-async function resolveDestDir() {
+/** 引数がなければ PJ内の data/answers に移す */
+function resolveDestDir() {
   const fromArg = process.argv[2];
   if (fromArg !== undefined && fromArg.trim() !== '') return fromArg;
-  let env = {};
-  try {
-    env = parseEnv(await readFile(path.join(import.meta.dirname, '..', '.env.local'), 'utf8'));
-  } catch (error) {
-    if (error?.code !== 'ENOENT') throw error;
-  }
-  const fromEnv = env[ANSWER_DIR_KEY]?.trim();
-  if (fromEnv === undefined || fromEnv === '') {
-    throw new Error(
-      `回答データフォルダを指定してください: node scripts/file-answers.mjs <回答データフォルダ> [ダウンロードフォルダ]\n` +
-        `または .env.local に ${ANSWER_DIR_KEY}=<回答データフォルダの絶対パス> を書いてください。`,
-    );
-  }
-  if (!path.isAbsolute(fromEnv)) throw new Error(`${ANSWER_DIR_KEY} は絶対パスで指定してください: ${fromEnv}`);
-  return fromEnv;
+  return path.join(import.meta.dirname, '..', 'data', 'answers');
 }
 
 async function main() {
-  const destDir = await resolveDestDir();
+  const destDir = resolveDestDir();
   const sourceDir = process.argv[3] ?? path.join(os.homedir(), 'Downloads');
   await mkdir(destDir, { recursive: true });
   // 同じフォルダだと全件が「重複」になり消えるので、実体のパスで比べる。Windows は大文字小文字を区別しない

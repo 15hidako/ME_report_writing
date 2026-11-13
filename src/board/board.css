@@ -138,6 +138,56 @@
 .board-page ::-webkit-scrollbar-thumb { background: var(--b-line); border-radius: var(--b-radius-pill); border: 2px solid transparent; background-clip: padding-box; }
 .board-page ::-webkit-scrollbar-track { background: transparent; }
 
+/* ── 新しい回答(data/answers) ───────────────────────────── */
+.inbox {
+  flex: none;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 10px 14px;
+  border-radius: var(--b-radius-panel);
+  background: linear-gradient(100deg, #1a2a26, var(--surface) 55%);
+  border: 1px solid var(--b-line-soft);
+  border-left: 3px solid var(--b-good);
+}
+.inbox:not(:has(ul)) { border-left-color: var(--b-danger); background: linear-gradient(100deg, #2e1a1f, var(--surface) 55%); }
+.inbox h2 {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: var(--b-good);
+  white-space: nowrap;
+}
+.inbox h2 .count { font-size: 18px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+.inbox ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
+.inbox li {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--b-radius-tag);
+  background: var(--b-bg-card);
+  font-size: 13px;
+}
+.inbox li strong { font-size: 11px; color: var(--b-caution); }
+.inbox button.primary {
+  padding: 7px 18px;
+  border: 1px solid var(--b-primary);
+  border-radius: var(--b-radius-panel);
+  background: var(--b-primary);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform var(--b-fast) var(--b-ease);
+}
+.inbox button.primary:hover { background: #e0357a; }
+.inbox button.primary:active { transform: translateY(1px); }
+.inbox-error { grid-column: 1 / -1; margin: 0; color: var(--b-danger); font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }
+
 /* ── 要確認 ───────────────────────────── */
 .due {
   flex: none;
@@ -427,6 +477,22 @@
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--kind) 60%, transparent);
   color: #fff;
 }
+
+/* ── 記事プロンプト(回答カード) ───────────────────────────── */
+.prompt-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 10px; }
+.board-card .prompt-actions button {
+  min-width: 0;
+  padding: 5px 4px;
+  border: 1px solid var(--b-line);
+  background: transparent;
+  color: var(--b-muted);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.board-card .prompt-actions button:hover { background: var(--b-bg-card-hover); color: var(--text); }
+/* 販売型に合う側。原稿ができたあとは主ボタンを置かない */
+.board-card .prompt-actions button.primary { border-color: var(--b-primary); background: var(--b-primary); color: #fff; }
+.board-card .prompt-actions button.primary:hover { background: #e0357a; }
 
 /* ── 原稿(Claude Code の書き出し) ───────────────────────────── */
 .draft { display: grid; gap: 6px; margin-top: 10px; }

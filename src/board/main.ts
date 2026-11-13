@@ -1,31 +1,34 @@
 import { VisitStore } from '../storage';
 import { parseChecksFile } from '../checks/files';
 import { localDate } from '../date';
-import { ARTICLE_DIR, folderNameOf, openClaudeApp } from '../local-setup';
+import { ARTICLE_DIR, openClaudeApp } from '../local-setup';
 import { BOARD_WINDOW, takeParam } from '../links';
 import { isPublished, parsePostedUrlInput } from '../prompt/publication';
 import { buildMatomePrompt } from '../prompt/build-prompt';
+import { REVISIT_CYCLE, buildArticlePrompt } from '../prompt/article-prompt';
+import { defaultListingCheckDate, needsLookup } from '../identity-lookup';
 import type { VisitRecord } from '../types';
 import { toast, tryCopyText } from '../ui/widgets';
 import { downloadJson, pickFile } from '../ui/file-io';
 import { errText } from '../guards';
 import { openInputDialog } from '../ui/input-dialog';
+import { openHandoffUpdate } from '../ui/handoff-import';
 import { watchForUpdate } from '../update-watch';
 import { ARTICLE_PARTS, VARIANT_DIRS } from '../prompt/article-files';
-import { advanceDrafted, readArticlePart, scanArticles, type ArticleDraft } from './articles';
+import type { NameDisclosure } from '../prompt/style-profile';
+import { advanceDrafted, type ArticleDraft } from './articles';
+import { scanAnswerFiles, type AnswerScan, type IncomingAnswer } from './answer-sync';
 import { buildCards, buildTargets, type Card } from './cards';
-import { ensureAccess, folderSupported, pickFolder, readText, savedFolder, writeText, type Folder } from './folder';
 import {
-  BoardStore, acknowledge, markBundlePrompted, parseBoardState, removeBundle, setRecordStage, setArticleAngle, setScheduleUrl, upsertBundle,
-  withChecks, BUNDLE_KINDS, ANGLES, STAGES, type BoardState, type BundleKind, type Stage,
+  fetchAnswerFiles, fetchArticlePart, fetchCheckFile, fetchDrafts, localDataAvailable, putCheckFile, runWeeklyCheck,
+} from './local-api';
+import {
+  BoardStore, acknowledge, markBundlePrompted, markPrompted, parseBoardState, removeBundle, setRecordStage, setArticleAngle,
+  setScheduleUrl, upsertBundle, withChecks, BUNDLE_KINDS, ANGLES, STAGES, type BoardState, type BundleKind, type Stage,
 } from './state';
-import { KIND_FILTERS, boardHtml, bundleDialogHtml, filterHtml, type KindFilter } from './view';
+import { KIND_FILTERS, boardHtml, bundleDialogHtml, filterHtml, type InboxView, type KindFilter } from './view';
 import '../styles.css';
 import './board.css';
-
-const TARGETS_FILE = 'targets.json';
-const CHECKS_FILE = 'checks.json';
-const BACKUP_FILE = 'board-backup.json';
 
 /** id で要素を引く。起動時に必ずある要素なので、なければ例外にする */
 function byId<T extends HTMLElement>(id: string): T {
@@ -37,6 +40,7 @@ function byId<T extends HTMLElement>(id: string): T {
 const boardNode = byId('board');
 const filterNode = byId('kind-filter');
 const dialog = byId<HTMLDialogElement>('bundle-dialog');
+const syncButton = byId<HTMLButtonElement>('sync');
 
 const kv = {
   getItem: (key: string) => localStorage.getItem(key),
@@ -55,25 +59,38 @@ function guarded<A extends unknown[]>(action: (...args: A) => void | Promise<voi
   };
 }
 
-const supported = folderSupported();
-
 function currentFilter(): KindFilter {
   const kind = new URLSearchParams(location.search).get('kind') ?? 'all';
   return KIND_FILTERS.find((item) => item === kind) ?? 'all';
 }
 
-/** 原稿フォルダから読んだ記事。保存はせず、読み直すたびに作り直す */
+/** data/articles から読んだ原稿。保存はせず、読み直すたびに作り直す */
 let drafts: ReadonlyMap<string, ArticleDraft> = new Map();
+/** data/answers にあって、まだボードに取り込んでいない回答 */
+let answers: AnswerScan = { incoming: [], errors: [] };
+/** data/ に届かないときの理由。start.bat 以外で開いたときなど */
+let localError: string | null = null;
 
 function cards(): Card[] {
   return buildCards(visits.loadAll(), board.load(), new Date(), drafts);
+}
+
+function inboxView(): InboxView {
+  const saved = new Set(visits.loadAll().map((record) => record.id));
+  return {
+    answers: answers.incoming.map(({ record }) => ({
+      label: `${record.basic.shopName} — ${record.basic.therapistName}`,
+      update: saved.has(record.id),
+    })),
+    errors: [...(localError === null ? [] : [localError]), ...answers.errors],
+  };
 }
 
 function render(): void {
   try {
     const filter = currentFilter();
     filterNode.innerHTML = filterHtml(filter);
-    boardNode.innerHTML = boardHtml(cards(), filter);
+    boardNode.innerHTML = boardHtml(cards(), filter, inboxView());
   } catch (error) {
     boardNode.replaceChildren(Object.assign(document.createElement('p'), { className: 'empty', textContent: errText(error) }));
   }
@@ -131,15 +148,45 @@ function moveCard(card: Card, stage: Stage): void {
   update((state) => upsertBundle(state, { ...bundle, stage, postedUrl: null }));
 }
 
+const disclosureOf = (value: string | undefined): NameDisclosure | undefined =>
+  (Object.keys(VARIANT_DIRS) as NameDisclosure[]).find((item) => item === value);
+
 async function copyDraftPart(card: Card, button: HTMLElement): Promise<void> {
-  const disclosure = (Object.keys(VARIANT_DIRS) as (keyof typeof VARIANT_DIRS)[]).find((item) => item === button.dataset['disclosure']);
+  const disclosure = disclosureOf(button.dataset['disclosure']);
   const part = ARTICLE_PARTS.find((item) => item.id === button.dataset['part']);
   if (card.draft === null || disclosure === undefined || part === undefined) return;
-  const folder = await savedFolder('articles');
-  if (folder === null) throw new Error('原稿フォルダが未設定です。「原稿」から選んでください');
-  await ensureAccess(folder);
-  const copied = await tryCopyText(await readArticlePart(folder, card.draft, disclosure, part.id), `${part.label}をコピーしました`);
+  const copied = await tryCopyText(await fetchArticlePart(card.draft, disclosure, part.id), `${part.label}をコピーしました`);
   button.classList.toggle('copied', copied);
+}
+
+/** 出勤確認日を尋ねて記事プロンプトをコピーする。Claude Code は原稿を data/articles へ書き出す */
+function copyArticlePrompt(card: Card, disclosure: NameDisclosure): void {
+  const record = visits.get(card.id);
+  if (record === undefined) throw new Error('回答が見つかりません。画面を読み込み直してください');
+  openInputDialog({
+    title: '出勤確認日',
+    fields: [{ name: 'listingCheckedOn', label: '店舗HPの出勤表で確かめた日(空欄なら記事に書かない)', type: 'date', value: defaultListingCheckDate(record) }],
+    onSubmit: (values) => {
+      let prompt;
+      try {
+        prompt = buildArticlePrompt(record, visits.loadAll(), disclosure, values.text('listingCheckedOn'), ARTICLE_DIR);
+      } catch (error) {
+        // 日付の誤りはダイアログに残して直せるようにし、再訪の循環はトーストで知らせる
+        if (error instanceof Error && error.message === REVISIT_CYCLE) {
+          toast(error.message);
+          return;
+        }
+        throw error;
+      }
+      if (prompt.notice !== null) toast(prompt.notice);
+      const done = needsLookup(record) ? 'コピーしました。返答を入力画面の「店舗情報を取得」に貼ると記録にも反映されます' : undefined;
+      void tryCopyText(prompt.text, done).then((copied) => {
+        if (!copied) return;
+        if (!isPublished(record)) update((state) => markPrompted(state, record.id));
+        if (ARTICLE_DIR !== null) openClaudeApp();
+      }).catch((error: unknown) => toast(errText(error)));
+    },
+  });
 }
 
 /** まとめのテーマはカードのタイトル。コピーできたら「プロンプト出力」へ進める */
@@ -158,57 +205,124 @@ async function copyMatomePrompt(card: Card): Promise<void> {
   if (ARTICLE_DIR !== null) openClaudeApp();
 }
 
-/** 原稿フォルダを読み、原稿がある回答を「推敲中」へ進める */
-async function loadDrafts(folder: Folder): Promise<number> {
-  drafts = await scanArticles(folder);
-  const records = new Map(cards().map((card) => [card.id, card.stage]));
+/** 原稿がある回答を「推敲中」へ進める */
+function advanceWithDrafts(): void {
+  const stages = new Map(cards().map((card) => [card.id, card.stage]));
   const before = board.load();
-  const after = advanceDrafted(before, drafts, (id) => records.get(id));
+  const after = advanceDrafted(before, drafts, (id) => stages.get(id));
   if (after !== before) board.save(after);
-  render();
-  return drafts.size;
-}
-
-/** 選んだフォルダの絶対パスは取れないので、プロンプトの保存先とは末尾のフォルダ名で比べる */
-function saveDirMismatch(folder: Folder): string | null {
-  if (ARTICLE_DIR === null) return null;
-  const expected = folderNameOf(ARTICLE_DIR);
-  // Windows は大文字小文字を区別しない
-  return expected === '' || expected.toLowerCase() === folder.name.toLowerCase()
-    ? null
-    : `原稿フォルダ「${folder.name}」は、プロンプトの保存先「${ARTICLE_DIR}」と名前が違います`;
-}
-
-/** ボタン操作で原稿を読む。自動の読み直し(refreshDrafts)では知らせを出さない */
-async function showDrafts(folder: Folder): Promise<void> {
-  await ensureAccess(folder);
-  const count = await loadDrafts(folder);
-  // トーストは重なって出るので、食い違いがあるときはそちらだけを知らせる
-  toast(saveDirMismatch(folder) ?? `原稿 ${count}件(${folder.name})`);
-}
-
-async function openArticles(): Promise<void> {
-  await showDrafts(await savedFolder('articles') ?? await pickFolder('articles'));
-}
-
-async function pickArticles(): Promise<void> {
-  await showDrafts(await pickFolder('articles'));
 }
 
 let refreshing = false;
 
-/** 許可が残っているときだけ黙って読み直す。許可を求めるのはボタン操作の中だけ */
-async function refreshDrafts(): Promise<void> {
-  // フォーカスの出入りが続いても読み直しを重ねない
-  if (refreshing) return;
+/** data/ から読んだものと、それで動くボードの段階 */
+function localSnapshot(): string {
+  return JSON.stringify([[...drafts.values()], answers, localError, board.load().stages]);
+}
+
+/** data/ の原稿と回答を読み直す。起動時と、Claude などからボードへ戻ったときに呼ぶ */
+async function refreshLocal(): Promise<void> {
+  // フォーカスの出入りが続いても読み直しを重ねない。取り込み中は途中の状態を描かず、終わってから読み直す
+  if (refreshing || importing) return;
   refreshing = true;
+  const before = localSnapshot();
   try {
-    const folder = await savedFolder('articles');
-    if (folder === null || await folder.queryPermission({ mode: 'readwrite' }) !== 'granted') return;
-    await loadDrafts(folder);
+    if (await localDataAvailable()) {
+      const [nextDrafts, files] = await Promise.all([fetchDrafts(), fetchAnswerFiles()]);
+      localError = null;
+      drafts = nextDrafts;
+      answers = scanAnswerFiles(visits.loadAll(), files);
+      advanceWithDrafts();
+    } else {
+      localError = 'data/ フォルダに届きません。start.bat で開いたボードから使ってください';
+      drafts = new Map();
+      answers = { incoming: [], errors: [] };
+    }
+  } catch (error) {
+    localError = errText(error);
   } finally {
     refreshing = false;
   }
+  // 変わっていなければ描き直さない。カードの目印や開いた選択肢を消さないため
+  if (localSnapshot() !== before) render();
+}
+
+/**
+ * 再訪元を先に入れないと参照を確かめられないので、再訪元が先に来るよう並べる。2回目・3回目と続く再訪にも対応する。
+ * 再訪元が取り込み対象にないもの(ボードにある、またはどこにもない)は、そのまま取り込みで確かめる
+ */
+function revisitOrder(items: readonly IncomingAnswer[]): IncomingAnswer[] {
+  const ids = new Set(items.map((item) => item.record.id));
+  const placed = new Set<string>();
+  const ordered: IncomingAnswer[] = [];
+  let rest = [...items];
+  while (rest.length > 0) {
+    const ready = rest.filter(({ record }) =>
+      record.revisitOf === null || !ids.has(record.revisitOf) || placed.has(record.revisitOf));
+    // 参照が輪になっている残りは、取り込みで理由を知らせる
+    const next = ready.length === 0 ? rest : ready;
+    for (const item of next) placed.add(item.record.id);
+    ordered.push(...next);
+    rest = rest.filter((item) => !next.includes(item));
+  }
+  return ordered;
+}
+
+/** 更新の確認ダイアログを開き、閉じるまで待つ。更新したら true */
+function confirmUpdate(json: string): Promise<boolean> {
+  const plan = visits.prepareHandoffImport(json);
+  if (plan.kind !== 'update') return Promise.resolve(false);
+  return new Promise((resolve) => {
+    let applied = false;
+    openHandoffUpdate(plan, () => {
+      visits.importHandoffJson(json, plan.snapshot);
+      applied = true;
+      return true;
+    });
+    const opened = document.querySelector<HTMLDialogElement>('.handoff-dialog');
+    if (opened === null) resolve(false);
+    else opened.addEventListener('close', () => resolve(applied), { once: true });
+  });
+}
+
+let importing = false;
+
+/**
+ * 新しい回答はそのまま足し、既存の回答の更新は差分を見せて確かめる。
+ * 通し番号はPCの管理用なので、重なればボード側の次の番号で足し、振り直したことを知らせる
+ */
+async function importAnswers(): Promise<void> {
+  if (importing) return;
+  importing = true;
+  let added = 0;
+  let updated = 0;
+  const renumbered: string[] = [];
+  const failed: string[] = [];
+  try {
+    for (const answer of revisitOrder(answers.incoming)) {
+      // 1件が取り込めなくても残りは続け、理由をまとめて知らせる
+      try {
+        const plan = visits.prepareHandoffImport(answer.json);
+        if (plan.kind === 'update') {
+          if (await confirmUpdate(answer.json)) updated += 1;
+          continue;
+        }
+        if (plan.kind !== 'add') continue;
+        visits.importHandoffJson(answer.json, plan.snapshot);
+        added += 1;
+        if (plan.renumberedFrom !== null) renumbered.push(`${plan.record.basic.therapistName} は #${plan.record.seriesNo}`);
+      } catch (error) {
+        failed.push(`${answer.record.basic.therapistName}: ${errText(error)}`);
+      }
+    }
+  } finally {
+    importing = false;
+    await refreshLocal();
+  }
+  const parts = [added > 0 ? `${added}件追加` : '', updated > 0 ? `${updated}件更新` : ''].filter((part) => part !== '');
+  toast(parts.length === 0 ? '取り込んだ回答はありません' : `回答を${parts.join('・')}しました${
+    renumbered.length === 0 ? '' : `(番号が重なったため ${renumbered.join('、')})`}`);
+  if (failed.length > 0) toast(`取り込めなかった回答: ${failed.join(' / ')}`);
 }
 
 function cardAction(card: Card, act: string): void {
@@ -254,7 +368,7 @@ function targetsJson(): string {
 
 function applyChecks(json: string | null): void {
   if (json === null) {
-    toast('確認対象を書き出しました。確認結果はまだありません');
+    toast('確認結果がまだありません');
     return;
   }
   const { results } = parseChecksFile(json);
@@ -263,13 +377,24 @@ function applyChecks(json: string | null): void {
   toast(results.length === 0 ? '確認結果は0件です' : `${localDate(new Date(latest))} の確認結果を読み込みました`);
 }
 
+let checking = false;
+
+/** 確認対象を書き出して週次確認を実行し、結果を取り込む。最後にボードの控えを残す */
 async function sync(): Promise<void> {
-  let folder: Folder | null = await savedFolder();
-  if (folder === null) folder = await pickFolder();
-  await ensureAccess(folder);
-  await writeText(folder, TARGETS_FILE, targetsJson());
-  applyChecks(await readText(folder, CHECKS_FILE));
-  await writeText(folder, BACKUP_FILE, board.exportRawJson());
+  if (checking) return;
+  checking = true;
+  syncButton.disabled = true;
+  syncButton.textContent = '確認中…';
+  try {
+    await putCheckFile('targets.json', targetsJson());
+    await runWeeklyCheck();
+    applyChecks(await fetchCheckFile('checks.json'));
+    await putCheckFile('board-backup.json', board.exportRawJson());
+  } finally {
+    checking = false;
+    syncButton.disabled = false;
+    syncButton.textContent = '週次確認';
+  }
 }
 
 function openBundleDialog(): void {
@@ -342,9 +467,16 @@ boardNode.addEventListener('click', guarded((event: MouseEvent) => {
   }
   const button = target.closest<HTMLElement>('button[data-act]');
   const act = button?.dataset['act'];
-  if (act === 'copy-part' && button != null && card !== undefined) return copyDraftPart(card, button);
-  if (act === 'matome-prompt' && card !== undefined) return copyMatomePrompt(card);
-  if (act !== undefined && card !== undefined) cardAction(card, act);
+  if (act === 'import-answers') return importAnswers();
+  if (button == null || card === undefined) return;
+  if (act === 'copy-part') return copyDraftPart(card, button);
+  if (act === 'matome-prompt') return copyMatomePrompt(card);
+  if (act === 'prompt') {
+    const disclosure = disclosureOf(button.dataset['disclosure']);
+    if (disclosure !== undefined) copyArticlePrompt(card, disclosure);
+    return;
+  }
+  if (act !== undefined) cardAction(card, act);
 }));
 
 boardNode.addEventListener('dragstart', (event) => {
@@ -410,31 +542,9 @@ byId('import-board').addEventListener('click', guarded(() => pickJson((text) => 
   board.save(next);
   render();
 })));
-
-const articlesButton = byId('articles');
-articlesButton.hidden = !supported;
-articlesButton.addEventListener('click', guarded(openArticles));
-const pickArticlesButton = byId('pick-articles');
-pickArticlesButton.hidden = !supported;
-pickArticlesButton.addEventListener('click', guarded(pickArticles));
-
-const syncButton = byId('sync');
-const exportTargets = byId('export-targets');
-const importChecks = byId('import-checks');
-const pickFolderButton = byId('pick-folder');
-syncButton.hidden = !supported;
-pickFolderButton.hidden = !supported;
-exportTargets.hidden = supported;
-importChecks.hidden = supported;
 syncButton.addEventListener('click', guarded(sync));
-pickFolderButton.addEventListener('click', guarded(async () => {
-  const folder = await pickFolder();
-  toast(`受け渡しフォルダ: ${folder.name}`);
-}));
-exportTargets.addEventListener('click', guarded(() => downloadJson(TARGETS_FILE, targetsJson())));
-importChecks.addEventListener('click', guarded(() => pickJson(applyChecks)));
 
-// フォルダとデータの操作は折りたたんでおく。選んだあとや外を押したときは閉じる
+// データの操作は折りたたんでおく。選んだあとや外を押したときは閉じる
 const toolMenu = byId<HTMLDetailsElement>('tool-menu');
 toolMenu.addEventListener('click', (event) => {
   if ((event.target as HTMLElement).closest('.tool-menu-body button') !== null) toolMenu.open = false;
@@ -470,16 +580,14 @@ window.name = BOARD_WINDOW;
 window.addEventListener('storage', render);
 render();
 revealFromUrl();
-if (supported) {
-  const refresh = guarded(refreshDrafts);
-  refresh();
-  // Claude Code で書き出したあとボードへ戻ったときに反映する
-  window.addEventListener('focus', refresh);
-}
+const refresh = guarded(refreshLocal);
+refresh();
+// Claude Code で原稿を書き出したり、Slack の回答を data/answers へ保存したりしてからボードへ戻ったときに反映する
+window.addEventListener('focus', refresh);
 
 /** 記事の追加や値の入力のダイアログが開いているか。ボードの未保存の入力はここにしかない */
 function editing(): boolean {
-  return dialog.open || document.querySelector('dialog.input-dialog') !== null;
+  return dialog.open || document.querySelector('dialog.input-dialog, dialog.handoff-dialog') !== null;
 }
 
 // 開いたままのボードも新しい版に気づけるようにする。開発サーバーとテストには version.json がないため、公開ビルドだけで確認する

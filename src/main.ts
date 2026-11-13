@@ -9,18 +9,17 @@ import { buildLookupPrompt, defaultListingCheckDate, lookupTargets, needsLookup,
 import { shareRecord, shareErrorMessage } from './share';
 import { FormValidationError, validateVisitForm } from './form-validation';
 import { bindFormFeedback, type FormFeedback } from './ui/form-feedback';
-import { buildCatalogPrompt, buildMatomePrompt, buildRevisitPrompt, buildSinglePrompt } from './prompt/build-prompt';
+import { buildCatalogPrompt, buildMatomePrompt } from './prompt/build-prompt';
 import type { NameDisclosure } from './prompt/build-prompt';
 import { SUMMARY_MIN_THERAPISTS, countPublishedTherapists, isPublished, parsePostedUrlInput } from './prompt/publication';
 import { findOriginalRecord as findOriginalIn } from './revisit';
 import { watchForUpdate } from './update-watch';
-import { parseListingCheckDate } from './date';
 import { bindDataButtons as bindDataButtonsWith, canRestoreBackup, dataButtonsHtml } from './ui/data-buttons';
 import { renderListTab as renderListTabInto } from './ui/list-tab';
 import { renderThumbTab as renderThumbTabInto } from './ui/thumb-tab';
 import { openInputDialog } from './ui/input-dialog';
 import { INPUT_WINDOW, boardLinkHtml, takeParam } from './links';
-import { articleSaveSection } from './prompt/article-files';
+import { REVISIT_CYCLE, buildArticlePrompt } from './prompt/article-prompt';
 import { ARTICLE_DIR, ARTICLE_DIR_ERROR, openClaudeApp } from './local-setup';
 import { BoardStore, disclosureOfAngle, layoutOfAngle, markPrompted, type ArticleAngle } from './board/state';
 import './styles.css';
@@ -112,9 +111,8 @@ function markPromptedOnBoard(record: VisitRecord): void {
 }
 
 /** 記事プロンプトに店舗情報の確認を入れたときは、返答の貼り先を知らせる */
-function copyArticlePrompt(record: VisitRecord, disclosure: NameDisclosure, text: string): void {
-  const full = ARTICLE_DIR === null ? text : `${text}\n\n${articleSaveSection(ARTICLE_DIR, record, disclosure)}`;
-  copyGenerated(full, needsLookup(record)
+function copyArticlePrompt(record: VisitRecord, text: string): void {
+  copyGenerated(text, needsLookup(record)
     ? 'コピーしました。返答を「店舗情報を取得」に貼ると記録にも反映されます'
     : undefined, () => markPromptedOnBoard(record));
 }
@@ -465,23 +463,19 @@ function copyPrompt(record: VisitRecord, disclosure: NameDisclosure): void {
 }
 
 function copyPromptWith(record: VisitRecord, disclosure: NameDisclosure, listingCheckedOn: string): void {
-  // 再訪元が見つからないときの知らせより先に、入力の誤りを返す
-  parseListingCheckDate(listingCheckedOn);
-  if (record.revisitOf !== null) {
-    const first = findOriginalRecord(record);
-    if (first === 'missing') {
-      toast('初回レコードが見つかりません。単体として生成します');
-      copyArticlePrompt(record, disclosure, buildSinglePrompt(record, disclosure, listingCheckedOn));
+  let prompt;
+  try {
+    prompt = buildArticlePrompt(record, getStore().loadAll(), disclosure, listingCheckedOn, ARTICLE_DIR);
+  } catch (err) {
+    // 日付の誤りはダイアログに残して直せるようにし、再訪の循環はトーストで知らせる
+    if (err instanceof Error && err.message === REVISIT_CYCLE) {
+      toast(err.message);
       return;
     }
-    if (first === 'cycle') {
-      toast('再訪の参照が循環しています');
-      return;
-    }
-    copyArticlePrompt(record, disclosure, buildRevisitPrompt(record, first, disclosure, listingCheckedOn));
-    return;
+    throw err;
   }
-  copyArticlePrompt(record, disclosure, buildSinglePrompt(record, disclosure, listingCheckedOn));
+  if (prompt.notice !== null) toast(prompt.notice);
+  copyArticlePrompt(record, prompt.text);
 }
 
 function savePostedUrl(record: VisitRecord): void {

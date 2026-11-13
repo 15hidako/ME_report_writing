@@ -1,4 +1,4 @@
-// このPCだけの設定。.env.local(gitignore済み)に VITE_ARTICLE_DIR を書いたときだけ有効になる。
+// 原稿の保存先。開発サーバー(start.bat)で開いたときは、vite.config.ts が PJ内の data/articles を VITE_ARTICLE_DIR に入れる。
 // GitHub Pages の公開版には値が入らないため、スマホの入力画面は従来どおりコピーだけを行う。
 
 import { errText } from './guards';

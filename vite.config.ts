@@ -1,4 +1,6 @@
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
+import { localDataPlugin } from './scripts/local-data.mjs';
 
 // 公開のたびに変わる識別子。開いたままの画面が、新しい版の公開に気づくために使う
 const buildId = process.env.GITHUB_SHA ?? String(Date.now());
@@ -18,5 +20,5 @@ export default defineConfig({
     generateBundle() {
       this.emitFile({ type: 'asset', fileName: 'version.json', source: JSON.stringify({ buildId }) });
     },
-  }],
+  }, localDataPlugin(fileURLToPath(new URL('.', import.meta.url)))],
 });

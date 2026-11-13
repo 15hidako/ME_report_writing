@@ -4,20 +4,22 @@ import boardPage from '../../board.html?raw';
 import { fixtureRecord } from '../test-fixtures';
 import type { VisitRecord } from '../types';
 import type { BoardState } from './state';
+import type { ArticleDraft } from './articles';
 
 const VISITS_KEY = 'me-report-writer/visits/v1';
 const BOARD_KEY = 'me-report-writer/board/v1';
 const WAKUST_URL = 'https://wakust.com/reports/latest';
 
-const folder = vi.hoisted(() => ({
-  folderSupported: vi.fn(() => false),
-  savedFolder: vi.fn(),
-  pickFolder: vi.fn(),
-  ensureAccess: vi.fn(),
-  readText: vi.fn(),
-  writeText: vi.fn(),
+const local = vi.hoisted(() => ({
+  localDataAvailable: vi.fn(),
+  fetchAnswerFiles: vi.fn(),
+  fetchDrafts: vi.fn(),
+  fetchArticlePart: vi.fn(),
+  fetchCheckFile: vi.fn(),
+  putCheckFile: vi.fn(),
+  runWeeklyCheck: vi.fn(),
 }));
-vi.mock('./folder', () => folder);
+vi.mock('./local-api', () => local);
 
 /** board.html の <body> の中身。ページ側の変更がそのままテストに入る */
 function pageBody(): string {
@@ -62,39 +64,6 @@ function cardButton(id: string, name: string): HTMLButtonElement {
   const match = [...card(id).querySelectorAll('button')].find((item) => item.textContent?.trim() === name);
   if (match === undefined) throw new Error(`button not found: ${name}`);
   return match;
-}
-
-interface FakeDir {
-  readonly kind: 'directory';
-  readonly name: string;
-  values(): AsyncGenerator<FakeDir>;
-  getDirectoryHandle(name: string): Promise<FakeDir>;
-  getFileHandle(name: string): Promise<{ getFile(): Promise<{ lastModified: number; text(): Promise<string> }> }>;
-  queryPermission(): Promise<'granted'>;
-}
-
-function notFound(): never {
-  throw new DOMException('not found', 'NotFoundError');
-}
-
-/** 原稿フォルダの代わり。scanArticles が使う範囲だけを持つ */
-function fakeDir(name: string, children: readonly FakeDir[] = [], files: readonly string[] = []): FakeDir {
-  return {
-    kind: 'directory',
-    name,
-    async *values() { yield* children; },
-    getDirectoryHandle: async (child) => children.find((item) => item.name === child) ?? notFound(),
-    getFileHandle: async (file) => files.includes(file)
-      ? { getFile: async () => ({ lastModified: Date.UTC(2026, 10, 12), text: async () => '' }) }
-      : notFound(),
-    queryPermission: async () => 'granted',
-  };
-}
-
-/** 回答1件ぶんの通常版の原稿(タイトルと無料部分)が入った原稿フォルダ */
-function articlesFolder(name: string, record: VisitRecord): FakeDir {
-  const standard = fakeDir('standard', [], ['title.txt', 'free-part.html']);
-  return fakeDir(name, [fakeDir(`${String(record.seriesNo).padStart(4, '0')}-${record.id}`, [standard])]);
 }
 
 /** 開いている入力ダイアログに値を入れて「決定」を押す。null なら「キャンセル」を押す */
@@ -153,8 +122,9 @@ beforeEach(() => {
   window.localStorage.clear();
   history.replaceState(null, '', '/board.html');
   document.body.innerHTML = pageBody();
-  folder.folderSupported.mockReturnValue(false);
-  folder.savedFolder.mockResolvedValue(null);
+  local.localDataAvailable.mockResolvedValue(true);
+  local.fetchAnswerFiles.mockResolvedValue([]);
+  local.fetchDrafts.mockResolvedValue(new Map());
   // このPCの .env.local に左右されないよう、保存先は未設定から始める
   vi.stubEnv('VITE_ARTICLE_DIR', '');
 });
@@ -459,12 +429,11 @@ describe('出勤表URL', () => {
 });
 
 describe('ツールバーの折りたたみ', () => {
-  it('フォルダとデータの操作は閉じた中にあり、選ぶか外を押すと閉じる', async () => {
+  it('データの操作は閉じた中にあり、選ぶか外を押すと閉じる', async () => {
     await start([fixtureRecord()]);
     const menu = byId<HTMLDetailsElement>('tool-menu');
     expect(menu.open).toBe(false);
     expect(menu.contains(byId('export-board'))).toBe(true);
-    expect(menu.contains(byId('pick-articles'))).toBe(true);
     menu.open = true;
     byId('board').click();
     expect(menu.open).toBe(false);
@@ -529,199 +498,231 @@ describe('入力画面からの ?card=', () => {
   });
 });
 
-describe('フォルダの読み書きに対応していないブラウザ', () => {
-  it('確認対象の書き出しと確認結果の読み込みを見せ、フォルダを使う操作を隠す', async () => {
+describe('data/ の原稿', () => {
+  const draftFor = (record: VisitRecord): Map<string, ArticleDraft> => new Map([[record.id, {
+    recordId: record.id,
+    folderName: `0001-${record.id}`,
+    variants: [{ disclosure: 'paid', parts: ['title', 'freePart'], updatedAt: Date.UTC(2026, 10, 12) }],
+  }]]);
+  const draftNames = (id: string): string[] =>
+    [...card(id).querySelectorAll('.draft-name')].map((item) => item.textContent ?? '');
+
+  it('開いたときに原稿を読み、カードに出して「推敲中」へ進める', async () => {
+    const record = fixtureRecord();
+    local.fetchDrafts.mockResolvedValue(draftFor(record));
+    await start([record]);
+    await vi.waitFor(() => expect(draftNames(record.id)).toEqual(['通常版']));
+    expect(card(record.id).querySelectorAll('[data-act="copy-part"]')).toHaveLength(2);
+    expect(stageOf(record.id)).toBe('editing');
+    expect(savedBoard().stages).toEqual({ [record.id]: 'editing' });
+  });
+
+  it('ボードへ戻ったときに読み直し、新しく書き出された原稿を出す', async () => {
+    const record = fixtureRecord();
+    await start([record]);
+    await vi.waitFor(() => expect(local.fetchDrafts).toHaveBeenCalledTimes(1));
+    expect(card(record.id).querySelector('.draft')).toBeNull();
+    local.fetchDrafts.mockResolvedValue(draftFor(record));
+    window.dispatchEvent(new Event('focus'));
+    await vi.waitFor(() => expect(draftNames(record.id)).toEqual(['通常版']));
+  });
+
+  it('部分のボタンでその原稿ファイルの中身をコピーする', async () => {
+    const record = fixtureRecord();
+    local.fetchDrafts.mockResolvedValue(draftFor(record));
+    local.fetchArticlePart.mockResolvedValue('<p>本文</p>');
+    const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
+    await start([record]);
+    await vi.waitFor(() => expect(draftNames(record.id)).toEqual(['通常版']));
+    cardButton(record.id, '無料').click();
+    await vi.waitFor(() => expect(copy).toHaveBeenCalledWith('<p>本文</p>'));
+    expect(local.fetchArticlePart).toHaveBeenCalledWith(expect.objectContaining({ recordId: record.id }), 'paid', 'freePart');
+    expect(toasts()).toEqual(['無料部分をコピーしました']);
+  });
+
+  it('data/ に届かないときは理由をボードに出す', async () => {
+    local.localDataAvailable.mockResolvedValue(false);
     await start([fixtureRecord()]);
-    expect(byId('export-targets').hidden).toBe(false);
-    expect(byId('import-checks').hidden).toBe(false);
-    expect(byId('sync').hidden).toBe(true);
-    expect(byId('articles').hidden).toBe(true);
-    expect(byId('pick-folder').hidden).toBe(true);
-    expect(byId('pick-articles').hidden).toBe(true);
-    expect(folder.savedFolder).not.toHaveBeenCalled();
+    await vi.waitFor(() => expect(document.querySelector('.inbox-error')?.textContent).toContain('start.bat'));
+    expect(local.fetchDrafts).not.toHaveBeenCalled();
   });
 });
 
-describe('フォルダの読み書きに対応しているブラウザ', () => {
-  beforeEach(() => {
-    folder.folderSupported.mockReturnValue(true);
+describe('data/ の回答', () => {
+  const file = (records: readonly VisitRecord[], name = 'me-report-1.json', modifiedAt = 1) =>
+    ({ name, modifiedAt, text: JSON.stringify(records) });
+  const inboxLabels = (): string[] => [...document.querySelectorAll('.inbox li')].map((item) => item.textContent?.trim() ?? '');
+
+  it('ボードにない回答を知らせ、「取り込む」で追加する', async () => {
+    const record = fixtureRecord();
+    local.fetchAnswerFiles.mockResolvedValue([file([record])]);
+    await start([]);
+    await vi.waitFor(() => expect(inboxLabels()).toEqual(['天界のスパ — えりか']));
+    document.querySelector<HTMLButtonElement>('[data-act="import-answers"]')!.click();
+    await vi.waitFor(() => expect(toasts()).toEqual(['回答を1件追加しました']));
+    expect(savedVisits().map((item) => item.id)).toEqual([record.id]);
+    expect(cardIds()).toEqual([record.id]);
+    expect(document.querySelector('.inbox')).toBeNull();
   });
 
-  it('同期とフォルダの操作を見せ、ファイルでの受け渡しを隠す', async () => {
-    await start([fixtureRecord()]);
-    expect(byId('sync').hidden).toBe(false);
-    expect(byId('articles').hidden).toBe(false);
-    expect(byId('pick-folder').hidden).toBe(false);
-    expect(byId('pick-articles').hidden).toBe(false);
-    expect(byId('export-targets').hidden).toBe(true);
-    expect(byId('import-checks').hidden).toBe(true);
+  it('通し番号が重なれば確かめずに次の番号で足し、振り直したことを知らせる', async () => {
+    const saved = fixtureRecord({ seriesNo: 2 });
+    const incoming = fixtureRecord({ id: 'from-phone', seriesNo: 2, basic: { ...saved.basic, therapistName: 'めぐ' } });
+    local.fetchAnswerFiles.mockResolvedValue([file([incoming])]);
+    const ask = vi.fn(() => true);
+    vi.stubGlobal('confirm', ask);
+    await start([saved]);
+    await vi.waitFor(() => expect(inboxLabels()).toEqual(['天界のスパ — めぐ']));
+    document.querySelector<HTMLButtonElement>('[data-act="import-answers"]')!.click();
+    await vi.waitFor(() => expect(toasts()).toEqual(['回答を1件追加しました(番号が重なったため めぐ は #3)']));
+    expect(ask).not.toHaveBeenCalled();
+    expect(savedVisits().find((item) => item.id === 'from-phone')?.seriesNo).toBe(3);
   });
 
-  it('「同期」で確認対象とバックアップを書き出し、確認結果を取り込む', async () => {
+  it('3回目の再訪が2回目より先のファイルにあっても、初回から順に取り込む', async () => {
+    const first = fixtureRecord({ id: 'visit-1', seriesNo: 1 });
+    const second = fixtureRecord({ id: 'visit-2', seriesNo: 2, revisitOf: 'visit-1', sales: { points: 100, articleType: 'revisit' } });
+    const third = fixtureRecord({ id: 'visit-3', seriesNo: 3, revisitOf: 'visit-2', sales: { points: 100, articleType: 'revisit' } });
+    local.fetchAnswerFiles.mockResolvedValue([file([third], 'c.json', 1), file([second], 'b.json', 2), file([first], 'a.json', 3)]);
+    await start([]);
+    await vi.waitFor(() => expect(inboxLabels()).toHaveLength(3));
+    document.querySelector<HTMLButtonElement>('[data-act="import-answers"]')!.click();
+    await vi.waitFor(() => expect(toasts()).toEqual(['回答を3件追加しました']));
+    expect(savedVisits().map((item) => item.id)).toEqual(['visit-1', 'visit-2', 'visit-3']);
+  });
+
+  it('取り込めない回答があっても残りは取り込み、理由を知らせる', async () => {
+    const orphan = fixtureRecord({ id: 'orphan', revisitOf: 'missing-first', sales: { points: 100, articleType: 'revisit' } });
+    const ok = fixtureRecord({ id: 'ok', seriesNo: 2 });
+    local.fetchAnswerFiles.mockResolvedValue([file([orphan], 'a.json', 1), file([ok], 'b.json', 2)]);
+    await start([]);
+    await vi.waitFor(() => expect(inboxLabels()).toHaveLength(2));
+    document.querySelector<HTMLButtonElement>('[data-act="import-answers"]')!.click();
+    await vi.waitFor(() => expect(toasts()).toEqual([
+      '回答を1件追加しました',
+      expect.stringContaining('取り込めなかった回答: えりか: 再訪先の回答が見つかりません'),
+    ]));
+    expect(savedVisits().map((item) => item.id)).toEqual(['ok']);
+  });
+
+  it('ボードより新しい回答は差分を確かめてから更新し、通し番号はボード側を保つ', async () => {
+    const saved = fixtureRecord({ seriesNo: 5 });
+    const newer = fixtureRecord({
+      seriesNo: 2, updatedAt: '2026-07-02T10:00:00.000Z', basic: { ...saved.basic, nominationFee: 2000 },
+    });
+    local.fetchAnswerFiles.mockResolvedValue([file([newer])]);
+    await start([saved]);
+    await vi.waitFor(() => expect(inboxLabels()).toEqual(['更新天界のスパ — えりか']));
+    document.querySelector<HTMLButtonElement>('[data-act="import-answers"]')!.click();
+    const dialog = await vi.waitFor(() => {
+      const node = document.querySelector<HTMLDialogElement>('.handoff-dialog');
+      if (node === null) throw new Error('dialog not open');
+      return node;
+    });
+    expect(dialog.textContent).toContain('指名料');
+    [...dialog.querySelectorAll('button')].find((button) => button.textContent === '更新する')!.click();
+    await vi.waitFor(() => expect(toasts()).toEqual(['回答を1件更新しました']));
+    expect(savedVisits()[0]).toMatchObject({ seriesNo: 5, basic: { nominationFee: 2000 } });
+  });
+
+  it('同じ回答が複数のファイルにあれば新しいほうを使い、ボードより古いものは知らせない', async () => {
+    const saved = fixtureRecord({ updatedAt: '2026-07-03T10:00:00.000Z' });
+    const older = fixtureRecord({ updatedAt: '2026-07-02T10:00:00.000Z', basic: { ...saved.basic, nominationFee: 3000 } });
+    local.fetchAnswerFiles.mockResolvedValue([file([older], 'me-report-old.json', 1), file([saved], 'me-report-new.json', 2)]);
+    await start([saved]);
+    await vi.waitFor(() => expect(local.fetchAnswerFiles).toHaveBeenCalled());
+    await settle();
+    expect(document.querySelector('.inbox')).toBeNull();
+  });
+
+  it('読めないファイルは理由を出し、ほかの回答は取り込める', async () => {
+    local.fetchAnswerFiles.mockResolvedValue([{ name: 'broken.json', modifiedAt: 1, text: '{' }, file([fixtureRecord()])]);
+    await start([]);
+    await vi.waitFor(() => expect(document.querySelector('.inbox-error')?.textContent).toContain('broken.json'));
+    expect(inboxLabels()).toEqual(['天界のスパ — えりか']);
+  });
+});
+
+describe('回答カードの記事プロンプト', () => {
+  it('出勤確認日を尋ねてコピーし、「プロンプト出力」へ進める', async () => {
+    const record = fixtureRecord();
+    const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
+    await start([record]);
+    cardButton(record.id, 'プロンプト').click();
+    answerInput('2026-11-13');
+    await vi.waitFor(() => expect(copy).toHaveBeenCalledOnce());
+    expect(copy.mock.calls[0]![0]).toContain('出勤確認: 2026年11月13日に店舗HPの出勤表で確認');
+    await vi.waitFor(() => expect(stageOf(record.id)).toBe('prompted'));
+  });
+
+  it('販売型に合う側を主ボタンにし、名前公開版も出せる', async () => {
+    const record = fixtureRecord();
+    const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
+    await start([record], emptyBoard({ angles: { [record.id]: 'therapist' } }));
+    expect(cardButton(record.id, '名前公開版').classList.contains('primary')).toBe(true);
+    expect(cardButton(record.id, 'プロンプト').classList.contains('primary')).toBe(false);
+    cardButton(record.id, '名前公開版').click();
+    answerInput('');
+    await vi.waitFor(() => expect(copy).toHaveBeenCalledOnce());
+    expect(copy.mock.calls[0]![0]).toContain('タイトルに店名と源氏名を入れる');
+  });
+
+  it('出勤確認日を取り消すと、コピーも段階の変更もしない', async () => {
+    const record = fixtureRecord();
+    const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
+    await start([record]);
+    cardButton(record.id, 'プロンプト').click();
+    answerInput(null);
+    await settle();
+    expect(copy).not.toHaveBeenCalled();
+    expect(stageOf(record.id)).toBe('answered');
+  });
+
+  it('投稿済みのカードには出さない', async () => {
     const record = fixtureRecord({ postedUrl: WAKUST_URL });
-    const handoff = { name: 'handoff' };
+    await start([record]);
+    expect(card(record.id).querySelector('.prompt-actions')).toBeNull();
+  });
+});
+
+describe('週次確認', () => {
+  it('確認対象を書き出して確認を実行し、結果を取り込んでから控えを残す', async () => {
+    const record = fixtureRecord({ postedUrl: WAKUST_URL });
     const check = {
       profileUrl: record.basic.therapistProfileUrl, checkedAt: new Date().toISOString(),
       enrollment: 'present', attendance: 'listed', detail: '',
     };
-    folder.savedFolder.mockImplementation(async (slot?: string) => slot === 'articles' ? null : handoff);
-    folder.ensureAccess.mockResolvedValue(undefined);
-    folder.writeText.mockResolvedValue(undefined);
-    folder.readText.mockResolvedValue(JSON.stringify({ version: 1, results: [check] }));
+    local.putCheckFile.mockResolvedValue(undefined);
+    local.runWeeklyCheck.mockResolvedValue('確認 1件');
+    local.fetchCheckFile.mockResolvedValue(JSON.stringify({ version: 1, results: [check] }));
     await start([record]);
     byId('sync').click();
-    await vi.waitFor(() => expect(folder.writeText).toHaveBeenCalledTimes(2));
+    await vi.waitFor(() => expect(local.putCheckFile).toHaveBeenCalledTimes(2));
 
-    expect(folder.pickFolder).not.toHaveBeenCalled();
-    expect(folder.ensureAccess).toHaveBeenCalledWith(handoff);
-    expect(folder.readText).toHaveBeenCalledWith(handoff, 'checks.json');
-    const [targetsCall, backupCall] = folder.writeText.mock.calls as [unknown, string, string][];
-    expect(targetsCall?.slice(0, 2)).toEqual([handoff, 'targets.json']);
-    expect(JSON.parse(targetsCall![2])).toMatchObject({
+    const [targetsCall, backupCall] = local.putCheckFile.mock.calls as [string, string][];
+    expect(targetsCall?.[0]).toBe('targets.json');
+    expect(JSON.parse(targetsCall![1])).toMatchObject({
       version: 1,
       targets: [{ profileUrl: record.basic.therapistProfileUrl, therapistName: record.basic.therapistName, scheduleUrl: null }],
     });
+    expect(local.runWeeklyCheck).toHaveBeenCalledOnce();
+    expect(local.fetchCheckFile).toHaveBeenCalledWith('checks.json');
     expect(savedBoard().checks).toEqual([check]);
-    expect(backupCall?.slice(0, 2)).toEqual([handoff, 'board-backup.json']);
-    // バックアップは、確認結果を取り込んだあとの内容
-    expect(backupCall![2]).toBe(window.localStorage.getItem(BOARD_KEY));
+    // 控えは、確認結果を取り込んだあとの内容
+    expect(backupCall).toEqual(['board-backup.json', window.localStorage.getItem(BOARD_KEY)]);
     expect(card(record.id).querySelector('.track')?.textContent).toContain('出勤あり');
     expect(toasts()).toEqual([expect.stringContaining('の確認結果を読み込みました')]);
+    expect(byId<HTMLButtonElement>('sync').disabled).toBe(false);
   });
 
-  it('受け渡しフォルダが未設定なら選ばせ、確認結果がまだなければその旨を知らせる', async () => {
-    const handoff = { name: 'handoff' };
-    folder.pickFolder.mockResolvedValue(handoff);
-    folder.ensureAccess.mockResolvedValue(undefined);
-    folder.writeText.mockResolvedValue(undefined);
-    folder.readText.mockResolvedValue(null);
-    await start([fixtureRecord()]);
+  it('確認が失敗したら理由を知らせ、ボタンを戻す', async () => {
+    local.putCheckFile.mockResolvedValue(undefined);
+    local.runWeeklyCheck.mockRejectedValue(new Error('targets.json を読めません'));
+    await start([fixtureRecord({ postedUrl: WAKUST_URL })]);
     byId('sync').click();
-    await vi.waitFor(() => expect(folder.writeText).toHaveBeenCalledTimes(2));
-    expect(folder.pickFolder).toHaveBeenCalledOnce();
-    expect(toasts()).toEqual(['確認対象を書き出しました。確認結果はまだありません']);
-    expect(window.localStorage.getItem(BOARD_KEY)).toBeNull();
-  });
-
-  describe('原稿フォルダ', () => {
-    const draftNames = (id: string): string[] =>
-      [...card(id).querySelectorAll('.draft-name')].map((item) => item.textContent ?? '');
-
-    beforeEach(() => {
-      folder.ensureAccess.mockResolvedValue(undefined);
-    });
-
-    it('選び直すと、選んだフォルダの原稿をカードに出す', async () => {
-      const record = fixtureRecord();
-      const before = articlesFolder('drafts-old', fixtureRecord({ id: 'other-id' }));
-      const after = articlesFolder('drafts-new', record);
-      folder.savedFolder.mockImplementation(async (slot?: string) => slot === 'articles' ? before : null);
-      folder.pickFolder.mockResolvedValue(after);
-      await start([record]);
-      await vi.waitFor(() => expect(folder.savedFolder).toHaveBeenCalledWith('articles'));
-      expect(card(record.id).querySelector('.draft')).toBeNull();
-
-      byId('pick-articles').click();
-      await vi.waitFor(() => expect(toasts()).toEqual(['原稿 1件(drafts-new)']));
-      expect(folder.pickFolder).toHaveBeenCalledExactlyOnceWith('articles');
-      expect(folder.ensureAccess).toHaveBeenCalledWith(after);
-      expect(draftNames(record.id)).toEqual(['通常版']);
-      expect(card(record.id).querySelectorAll('[data-act="copy-part"]')).toHaveLength(2);
-      expect(stageOf(record.id)).toBe('editing');
-    });
-
-    it('選択を取り消したときは何も知らせず、表示を変えない', async () => {
-      const record = fixtureRecord();
-      folder.pickFolder.mockRejectedValue(new DOMException('aborted', 'AbortError'));
-      await start([record]);
-      byId('pick-articles').click();
-      await vi.waitFor(() => expect(folder.pickFolder).toHaveBeenCalledExactlyOnceWith('articles'));
-      await settle();
-      expect(toasts()).toEqual([]);
-      expect(card(record.id).querySelector('.draft')).toBeNull();
-      expect(stageOf(record.id)).toBe('answered');
-    });
-
-    it('「原稿」は、設定済みならフォルダを選ばせずに読み直す', async () => {
-      const record = fixtureRecord();
-      const saved = articlesFolder('drafts', record);
-      folder.savedFolder.mockImplementation(async (slot?: string) => slot === 'articles' ? saved : null);
-      await start([record]);
-      byId('articles').click();
-      await vi.waitFor(() => expect(toasts()).toEqual(['原稿 1件(drafts)']));
-      expect(folder.pickFolder).not.toHaveBeenCalled();
-      expect(draftNames(record.id)).toEqual(['通常版']);
-    });
-
-    it('「原稿」は、未設定ならフォルダを選ばせる', async () => {
-      const record = fixtureRecord();
-      folder.pickFolder.mockResolvedValue(articlesFolder('drafts', record));
-      await start([record]);
-      byId('articles').click();
-      await vi.waitFor(() => expect(toasts()).toEqual(['原稿 1件(drafts)']));
-      expect(folder.pickFolder).toHaveBeenCalledExactlyOnceWith('articles');
-    });
-  });
-
-  describe('プロンプトの保存先との食い違い', () => {
-    const SAVE_DIR = 'C:\\work\\articles';
-    const draftCount = (id: string): number => card(id).querySelectorAll('.draft-row').length;
-
-    beforeEach(() => {
-      folder.ensureAccess.mockResolvedValue(undefined);
-    });
-
-    it('選び直したフォルダの名前が保存先と違えば知らせ、読み込みは続ける', async () => {
-      const record = fixtureRecord();
-      vi.stubEnv('VITE_ARTICLE_DIR', SAVE_DIR);
-      folder.pickFolder.mockResolvedValue(articlesFolder('drafts', record));
-      await start([record]);
-      byId('pick-articles').click();
-      await vi.waitFor(() => expect(toasts()).toEqual([
-        `原稿フォルダ「drafts」は、プロンプトの保存先「${SAVE_DIR}」と名前が違います`,
-      ]));
-      expect(draftCount(record.id)).toBe(1);
-      expect(stageOf(record.id)).toBe('editing');
-    });
-
-    it('「原稿」で読み直したときも知らせる', async () => {
-      const record = fixtureRecord();
-      vi.stubEnv('VITE_ARTICLE_DIR', SAVE_DIR);
-      const saved = articlesFolder('drafts', record);
-      folder.savedFolder.mockImplementation(async (slot?: string) => slot === 'articles' ? saved : null);
-      await start([record]);
-      byId('articles').click();
-      await vi.waitFor(() => expect(toasts()).toEqual([
-        `原稿フォルダ「drafts」は、プロンプトの保存先「${SAVE_DIR}」と名前が違います`,
-      ]));
-      expect(draftCount(record.id)).toBe(1);
-    });
-
-    it.each([
-      ['C:\\work\\articles'],
-      ['C:\\work\\articles\\'],
-      ['/home/me/Articles'],
-    ])('保存先 %s と同じ名前のフォルダでは知らせない', async (dir) => {
-      const record = fixtureRecord();
-      vi.stubEnv('VITE_ARTICLE_DIR', dir);
-      folder.pickFolder.mockResolvedValue(articlesFolder('articles', record));
-      await start([record]);
-      byId('pick-articles').click();
-      await vi.waitFor(() => expect(toasts()).toEqual(['原稿 1件(articles)']));
-    });
-
-    it('フォーカスが戻ったときの自動読み直しでは知らせない', async () => {
-      const record = fixtureRecord();
-      vi.stubEnv('VITE_ARTICLE_DIR', SAVE_DIR);
-      const saved = articlesFolder('drafts', record);
-      folder.savedFolder.mockImplementation(async (slot?: string) => slot === 'articles' ? saved : null);
-      await start([record]);
-      await vi.waitFor(() => expect(draftCount(record.id)).toBe(1));
-      window.dispatchEvent(new Event('focus'));
-      await vi.waitFor(() => expect(folder.savedFolder).toHaveBeenCalledTimes(2));
-      await settle();
-      expect(toasts()).toEqual([]);
-      expect(draftCount(record.id)).toBe(1);
-    });
+    await vi.waitFor(() => expect(toasts()).toEqual(['targets.json を読めません']));
+    expect(byId<HTMLButtonElement>('sync').disabled).toBe(false);
+    expect(byId('sync').textContent).toBe('週次確認');
+    expect(local.fetchCheckFile).not.toHaveBeenCalled();
   });
 });
