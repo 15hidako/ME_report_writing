@@ -625,7 +625,7 @@ describe('フォルダの読み書きに対応しているブラウザ', () => {
       await vi.waitFor(() => expect(toasts()).toEqual(['原稿 1件(drafts-new)']));
       expect(folder.pickFolder).toHaveBeenCalledExactlyOnceWith('articles');
       expect(folder.ensureAccess).toHaveBeenCalledWith(after);
-      expect(draftNames(record.id)).toEqual(['原稿']);
+      expect(draftNames(record.id)).toEqual(['通常版']);
       expect(card(record.id).querySelectorAll('[data-act="copy-part"]')).toHaveLength(2);
       expect(stageOf(record.id)).toBe('editing');
     });
@@ -650,7 +650,7 @@ describe('フォルダの読み書きに対応しているブラウザ', () => {
       byId('articles').click();
       await vi.waitFor(() => expect(toasts()).toEqual(['原稿 1件(drafts)']));
       expect(folder.pickFolder).not.toHaveBeenCalled();
-      expect(draftNames(record.id)).toEqual(['原稿']);
+      expect(draftNames(record.id)).toEqual(['通常版']);
     });
 
     it('「原稿」は、未設定ならフォルダを選ばせる', async () => {

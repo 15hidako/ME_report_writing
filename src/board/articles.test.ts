@@ -12,7 +12,7 @@ const record = { ...fixtureRecord(), id: 'rec-abc', seriesNo: 7 };
 function draft(recordId: string): ArticleDraft {
   return {
     recordId, folderName: `0007-${recordId}`,
-    variants: [{ disclosure: 'paid', parts: ['title', 'free'], updatedAt: Date.parse('2026-11-12T05:03:00Z') }],
+    variants: [{ disclosure: 'paid', parts: ['title', 'freePart'], updatedAt: Date.parse('2026-11-12T05:03:00Z') }],
   };
 }
 
@@ -58,8 +58,8 @@ describe('カードの原稿表示', () => {
     const cards = buildCards([record], EMPTY_BOARD, new Date(), new Map([[record.id, draft(record.id)]]));
     const html = boardHtml(cards, 'all');
     expect(html).toContain('data-part="title"');
-    expect(html).toContain('data-part="free"');
-    expect(html).not.toContain('data-part="paid"');
+    expect(html).toContain('data-part="freePart"');
+    expect(html).not.toContain('data-part="paidPart"');
   });
 
   it('原稿がなければ何も出さない', () => {

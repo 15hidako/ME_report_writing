@@ -39,6 +39,9 @@ OPI・HJ・KP等の定番まで毎回説明するとテンポが死に、初心�
  */
 export type NameDisclosure = 'paid' | 'free';
 
+/** 名前の出し方の表示名。入力画面のボタン(「プロンプト」「名前公開版」)は文言を変えずに残す */
+export const DISCLOSURE_LABELS: Readonly<Record<NameDisclosure, string>> = { paid: '通常版', free: '名前公開版' };
+
 const NAME_RULES: Readonly<Record<NameDisclosure, string>> = {
   paid: '- 店名・源氏名・リンクは有料部分でのみ開示。無料部分とタイトルには出さない(エリアは可)',
   free: '- 店名・源氏名は無料部分とタイトルで開示する。店・セラピストのリンク、年齢・体型、評価6軸、ご対面からの本編は有料部分に置く',

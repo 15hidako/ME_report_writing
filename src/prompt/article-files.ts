@@ -21,8 +21,9 @@ export const VARIANT_DIRS: Readonly<Record<NameDisclosure, string>> = { paid: 's
 export const ARTICLE_PARTS = [
   { id: 'title', file: 'title.txt', label: 'タイトル', short: 'タイトル' },
   { id: 'tags', file: 'tags.txt', label: 'タグ', short: 'タグ' },
-  { id: 'free', file: 'free-part.html', label: '無料部分', short: '無料' },
-  { id: 'paid', file: 'paid-part.html', label: '有料部分', short: '有料' },
+  // id は名前の出し方(NameDisclosure の paid/free)と取り違えないよう Part を付ける。保存されない
+  { id: 'freePart', file: 'free-part.html', label: '無料部分', short: '無料' },
+  { id: 'paidPart', file: 'paid-part.html', label: '有料部分', short: '有料' },
 ] as const;
 export type ArticlePart = (typeof ARTICLE_PARTS)[number]['id'];
 
