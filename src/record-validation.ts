@@ -3,15 +3,12 @@ import addFormats from 'ajv-formats';
 import schema from '../schema/visit-record.schema.json';
 import type { VisitRecord } from './types';
 import { isHttpUrl } from './url';
+import { isObject } from './guards';
 
 const ajv = new Ajv2020({ allErrors: true, ownProperties: true });
 addFormats(ajv, ['date', 'date-time']);
 ajv.addFormat('http-url', isHttpUrl);
 const validate = ajv.compile<VisitRecord>(schema);
-
-function isObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
 
 function normalizeLegacyRecord(value: unknown): unknown {
   if (!isObject(value)) return value;

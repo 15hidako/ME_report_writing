@@ -29,6 +29,9 @@ const ATTENDANCE_LABELS: Readonly<Record<Attendance, string>> = {
 
 export type KindFilter = ArticleKind | 'all';
 
+/** 絞り込みの並び。先頭は「すべて」 */
+export const KIND_FILTERS: readonly KindFilter[] = ['all', 'single', 'revisit', 'matome', 'catalog'];
+
 function trackingHtml(card: Card): string {
   const tracking = card.tracking;
   if (tracking === null) return '';
@@ -132,8 +135,7 @@ export function boardHtml(cards: readonly Card[], filter: KindFilter): string {
 }
 
 export function filterHtml(filter: KindFilter): string {
-  const kinds: readonly KindFilter[] = ['all', 'single', 'revisit', 'matome', 'catalog'];
-  return kinds.map((kind) => `
+  return KIND_FILTERS.map((kind) => `
     <button type="button" class="chip${kind === filter ? ' on' : ''}" data-filter="${kind}" aria-pressed="${kind === filter}">${
       kind === 'all' ? 'すべて' : KIND_LABELS[kind]}</button>`).join('');
 }

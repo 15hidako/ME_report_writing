@@ -3,16 +3,14 @@ import { MAX_HANDOFF_FILE_BYTES } from '../handoff-import';
 import { localDate } from '../date';
 import { openHandoffUpdate } from './handoff-import';
 import { toast } from './widgets';
+import { downloadJson, pickFile } from './file-io';
+import { errText } from '../guards';
 
 export interface DataButtonDeps {
   readonly getStore: () => VisitStore;
   readonly confirmDiscardDraft: () => boolean;
   readonly clearContext: () => void;
   readonly render: () => void;
-}
-
-function errText(err: unknown): string {
-  return err instanceof Error ? err.message : String(err);
 }
 
 /** バックアップがあるか。保存領域を読めないときは復元を出さない */
@@ -42,18 +40,10 @@ function rawHasSavedData(deps: DataButtonDeps): boolean {
 }
 
 function downloadRaw(deps: DataButtonDeps): void {
-  let url: string | undefined;
   try {
-    const blob = new Blob([deps.getStore().exportRawJson()], { type: 'application/json' });
-    url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `me-report-backup-${localDate()}.json`;
-    a.click();
+    downloadJson(`me-report-backup-${localDate()}.json`, deps.getStore().exportRawJson());
   } catch (err) {
     toast(errText(err));
-  } finally {
-    if (url !== undefined) URL.revokeObjectURL(url);
   }
 }
 
@@ -104,12 +94,7 @@ function applyHandoffImport(text: string, deps: DataButtonDeps): void {
 }
 
 function pickImport(deps: DataButtonDeps, additive = false): void {
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = additive ? '.json,.txt,application/json,text/plain' : '.json,application/json';
-  input.addEventListener('change', () => {
-    const file = input.files?.[0];
-    if (file === undefined) return;
+  pickFile(additive ? '.json,.txt,application/json,text/plain' : '.json,application/json', (file) => {
     if (additive && file.size > MAX_HANDOFF_FILE_BYTES) {
       toast('引き継ぎファイルは1MB以下にしてください');
       return;
@@ -118,7 +103,6 @@ function pickImport(deps: DataButtonDeps, additive = false): void {
       .then((text) => (additive ? applyHandoffImport(text, deps) : applyImport(text, deps)))
       .catch((err: unknown) => toast(errText(err)));
   });
-  input.click();
 }
 
 function restoreFromBackup(deps: DataButtonDeps): void {

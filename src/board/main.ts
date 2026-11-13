@@ -5,6 +5,8 @@ import { ARTICLE_DIR, folderNameOf } from '../local-setup';
 import { BOARD_WINDOW, takeParam } from '../links';
 import { parsePostedUrlInput } from '../prompt/publication';
 import { toast, tryCopyText } from '../ui/widgets';
+import { downloadJson, pickFile } from '../ui/file-io';
+import { errText } from '../guards';
 import { ARTICLE_PARTS, VARIANT_DIRS } from '../prompt/article-files';
 import { advanceDrafted, readArticlePart, scanArticles, type ArticleDraft } from './articles';
 import { buildCards, buildTargets, type Card } from './cards';
@@ -13,24 +15,24 @@ import {
   BoardStore, acknowledge, parseBoardState, removeBundle, setRecordStage, setArticleAngle, setScheduleUrl, upsertBundle,
   withChecks, BUNDLE_KINDS, ANGLES, STAGES, type BoardState, type BundleKind, type Stage,
 } from './state';
-import { boardHtml, bundleDialogHtml, filterHtml, type KindFilter } from './view';
+import { KIND_FILTERS, boardHtml, bundleDialogHtml, filterHtml, type KindFilter } from './view';
 import '../styles.css';
 import './board.css';
 
 const TARGETS_FILE = 'targets.json';
 const CHECKS_FILE = 'checks.json';
 const BACKUP_FILE = 'board-backup.json';
-const FILTERS: readonly string[] = ['all', 'single', 'revisit', 'matome', 'catalog'];
 
-function element<T extends HTMLElement>(id: string): T {
+/** id で要素を引く。起動時に必ずある要素なので、なければ例外にする */
+function byId<T extends HTMLElement>(id: string): T {
   const node = document.getElementById(id);
   if (node === null) throw new Error(`#${id} が見つかりません`);
   return node as T;
 }
 
-const boardNode = element('board');
-const filterNode = element('kind-filter');
-const dialog = element<HTMLDialogElement>('bundle-dialog');
+const boardNode = byId('board');
+const filterNode = byId('kind-filter');
+const dialog = byId<HTMLDialogElement>('bundle-dialog');
 
 const kv = {
   getItem: (key: string) => localStorage.getItem(key),
@@ -38,10 +40,6 @@ const kv = {
 };
 const visits = new VisitStore(kv);
 const board = new BoardStore(kv);
-
-function errText(error: unknown): string {
-  return error instanceof Error ? error.message : String(error);
-}
 
 /** 利用者の操作から呼ぶ処理を包み、失敗を画面に出す */
 function guarded<A extends unknown[]>(action: (...args: A) => void | Promise<void>): (...args: A) => void {
@@ -57,7 +55,7 @@ const supported = folderSupported();
 
 function currentFilter(): KindFilter {
   const kind = new URLSearchParams(location.search).get('kind') ?? 'all';
-  return FILTERS.includes(kind) ? kind as KindFilter : 'all';
+  return KIND_FILTERS.find((item) => item === kind) ?? 'all';
 }
 
 /** 原稿フォルダから読んだ記事。保存はせず、読み直すたびに作り直す */
@@ -208,22 +206,16 @@ function findCard(target: EventTarget | null): Card | undefined {
   return id === undefined ? undefined : cards().find((card) => card.id === id);
 }
 
-function download(name: string, text: string): void {
-  const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
-  try {
-    Object.assign(document.createElement('a'), { href: url, download: name }).click();
-  } finally {
-    URL.revokeObjectURL(url);
-  }
+function pickJson(onText: (text: string) => void): void {
+  pickFile('.json,application/json', guarded(async (file: File) => onText(await file.text())));
 }
 
-function pickJson(onText: (text: string) => void): void {
-  const input = Object.assign(document.createElement('input'), { type: 'file', accept: '.json,application/json' });
-  input.addEventListener('change', guarded(async () => {
-    const file = input.files?.[0];
-    if (file !== undefined) onText(await file.text());
-  }));
-  input.click();
+/** カードを見える位置に出し、段階の選択肢へフォーカスする */
+function revealCard(id: string | undefined): HTMLElement | undefined {
+  const node = [...boardNode.querySelectorAll<HTMLElement>('.board-card')].find((item) => item.dataset['id'] === id);
+  node?.scrollIntoView({ block: 'center' });
+  node?.querySelector<HTMLElement>('select')?.focus({ preventScroll: true });
+  return node;
 }
 
 function targetsJson(): string {
@@ -289,9 +281,7 @@ boardNode.addEventListener('click', guarded((event: MouseEvent) => {
   const jump = target.closest<HTMLElement>('[data-jump]');
   if (jump !== null) {
     event.preventDefault();
-    const card = [...boardNode.querySelectorAll<HTMLElement>('.board-card')].find((node) => node.dataset['id'] === jump.dataset['jump']);
-    card?.scrollIntoView({ block: 'center' });
-    card?.querySelector<HTMLElement>('select')?.focus();
+    revealCard(jump.dataset['jump']);
     return;
   }
   const card = findCard(target);
@@ -359,9 +349,9 @@ dialog.addEventListener('submit', (event) => {
   })();
 });
 
-element('add-bundle').addEventListener('click', guarded(openBundleDialog));
-element('export-board').addEventListener('click', guarded(() => download(`me-report-board-${localDate()}.json`, board.exportRawJson())));
-element('import-board').addEventListener('click', guarded(() => pickJson((text) => {
+byId('add-bundle').addEventListener('click', guarded(openBundleDialog));
+byId('export-board').addEventListener('click', guarded(() => downloadJson(`me-report-board-${localDate()}.json`, board.exportRawJson())));
+byId('import-board').addEventListener('click', guarded(() => pickJson((text) => {
   const next = parseBoardState(text);
   if (!confirm('ボードの内容を置き換えますか?')) return;
   // 保存内容が壊れて読めないときの復旧手段でもあるため、現在の内容を読まずに置き換える
@@ -369,17 +359,17 @@ element('import-board').addEventListener('click', guarded(() => pickJson((text) 
   render();
 })));
 
-const articlesButton = element('articles');
+const articlesButton = byId('articles');
 articlesButton.hidden = !supported;
 articlesButton.addEventListener('click', guarded(openArticles));
-const pickArticlesButton = element('pick-articles');
+const pickArticlesButton = byId('pick-articles');
 pickArticlesButton.hidden = !supported;
 pickArticlesButton.addEventListener('click', guarded(pickArticles));
 
-const syncButton = element('sync');
-const exportTargets = element('export-targets');
-const importChecks = element('import-checks');
-const pickFolderButton = element('pick-folder');
+const syncButton = byId('sync');
+const exportTargets = byId('export-targets');
+const importChecks = byId('import-checks');
+const pickFolderButton = byId('pick-folder');
 syncButton.hidden = !supported;
 pickFolderButton.hidden = !supported;
 exportTargets.hidden = supported;
@@ -389,7 +379,7 @@ pickFolderButton.addEventListener('click', guarded(async () => {
   const folder = await pickFolder();
   toast(`受け渡しフォルダ: ${folder.name}`);
 }));
-exportTargets.addEventListener('click', guarded(() => download(TARGETS_FILE, targetsJson())));
+exportTargets.addEventListener('click', guarded(() => downloadJson(TARGETS_FILE, targetsJson())));
 importChecks.addEventListener('click', guarded(() => pickJson(applyChecks)));
 
 /** 入力画面から ?card=<回答ID> で開かれたら、そのカードを見える位置に出して目印を付ける */
@@ -400,13 +390,11 @@ function revealFromUrl(): void {
   const { rest: unfiltered } = takeParam(rest, 'kind');
   history.replaceState(history.state, '', unfiltered);
   render();
-  const node = [...boardNode.querySelectorAll<HTMLElement>('.board-card')].find((item) => item.dataset['id'] === value);
+  const node = revealCard(value);
   if (node === undefined) {
     toast('指定された回答のカードが見つかりません');
     return;
   }
-  node.scrollIntoView({ block: 'center' });
-  node.querySelector<HTMLElement>('select')?.focus({ preventScroll: true });
   node.classList.add('revealed');
   node.addEventListener('animationend', () => node.classList.remove('revealed'), { once: true });
 }

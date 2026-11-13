@@ -23,6 +23,7 @@ import { articleSaveSection } from './prompt/article-files';
 import { ARTICLE_DIR, ARTICLE_DIR_ERROR, openClaudeApp } from './local-setup';
 import { BoardStore, markPrompted } from './board/state';
 import './styles.css';
+import { errText } from './guards';
 
 const appNode = document.getElementById('app');
 if (appNode === null) throw new Error('#app が見つかりません');
@@ -62,10 +63,6 @@ let currentTab: Tab = 'list';
 let pending: FormContext = NEW_CONTEXT;
 let formCache: Draft | null = null;
 let store: VisitStore | undefined;
-
-function errText(err: unknown): string {
-  return err instanceof Error ? err.message : String(err);
-}
 
 const kv = {
   getItem: (key: string) => localStorage.getItem(key),

@@ -3,6 +3,7 @@ import { esc, toast } from './widgets';
 import { publicSpecSummary } from '../prompt/serialize';
 import { drawThumbnail, downloadCanvasPng, LAYOUTS, PALETTES } from '../thumbnail';
 import type { ThumbnailLayout } from '../thumbnail';
+import { errText } from '../guards';
 
 /**
  * サムネタブを描く。records は新しい順。
@@ -94,7 +95,7 @@ export function renderThumbTab(app: HTMLElement, records: readonly VisitRecord[]
       redraw();
       downloadCanvasPng(canvas, `thumb-${Date.now()}.png`);
     } catch (err) {
-      toast(err instanceof Error ? err.message : String(err));
+      toast(errText(err));
     }
   });
   redraw();

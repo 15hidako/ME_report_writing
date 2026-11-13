@@ -4,6 +4,7 @@ import type { IdentityValues } from './identity';
 import type { IdentityField, VisitRecord } from './types';
 import { isHttpUrl } from './url';
 import { localDate } from './date';
+import { isObject } from './guards';
 
 const MAX_RESPONSE_CHARS = 64 * 1024;
 const MAX_ANSWERS = 50;
@@ -100,10 +101,6 @@ ${LOOKUP_RULES}
 \`\`\`json
 ${example}
 \`\`\``;
-}
-
-function isObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 function extractJson(text: string): unknown {

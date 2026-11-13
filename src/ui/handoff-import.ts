@@ -4,6 +4,7 @@ import { BODY_LABELS, CUP_IMPRESSION_LABELS, FLOW_PHASES, GENRE_LABELS, RATING_L
 import type { IdentityLookup, VisitOption } from '../types';
 import { IDENTITY_LABELS } from './identity-autofill';
 import { SPEECH_TOPIC_LABELS } from '../voice-patterns';
+import { element } from './dom';
 
 const labels: Record<string, string> = {
   revisitOf: '再訪元',
@@ -56,13 +57,6 @@ function displayValue(path: string, value: unknown): string {
     return [sourceUrl, checkedAt].filter((item) => item !== undefined).join('\n');
   }
   return String(value);
-}
-
-function element<K extends keyof HTMLElementTagNameMap>(tag: K, className: string, text?: string): HTMLElementTagNameMap[K] {
-  const node = document.createElement(tag);
-  node.className = className;
-  if (text !== undefined) node.textContent = text;
-  return node;
 }
 
 export function openHandoffUpdate(

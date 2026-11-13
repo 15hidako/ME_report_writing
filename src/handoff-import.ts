@@ -1,6 +1,7 @@
 import { parseRecordsJson, parseVisitRecords } from './record-validation';
 import { IDENTITY_FIELDS, pageKey } from './identity';
 import type { BasicInfo, VisitRecord } from './types';
+import { isObject } from './guards';
 
 export const MAX_HANDOFF_FILE_BYTES = 1024 * 1024;
 
@@ -16,10 +17,6 @@ export type HandoffImportPlan =
   | { readonly kind: 'unchanged'; readonly record: VisitRecord; readonly snapshot: string };
 
 const LOCAL_METADATA = new Set(['id', 'seriesNo', 'createdAt', 'updatedAt', 'postedUrl']);
-
-function isObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
 
 function validateNesting(value: unknown): void {
   const pending = [{ value, depth: 0 }];

@@ -1,6 +1,8 @@
 // このPCだけの設定。.env.local(gitignore済み)に VITE_ARTICLE_DIR を書いたときだけ有効になる。
 // GitHub Pages の公開版には値が入らないため、スマホの入力画面は従来どおりコピーだけを行う。
 
+import { errText } from './guards';
+
 const raw: unknown = import.meta.env['VITE_ARTICLE_DIR'];
 
 function parseDir(value: unknown): string | null {
@@ -17,7 +19,7 @@ function load(): { dir: string | null; error: string | null } {
     return { dir: parseDir(raw), error: null };
   } catch (error) {
     // 設定の誤りで入力画面ごと止めない。起動時に画面へ知らせ、従来のコピーだけで動かす
-    return { dir: null, error: error instanceof Error ? error.message : String(error) };
+    return { dir: null, error: errText(error) };
   }
 }
 

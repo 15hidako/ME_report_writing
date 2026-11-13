@@ -2,6 +2,7 @@ import type { KeyValueStore } from '../storage';
 import { parseCheckResults, type CheckResult } from '../checks/files';
 import { isWakustArticleUrl } from '../prompt/publication';
 import { isHttpUrl } from '../url';
+import { isObject } from '../guards';
 
 export const STAGES = ['answered', 'prompted', 'editing', 'posted'] as const;
 export type Stage = (typeof STAGES)[number];
@@ -47,10 +48,6 @@ export const EMPTY_BOARD: BoardState = {
 
 const BOARD_KEY = 'me-report-writer/board/v1';
 const DRAFT_STAGES: readonly string[] = STAGES.filter((stage) => stage !== 'posted');
-
-function isObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
 
 function parseMap<T>(value: unknown, label: string, parse: (item: unknown) => T | undefined): Record<string, T> {
   if (!isObject(value)) throw new Error(`ボードの${label}が不正です`);

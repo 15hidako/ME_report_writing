@@ -1,5 +1,6 @@
 import type { VisitRecord } from './types';
 import { parseVisitRecords } from './record-validation';
+import { errText } from './guards';
 
 export function shareRecord(record: VisitRecord): Promise<void> {
   const body = JSON.stringify(parseVisitRecords([record]), null, 2);
@@ -20,5 +21,5 @@ export function shareErrorMessage(error: unknown): string {
   if (error instanceof Error && error.name === 'AbortError') {
     return '共有がキャンセルされたか、共有先が見つかりませんでした。もう一度試せます。';
   }
-  return `共有できませんでした: ${error instanceof Error ? error.message : String(error)}`;
+  return `共有できませんでした: ${errText(error)}`;
 }

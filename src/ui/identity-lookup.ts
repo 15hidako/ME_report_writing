@@ -1,6 +1,7 @@
 import type { LookupPlan } from '../identity-lookup';
 import type { IdentityField, VisitRecord } from '../types';
 import { IDENTITY_LABELS } from './identity-autofill';
+import { element } from './dom';
 
 export interface IdentityLookupDialogOptions {
   readonly targets: readonly VisitRecord[];
@@ -12,13 +13,6 @@ export interface IdentityLookupDialogOptions {
 }
 
 type Step = 'paste' | 'review';
-
-function element<K extends keyof HTMLElementTagNameMap>(tag: K, className: string, text?: string): HTMLElementTagNameMap[K] {
-  const node = document.createElement(tag);
-  if (className !== '') node.className = className;
-  if (text !== undefined) node.textContent = text;
-  return node;
-}
 
 function actionButton(act: string, text: string, primary = false): HTMLButtonElement {
   const button = element('button', primary ? 'primary' : '', text);
