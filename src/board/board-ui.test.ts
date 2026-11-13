@@ -921,7 +921,7 @@ describe('回答カードの記事プロンプト', () => {
     cardButton(record.id, 'プロンプト').click();
     answerInput('2026-11-13');
     await vi.waitFor(() => expect(copy).toHaveBeenCalledOnce());
-    expect(copy.mock.calls[0]![0]).toContain('出勤確認: 2026年11月13日に店舗HPの出勤表で確認');
+    expect(copy.mock.calls[0]![0]).toContain('出勤確認: 2026年11月中旬に店舗HPの出勤表で確認済');
     await vi.waitFor(() => expect(stageOf(record.id)).toBe('prompted'));
   });
 

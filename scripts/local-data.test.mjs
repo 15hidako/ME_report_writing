@@ -110,7 +110,7 @@ describe('ボードで直した原稿の書き戻し', () => {
     expect(results[0].status).toBe('fulfilled');
     expect(results[1]).toMatchObject({ status: 'rejected', reason: { status: 409 } });
     expect(await readFile(file, 'utf8')).toBe('left');
-    expect(await readdir(path.dirname(file))).toEqual(['free-part.txt']);
+    expect((await readdir(path.dirname(file))).filter((name) => name !== '.history')).toEqual(['free-part.txt']);
     const { modifiedAt } = await readArticlePart(articles(), '0005-rec-1', 'paid', 'freeText');
     await writeArticlePart(articles(), '0005-rec-1', 'paid', 'freeText', '再保存', modifiedAt);
     expect(await readFile(file, 'utf8')).toBe('再保存');

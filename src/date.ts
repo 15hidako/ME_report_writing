@@ -29,3 +29,12 @@ export function formatJapaneseDate(isoDate: string): string {
   if (match === null) throw new Error(`日付の書式が不正です: ${isoDate}`);
   return `${Number(match[1])}年${Number(match[2])}月${Number(match[3])}日`;
 }
+
+/** YYYY-MM-DD → 2026年11月中旬。1〜10日を上旬、11〜20日を中旬、21日以降を下旬とする */
+export function formatMonthPeriod(isoDate: string): string {
+  const match = ISO_DATE.exec(isoDate);
+  if (match === null) throw new Error(`日付の書式が不正です: ${isoDate}`);
+  const day = Number(match[3]);
+  const period = day <= 10 ? '上旬' : day <= 20 ? '中旬' : '下旬';
+  return `${Number(match[1])}年${Number(match[2])}月${period}`;
+}

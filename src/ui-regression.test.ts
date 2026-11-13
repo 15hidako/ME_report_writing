@@ -620,7 +620,7 @@ describe('起動からの画面操作', () => {
     expect(document.querySelector<HTMLInputElement>('dialog.input-dialog input[type="date"]')!.value).toBe('2026-11-11');
     answerInput('2026-11-12');
     await vi.waitFor(() => expect(copy).toHaveBeenCalledOnce());
-    expect(copy.mock.calls[0]![0]).toContain('<p>出勤確認: 2026年11月12日に店舗HPの出勤表で確認</p>');
+    expect(copy.mock.calls[0]![0]).toContain('<p>出勤確認: 2026年11月中旬に店舗HPの出勤表で確認済</p>');
   });
 
   it('出勤確認日の入力を取り消すと、プロンプトをコピーしない', async () => {

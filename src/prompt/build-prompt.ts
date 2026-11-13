@@ -1,9 +1,10 @@
 import type { VisitRecord } from '../types';
-import { formatJapaneseDate, parseListingCheckDate } from '../date';
+import { formatMonthPeriod, parseListingCheckDate } from '../date';
 import { STYLE_PROFILE, wakustRules } from './style-profile';
 import type { NameDisclosure } from './style-profile';
 
 export type { NameDisclosure } from './style-profile';
+import { RATING_LABELS } from '../types';
 import { prefectureTag, publicSpecSummary, serializeRecord, tagCandidates } from './serialize';
 import { countPublishedTherapists, isPublished, SUMMARY_MIN_THERAPISTS, therapistIdentity } from './publication';
 import { articleLookupSection } from '../identity-lookup';
@@ -63,30 +64,40 @@ ${lookup ? '5. 店舗情報JSON: 「店舗情報の確認」の形式\n' : ''}${
 /** 店舗情報の確認指示を、記事構成の前に差し込む */
 const lookupBlock = (section: string | null): string => section === null ? '' : `${section}\n\n`;
 
-// 開示先で変わるのは、導入・セラピスト紹介・有料部分の説明・店舗情報の4行だけ
+/** 今回のセラピストの系統と料金の行(H-16)。特記は系統の行へまとめ、料金は合計だけを出す */
+const PROFILE_DETAIL = '系統の行には特記を「、」でつなぐ(例: 系統: ナチュラル系、黒髪ショート)。料金の行はコース代・指名料・今回のオプション代のうち金額の記録がある分の合計を「料金: 計X円」で書き、コース代が未確認なら行ごと省く';
+
+// 開示先(体験内容起点 = paid、セラピスト起点 = free)で変わるのは、導入・セラピスト紹介・有料部分の説明・店舗情報・総評の5行だけ
 const STRUCTURE_LINES: Readonly<Record<NameDisclosure, {
   readonly intro: string; readonly profile: string; readonly paidSummary: string; readonly shopInfo: string;
+  readonly review: string;
 }>> = {
   paid: {
     intro: '- 導入フック1〜2文(エリア+系統+展開で釣る。店名は出さない)',
-    profile: '- <h3>今回のセラピスト</h3> エリア/系統/特記のul(年齢・体型・カップ数・タトゥーは書かない)',
+    profile: `- <h3>今回のセラピスト</h3> エリア/系統/料金のul。${PROFILE_DETAIL}(年齢・体型・カップ数・タトゥーは書かない)`,
     paidSummary: '- <h3>有料部分の内容</h3> 店名・源氏名開示/年齢・体型/実額/評価6軸/ご対面からの全展開/今回の進め方(記録がある場合) と免責のsmall',
     shopInfo: '- <h3>店舗・セラピスト情報</h3> 店名/URL/源氏名/profile/X/年齢・体型・カップ数/コース/オプション。',
+    // 体験内容起点は体験の魅力で売るため、残念な点は短く添えるだけにする。最後の加減は本人がボードで直す(H-16)
+    review: '- <h3>総評</h3> 良かった点を中心に書く。残念ポイントは記録がある場合だけ短く(1〜2文)添え、強い否定や繰り返しは避ける。リピート意向は書かない',
   },
   free: {
     intro: '- 導入フック1〜2文(エリア+店名+源氏名+系統+展開で釣る)',
-    profile: '- <h3>今回のセラピスト</h3> 店名/源氏名/エリア/系統/特記のul(リンクは付けない。年齢・体型・カップ数・タトゥーは書かない)',
+    profile: `- <h3>今回のセラピスト</h3> 店名/源氏名/エリア/系統/料金のul。${PROFILE_DETAIL}(リンクは付けない。年齢・体型・カップ数・タトゥーは書かない)`,
     paidSummary: '- <h3>有料部分の内容</h3> 店・セラピストのリンク/年齢・体型/実額/評価6軸/ご対面からの全展開/今回の進め方(記録がある場合) と免責のsmall',
     shopInfo: '- <h3>店舗・セラピスト情報</h3> 店URL/profile/X/年齢・体型・カップ数/コース/オプション(店名・源氏名は無料部分で既出)。',
+    review: '- <h3>総評</h3> リピート意向+残念ポイントも正直に',
   },
 };
 
-/** 出勤確認日の指示。本人が店舗HPの出勤表で確かめた日だけを出し、確かめていなければ行ごと省く。H-13・H-15 */
+/**
+ * 出勤確認日の指示。本人が店舗HPの出勤表で確かめた日だけを出し、確かめていなければ行ごと省く。H-13・H-15。
+ * 日付まで出すとセラピストを絞り込めるため、旬までにぼかす(H-16)
+ */
 function listingCheckLine(listingCheckedOn: string | null): string {
   const date = listingCheckedOn === null ? null : parseListingCheckDate(listingCheckedOn);
   return date === null
     ? '- 出勤確認の行は出さない(本人が出勤を確かめた日の入力がない)'
-    : `- 店舗・セラピスト情報の末尾に <p>出勤確認: ${formatJapaneseDate(date)}に店舗HPの出勤表で確認</p> を入れる(日付を変えない)`;
+    : `- 店舗・セラピスト情報の末尾に <p>出勤確認: ${formatMonthPeriod(date)}に店舗HPの出勤表で確認済</p> を入れる(時期を変えない)`;
 }
 
 const singleStructure = (disclosure: NameDisclosure, listingCheckedOn: string | null): string => {
@@ -102,11 +113,11 @@ ${lines.paidSummary}
 [有料部分]
 ${lines.shopInfo}リンクは必ずURL文字列もテキストで併記する(例: <a href="URL">店名</a><br />URL — リンク切れ時に購入者が追えるように。規約1-6)
 ${listingCheckLine(listingCheckedOn)}
-- <h3>評価</h3> 6軸ul(★+一言)
+- <h3>評価</h3> 6軸ul(★+一言)。軸名は訪問データの評価6軸の名前どおりに書く
 - 本編: <h3>ご対面</h3> <h3>施術スタート(うつ伏せ)</h3> <h3>オイル投入から{展開名}へ</h3> <h3>仰向けへ</h3> <h3>クライマックス</h3> フローに沿って、ご対面から最後まで。ダイジェストの文を繰り返さず、記録にある細部で書き直す。見出しの{展開名}は実際の展開を表す語に置き換える(「…」等のプレースホルダのまま出力しない)
 - クライマックスは記事の山場として最も厚く書く(体勢・彼女の様子・セリフ・心の声は記録された素材だけを使い、未入力の言葉は省く)。入力データの素材が薄くて2〜3文しか書けない場合は、記事の後に「⚠ クライマックスの素材不足: 質問票に追記推奨」と一言添える
 - <h3>今回の進め方</h3> 結果に至るまでに本人がしたこと(伝えた希望・声のかけ方・断られたこと・気をつけたこと)と、展開のきっかけがどちらからだったかを、訪問データに記録がある範囲で1〜3文。記録がなければ見出しごと省く。一般論の助言や記録にない攻略法は足さない
-- <h3>総評</h3> リピート意向+残念ポイントも正直に
+${lines.review}
 - <p><em>皆さまのご武運をお祈りいたします!</em></p>`;
 };
 
@@ -172,14 +183,14 @@ export function buildCatalogPrompt(records: readonly VisitRecord[], prefecture: 
   const targets = records.filter((r) => r.basic.prefecture === prefecture && isPublished(r));
   if (targets.length === 0) throw new Error('対象の都道府県に投稿済みの記事がありません');
   const data = targets
-    .map((r) => `- ${r.basic.area} / スペック: ${publicSpecSummary(r)} / エロ施術★${r.ratings.ero.stars} 寛容度★${r.ratings.tolerance.stars} / 記事URL: ${r.postedUrl ?? '{未投稿}'}`)
+    .map((r) => `- ${r.basic.area} / スペック: ${publicSpecSummary(r)} / ${RATING_LABELS.ero}★${r.ratings.ero.stars} ${RATING_LABELS.tolerance}★${r.ratings.tolerance.stars} / 記事URL: ${r.postedUrl ?? '{未投稿}'}`)
     .join('\n');
   return `${header(`${prefecture}の自分の体験談インデックス(宣伝用の無料記事)`, 'catalog')}
 
 ## 記事構成(カタログ無料記事)
 - 導入1〜2文(実際に行った店だけを載せている旨)
 - エリア(駅)ごとに<h3>で区切り、各訪問を<li>で列挙
-- 各項目: スペック+評価の一部(エロ施術・寛容度の★)+体験談へのリンク
+- 各項目: スペック+評価の一部(${RATING_LABELS.ero}・${RATING_LABELS.tolerance}の★)+体験談へのリンク
 - 店名・源氏名は伏せる。スペックと評価で興味を引き、詳細は有料記事へ誘導
 - リンクは同カテゴリー(同都道府県)内の自分の記事のみ
 

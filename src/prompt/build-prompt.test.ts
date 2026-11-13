@@ -322,7 +322,8 @@ describe('今回の進め方と出勤確認日(C4)', () => {
 
   it('出勤確認日を渡すと、有料部分の店舗情報にその日付の行を入れる', () => {
     const p = buildSinglePrompt(fixtureRecord(), 'paid', '2026-11-11');
-    expect(p).toContain('<p>出勤確認: 2026年11月11日に店舗HPの出勤表で確認</p>');
+    expect(p).toContain('<p>出勤確認: 2026年11月中旬に店舗HPの出勤表で確認済</p>');
+    expect(p).not.toContain('11月11日');
     expect(p).not.toContain('出勤確認の行は出さない');
   });
 
@@ -334,7 +335,12 @@ describe('今回の進め方と出勤確認日(C4)', () => {
 
   it('再訪記事にも出勤確認日を渡せる', () => {
     const p = buildRevisitPrompt(fixtureRecord({ id: 'r2', seriesNo: 2 }), fixtureRecord(), 'free', '2026-11-03');
-    expect(p).toContain('<p>出勤確認: 2026年11月3日に店舗HPの出勤表で確認</p>');
+    expect(p).toContain('<p>出勤確認: 2026年11月上旬に店舗HPの出勤表で確認済</p>');
+  });
+
+  it('出勤確認日は旬までにぼかす(H-16)', () => {
+    expect(buildSinglePrompt(fixtureRecord(), 'paid', '2026-11-21')).toContain('2026年11月下旬に店舗HPの出勤表で確認済');
+    expect(buildSinglePrompt(fixtureRecord(), 'paid', '2026-11-10')).toContain('2026年11月上旬に店舗HPの出勤表で確認済');
   });
 
   it('不正な出勤確認日は生成前に止める', () => {
@@ -462,4 +468,39 @@ it('非記事URLをカタログ対象やまとめ解禁の投稿実績に含め�
   const legacy = { ...records[0]!, postedUrl: 'https://wakust.com/user/1234/' };
   expect(() => buildCatalogPrompt([legacy], '東京都')).toThrow(/投稿済み/);
   expect(() => buildMatomePrompt(records.slice(1), '合成まとめ', [legacy, ...records.slice(1)])).toThrow(/6人/);
+});
+
+describe('記事5の手直しから統一した定型(H-16)', () => {
+  it('評価軸は「過激施術」と書かせ、「エロ施術」を渡さない', () => {
+    const p = buildSinglePrompt(fixtureRecord());
+    expect(p).toContain('- 過激施術: ');
+    expect(p).not.toContain('エロ施術');
+    const published = fixtureRecord({ postedUrl: 'https://wakust.com/u/1/' });
+    const catalog = buildCatalogPrompt([published], '東京都');
+    expect(catalog).toContain('過激施術★');
+    expect(catalog).not.toContain('エロ施術');
+  });
+
+  it('今回のセラピストは系統の行に特記をまとめ、料金の合計を入れる', () => {
+    for (const disclosure of ['paid', 'free'] as const) {
+      const p = buildSinglePrompt(fixtureRecord(), disclosure);
+      const line = p.split('\n').find((l) => l.startsWith('- <h3>今回のセラピスト</h3>')) ?? '';
+      expect(line).toContain('系統: ナチュラル系、黒髪ショート');
+      expect(line).toContain('料金: 計');
+      expect(line).not.toContain('/特記');
+    }
+  });
+
+  it('総評は体験内容起点では残念な点を短くし、リピート意向を書かせない', () => {
+    const p = buildSinglePrompt(fixtureRecord(), 'paid');
+    const line = p.split('\n').find((l) => l.startsWith('- <h3>総評</h3>')) ?? '';
+    expect(line).toContain('リピート意向は書かない');
+    expect(line).toContain('短く');
+  });
+
+  it('総評はセラピスト起点では良い点も残念な点も正直に書かせる', () => {
+    const p = buildSinglePrompt(fixtureRecord(), 'free');
+    const line = p.split('\n').find((l) => l.startsWith('- <h3>総評</h3>')) ?? '';
+    expect(line).toBe('- <h3>総評</h3> リピート意向+残念ポイントも正直に');
+  });
 });

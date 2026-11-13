@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatJapaneseDate, localDate, parseListingCheckDate } from './date';
+import { formatJapaneseDate, formatMonthPeriod, localDate, parseListingCheckDate } from './date';
 
 describe('localDate', () => {
   it('現地日付を使い、午前0時でも前日にならない', () => {
@@ -26,5 +26,19 @@ describe('parseListingCheckDate', () => {
 describe('formatJapaneseDate', () => {
   it('ゼロ埋めなしの年月日にする', () => {
     expect(formatJapaneseDate('2026-11-03')).toBe('2026年11月3日');
+  });
+});
+
+describe('formatMonthPeriod', () => {
+  it.each([
+    ['2026-11-01', '2026年11月上旬'], ['2026-11-10', '2026年11月上旬'],
+    ['2026-11-11', '2026年11月中旬'], ['2026-11-20', '2026年11月中旬'],
+    ['2026-11-21', '2026年11月下旬'], ['2026-02-28', '2026年2月下旬'],
+  ])('%s → %s', (input, expected) => {
+    expect(formatMonthPeriod(input)).toBe(expected);
+  });
+
+  it('書式が不正なら止める', () => {
+    expect(() => formatMonthPeriod('2026/11/01')).toThrow(/日付の書式/);
   });
 });

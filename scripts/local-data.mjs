@@ -6,6 +6,7 @@ import { randomUUID } from 'node:crypto';
 import { mkdir, open, readdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { ARTICLE_PARTS, VARIANT_DIRS, isSourcePart, recordIdOfFolder } from '../src/prompt/article-files.ts';
+import { recordBase, recordEdit } from './article-history.mjs';
 
 export const API_PREFIX = '/__local';
 const MAX_ANSWER_BYTES = 1024 * 1024;
@@ -95,7 +96,7 @@ function articleFile(dir, folderName, disclosure, partId) {
   if (recordIdOfFolder(folderName) === null || /[\\/]|^\.\.?$/.test(folderName) || sub === undefined || part === undefined) {
     throw new HttpError(400, '原稿の指定が正しくありません');
   }
-  return { variantDir: path.join(dir, folderName, sub), file: path.join(dir, folderName, sub, part.file) };
+  return { variantDir: path.join(dir, folderName, sub), file: path.join(dir, folderName, sub, part.file), partFile: part.file };
 }
 
 /**
@@ -136,12 +137,13 @@ async function modifiedAtOf(file) {
 /**
  * ボードで直した素の文章を書く。HTMLは Claude がマークアップで書くので、ボードからは書かせない。
  * 読んだあとに Claude などが同じファイルを書き換えていれば、上書きせずに断る。
+ * 保存の前後に、上書きされる文章(base)と直した文章(edit)を版フォルダの .history に残す(article-history.mjs)。
  * @param {number} baseModifiedAt 読んだときの更新時刻。ファイルがなかったときは 0
  * @returns {Promise<number>} 書いたあとの更新時刻
  */
 export async function writeArticlePart(dir, folderName, disclosure, partId, text, baseModifiedAt) {
   if (!isSourcePart(partId)) throw new HttpError(400, 'ボードから書けるのは素の文章だけです');
-  const { variantDir, file } = articleFile(dir, folderName, disclosure, partId);
+  const { variantDir, file, partFile } = articleFile(dir, folderName, disclosure, partId);
   if (writingArticles.has(file)) throw new HttpError(409, '同じ原稿を保存中です。保存が終わってから開き直してください');
   writingArticles.add(file);
   const temporary = `${file}.${randomUUID()}.tmp`;
@@ -160,8 +162,18 @@ export async function writeArticlePart(dir, folderName, disclosure, partId, text
     if ((await modifiedAtOf(file)) !== baseModifiedAt) {
       throw new HttpError(409, '開いたあとに原稿ファイルが書き換えられています。閉じて開き直してください');
     }
+    // 上書きが決まってから base を残す。残せなければ保存もしない(生成時の文章を失わないため)
+    await recordBase(variantDir, partFile, baseModifiedAt === 0 ? null : await readFile(file, 'utf8'));
     await rename(temporary, file);
-    return await modifiedAtOf(file);
+    const modifiedAt = await modifiedAtOf(file);
+    try {
+      await recordEdit(variantDir, partFile, text);
+    } catch (error) {
+      // 原稿は保存済み。ここで失敗を返すとボードが保存失敗と見なし、次の保存が 409 になるため、成功を返して開発サーバーに記録する
+      process.stderr.write(`[local-data] 原稿は保存しましたが、手直しの履歴を残せませんでした(${file}): ${error instanceof Error ? error.message : String(error)}
+`);
+    }
+    return modifiedAt;
   } finally {
     writingArticles.delete(file);
     await rm(temporary, { force: true });

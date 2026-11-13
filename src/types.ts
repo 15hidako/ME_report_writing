@@ -149,7 +149,7 @@ export const RATING_LABELS: Record<keyof Ratings, string> = {
   style: 'スタイル',
   service: '接客',
   massage: 'マッサージ技術',
-  ero: 'エロ施術',
+  ero: '過激施術',
   tolerance: '寛容度',
 };
 
