@@ -1,7 +1,7 @@
 import type { VisitRecord } from '../types';
 import type { CheckResult, CheckTarget, TargetsFile } from '../checks/files';
 import { pageKey, siteKey } from '../identity';
-import { isPublished } from '../prompt/publication';
+import { isPublished, isWakustArticleUrl } from '../prompt/publication';
 import type { ArticleKind, BoardState, ArticleAngle, Stage } from './state';
 import type { ArticleDraft } from './articles';
 
@@ -98,7 +98,7 @@ export function buildCards(
       source: 'bundle',
       kind: bundle.kind,
       angle: null,
-      stage: bundle.postedUrl === null ? bundle.stage : 'posted',
+      stage: bundle.postedUrl !== null && isWakustArticleUrl(bundle.postedUrl) ? 'posted' : bundle.stage,
       title: bundle.title,
       detail: numbers.map((no) => `#${no}`).join(' '),
       postedUrl: bundle.postedUrl,

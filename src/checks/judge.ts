@@ -106,9 +106,8 @@ function judgeAttendance(
       return { attendance: 'unknown', detail: schedule === null ? '出勤表を取得していない' : `出勤表: ${schedule.reason}` };
     }
     if (schedule.status >= 400) return { attendance: 'unknown', detail: `出勤表がHTTP ${schedule.status}` };
-    return containsName(pageText(schedule.html), target.therapistName)
-      ? { attendance: 'listed', detail: '出勤表に名前あり' }
-      : { attendance: 'not_listed', detail: '出勤表に名前がない' };
+    // 名前だけでは日付・勤務時間との対応を確かめられない。構造未確認の別ページは目視へ回す。
+    return { attendance: 'unknown', detail: '別ページの出勤表は対象者と今後7日の勤務時間の対応を要目視' };
   }
   if (!profile.ok || profile.status >= 400) return { attendance: 'unknown', detail: '' };
   return attendanceFromProfile(pageText(profile.html), today);

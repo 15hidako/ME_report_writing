@@ -483,11 +483,7 @@ function savePostedUrl(record: VisitRecord): void {
     title: '投稿URL',
     fields: [{ name: 'postedUrl', label: 'wakust投稿後の記事URL(空欄で解除)', type: 'url', value: record.postedUrl ?? '' }],
     onSubmit: (values) => {
-      getStore().save({
-        ...record,
-        postedUrl: parsePostedUrlInput(values.text('postedUrl')),
-        updatedAt: new Date().toISOString(),
-      });
+      getStore().updatePostedUrl(record.id, record.postedUrl, parsePostedUrlInput(values.text('postedUrl')));
       render();
     },
   });

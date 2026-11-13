@@ -76,7 +76,7 @@ describe('観察候補の配列順と記事素材', () => {
   });
 
   it('再訪記事の初回と今回の両方で、それぞれの段階の逆順を保つ', () => {
-    const first = recordWithReverseChecks('初回', { postedUrl: 'https://wakust.com/u/first/' });
+    const first = recordWithReverseChecks('初回', { postedUrl: 'https://wakust.com/u/100/' });
     const revisit = recordWithReverseChecks('再訪', {
       id: 'revisit', seriesNo: 2, revisitOf: first.id,
       sales: { points: 100, articleType: 'revisit' },

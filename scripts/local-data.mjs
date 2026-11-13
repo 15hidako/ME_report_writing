@@ -15,6 +15,8 @@ const CHECK_FILES = ['targets.json', 'checks.json', 'board-backup.json'];
 const WRITABLE_CHECK_FILES = ['targets.json', 'board-backup.json'];
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]']);
 const writingArticles = new Set();
+const checkWrites = new Map();
+const checkingDirs = new Set();
 
 /** @param {string} root リポジトリのルート */
 export function dataDirs(root) {
@@ -181,10 +183,25 @@ export async function readCheckFile(dir, name) {
 export async function writeCheckFile(dir, name, text) {
   if (!WRITABLE_CHECK_FILES.includes(name)) throw new HttpError(400, `書けないファイルです: ${name}`);
   JSON.parse(text);
-  await mkdir(dir, { recursive: true });
-  const target = path.join(dir, name);
-  await writeFile(`${target}.tmp`, text, 'utf8');
-  await rename(`${target}.tmp`, target);
+  const target = path.resolve(dir, name);
+  if (name === 'targets.json' && checkingDirs.has(path.resolve(dir))) throw new HttpError(409, '週次確認を実行中です。終了後にやり直してください');
+  const previous = checkWrites.get(target) ?? Promise.resolve();
+  const saving = previous.catch(() => {}).then(async () => {
+    const temporary = `${target}.${randomUUID()}.tmp`;
+    try {
+      await mkdir(dir, { recursive: true });
+      await writeFile(temporary, text, { encoding: 'utf8', flag: 'wx' });
+      await rename(temporary, target);
+    } finally {
+      await rm(temporary, { force: true });
+    }
+  });
+  checkWrites.set(target, saving);
+  try {
+    await saving;
+  } finally {
+    if (checkWrites.get(target) === saving) checkWrites.delete(target);
+  }
 }
 
 /** scripts/weekly-check.mjs を子プロセスで動かし、終わるまで待つ */
@@ -260,13 +277,13 @@ function send(res, status, body) {
 /** API の中身。Vite の開発サーバーとプレビューサーバーの両方に付ける */
 export function createHandler(root) {
   const dirs = dataDirs(root);
-  let checking = false;
+
   return async (req, res, next) => {
-    const url = new URL(req.url ?? '/', 'http://localhost');
-    if (url.pathname !== API_PREFIX && !url.pathname.startsWith(`${API_PREFIX}/`)) return next();
-    if (!isTrustedRequest(req)) return send(res, 403, { error: 'このPCのボードからだけ使えます' });
-    const route = url.pathname.slice(API_PREFIX.length).split('/').filter((part) => part !== '').map(decodeURIComponent);
     try {
+      const url = new URL(req.url ?? '/', 'http://localhost');
+      if (url.pathname !== API_PREFIX && !url.pathname.startsWith(`${API_PREFIX}/`)) return next();
+      if (!isTrustedRequest(req)) return send(res, 403, { error: 'このPCのボードからだけ使えます' });
+      const route = url.pathname.slice(API_PREFIX.length).split('/').filter((part) => part !== '').map(decodeURIComponent);
       const [head, ...rest] = route;
       if (req.method === 'GET' && head === 'status' && rest.length === 0) {
         return send(res, 200, { articleDir: dirs.articles });
@@ -299,16 +316,25 @@ export function createHandler(root) {
         }
       }
       if (req.method === 'POST' && head === 'weekly-check' && rest.length === 0) {
-        if (checking) return send(res, 409, { error: '週次確認を実行中です' });
-        checking = true;
+        const key = path.resolve(dirs.checks);
+        if (checkingDirs.has(key)) return send(res, 409, { error: '週次確認を実行中です' });
+        checkingDirs.add(key);
         try {
-          return send(res, 200, { output: await runWeeklyCheck(root, dirs.checks) });
+          const expected = await readBody(req);
+          JSON.parse(expected);
+          await checkWrites.get(path.resolve(dirs.checks, 'targets.json'));
+          if (await readCheckFile(dirs.checks, 'targets.json') !== expected) throw new HttpError(409, '確認対象が変更されています。週次確認をやり直してください');
+          const output = await runWeeklyCheck(root, dirs.checks);
+          const checks = await readCheckFile(dirs.checks, 'checks.json');
+          if (checks === null) throw new Error('週次確認の結果がありません');
+          return send(res, 200, { output, checks });
         } finally {
-          checking = false;
+          checkingDirs.delete(key);
         }
       }
       return send(res, 404, { error: '不明な操作です' });
     } catch (error) {
+      if (error instanceof URIError || (error instanceof TypeError && 'code' in error && error.code === 'ERR_INVALID_URL')) return send(res, 400, { error: 'URLの形式が正しくありません' });
       if (error instanceof SyntaxError) return send(res, 400, { error: `JSONとして読めません: ${error.message}` });
       const status = error instanceof HttpError ? error.status : 500;
       return send(res, status, { error: error instanceof Error ? error.message : String(error) });

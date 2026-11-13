@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { fixtureRecord } from '../test-fixtures';
-import { countPublishedTherapists, parsePostedUrlInput } from './publication';
+import { countPublishedTherapists, isWakustArticleUrl, parsePostedUrlInput } from './publication';
 
 describe('parsePostedUrlInput', () => {
   it.each(['', '   ', '\n\t'])('空欄や空白だけ(%j)は解除として null を返す', (input) => {
@@ -53,5 +53,18 @@ describe('countPublishedTherapists', () => {
     const record = fixtureRecord({ postedUrl: 'http://www.wakust.com/u/1/' });
     const duplicate = fixtureRecord({ id: 'other', postedUrl: 'https://wakust.com/u/1/', basic: { ...record.basic, therapistName: 'other' } });
     expect(countPublishedTherapists([record, duplicate])).toBe(1);
+  });
+});
+
+
+describe('公開URLのページ種別', () => {
+  it.each(['https://wakust.com/wakust/1842074/', 'http://www.wakust.com/wakust/1632129?source=test#part'])('確認済みの記事形式を受け付ける: %s', (url) => {
+    expect(parsePostedUrlInput(url)).toBe(url);
+  });
+  it.each(['/user/wakust/', '/user/1234/', '/post-category/east/tokyo/', '/post_tag/?cate=1315&tag=24601', '/rule/', '/creators/', '/reports/latest', '/wakust/1842074/extra'])('非記事パス%sを投稿実績に数えない', (path) => {
+    const url = `https://wakust.com${path}`;
+    expect(isWakustArticleUrl(url)).toBe(false);
+    expect(() => parsePostedUrlInput(url)).toThrow();
+    expect(countPublishedTherapists([fixtureRecord({ postedUrl: url })])).toBe(0);
   });
 });

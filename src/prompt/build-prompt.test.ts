@@ -161,11 +161,11 @@ describe('buildSinglePrompt', () => {
 describe('店名・セラピスト名の開示先', () => {
   it('既定では店名・源氏名を有料部分だけで開示し、タイトルにも入れない', () => {
     const p = buildSinglePrompt(fixtureRecord());
-    expect(p).toContain('店名・源氏名・リンクは有料部分でのみ開示');
+    expect(p).toContain('店名・源氏名と店・セラピストのリンクは有料部分でのみ開示');
     expect(p).toContain('店名・源氏名は入れない');
     expect(p).toContain('<h3>有料部分の内容</h3> 店名・源氏名開示');
     // 名前の開示ルールは従来どおり規約節の先頭に置く
-    expect(p).toContain('## wakust規約の遵守(生成時必須)\n- 店名・源氏名・リンクは有料部分でのみ開示');
+    expect(p).toContain('## wakust規約の遵守(生成時必須)\n- 店名・源氏名と店・セラピストのリンクは有料部分でのみ開示');
   });
 
   it('名前公開型では無料部分とタイトルで店名・源氏名を出し、有料部分は詳細レビューにする', () => {
@@ -188,7 +188,8 @@ describe('店名・セラピスト名の開示先', () => {
 
   it('カタログ記事は従来どおり店名・源氏名を伏せる', () => {
     const p = buildCatalogPrompt([fixtureRecord({ postedUrl: 'https://wakust.com/u/1/' })], '東京都');
-    expect(p).toContain('店名・源氏名・リンクは有料部分でのみ開示');
+    expect(p).toContain('店名・源氏名は伏せる');
+    expect(p).not.toContain('有料部分でのみ開示');
   });
 });
 
@@ -430,4 +431,35 @@ describe('記事プロンプトでの店舗情報の確認', () => {
     expect(p).not.toContain('店舗情報の確認');
     expect(p).toContain('この4ブロックを順に');
   });
+});
+
+
+describe('カタログと有料記事の指示を分ける', () => {
+  it('無料1本で本人の記事へリンクでき、有料欄必須の指示を含めない', () => {
+    const prompt = buildCatalogPrompt(publishedRecords(), '東京都');
+    expect(prompt).toContain('無料記事なので1本');
+    expect(prompt).toContain('本人の投稿済み記事へのリンク');
+    expect(prompt).not.toContain('有料部分');
+    expect(prompt).not.toContain('有料部分はリンクだけにせず');
+    expect(prompt).not.toContain('無料部分の末尾に「有料部分の内容」の説明を必ず');
+    expect(prompt).not.toContain('有料部分でのみ開示');
+    expect(prompt).toContain('color と font-weight');
+    expect(prompt).toContain('年齢・身長・体型・カップ数');
+    expect(prompt).toContain('店名・源氏名は伏せる');
+  });
+  it('再訪の初回記事リンクは無料部、店舗プロフィールリンクは有料部', () => {
+    const first = publishedRecords()[0]!;
+    const prompt = buildRevisitPrompt(fixtureRecord(), first);
+    expect(prompt).toContain('無料部分の冒頭に必ず「初回の体験談はこちら');
+    expect(prompt).toContain('店・セラピストのリンクは有料部分でのみ開示');
+    expect(prompt).toContain('本人の投稿済み記事へのリンクは、各記事の構成に従って無料部分にも置ける');
+  });
+});
+
+
+it('非記事URLをカタログ対象やまとめ解禁の投稿実績に含めない', () => {
+  const records = publishedRecords();
+  const legacy = { ...records[0]!, postedUrl: 'https://wakust.com/user/1234/' };
+  expect(() => buildCatalogPrompt([legacy], '東京都')).toThrow(/投稿済み/);
+  expect(() => buildMatomePrompt(records.slice(1), '合成まとめ', [legacy, ...records.slice(1)])).toThrow(/6人/);
 });

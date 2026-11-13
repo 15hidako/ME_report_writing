@@ -147,8 +147,9 @@ export async function putCheckFile(name: Exclude<CheckFile, 'checks.json'>, text
   await call(`checks/${name}`, { method: 'PUT', body: text, headers: { 'content-type': 'application/json' } });
 }
 
-/** 週次確認を実行し、件数の要約を返す。対象が多いと数分かかる */
-export async function runWeeklyCheck(): Promise<string> {
-  const { output } = await json('weekly-check', { method: 'POST' });
-  return typeof output === 'string' ? output : '';
+/** 週次確認を実行し、今回の結果JSONを返す。対象が多いと数分かかる */
+export async function runWeeklyCheck(targets: string): Promise<string> {
+  const { checks } = await json('weekly-check', { method: 'POST', body: targets, headers: { 'content-type': 'application/json' } });
+  if (typeof checks !== 'string') throw new Error('週次確認の結果が読めません');
+  return checks;
 }

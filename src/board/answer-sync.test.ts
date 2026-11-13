@@ -42,3 +42,20 @@ describe('data/answers の回答の選び方', () => {
     expect(scanAnswerFiles([saved], [file([saved], 'a.json'), file([older], 'b.json', 2)]).incoming).toEqual([]);
   });
 });
+
+
+describe('PC側の管理情報と回答本文を分ける', () => {
+  it.each(['2026-11-13T11:00:00.000Z', '2026-11-13T12:00:00.000Z'])('本文差分は%sでも通知し、自動適用しない', (updatedAt) => {
+    const saved = at('2026-11-13T12:00:00.000Z', 1000);
+    const corrected = at(updatedAt, 2000);
+    const result = scanAnswerFiles([saved], [file([corrected], 'correction.json')]);
+    expect(result.incoming).toEqual([]);
+    expect(result.errors).toEqual([expect.stringMatching(/correction.json.*競合.*回答を追加読込/)]);
+    expect(saved.basic.nominationFee).toBe(1000);
+  });
+  it('管理情報だけが違えば新着も競合も出さない', () => {
+    const original = fixtureRecord();
+    const saved = { ...original, seriesNo: 9, updatedAt: '2026-11-13T12:00:00.000Z', postedUrl: 'https://wakust.com/reports/1001' };
+    expect(scanAnswerFiles([saved], [file([original], 'original.json')])).toEqual({ incoming: [], errors: [] });
+  });
+});

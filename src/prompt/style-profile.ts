@@ -43,17 +43,16 @@ export type NameDisclosure = 'paid' | 'free';
 export const DISCLOSURE_LABELS: Readonly<Record<NameDisclosure, string>> = { paid: '通常版', free: '名前公開版' };
 
 const NAME_RULES: Readonly<Record<NameDisclosure, string>> = {
-  paid: '- 店名・源氏名・リンクは有料部分でのみ開示。無料部分とタイトルには出さない(エリアは可)',
+  paid: '- 店名・源氏名と店・セラピストのリンクは有料部分でのみ開示。無料部分とタイトルには出さない(エリアは可)',
   free: '- 店名・源氏名は無料部分とタイトルで開示する。店・セラピストのリンク、年齢・体型、評価6軸、ご対面からの本編は有料部分に置く',
 };
 
 /** wakust規約の節。名前の開示ルールを従来どおり先頭に置く */
-export const wakustRules = (disclosure: NameDisclosure): string => `## wakust規約の遵守(生成時必須)
-${NAME_RULES[disclosure]}
-- 無料部分(タイトル・タグを含む)に年齢・身長・体型・カップ数を書かない。これだけでセラピストが推測できてしまうため、有料部分に回す
-- タトゥーは無料部分(タイトル・タグを含む)に出さない。触れるなら有料部分の評価や総評で
+export const wakustRules = (disclosure: NameDisclosure | 'catalog'): string => `## wakust規約の遵守(生成時必須)
+${disclosure === 'catalog' ? '- 店名・源氏名は伏せる。店・セラピストのプロフィールリンクは載せない。本人の投稿済み記事へのリンクは同じ都道府県内だけにする' : NAME_RULES[disclosure]}
+- 無料部分(タイトル・タグを含む)に年齢・身長・体型・カップ数を書かない。${disclosure === 'catalog' ? 'カタログには載せない' : 'これだけでセラピストが推測できてしまうため、有料部分に回す'}
+- タトゥーは無料部分(タイトル・タグを含む)に出さない。${disclosure === 'catalog' ? 'カタログには載せない' : '触れるなら有料部分の評価や総評で'}
 - マンション名・階数・部屋番号は書かない
 - 通し番号(#N)は本人の管理用。タイトル・本文・リンク文に書かない
-- 無料部分の末尾に「有料部分の内容」の説明を必ず入れる
-- 有料部分はリンクだけにせずテキストで内容を併記する
+${disclosure === 'catalog' ? '' : '- 本人の投稿済み記事へのリンクは、各記事の構成に従って無料部分にも置ける\n- 無料部分の末尾に「有料部分の内容」の説明を必ず入れる\n- 有料部分はリンクだけにせずテキストで内容を併記する'}
 - 販売部数・売上・収益などの販売実績は、タイトルにも本文にも書かない`;

@@ -8,7 +8,7 @@ import type { ArticleDraft } from './articles';
 
 const VISITS_KEY = 'me-report-writer/visits/v1';
 const BOARD_KEY = 'me-report-writer/board/v1';
-const WAKUST_URL = 'https://wakust.com/reports/latest';
+const WAKUST_URL = 'https://wakust.com/reports/1001';
 
 const local = vi.hoisted(() => ({
   localDataAvailable: vi.fn(),
@@ -963,7 +963,7 @@ describe('週次確認', () => {
       enrollment: 'present', attendance: 'listed', detail: '',
     };
     local.putCheckFile.mockResolvedValue(undefined);
-    local.runWeeklyCheck.mockResolvedValue('確認 1件');
+    local.runWeeklyCheck.mockResolvedValue(JSON.stringify({ version: 1, results: [check] }));
     local.fetchCheckFile.mockResolvedValue(JSON.stringify({ version: 1, results: [check] }));
     await start([record]);
     byId('sync').click();
@@ -976,7 +976,7 @@ describe('週次確認', () => {
       targets: [{ profileUrl: record.basic.therapistProfileUrl, therapistName: record.basic.therapistName, scheduleUrl: null }],
     });
     expect(local.runWeeklyCheck).toHaveBeenCalledOnce();
-    expect(local.fetchCheckFile).toHaveBeenCalledWith('checks.json');
+    expect(local.runWeeklyCheck).toHaveBeenCalledWith(targetsCall![1]);
     expect(savedBoard().checks).toEqual([check]);
     // 控えは、確認結果を取り込んだあとの内容
     expect(backupCall).toEqual(['board-backup.json', window.localStorage.getItem(BOARD_KEY)]);
@@ -994,5 +994,59 @@ describe('週次確認', () => {
     expect(byId<HTMLButtonElement>('sync').disabled).toBe(false);
     expect(byId('sync').textContent).toBe('週次確認');
     expect(local.fetchCheckFile).not.toHaveBeenCalled();
+  });
+});
+
+
+describe('投稿URL決定時の最新データ', () => {
+  it.each(['edit', 'delete', 'url'])('回答の%sを巻き戻さない', async (change) => {
+    const original = fixtureRecord();
+    await start([original]);
+    await moveTo(original.id, 'posted');
+    const latest = { ...original, seriesNo: 9, flow: { ...original.flow, bestMoment: '別画面の訂正' }, postedUrl: change === 'url' ? 'https://wakust.com/reports/1002' : null };
+    window.localStorage.setItem(VISITS_KEY, JSON.stringify(change === 'delete' ? [] : [latest]));
+    answerInput(WAKUST_URL);
+    if (change === 'edit') expect(savedVisits()[0]).toMatchObject({ seriesNo: 9, flow: latest.flow, postedUrl: WAKUST_URL });
+    else {
+      expect(savedVisits()).toEqual(change === 'delete' ? [] : [latest]);
+      expect(dialogError()).toMatch(/見つかりません|変更/);
+      expect(stageOf(original.id)).not.toBe('posted');
+    }
+  });
+  it('削除済みのまとめを復活させない', async () => {
+    const bundle = { id: 'bundle-test', kind: 'matome' as const, title: '合成まとめ', recordIds: [], stage: 'answered' as const, postedUrl: null, createdAt: '2026-11-13T00:00:00.000Z' };
+    await start([], emptyBoard({ bundles: [bundle] }));
+    await moveTo(bundle.id, 'posted');
+    window.localStorage.setItem(BOARD_KEY, JSON.stringify(emptyBoard()));
+    answerInput(WAKUST_URL);
+    expect(savedBoard().bundles).toEqual([]);
+    expect(dialogError()).toMatch(/見つかりません/);
+  });
+});
+
+
+describe('古い回答ファイルの本文競合', () => {
+  it('新着へ自動追加せず、ファイル名と手動読込経路を表示する', async () => {
+    const original = fixtureRecord();
+    const saved = { ...original, updatedAt: '2026-11-13T12:00:00.000Z', postedUrl: WAKUST_URL };
+    const corrected = { ...original, flow: { ...original.flow, bestMoment: 'スマホの訂正' } };
+    local.fetchAnswerFiles.mockResolvedValue([{ name: 'correction.json', modifiedAt: 1, text: JSON.stringify([corrected]) }]);
+    await start([saved]);
+    await vi.waitFor(() => expect(document.body.textContent).toMatch(/correction.json.*競合.*回答を追加読込/));
+    expect(savedVisits()).toEqual([saved]);
+  });
+});
+
+
+describe('まとめの投稿URL決定中の変更', () => {
+  it.each(['edit', 'url'])('%sを巻き戻さない', async (change) => {
+    const bundle = { id: 'bundle-test', kind: 'matome' as const, title: '合成まとめ', recordIds: [], stage: 'answered' as const, postedUrl: null, createdAt: '2026-11-13T00:00:00.000Z' };
+    await start([], emptyBoard({ bundles: [bundle] }));
+    await moveTo(bundle.id, 'posted');
+    const latest = { ...bundle, title: '別画面の訂正', postedUrl: change === 'url' ? 'https://wakust.com/reports/1002' : null };
+    window.localStorage.setItem(BOARD_KEY, JSON.stringify(emptyBoard({ bundles: [latest] })));
+    answerInput(WAKUST_URL);
+    expect(savedBoard().bundles[0]).toEqual(change === 'edit' ? { ...latest, postedUrl: WAKUST_URL } : latest);
+    if (change === 'url') expect(dialogError()).toMatch(/変更/);
   });
 });

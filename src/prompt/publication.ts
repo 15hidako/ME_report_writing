@@ -3,11 +3,18 @@ import { isHttpUrl } from '../url';
 
 export const SUMMARY_MIN_THERAPISTS = 6;
 
-export function isWakustArticleUrl(value: string): boolean {
+export function isStoredPostedUrl(value: string): boolean {
   if (!isHttpUrl(value)) return false;
   const url = new URL(value);
   return (url.hostname === 'wakust.com' || url.hostname === 'www.wakust.com')
     && url.username === '' && url.password === '' && url.pathname !== '/';
+}
+
+// 2026-11-13: 公式記事 /wakust/1842074/ と登録ページ /registry/ のプロフィール形式を照合。
+export function isWakustArticleUrl(value: string): boolean {
+  if (!isStoredPostedUrl(value)) return false;
+  const path = new URL(value).pathname;
+  return /^\/[^/]+\/\d+\/?$/.test(path) && !/^\/(user|post-category|post_tag)\//.test(path);
 }
 
 /** 投稿URLの入力を解釈する。空欄は null(解除)。wakustの記事URLでなければ Error */

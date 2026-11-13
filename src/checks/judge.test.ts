@@ -86,9 +86,9 @@ describe('出勤の判定(別ページの出勤表)', () => {
   const withSchedule: CheckTarget = { ...target, scheduleUrl: 'https://shop.example/schedule' };
   const profile = page('<h1>あや</h1>');
 
-  it('出勤表に名前があれば出勤あり、なければ出勤なし', () => {
-    expect(judge(profile, page('<li>あや 12:00</li>'), withSchedule).attendance).toBe('listed');
-    expect(judge(profile, page('<li>みき 12:00</li>'), withSchedule).attendance).toBe('not_listed');
+  it('出勤表の構造を特定できなければ名前の有無によらず要目視', () => {
+    expect(judge(profile, page('<li>あや 12:00</li>'), withSchedule).attendance).toBe('unknown');
+    expect(judge(profile, page('<li>みき 12:00</li>'), withSchedule).attendance).toBe('unknown');
   });
 
   it('出勤表を取得できなければ要目視', () => {
@@ -113,5 +113,19 @@ describe('受け渡しファイルの検証', () => {
     ['判定値が未知', `{"version":1,"results":[{"profileUrl":"${PROFILE}","checkedAt":"${NOW}","enrollment":"maybe","attendance":"listed","detail":""}]}`, 'enrollment'],
   ])('%sファイルは理由を示して拒否する', (_label, json, message) => {
     expect(() => parseChecksFile(json)).toThrow(message);
+  });
+});
+
+
+describe('構造未確認の別ページを断定しない', () => {
+  it.each([
+    '<p>あや 休み</p>',
+    '<nav>あや</nav><section>11/15 みき 12:00〜20:00</section>',
+    '<p>2025/11/15 あや 12:00〜20:00</p>',
+    '<p>12/25 あや 12:00〜20:00</p>',
+    '<p>11/15 あやか 12:00〜20:00</p>',
+    '<p>出勤予定は未定</p>',
+  ])('名前の一致や欠落だけでは出勤を決めない: %s', (html) => {
+    expect(judge(page('<h1>あや</h1>'), page(html), { ...target, scheduleUrl: 'https://shop.example/schedule' }).attendance).toBe('unknown');
   });
 });

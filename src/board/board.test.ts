@@ -13,7 +13,7 @@ import { boardHtml } from './view';
 const NOW = new Date('2026-11-16T03:00:00.000Z');
 const CHECKED = '2026-11-15T12:00:00.000Z';
 const PROFILE = 'https://shop.example/cast/12';
-const POSTED = 'https://wakust.com/user/article/1';
+const POSTED = 'https://wakust.com/fixture/1';
 
 function record(seriesNo: number, overrides: Partial<VisitRecord> = {}, profileUrl = PROFILE): VisitRecord {
   const base = fixtureRecord();
@@ -156,9 +156,9 @@ describe('確認対象の書き出し', () => {
   it('投稿済みの回答だけを、同じプロフィールは1件にまとめて出す', () => {
     const records = [
       record(1, { postedUrl: POSTED }),
-      record(2, { postedUrl: 'https://wakust.com/user/article/2', revisitOf: 'id-1', sales: { points: 100, articleType: 'revisit' } }),
+      record(2, { postedUrl: 'https://wakust.com/fixture/2', revisitOf: 'id-1', sales: { points: 100, articleType: 'revisit' } }),
       record(3, {}, 'https://other.example/cast/1'),
-      record(4, { postedUrl: 'https://wakust.com/user/article/4' }, 'https://www.shop.example/cast/20'),
+      record(4, { postedUrl: 'https://wakust.com/fixture/4' }, 'https://www.shop.example/cast/20'),
     ];
     const state = setScheduleUrl(EMPTY_BOARD, 'shop.example', 'https://shop.example/schedule');
     expect(buildTargets(records, state, CHECKED)).toEqual({
@@ -279,5 +279,18 @@ describe('ボードの表示', () => {
     const root = mount(boardHtml(cards, 'all'));
     expect(root.querySelector('.board-card b')).toBeNull();
     expect(root.querySelector('.column[data-stage="posted"] h3')?.textContent).toContain('<b>月</b>');
+  });
+});
+
+
+describe('旧URLを保持する読み込み', () => {
+  it('旧非記事URLのまとめを読み込め、投稿済み扱いにしない', () => {
+    const legacy = { ...bundle, postedUrl: 'https://wakust.com/user/1234/' };
+    const state = parseBoardState(JSON.stringify({ ...EMPTY_BOARD, bundles: [legacy] }));
+    expect(state.bundles[0]?.postedUrl).toBe(legacy.postedUrl);
+    expect(buildCards([], state, NOW)[0]?.stage).toBe(legacy.stage);
+    const prompted = markBundlePrompted({ ...state, bundles: [{ ...legacy, stage: 'answered' }] }, legacy.id);
+    expect(prompted.bundles[0]?.stage).toBe('prompted');
+    expect(prompted.bundles[0]?.postedUrl).toBe(legacy.postedUrl);
   });
 });

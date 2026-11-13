@@ -39,6 +39,15 @@ export class VisitStore {
     return this.writeAll(next);
   }
 
+  updatePostedUrl(id: string, expectedUrl: string | null, postedUrl: string | null): VisitRecord[] {
+    const all = this.loadAll();
+    const record = all.find((item) => item.id === id);
+    if (record === undefined) throw new Error('回答が見つかりません。画面を読み込み直してください');
+    if (record.postedUrl !== expectedUrl) throw new Error('投稿URLが変更されています。画面を読み込み直して確認してください');
+    return this.writeAll(all.map((item) => item.id === id
+      ? { ...item, postedUrl, updatedAt: new Date().toISOString() } : item));
+  }
+
   /** 確認画面を出している間に保存内容が変わっていないことを確かめ、複数の回答をまとめて更新する */
   saveMany(records: readonly VisitRecord[], expectedRaw: string): VisitRecord[] {
     if (this.exportRawJson() !== expectedRaw) {

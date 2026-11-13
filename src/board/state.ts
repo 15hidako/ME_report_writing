@@ -1,6 +1,6 @@
 import type { KeyValueStore } from '../storage';
 import { parseCheckResults, type CheckResult } from '../checks/files';
-import { isWakustArticleUrl } from '../prompt/publication';
+import { isStoredPostedUrl, isWakustArticleUrl } from '../prompt/publication';
 import { isHttpUrl } from '../url';
 import { isObject } from '../guards';
 import type { NameDisclosure } from '../prompt/style-profile';
@@ -86,7 +86,7 @@ function parseBundle(value: unknown, index: number): BundleArticle {
   if (typeof title !== 'string' || title.trim() === '') throw new Error(`${at}のタイトルが不正です`);
   if (!Array.isArray(recordIds) || recordIds.some((item) => typeof item !== 'string')) throw new Error(`${at}の対象が不正です`);
   if (typeof stage !== 'string' || !DRAFT_STAGES.includes(stage)) throw new Error(`${at}の段階が不正です`);
-  if (postedUrl !== null && (typeof postedUrl !== 'string' || !isWakustArticleUrl(postedUrl))) throw new Error(`${at}の投稿URLが不正です`);
+  if (postedUrl !== null && (typeof postedUrl !== 'string' || !isStoredPostedUrl(postedUrl))) throw new Error(`${at}の投稿URLが不正です`);
   if (typeof createdAt !== 'string') throw new Error(`${at}の作成日時が不正です`);
   return { id, kind, title, recordIds: recordIds as string[], stage: stage as DraftStage, postedUrl, createdAt };
 }
@@ -164,7 +164,7 @@ export function markPrompted(state: BoardState, recordId: string): BoardState {
 /** まとめのプロンプトを出した記事を「プロンプト出力」へ進める。先の段階や投稿済みの記事は変えない */
 export function markBundlePrompted(state: BoardState, bundleId: string): BoardState {
   const bundle = state.bundles.find((item) => item.id === bundleId);
-  if (bundle === undefined || bundle.stage !== 'answered' || bundle.postedUrl !== null) return state;
+  if (bundle === undefined || bundle.stage !== 'answered' || (bundle.postedUrl !== null && isWakustArticleUrl(bundle.postedUrl))) return state;
   return upsertBundle(state, { ...bundle, stage: 'prompted' });
 }
 
@@ -179,6 +179,13 @@ export function upsertBundle(state: BoardState, bundle: BundleArticle): BoardSta
     ? state.bundles.map((item) => item.id === bundle.id ? bundle : item)
     : [...state.bundles, bundle];
   return { ...state, bundles };
+}
+
+export function updateBundlePublication(state: BoardState, id: string, expectedUrl: string | null, postedUrl: string | null, stage?: DraftStage): BoardState {
+  const bundle = state.bundles.find((item) => item.id === id);
+  if (bundle === undefined) throw new Error('記事が見つかりません。画面を読み込み直してください');
+  if (bundle.postedUrl !== expectedUrl) throw new Error('投稿URLが変更されています。画面を読み込み直して確認してください');
+  return upsertBundle(state, { ...bundle, postedUrl, stage: stage ?? bundle.stage });
 }
 
 export function removeBundle(state: BoardState, id: string): BoardState {

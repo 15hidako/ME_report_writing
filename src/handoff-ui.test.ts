@@ -269,7 +269,7 @@ describe('回答の追加読込', () => {
   });
 
   it('更新前に差分を表示し、確認後もPCの通し番号と投稿URLを保つ', async () => {
-    const existing = fixtureRecord({ seriesNo: 8, postedUrl: 'https://wakust.com/u/retained/' });
+    const existing = fixtureRecord({ seriesNo: 8, postedUrl: 'https://wakust.com/u/104/' });
     await start([existing]);
     const changed = fixtureRecord({ flow: { ...existing.flow, bestMoment: '<img src=x onerror=alert(1)>' } });
     await pickFile(JSON.stringify([changed]));
@@ -306,7 +306,7 @@ describe('回答の追加読込', () => {
     const existing = fixtureRecord();
     await start([existing]);
     await pickFile(JSON.stringify([{ ...existing, basic: { ...existing.basic, area: '更新案' } }]));
-    const concurrent = { ...existing, postedUrl: 'https://wakust.com/u/concurrent/' };
+    const concurrent = { ...existing, postedUrl: 'https://wakust.com/u/105/' };
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify([concurrent]));
     button('更新する').click();
     expect(records()).toEqual([concurrent]);
@@ -342,5 +342,25 @@ describe('回答の追加読込', () => {
     expect(replaced.textContent).toContain(lookup.sourceUrl);
     expect(replaced.textContent).not.toContain('[object Object]');
     expect(replaced.textContent).not.toContain('変更項目');
+  });
+});
+
+
+describe('投稿URLダイアログ中の外部変更', () => {
+  it.each(['edit', 'delete', 'url'])('%sを巻き戻さず、競合時は入力を残す', async (change) => {
+    const original = fixtureRecord();
+    await start([original]);
+    button('履歴').click();
+    button('投稿URL').click();
+    const latest = { ...original, seriesNo: 9, flow: { ...original.flow, bestMoment: '別画面の訂正' }, postedUrl: change === 'url' ? 'https://wakust.com/reports/1002' : null };
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(change === 'delete' ? [] : [latest]));
+    field('postedUrl').value = 'https://wakust.com/reports/1001';
+    button('決定').click();
+    if (change === 'edit') expect(records()[0]).toMatchObject({ seriesNo: 9, flow: latest.flow, postedUrl: 'https://wakust.com/reports/1001' });
+    else {
+      expect(records()).toEqual(change === 'delete' ? [] : [latest]);
+      expect(document.querySelector('[role="alert"]')?.textContent).toMatch(/見つかりません|変更/);
+      expect(field('postedUrl').value).toBe('https://wakust.com/reports/1001');
+    }
   });
 });

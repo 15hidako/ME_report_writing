@@ -441,11 +441,11 @@ describe('起動からの画面操作', () => {
     setLocation('area', '更新したエリア');
     button('履歴').click();
     button('投稿URL').click();
-    answerInput('https://wakust.com/reports/latest');
+    answerInput('https://wakust.com/reports/1001');
     button('入力').click();
     button('保存').click();
     const saved = JSON.parse(window.localStorage.getItem('me-report-writer/visits/v1') ?? '[]') as { postedUrl: string; basic: { area: string } }[];
-    expect(saved[0]?.postedUrl).toBe('https://wakust.com/reports/latest');
+    expect(saved[0]?.postedUrl).toBe('https://wakust.com/reports/1001');
     expect(saved[0]?.basic.area).toBe('更新したエリア');
   });
 
@@ -522,7 +522,7 @@ describe('起動からの画面操作', () => {
   });
 
   it('投稿URLを空欄にすると投稿済みを解除する', async () => {
-    await start([fixtureRecord({ postedUrl: 'https://wakust.com/u/original/' })]);
+    await start([fixtureRecord({ postedUrl: 'https://wakust.com/u/102/' })]);
     expect(document.querySelector('.badge.posted')).not.toBeNull();
     button('投稿URL').click();
     answerInput('  ');
@@ -532,7 +532,7 @@ describe('起動からの画面操作', () => {
   });
 
   describe('別の画面での変更', () => {
-    const posted = (): string => JSON.stringify([fixtureRecord({ postedUrl: 'https://wakust.com/u/from-board/' })]);
+    const posted = (): string => JSON.stringify([fixtureRecord({ postedUrl: 'https://wakust.com/u/103/' })]);
     const changeElsewhere = (records: string): void => {
       window.localStorage.setItem('me-report-writer/visits/v1', records);
       window.dispatchEvent(new Event('storage'));
@@ -569,7 +569,7 @@ describe('起動からの画面操作', () => {
   });
 
   it('投稿URLに別サイトを指定したら理由を示し、保存済みURLを保つ', async () => {
-    await start([fixtureRecord({ postedUrl: 'https://wakust.com/u/original/' })]);
+    await start([fixtureRecord({ postedUrl: 'https://wakust.com/u/102/' })]);
     const before = window.localStorage.getItem('me-report-writer/visits/v1');
     button('投稿URL').click();
     const dialog = answerInput('https://example.com/article');
@@ -579,10 +579,10 @@ describe('起動からの画面操作', () => {
   });
 
   it('再訪の記録から次の再訪を作っても初回記事を参照する', async () => {
-    const first = fixtureRecord({ postedUrl: 'https://wakust.com/u/first/' });
+    const first = fixtureRecord({ postedUrl: 'https://wakust.com/u/100/' });
     const revisit = fixtureRecord({
       id: 'second-visit', seriesNo: 2, revisitOf: first.id,
-      postedUrl: 'https://wakust.com/u/second/', sales: { points: 100, articleType: 'revisit' },
+      postedUrl: 'https://wakust.com/u/101/', sales: { points: 100, articleType: 'revisit' },
     });
     await start([first, revisit]);
     button('再訪入力').click();
@@ -593,10 +593,10 @@ describe('起動からの画面操作', () => {
   });
 
   it('過去の再訪参照が連鎖していてもプロンプトには初回URLを渡す', async () => {
-    const first = fixtureRecord({ postedUrl: 'https://wakust.com/u/first/' });
+    const first = fixtureRecord({ postedUrl: 'https://wakust.com/u/100/' });
     const revisit = fixtureRecord({
       id: 'second-visit', seriesNo: 2, revisitOf: first.id,
-      postedUrl: 'https://wakust.com/u/second/', sales: { points: 100, articleType: 'revisit' },
+      postedUrl: 'https://wakust.com/u/101/', sales: { points: 100, articleType: 'revisit' },
     });
     const third = { ...revisit, id: 'third-visit', seriesNo: 3, revisitOf: revisit.id, postedUrl: null };
     await start([first, revisit, third]);
@@ -604,8 +604,8 @@ describe('起動からの画面操作', () => {
     button('プロンプト').click();
     answerInput('');
     await vi.waitFor(() => expect(copy).toHaveBeenCalledOnce());
-    expect(copy.mock.calls[0]![0]).toContain('https://wakust.com/u/first/');
-    expect(copy.mock.calls[0]![0]).not.toContain('https://wakust.com/u/second/');
+    expect(copy.mock.calls[0]![0]).toContain('https://wakust.com/u/100/');
+    expect(copy.mock.calls[0]![0]).not.toContain('https://wakust.com/u/101/');
   });
 
   it('生成時に出勤確認日を聞き、取得日を初期値にして記事の指示へ渡す', async () => {
@@ -687,7 +687,7 @@ describe('起動からの画面操作', () => {
     });
 
     it('投稿済みの回答では段階を入れない', async () => {
-      await start([fixtureRecord({ postedUrl: 'https://wakust.com/u/first/' })]);
+      await start([fixtureRecord({ postedUrl: 'https://wakust.com/u/100/' })]);
       const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
       button('プロンプト').click();
       answerInput('');
@@ -794,7 +794,7 @@ describe('起動からの画面操作', () => {
   });
 
   it('再訪が参照する初回の削除を画面から試みても両方を残し、再訪用の生成を維持する', async () => {
-    const first = fixtureRecord({ postedUrl: 'https://wakust.com/u/first/' });
+    const first = fixtureRecord({ postedUrl: 'https://wakust.com/u/100/' });
     const revisit = fixtureRecord({ id: 'second-visit', seriesNo: 2, revisitOf: first.id, sales: { points: 100, articleType: 'revisit' } });
     await start([first, revisit]);
     const before = window.localStorage.getItem('me-report-writer/visits/v1');
@@ -808,7 +808,7 @@ describe('起動からの画面操作', () => {
     document.querySelector<HTMLButtonElement>(`[data-id="${revisit.id}"] [data-act="prompt"]`)!.click();
     answerInput('');
     await vi.waitFor(() => expect(copy).toHaveBeenCalledOnce());
-    expect(copy.mock.calls[0]![0]).toContain('https://wakust.com/u/first/');
+    expect(copy.mock.calls[0]![0]).toContain('https://wakust.com/u/100/');
     expect(copy.mock.calls[0]![0]).toContain('再訪');
   });
 

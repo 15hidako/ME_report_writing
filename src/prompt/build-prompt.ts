@@ -110,7 +110,7 @@ ${listingCheckLine(listingCheckedOn)}
 - <p><em>皆さまのご武運をお祈りいたします!</em></p>`;
 };
 
-function header(task: string, disclosure: NameDisclosure = 'paid'): string {
+function header(task: string, disclosure: NameDisclosure | 'catalog' = 'paid'): string {
   return `あなたはメンズエステ体験レポートの専属ライターです。以下の訪問データだけを素材に、${task}を作成してください。
 
 前提(確認不要でそのまま生成を開始してください):
@@ -174,7 +174,7 @@ export function buildCatalogPrompt(records: readonly VisitRecord[], prefecture: 
   const data = targets
     .map((r) => `- ${r.basic.area} / スペック: ${publicSpecSummary(r)} / エロ施術★${r.ratings.ero.stars} 寛容度★${r.ratings.tolerance.stars} / 記事URL: ${r.postedUrl ?? '{未投稿}'}`)
     .join('\n');
-  return `${header(`${prefecture}の自分の体験談インデックス(宣伝用の無料記事)`)}
+  return `${header(`${prefecture}の自分の体験談インデックス(宣伝用の無料記事)`, 'catalog')}
 
 ## 記事構成(カタログ無料記事)
 - 導入1〜2文(実際に行った店だけを載せている旨)
@@ -187,6 +187,7 @@ export function buildCatalogPrompt(records: readonly VisitRecord[], prefecture: 
 1. タイトル(例: 【${prefectureTag(prefecture)}】実際に行ったメンズエステ体験談まとめ【随時更新】。タグへ流用しても入力できるよう、都道府県の正式名と「メンエス」は使わない)
 2. タグ: ${TAG_RULE}
 3. 記事HTML(無料記事なので1本)
+${SPAN_STYLE_RULE}
 
 ### 対象訪問データ(${targets.length}件)
 ${data}`;

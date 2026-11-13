@@ -3,6 +3,17 @@ import { VisitStore } from './storage';
 import { MemoryStore, fixtureRecord } from './test-fixtures';
 
 describe('VisitStore', () => {
+  it('投稿URL更新は最新本文を保ち、削除済みとURL競合を拒否する', () => {
+    const store = new VisitStore(new MemoryStore());
+    const record = fixtureRecord();
+    store.save({ ...record, seriesNo: 9 });
+    store.updatePostedUrl(record.id, null, 'https://wakust.com/reports/1001');
+    expect(store.get(record.id)?.seriesNo).toBe(9);
+    expect(() => store.updatePostedUrl(record.id, null, null)).toThrow(/変更/);
+    store.delete(record.id);
+    expect(() => store.updatePostedUrl(record.id, null, null)).toThrow(/見つかりません/);
+    expect(store.loadAll()).toEqual([]);
+  });
   it('空の状態では空配列を返す', () => {
     const store = new VisitStore(new MemoryStore());
     expect(store.loadAll()).toEqual([]);
@@ -212,7 +223,7 @@ describe('VisitStore', () => {
     const kv = new FailingStore();
     const store = new VisitStore(kv);
     store.save(fixtureRecord());
-    store.save(fixtureRecord({ postedUrl: 'https://wakust.com/u/second/' }));
+    store.save(fixtureRecord({ postedUrl: 'https://wakust.com/u/101/' }));
     const before = store.exportRawJson();
     kv.fail = true;
     expect(() => store.importJson('[]')).toThrow(/保存|バックアップ/);
@@ -279,4 +290,14 @@ describe('VisitStore', () => {
     kv.fail = false;
     expect(store.loadAll()).toHaveLength(1);
   });
+});
+
+
+it('旧非記事URLを読み込みと復旧でそのまま保つ', () => {
+  const store = new VisitStore(new MemoryStore());
+  const legacy = fixtureRecord({ postedUrl: 'https://wakust.com/user/1234/' });
+  store.importJson(JSON.stringify([legacy]));
+  expect(store.get(legacy.id)?.postedUrl).toBe(legacy.postedUrl);
+  store.save({ ...legacy, seriesNo: 2 });
+  expect(store.restoreBackup()[0]?.postedUrl).toBe(legacy.postedUrl);
 });

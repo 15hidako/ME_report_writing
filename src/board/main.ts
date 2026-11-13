@@ -26,7 +26,7 @@ import {
 } from './local-api';
 import {
   BoardStore, acknowledge, markBundlePrompted, markPrompted, parseBoardState, removeBundle, setRecordStage, setArticleAngle,
-  setScheduleUrl, upsertBundle, withChecks, BUNDLE_KINDS, ANGLES, STAGES, type BoardState, type BundleKind, type Stage,
+  setScheduleUrl, updateBundlePublication, upsertBundle, withChecks, BUNDLE_KINDS, ANGLES, STAGES, type BoardState, type BundleKind, type Stage,
 } from './state';
 import { KIND_FILTERS, boardHtml, bundleDialogHtml, filterHtml, type InboxView, type KindFilter } from './view';
 import '../styles.css';
@@ -127,13 +127,13 @@ function moveCard(card: Card, stage: Stage): void {
     if (record === undefined) throw new Error('回答が見つかりません。画面を読み込み直してください');
     if (card.stage === 'posted' && stage !== 'posted') {
       if (!confirm(UNPOST_CONFIRM)) return;
-      visits.save({ ...record, postedUrl: null, updatedAt: new Date().toISOString() });
+      visits.updatePostedUrl(record.id, record.postedUrl, null);
       update((state) => setRecordStage(state, card.id, stage));
       return;
     }
     if (stage === 'posted') {
-      askPostedUrl(null, (postedUrl) => {
-        visits.save({ ...record, postedUrl, updatedAt: new Date().toISOString() });
+      askPostedUrl(record.postedUrl, (postedUrl) => {
+        visits.updatePostedUrl(record.id, record.postedUrl, postedUrl);
         update((state) => setRecordStage(state, card.id, 'answered'));
       });
       return;
@@ -144,11 +144,11 @@ function moveCard(card: Card, stage: Stage): void {
   const bundle = board.load().bundles.find((item) => item.id === card.id);
   if (bundle === undefined) throw new Error('記事が見つかりません。画面を読み込み直してください');
   if (stage === 'posted') {
-    askPostedUrl(bundle.postedUrl, (postedUrl) => update((state) => upsertBundle(state, { ...bundle, postedUrl })));
+    askPostedUrl(bundle.postedUrl, (postedUrl) => update((state) => updateBundlePublication(state, bundle.id, bundle.postedUrl, postedUrl)));
     return;
   }
   if (bundle.postedUrl !== null && !confirm(UNPOST_CONFIRM)) return;
-  update((state) => upsertBundle(state, { ...bundle, stage, postedUrl: null }));
+  update((state) => updateBundlePublication(state, bundle.id, bundle.postedUrl, null, stage));
 }
 
 const disclosureOf = (value: string | undefined): NameDisclosure | undefined =>
@@ -437,9 +437,9 @@ async function sync(): Promise<void> {
   syncButton.disabled = true;
   syncButton.textContent = '確認中…';
   try {
-    await putCheckFile('targets.json', targetsJson());
-    await runWeeklyCheck();
-    applyChecks(await fetchCheckFile('checks.json'));
+    const targets = targetsJson();
+    await putCheckFile('targets.json', targets);
+    applyChecks(await runWeeklyCheck(targets));
     await putCheckFile('board-backup.json', board.exportRawJson());
   } finally {
     checking = false;

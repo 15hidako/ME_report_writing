@@ -27,7 +27,7 @@ const time = (record: VisitRecord): number => {
 
 /**
  * 同じ回答が複数のファイルにあれば、更新日時がいちばん新しいものだけを使う。
- * ボードにない回答と、ボードより新しく中身も違う回答だけを返す。ボード側が新しい回答は古いファイルで戻さない。
+ * ボードにない回答と、ボードより新しく中身も違う回答を返す。古い本文の差分は競合として知らせる。
  */
 export function scanAnswerFiles(current: readonly VisitRecord[], files: readonly AnswerFile[]): AnswerScan {
   const errors: string[] = [];
@@ -55,13 +55,17 @@ export function scanAnswerFiles(current: readonly VisitRecord[], files: readonly
   }
   errors.push(...conflicted.values());
   const byId = new Map(current.map((record) => [record.id, record]));
-  const incoming = [...newest.values()].filter(({ record, json }) => {
+  const incoming = [...newest.values()].filter(({ record, json, fileName }) => {
     if (conflicted.has(record.id)) return false;
     const saved = byId.get(record.id);
     if (saved === undefined) return true;
-    if (time(record) <= time(saved)) return false;
     try {
-      return prepareHandoffImport(current, json).kind !== 'unchanged';
+      if (prepareHandoffImport(current, json).kind === 'unchanged') return false;
+      if (time(record) <= time(saved)) {
+        errors.push(`${fileName}: 回答内容が競合しています。履歴の「回答を追加読込」で差分を確認してください`);
+        return false;
+      }
+      return true;
     } catch (error) {
       errors.push(`${record.basic.therapistName}: ${errText(error)}`);
       return false;
