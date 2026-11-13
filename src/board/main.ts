@@ -2,7 +2,7 @@ import { VisitStore } from '../storage';
 import { parseChecksFile } from '../checks/files';
 import { localDate } from '../date';
 import { ARTICLE_DIR, openClaudeApp } from '../local-setup';
-import { BOARD_WINDOW, takeParam } from '../links';
+import { BOARD_WINDOW, bindPageSwitch, takeParam } from '../links';
 import { isPublished, parsePostedUrlInput } from '../prompt/publication';
 import { buildMatomePrompt } from '../prompt/build-prompt';
 import { REVISIT_CYCLE, buildArticlePrompt } from '../prompt/article-prompt';
@@ -15,12 +15,14 @@ import { openInputDialog } from '../ui/input-dialog';
 import { openHandoffUpdate } from '../ui/handoff-import';
 import { watchForUpdate } from '../update-watch';
 import { ARTICLE_PARTS, VARIANT_DIRS } from '../prompt/article-files';
-import type { NameDisclosure } from '../prompt/style-profile';
-import { advanceDrafted, type ArticleDraft } from './articles';
+import { buildMarkupPrompt } from '../prompt/markup-prompt';
+import { DISCLOSURE_LABELS, type NameDisclosure } from '../prompt/style-profile';
+import { advanceDrafted, markupState, type ArticleDraft } from './articles';
+import { openArticleEditor } from './article-editor';
 import { scanAnswerFiles, type AnswerScan, type IncomingAnswer } from './answer-sync';
 import { buildCards, buildTargets, type Card } from './cards';
 import {
-  fetchAnswerFiles, fetchArticlePart, fetchCheckFile, fetchDrafts, localDataAvailable, putCheckFile, runWeeklyCheck,
+  fetchAnswerFiles, fetchArticlePart, fetchCheckFile, fetchDrafts, localDataAvailable, putArticlePart, putCheckFile, runWeeklyCheck,
 } from './local-api';
 import {
   BoardStore, acknowledge, markBundlePrompted, markPrompted, parseBoardState, removeBundle, setRecordStage, setArticleAngle,
@@ -40,6 +42,7 @@ function byId<T extends HTMLElement>(id: string): T {
 const boardNode = byId('board');
 const filterNode = byId('kind-filter');
 const dialog = byId<HTMLDialogElement>('bundle-dialog');
+const articleDialog = byId<HTMLDialogElement>('article-dialog');
 const syncButton = byId<HTMLButtonElement>('sync');
 
 const kv = {
@@ -155,8 +158,43 @@ async function copyDraftPart(card: Card, button: HTMLElement): Promise<void> {
   const disclosure = disclosureOf(button.dataset['disclosure']);
   const part = ARTICLE_PARTS.find((item) => item.id === button.dataset['part']);
   if (card.draft === null || disclosure === undefined || part === undefined) return;
-  const copied = await tryCopyText(await fetchArticlePart(card.draft, disclosure, part.id), `${part.label}をコピーしました`);
+  const { text } = await fetchArticlePart(card.draft, disclosure, part.id);
+  const copied = await tryCopyText(text, `${part.label}をコピーしました`);
   button.classList.toggle('copied', copied);
+}
+
+/** マークアップの依頼をコピーして Claude を開く。Claude Code が素の文章を読み、HTMLを書き出す */
+async function requestMarkup(draft: ArticleDraft, disclosure: NameDisclosure): Promise<void> {
+  if (ARTICLE_DIR === null) throw new Error('start.bat で開いたボードから使ってください');
+  const copied = await tryCopyText(
+    buildMarkupPrompt(ARTICLE_DIR, draft.folderName, disclosure), 'マークアップの依頼をコピーしました。Claude に貼ってください');
+  if (copied) openClaudeApp();
+}
+
+/** 開いている原稿の画面。data/ を読み直したら、HTMLの状態の表示を合わせる */
+let editor: { refresh: () => void } | null = null;
+let openingEditor = false;
+
+async function openEditor(card: Card, disclosure: NameDisclosure): Promise<void> {
+  const draft = card.draft;
+  const variant = draft?.variants.find((item) => item.disclosure === disclosure);
+  if (draft === null || variant === undefined || articleDialog.open || openingEditor) return;
+  openingEditor = true;
+  try {
+    const latest = () => drafts.get(draft.recordId)?.variants.find((item) => item.disclosure === disclosure) ?? variant;
+    editor = await openArticleEditor(articleDialog, {
+      heading: `${card.title} · ${DISCLOSURE_LABELS[disclosure]}`,
+      exists: (part) => latest().parts.includes(part),
+      fetchPart: (part) => fetchArticlePart(draft, disclosure, part),
+      savePart: (part, text, base) => putArticlePart(draft, disclosure, part, text, base),
+      markup: () => markupState(latest()),
+      requestMarkup: () => requestMarkup(draft, disclosure),
+      onSaved: refresh,
+    });
+    articleDialog.addEventListener('close', () => { editor = null; }, { once: true });
+  } finally {
+    openingEditor = false;
+  }
 }
 
 /** 出勤確認日を尋ねて記事プロンプトをコピーする。Claude Code は原稿を data/articles へ書き出す */
@@ -214,6 +252,8 @@ function advanceWithDrafts(): void {
 }
 
 let refreshing = false;
+// 保存直後の依頼を捨てると古いHTMLの状態が残るため、進行中の読み直しのあとに一度まとめて実行する。
+let refreshAgain = false;
 
 /** data/ から読んだものと、それで動くボードの段階 */
 function localSnapshot(): string {
@@ -222,8 +262,12 @@ function localSnapshot(): string {
 
 /** data/ の原稿と回答を読み直す。起動時と、Claude などからボードへ戻ったときに呼ぶ */
 async function refreshLocal(): Promise<void> {
-  // フォーカスの出入りが続いても読み直しを重ねない。取り込み中は途中の状態を描かず、終わってから読み直す
-  if (refreshing || importing) return;
+  // 取り込み中は途中の状態を描かず、終わってから読み直す。
+  if (importing) return;
+  if (refreshing) {
+    refreshAgain = true;
+    return;
+  }
   refreshing = true;
   const before = localSnapshot();
   try {
@@ -244,7 +288,14 @@ async function refreshLocal(): Promise<void> {
     refreshing = false;
   }
   // 変わっていなければ描き直さない。カードの目印や開いた選択肢を消さないため
-  if (localSnapshot() !== before) render();
+  if (localSnapshot() !== before) {
+    render();
+    editor?.refresh();
+  }
+  if (refreshAgain) {
+    refreshAgain = false;
+    await refreshLocal();
+  }
 }
 
 /**
@@ -470,6 +521,11 @@ boardNode.addEventListener('click', guarded((event: MouseEvent) => {
   if (act === 'import-answers') return importAnswers();
   if (button == null || card === undefined) return;
   if (act === 'copy-part') return copyDraftPart(card, button);
+  if (act === 'read' || act === 'markup') {
+    const disclosure = disclosureOf(button.dataset['disclosure']);
+    if (disclosure === undefined || card.draft === null) return;
+    return act === 'read' ? openEditor(card, disclosure) : requestMarkup(card.draft, disclosure);
+  }
   if (act === 'matome-prompt') return copyMatomePrompt(card);
   if (act === 'prompt') {
     const disclosure = disclosureOf(button.dataset['disclosure']);
@@ -577,17 +633,18 @@ function revealFromUrl(): void {
 
 // 入力画面からのリンクがこのタブを使い回せるようにする
 window.name = BOARD_WINDOW;
+bindPageSwitch(document);
 window.addEventListener('storage', render);
+const refresh = guarded(refreshLocal);
 render();
 revealFromUrl();
-const refresh = guarded(refreshLocal);
 refresh();
 // Claude Code で原稿を書き出したり、Slack の回答を data/answers へ保存したりしてからボードへ戻ったときに反映する
 window.addEventListener('focus', refresh);
 
 /** 記事の追加や値の入力のダイアログが開いているか。ボードの未保存の入力はここにしかない */
 function editing(): boolean {
-  return dialog.open || document.querySelector('dialog.input-dialog, dialog.handoff-dialog') !== null;
+  return dialog.open || articleDialog.open || document.querySelector('dialog.input-dialog, dialog.handoff-dialog') !== null;
 }
 
 // 開いたままのボードも新しい版に気づけるようにする。開発サーバーとテストには version.json がないため、公開ビルドだけで確認する

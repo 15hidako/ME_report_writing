@@ -1,6 +1,6 @@
 // 開発サーバーの data/ API(scripts/local-data.mjs)を呼ぶ。ボードが読み書きするファイルはすべてここを通る。
 
-import { ARTICLE_PARTS, VARIANT_DIRS, type ArticlePart } from '../prompt/article-files';
+import { ARTICLE_PARTS, VARIANT_DIRS, type ArticlePart, type SourcePart } from '../prompt/article-files';
 import type { NameDisclosure } from '../prompt/style-profile';
 import type { ArticleDraft, DraftVariant } from './articles';
 
@@ -79,8 +79,15 @@ function parseVariant(value: unknown): DraftVariant {
   const disclosure = DISCLOSURES.find((item) => item === value['disclosure']);
   const parts = Array.isArray(value['parts']) ? value['parts'] : null;
   const updatedAt = value['updatedAt'];
-  if (disclosure === undefined || parts === null || typeof updatedAt !== 'number') throw new Error('原稿の一覧が読めません');
-  return { disclosure, parts: PART_IDS.filter((id) => parts.includes(id)), updatedAt };
+  const rawTimes = value['times'];
+  if (disclosure === undefined || parts === null || typeof updatedAt !== 'number' || !isObject(rawTimes)) {
+    throw new Error('原稿の一覧が読めません');
+  }
+  const times = Object.fromEntries(PART_IDS.flatMap((id) => {
+    const at = rawTimes[id];
+    return typeof at === 'number' ? [[id, at]] : [];
+  })) as Partial<Record<ArticlePart, number>>;
+  return { disclosure, parts: PART_IDS.filter((id) => parts.includes(id)), updatedAt, times };
 }
 
 /** 回答ID → 原稿 */
@@ -96,9 +103,36 @@ export async function fetchDrafts(): Promise<Map<string, ArticleDraft>> {
   }));
 }
 
-export async function fetchArticlePart(draft: ArticleDraft, disclosure: NameDisclosure, part: ArticlePart): Promise<string> {
-  const path = [draft.folderName, disclosure, part].map(encodeURIComponent).join('/');
-  return (await call(`articles/${path}`)).text();
+const partPath = (draft: ArticleDraft, disclosure: NameDisclosure, part: ArticlePart): string =>
+  `articles/${[draft.folderName, disclosure, part].map(encodeURIComponent).join('/')}`;
+
+export interface PartText {
+  readonly text: string;
+  /** 読んだときのファイルの更新時刻。書き戻すときに、ほかで書き換えられていないかを確かめる */
+  readonly modifiedAt: number;
+}
+
+export async function fetchArticlePart(draft: ArticleDraft, disclosure: NameDisclosure, part: ArticlePart): Promise<PartText> {
+  const body = await json(partPath(draft, disclosure, part));
+  const { text, modifiedAt } = body;
+  if (typeof text !== 'string' || typeof modifiedAt !== 'number') throw new Error('原稿ファイルの形式が正しくありません');
+  return { text, modifiedAt };
+}
+
+/**
+ * 素の文章を書き戻し、書いたあとの更新時刻を返す。
+ * baseModifiedAt は読んだときの更新時刻(ファイルがなかったときは 0)。ほかで書き換えられていれば断られる
+ */
+export async function putArticlePart(
+  draft: ArticleDraft, disclosure: NameDisclosure, part: SourcePart, text: string, baseModifiedAt: number,
+): Promise<number> {
+  const { modifiedAt } = await json(partPath(draft, disclosure, part), {
+    method: 'PUT',
+    body: text,
+    headers: { 'content-type': 'text/plain; charset=utf-8', 'x-base-modified-at': String(baseModifiedAt) },
+  });
+  if (typeof modifiedAt !== 'number') throw new Error('保存の結果が読めません');
+  return modifiedAt;
 }
 
 /** まだなければ null */

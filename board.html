@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
+  <style>html { background: #14101c; color: #ece7f5; color-scheme: dark; }</style>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#12081f" />
   <link rel="manifest" href="./board.webmanifest" />
@@ -28,11 +29,12 @@
           </div>
         </div>
       </details>
-      <a href="./" target="me-input">入力画面</a>
+      <a href="./" target="me-input" data-switch>入力画面</a>
     </div>
   </header>
   <main id="board"></main>
   <dialog id="bundle-dialog" class="board-dialog"></dialog>
+  <dialog id="article-dialog" class="board-dialog"></dialog>
   <script type="module" src="/src/board/main.ts"></script>
 </body>
 </html>

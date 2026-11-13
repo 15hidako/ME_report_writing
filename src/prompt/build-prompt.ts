@@ -17,7 +17,7 @@ const TITLE_NAME_RULE: Readonly<Record<NameDisclosure, string>> = {
 const TAG_RULE = '半角コンマ区切りで6個以内。都道府県は「東京」「神奈川」のように都・府・県を省いた地域名にする。「東京都」「神奈川県」などの正式名と「メンエス」はNGタグなので使わない。本文と関係のないタグは付けない';
 
 /** wakustの投稿欄で保存後も残ることを確かめた装飾(C3)。色や強調の標準は固定しない。H-01 */
-const SPAN_STYLE_RULE = '- <span style> は強調したい一言にだけ使う。style属性は color と font-weight だけにし、記事の大半を装飾しない';
+export const SPAN_STYLE_RULE = '- <span style> は強調したい一言にだけ使う。style属性は color と font-weight だけにし、記事の大半を装飾しない';
 
 const TITLE_BODY = '属性キーワード(系統・特記。年齢・体型・カップ数は入れない)+展開の匂わせ+【メンズエステ体験談】(通し番号は付けない)';
 
@@ -37,12 +37,28 @@ const titleRule = (disclosure: NameDisclosure, lead: string | null): string => l
   ? `【フック】+${TITLE_BODY}。${TITLE_NAME_RULE[disclosure]}`
   : `先頭は必ず${lead}。フックは【】で囲まず、先頭の直後に短く置く。続けて${TITLE_BODY}。出勤予定日は入れない。${TITLE_NAME_RULE[disclosure]}`;
 
-const outputFormat = (disclosure: NameDisclosure, lead: string | null = null, lookup = false): string => `## 出力形式(この${lookup ? 5 : 4}ブロックを順に、コードブロックで出力)
+/**
+ * 本文の書き方。html は投稿欄へそのまま貼るHTML、plain はボードで直してから別の依頼でマークアップする素の文章(U-23)。
+ * plain でも記事構成のタグ名は構造の目印として読み替えさせ、構成の指示は1つに保つ
+ */
+export type BodyFormat = 'html' | 'plain';
+
+/** 素の文章の記法。マークアップの依頼(markup-prompt.ts)はこの記法をHTMLへ戻す */
+export const PLAIN_NOTATION = '記事構成の<h3>見出し</h3>は「### 見出し」の1行、<ul><li>の項目は「- 項目」の行、<p>は空行で区切った段落、<br />は段落の中の改行で書く。<a><strong><em><small><span>などのタグと**などの記号は付けない。リンクはURLの文字列だけを書く(マークアップは別の依頼で行う)';
+
+const bodyLines = (body: BodyFormat): string => body === 'html'
+  ? `3. 無料部分HTML: <h3><p><ul><li><a><strong><em><small><span style><br />のみ使用
+4. 有料部分HTML: 同上`
+  : `3. 無料部分(素の文章): ${PLAIN_NOTATION}
+4. 有料部分(素の文章): 同上`;
+
+const outputFormat = (
+  disclosure: NameDisclosure, lead: string | null = null, lookup = false, body: BodyFormat = 'html',
+): string => `## 出力形式(この${lookup ? 5 : 4}ブロックを順に、コードブロックで出力)
 1. タイトル: ${titleRule(disclosure, lead)}
 2. タグ: ${TAG_RULE}(候補から取捨選択・追加可)
-3. 無料部分HTML: <h3><p><ul><li><a><strong><em><small><span style><br />のみ使用
-4. 有料部分HTML: 同上
-${lookup ? '5. 店舗情報JSON: 「店舗情報の確認」の形式\n' : ''}${SPAN_STYLE_RULE}`;
+${bodyLines(body)}
+${lookup ? '5. 店舗情報JSON: 「店舗情報の確認」の形式\n' : ''}${body === 'html' ? SPAN_STYLE_RULE : ''}`.trimEnd();
 
 /** 店舗情報の確認指示を、記事構成の前に差し込む */
 const lookupBlock = (section: string | null): string => section === null ? '' : `${section}\n\n`;
@@ -110,14 +126,14 @@ ${wakustRules(disclosure)}`;
 
 /** 単体体験談の生成プロンプト */
 export function buildSinglePrompt(
-  record: VisitRecord, disclosure: NameDisclosure = 'paid', listingCheckedOn: string | null = null,
+  record: VisitRecord, disclosure: NameDisclosure = 'paid', listingCheckedOn: string | null = null, body: BodyFormat = 'html',
 ): string {
   const lookup = articleLookupSection(record);
   return `${header('wakust投稿用の体験談記事', disclosure)}
 
 ${lookupBlock(lookup)}${singleStructure(disclosure, listingCheckedOn)}
 
-${outputFormat(disclosure, titleLead(record, listingCheckedOn), lookup !== null)}
+${outputFormat(disclosure, titleLead(record, listingCheckedOn), lookup !== null, body)}
 
 タグ候補: ${tagCandidates(record).join(', ')}
 販売ポイント案: ${record.sales.points}pt
@@ -128,6 +144,7 @@ ${serializeRecord(record)}`;
 /** 再訪記事の生成プロンプト(初回レコードとの差分中心) */
 export function buildRevisitPrompt(
   record: VisitRecord, first: VisitRecord, disclosure: NameDisclosure = 'paid', listingCheckedOn: string | null = null,
+  body: BodyFormat = 'html',
 ): string {
   const lookup = articleLookupSection(record);
   return `${header('wakust投稿用の再訪レポート記事', disclosure)}
@@ -139,7 +156,7 @@ ${lookupBlock(lookup)}## 記事構成(再訪)
 
 ${singleStructure(disclosure, listingCheckedOn)}
 
-${outputFormat(disclosure, titleLead(record, listingCheckedOn), lookup !== null)}
+${outputFormat(disclosure, titleLead(record, listingCheckedOn), lookup !== null, body)}
 
 タグ候補: ${tagCandidates(record).join(', ')}
 

@@ -15,6 +15,7 @@ const local = vi.hoisted(() => ({
   fetchAnswerFiles: vi.fn(),
   fetchDrafts: vi.fn(),
   fetchArticlePart: vi.fn(),
+  putArticlePart: vi.fn(),
   fetchCheckFile: vi.fn(),
   putCheckFile: vi.fn(),
   runWeeklyCheck: vi.fn(),
@@ -502,7 +503,10 @@ describe('data/ の原稿', () => {
   const draftFor = (record: VisitRecord): Map<string, ArticleDraft> => new Map([[record.id, {
     recordId: record.id,
     folderName: `0001-${record.id}`,
-    variants: [{ disclosure: 'paid', parts: ['title', 'freePart'], updatedAt: Date.UTC(2026, 10, 12) }],
+    variants: [{
+      disclosure: 'paid', parts: ['title', 'freeText', 'freeHtml'], updatedAt: Date.UTC(2026, 10, 12),
+      times: { title: 1, freeText: 1, freeHtml: 2 },
+    }],
   }]]);
   const draftNames = (id: string): string[] =>
     [...card(id).querySelectorAll('.draft-name')].map((item) => item.textContent ?? '');
@@ -530,14 +534,14 @@ describe('data/ の原稿', () => {
   it('部分のボタンでその原稿ファイルの中身をコピーする', async () => {
     const record = fixtureRecord();
     local.fetchDrafts.mockResolvedValue(draftFor(record));
-    local.fetchArticlePart.mockResolvedValue('<p>本文</p>');
+    local.fetchArticlePart.mockResolvedValue({ text: '<p>本文</p>', modifiedAt: 2 });
     const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
     await start([record]);
     await vi.waitFor(() => expect(draftNames(record.id)).toEqual(['通常版']));
     cardButton(record.id, '無料').click();
     await vi.waitFor(() => expect(copy).toHaveBeenCalledWith('<p>本文</p>'));
-    expect(local.fetchArticlePart).toHaveBeenCalledWith(expect.objectContaining({ recordId: record.id }), 'paid', 'freePart');
-    expect(toasts()).toEqual(['無料部分をコピーしました']);
+    expect(local.fetchArticlePart).toHaveBeenCalledWith(expect.objectContaining({ recordId: record.id }), 'paid', 'freeHtml');
+    expect(toasts()).toEqual(['無料部分のHTMLをコピーしました']);
   });
 
   it('data/ に届かないときは理由をボードに出す', async () => {
@@ -545,6 +549,272 @@ describe('data/ の原稿', () => {
     await start([fixtureRecord()]);
     await vi.waitFor(() => expect(document.querySelector('.inbox-error')?.textContent).toContain('start.bat'));
     expect(local.fetchDrafts).not.toHaveBeenCalled();
+  });
+});
+
+describe('原稿を読む・直す', () => {
+  const SOURCE_TIMES = { title: 10, tags: 10, freeText: 10, paidText: 10 };
+  const FILES: Record<string, string> = {
+    title: '【蒲田】タイトル',
+    tags: '蒲田,黒髪',
+    freeText: '導入の一文。\n二行目。\n\n### 今回のセラピスト\n\n- エリア: 蒲田\n- 系統: <b>ナチュラル</b>',
+    paidText: '### 総評\n\nまた行きたい。',
+  };
+  const draftWith = (record: VisitRecord, times: Record<string, number> = SOURCE_TIMES): Map<string, ArticleDraft> =>
+    new Map([[record.id, {
+      recordId: record.id,
+      folderName: `0001-${record.id}`,
+      variants: [{ disclosure: 'paid', parts: Object.keys(times) as never, updatedAt: 10, times }],
+    }]]);
+  const editor = (): HTMLDialogElement => byId<HTMLDialogElement>('article-dialog');
+  const editorButton = (name: string): HTMLButtonElement => {
+    const match = [...editor().querySelectorAll('button')].find((item) => item.textContent?.trim() === name);
+    if (match === undefined) throw new Error(`editor button not found: ${name}`);
+    return match;
+  };
+  const type = (name: string, value: string): void => {
+    const field = editor().querySelector<HTMLTextAreaElement | HTMLInputElement>(`[name="${name}"]`)!;
+    field.value = value;
+    field.dispatchEvent(new Event('input', { bubbles: true }));
+  };
+
+  async function openEditor(record: VisitRecord, times?: Record<string, number>): Promise<void> {
+    local.fetchDrafts.mockResolvedValue(draftWith(record, times));
+    local.fetchArticlePart.mockImplementation(async (_draft: unknown, _disclosure: unknown, part: string) =>
+      ({ text: FILES[part] ?? '', modifiedAt: 10 }));
+    await start([record]);
+    await vi.waitFor(() => expect(card(record.id).querySelector('[data-act="read"]')).not.toBeNull());
+    cardButton(record.id, '読む').click();
+    await vi.waitFor(() => expect(editor().open).toBe(true));
+  }
+
+  it('素の文章を読み込み、見出し・箇条・段落に組んで見せる。文字はそのまま出す', async () => {
+    const record = fixtureRecord();
+    await openEditor(record);
+    const body = editor().querySelector('.article-body')!;
+    expect(body.querySelector('.article-title')?.textContent).toBe('【蒲田】タイトル');
+    expect([...body.querySelectorAll('.article-tags li')].map((item) => item.textContent)).toEqual(['蒲田', '黒髪']);
+    expect(body.querySelector('h3')?.textContent).toBe('今回のセラピスト');
+    expect(body.querySelector('p')?.innerHTML).toBe('導入の一文。<br>二行目。');
+    expect([...body.querySelectorAll('li')].map((item) => item.textContent)).toContain('系統: <b>ナチュラル</b>');
+    expect(body.querySelector('b')).toBeNull();
+    expect(local.fetchArticlePart.mock.calls.map((call) => call[2])).toEqual(['title', 'tags', 'freeText', 'paidText']);
+  });
+
+  it('直して保存すると、変えた部分だけを読んだときの更新時刻を添えて書き戻す', async () => {
+    const record = fixtureRecord();
+    local.putArticlePart.mockResolvedValue(20);
+    await openEditor(record);
+    editorButton('直す').click();
+    type('paidText', '### 総評\n\nまた必ず行きたい。');
+    expect(editorButton('保存').disabled).toBe(false);
+    editorButton('保存').click();
+    await vi.waitFor(() => expect(local.putArticlePart).toHaveBeenCalledOnce());
+    expect(local.putArticlePart).toHaveBeenCalledWith(
+      expect.objectContaining({ recordId: record.id }), 'paid', 'paidText', '### 総評\n\nまた必ず行きたい。', 10);
+    await vi.waitFor(() => expect(editorButton('保存').disabled).toBe(true));
+    expect(toasts()).toContain('原稿を保存しました');
+    // 保存のあと data/ を読み直し、HTMLの状態を合わせる
+    await vi.waitFor(() => expect(local.fetchDrafts.mock.calls.length).toBeGreaterThan(1));
+  });
+
+  it('読み込み中に読むを連打しても、原稿を一度だけ開く', async () => {
+    const record = fixtureRecord();
+    let release!: () => void;
+    const pending = new Promise<void>((resolve) => { release = resolve; });
+    local.fetchDrafts.mockResolvedValue(draftWith(record));
+    local.fetchArticlePart.mockImplementation(async (_draft: unknown, _disclosure: unknown, part: string) => {
+      await pending;
+      return { text: FILES[part] ?? '', modifiedAt: 10 };
+    });
+    await start([record]);
+    await vi.waitFor(() => expect(card(record.id).querySelector('[data-act="read"]')).not.toBeNull());
+    cardButton(record.id, '読む').click();
+    cardButton(record.id, '読む').click();
+    expect(local.fetchArticlePart).toHaveBeenCalledTimes(4);
+    release();
+    await vi.waitFor(() => expect(editor().open).toBe(true));
+    expect(toasts()).toEqual([]);
+    local.putArticlePart.mockResolvedValue(20);
+    editorButton('直す').click();
+    type('freeText', '変更した導入。');
+    editorButton('保存').click();
+    await vi.waitFor(() => expect(local.putArticlePart).toHaveBeenCalledOnce());
+  });
+
+  it('保存中に追記した文章は未保存として残し、保存が終わるまで閉じない', async () => {
+    let finish!: (time: number) => void;
+    local.putArticlePart.mockImplementation(() => new Promise<number>((resolve) => { finish = resolve; }));
+    await openEditor(fixtureRecord());
+    editorButton('直す').click();
+    type('freeText', '保存する文章。');
+    editorButton('保存').click();
+    await vi.waitFor(() => expect(local.putArticlePart).toHaveBeenCalledOnce());
+    type('freeText', '保存中に追記した文章。');
+    editor().querySelector<HTMLButtonElement>('[data-act="close"]')!.click();
+    expect(editor().open).toBe(true);
+    finish(20);
+    await vi.waitFor(() => expect(editorButton('保存').disabled).toBe(false));
+    expect(editor().querySelector('.article-status')?.textContent).toBe('保存していない変更があります');
+    expect(editor().querySelector<HTMLTextAreaElement>('[name="freeText"]')!.value).toBe('保存中に追記した文章。');
+  });
+
+  it('本文の一部だけ保存できた場合もHTMLの状態を読み直し、残りの入力を保つ', async () => {
+    const record = fixtureRecord();
+    local.putArticlePart.mockResolvedValueOnce(20).mockRejectedValueOnce(new Error('書き込めませんでした'));
+    await openEditor(record, { ...SOURCE_TIMES, freeHtml: 11, paidHtml: 11 });
+    expect(cardButton(record.id, '無料')).toBeDefined();
+    local.fetchDrafts.mockResolvedValue(draftWith(record, { ...SOURCE_TIMES, freeText: 20, freeHtml: 11, paidHtml: 11 }));
+    editorButton('直す').click();
+    type('freeText', '直した導入。');
+    type('paidText', '直した総評。');
+    editorButton('保存').click();
+    await vi.waitFor(() => expect(toasts()).toContain('書き込めませんでした'));
+    expect(local.putArticlePart.mock.calls.map((call) => call[2])).toEqual(['freeText', 'paidText']);
+    expect(toasts()).not.toContain('原稿を保存しました');
+    await vi.waitFor(() => expect(card(record.id).querySelector('[data-part="freeHtml"]')).toBeNull());
+    expect(editorButton('保存').disabled).toBe(false);
+    expect(editor().querySelector<HTMLTextAreaElement>('[name="paidText"]')!.value).toBe('直した総評。');
+  });
+
+  it('読み直しの途中で保存しても、完了後に最新のHTMLの状態を取得する', async () => {
+    const record = fixtureRecord();
+    local.putArticlePart.mockResolvedValue(20);
+    await openEditor(record, { ...SOURCE_TIMES, freeHtml: 11, paidHtml: 11 });
+    expect(cardButton(record.id, '無料').dataset['part']).toBe('freeHtml');
+    let releaseScan!: (files: never[]) => void;
+    local.fetchAnswerFiles.mockImplementationOnce(() => new Promise((resolve) => { releaseScan = resolve; }));
+    const scans = local.fetchAnswerFiles.mock.calls.length;
+    window.dispatchEvent(new Event('focus'));
+    await vi.waitFor(() => expect(local.fetchAnswerFiles).toHaveBeenCalledTimes(scans + 1));
+    local.fetchDrafts.mockResolvedValue(draftWith(record, { ...SOURCE_TIMES, freeText: 20, freeHtml: 11, paidHtml: 11 }));
+    editorButton('直す').click();
+    type('freeText', '直した導入。');
+    editorButton('保存').click();
+    await vi.waitFor(() => expect(toasts()).toContain('原稿を保存しました'));
+    releaseScan([]);
+    await vi.waitFor(() => expect(card(record.id).querySelector('[data-part="freeHtml"]')).toBeNull());
+    expect(local.fetchAnswerFiles).toHaveBeenCalledTimes(scans + 2);
+  });
+
+  it('未保存の変更と保存中の書き込みがあれば離脱を確認し、閉じたあとは解除する', async () => {
+    vi.stubGlobal('confirm', vi.fn().mockReturnValue(true));
+    let finish!: (time: number) => void;
+    local.putArticlePart.mockImplementation(() => new Promise<number>((resolve) => { finish = resolve; }));
+    const leave = (): boolean => {
+      const event = new Event('beforeunload', { cancelable: true });
+      window.dispatchEvent(event);
+      return event.defaultPrevented;
+    };
+    await openEditor(fixtureRecord());
+    expect(leave()).toBe(false);
+    editorButton('直す').click();
+    type('tags', '蒲田');
+    expect(leave()).toBe(true);
+    editorButton('保存').click();
+    await vi.waitFor(() => expect(local.putArticlePart).toHaveBeenCalledOnce());
+    type('tags', '蒲田,黒髪');
+    expect(leave()).toBe(true);
+    finish(20);
+    await vi.waitFor(() => expect(editorButton('保存').disabled).toBe(false));
+    editor().querySelector<HTMLButtonElement>('[data-act="close"]')!.click();
+    expect(editor().open).toBe(false);
+    await vi.waitFor(() => expect(leave()).toBe(false));
+  });
+
+  it('ファイルの改行が CRLF や末尾の改行でも、触っただけでは変更ありにならない', async () => {
+    const record = fixtureRecord();
+    local.fetchDrafts.mockResolvedValue(draftWith(record));
+    local.fetchArticlePart.mockImplementation(async (_draft: unknown, _disclosure: unknown, part: string) =>
+      ({ text: part === 'tags' ? '蒲田,黒髪\r\n' : `\n先頭の改行。\r\n二行目。\r\n`, modifiedAt: 10 }));
+    await start([record]);
+    await vi.waitFor(() => expect(card(record.id).querySelector('[data-act="read"]')).not.toBeNull());
+    cardButton(record.id, '読む').click();
+    await vi.waitFor(() => expect(editor().open).toBe(true));
+    editorButton('直す').click();
+    for (const field of editor().querySelectorAll<HTMLTextAreaElement | HTMLInputElement>('[name]')) {
+      field.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    expect(editor().querySelector<HTMLTextAreaElement>('[name="freeText"]')!.value).toBe('\n先頭の改行。\n二行目。\n');
+    expect(editorButton('保存').disabled).toBe(true);
+    expect(editor().querySelector('.article-status')?.textContent).toBe('マークアップ前');
+  });
+
+  it('読むに戻すと、保存前の直した文章で見せる', async () => {
+    await openEditor(fixtureRecord());
+    editorButton('直す').click();
+    type('title', '新しいタイトル');
+    editorButton('読む').click();
+    expect(editor().querySelector('.article-title')?.textContent).toBe('新しいタイトル');
+  });
+
+  it('保存していない変更があれば、閉じる前に確かめる', async () => {
+    const confirm = vi.fn().mockReturnValue(false);
+    vi.stubGlobal('confirm', confirm);
+    await openEditor(fixtureRecord());
+    editorButton('直す').click();
+    type('tags', '蒲田');
+    editor().querySelector<HTMLButtonElement>('[data-act="close"]')!.click();
+    expect(confirm).toHaveBeenCalledOnce();
+    expect(editor().open).toBe(true);
+    confirm.mockReturnValue(true);
+    editor().querySelector<HTMLButtonElement>('[data-act="close"]')!.click();
+    expect(editor().open).toBe(false);
+  });
+
+  it('タグ欄からの暗黙の送信で、未保存の原稿画面を閉じない', async () => {
+    await openEditor(fixtureRecord());
+    editorButton('直す').click();
+    type('tags', '変更したタグ');
+    const submitted = new Event('submit', { bubbles: true, cancelable: true });
+    editor().querySelector('form')!.dispatchEvent(submitted);
+    expect(submitted.defaultPrevented).toBe(true);
+    expect(editor().open).toBe(true);
+    expect(editorButton('保存').disabled).toBe(false);
+  });
+
+  it('「マークアップを依頼」は先に保存し、素の文章からHTMLを書かせる依頼をコピーする', async () => {
+    vi.stubEnv('VITE_ARTICLE_DIR', 'C:\\repo\\data\\articles');
+    const record = fixtureRecord();
+    const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
+    local.putArticlePart.mockResolvedValue(20);
+    await openEditor(record);
+    editorButton('直す').click();
+    type('freeText', '直した導入。');
+    editorButton('マークアップを依頼').click();
+    await vi.waitFor(() => expect(copy).toHaveBeenCalledOnce());
+    expect(local.putArticlePart).toHaveBeenCalledOnce();
+    const prompt = copy.mock.calls[0]![0];
+    expect(prompt).toContain(`C:\\repo\\data\\articles\\0001-${record.id}\\standard\\free-part.txt → C:\\repo\\data\\articles\\0001-${record.id}\\standard\\free-part.html`);
+    expect(prompt).toContain('言葉は一切変えず');
+  });
+
+  it('保存に失敗したら、直す前の文章でマークアップを頼まない', async () => {
+    vi.stubEnv('VITE_ARTICLE_DIR', 'C:\\repo\\data\\articles');
+    const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
+    local.putArticlePart.mockRejectedValue(new Error('開いたあとに原稿ファイルが書き換えられています。閉じて開き直してください'));
+    await openEditor(fixtureRecord());
+    editorButton('直す').click();
+    type('freeText', '直した導入。');
+    editorButton('マークアップを依頼').click();
+    await vi.waitFor(() => expect(toasts()).toContain('開いたあとに原稿ファイルが書き換えられています。閉じて開き直してください'));
+    expect(copy).not.toHaveBeenCalled();
+  });
+
+  it('カードの「マークアップ」でも依頼をコピーする。HTMLができたら本文のコピーに替わる', async () => {
+    vi.stubEnv('VITE_ARTICLE_DIR', '/repo/data/articles');
+    const record = fixtureRecord();
+    const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
+    local.fetchDrafts.mockResolvedValue(draftWith(record));
+    await start([record]);
+    await vi.waitFor(() => expect(card(record.id).querySelector('[data-act="markup"]')).not.toBeNull());
+    cardButton(record.id, 'マークアップ').click();
+    await vi.waitFor(() => expect(copy).toHaveBeenCalledOnce());
+    expect(copy.mock.calls[0]![0]).toContain(`/repo/data/articles/0001-${record.id}/standard/paid-part.html`);
+    local.fetchDrafts.mockResolvedValue(draftWith(record, { ...SOURCE_TIMES, freeHtml: 11, paidHtml: 11 }));
+    window.dispatchEvent(new Event('focus'));
+    await vi.waitFor(() => expect(card(record.id).querySelector('[data-act="markup"]')).toBeNull());
+    expect(cardButton(record.id, '無料').dataset['part']).toBe('freeHtml');
   });
 });
 

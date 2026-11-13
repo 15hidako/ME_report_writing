@@ -18,7 +18,7 @@ import { bindDataButtons as bindDataButtonsWith, canRestoreBackup, dataButtonsHt
 import { renderListTab as renderListTabInto } from './ui/list-tab';
 import { renderThumbTab as renderThumbTabInto } from './ui/thumb-tab';
 import { openInputDialog } from './ui/input-dialog';
-import { INPUT_WINDOW, boardLinkHtml, takeParam } from './links';
+import { INPUT_WINDOW, bindPageSwitch, boardLinkHtml, takeParam } from './links';
 import { REVISIT_CYCLE, buildArticlePrompt } from './prompt/article-prompt';
 import { ARTICLE_DIR, ARTICLE_DIR_ERROR, openClaudeApp } from './local-setup';
 import { BoardStore, disclosureOfAngle, layoutOfAngle, markPrompted, type ArticleAngle } from './board/state';
@@ -556,6 +556,7 @@ function openFromUrl(): void {
 
 // ボードからのリンクがこのタブを使い回せるようにする
 window.name = INPUT_WINDOW;
+bindPageSwitch(document);
 // ボードからの移動などで、未保存の入力を黙って失わない
 window.addEventListener('beforeunload', (event) => {
   if (!leaveConfirmed && formCache?.dirty === true) event.preventDefault();

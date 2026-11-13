@@ -2,9 +2,10 @@
 // 回答・原稿・週次確認の受け渡しをすべてここに置き、ブラウザのフォルダ選択を使わない。
 // 実データはリポジトリへ入れない。公開ビルド(GitHub Pages)にはこのAPIはない。
 import { spawn } from 'node:child_process';
-import { mkdir, readdir, readFile, rename, stat, writeFile } from 'node:fs/promises';
+import { randomUUID } from 'node:crypto';
+import { mkdir, open, readdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { ARTICLE_PARTS, VARIANT_DIRS, recordIdOfFolder } from '../src/prompt/article-files.ts';
+import { ARTICLE_PARTS, VARIANT_DIRS, isSourcePart, recordIdOfFolder } from '../src/prompt/article-files.ts';
 
 export const API_PREFIX = '/__local';
 const MAX_ANSWER_BYTES = 1024 * 1024;
@@ -13,6 +14,7 @@ const MAX_BODY_BYTES = 2 * 1024 * 1024;
 const CHECK_FILES = ['targets.json', 'checks.json', 'board-backup.json'];
 const WRITABLE_CHECK_FILES = ['targets.json', 'board-backup.json'];
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]']);
+const writingArticles = new Set();
 
 /** @param {string} root リポジトリのルート */
 export function dataDirs(root) {
@@ -50,7 +52,8 @@ export async function listAnswers(dir) {
 
 /**
  * 原稿フォルダ直下の「通し番号-回答ID」フォルダを読み、書き出された部分を返す。
- * @returns {Promise<{ recordId: string; folderName: string; variants: { disclosure: string; parts: string[]; updatedAt: number }[] }[]>}
+ * times は部分ごとの更新時刻。素の文章とHTMLのどちらが新しいかで、マークアップし直しが要るかをボードが決める
+ * @returns {Promise<{ recordId: string; folderName: string; variants: { disclosure: string; parts: string[]; updatedAt: number; times: Record<string, number> }[] }[]>}
  */
 export async function scanArticles(dir) {
   const drafts = [];
@@ -70,7 +73,12 @@ export async function scanArticles(dir) {
         }
       }
       if (found.length > 0) {
-        variants.push({ disclosure, parts: found.map((item) => item.part), updatedAt: Math.max(...found.map((item) => item.updatedAt)) });
+        variants.push({
+          disclosure,
+          parts: found.map((item) => item.part),
+          updatedAt: Math.max(...found.map((item) => item.updatedAt)),
+          times: Object.fromEntries(found.map((item) => [item.part, item.updatedAt])),
+        });
       }
     }
     if (variants.length > 0) drafts.push({ recordId, folderName: entry.name, variants });
@@ -78,18 +86,83 @@ export async function scanArticles(dir) {
   return drafts;
 }
 
-/** 原稿の1ファイル。名前は規則どおりのものだけ受け付け、data/articles の外は読ませない */
-export async function readArticlePart(dir, folderName, disclosure, partId) {
+/** 原稿の1ファイルの場所。名前は規則どおりのものだけ受け付け、data/articles の外を指させない */
+function articleFile(dir, folderName, disclosure, partId) {
   const sub = Object.hasOwn(VARIANT_DIRS, disclosure) ? VARIANT_DIRS[disclosure] : undefined;
   const part = ARTICLE_PARTS.find((item) => item.id === partId);
   if (recordIdOfFolder(folderName) === null || /[\\/]|^\.\.?$/.test(folderName) || sub === undefined || part === undefined) {
     throw new HttpError(400, '原稿の指定が正しくありません');
   }
+  return { variantDir: path.join(dir, folderName, sub), file: path.join(dir, folderName, sub, part.file) };
+}
+
+/**
+ * 原稿の1ファイルと、その更新時刻。
+ * @returns {Promise<{ text: string; modifiedAt: number }>}
+ */
+export async function readArticlePart(dir, folderName, disclosure, partId) {
+  const { file } = articleFile(dir, folderName, disclosure, partId);
   try {
-    return await readFile(path.join(dir, folderName, sub, part.file), 'utf8');
+    const handle = await open(file, 'r');
+    try {
+      const before = await handle.stat();
+      const text = await handle.readFile('utf8');
+      const after = await handle.stat();
+      if (before.mtimeMs !== after.mtimeMs || before.ctimeMs !== after.ctimeMs || before.size !== after.size) {
+        throw new HttpError(409, '読み込み中に原稿が変わりました。開き直してください');
+      }
+      return { text, modifiedAt: after.mtimeMs };
+    } finally {
+      await handle.close();
+    }
   } catch (error) {
     if (isMissing(error)) throw new HttpError(404, '原稿ファイルが見つかりません。ボードを読み込み直してください');
     throw error;
+  }
+}
+
+/** ファイルがなければ 0 */
+async function modifiedAtOf(file) {
+  try {
+    return (await stat(file)).mtimeMs;
+  } catch (error) {
+    if (isMissing(error)) return 0;
+    throw error;
+  }
+}
+
+/**
+ * ボードで直した素の文章を書く。HTMLは Claude がマークアップで書くので、ボードからは書かせない。
+ * 読んだあとに Claude などが同じファイルを書き換えていれば、上書きせずに断る。
+ * @param {number} baseModifiedAt 読んだときの更新時刻。ファイルがなかったときは 0
+ * @returns {Promise<number>} 書いたあとの更新時刻
+ */
+export async function writeArticlePart(dir, folderName, disclosure, partId, text, baseModifiedAt) {
+  if (!isSourcePart(partId)) throw new HttpError(400, 'ボードから書けるのは素の文章だけです');
+  const { variantDir, file } = articleFile(dir, folderName, disclosure, partId);
+  if (writingArticles.has(file)) throw new HttpError(409, '同じ原稿を保存中です。保存が終わってから開き直してください');
+  writingArticles.add(file);
+  const temporary = `${file}.${randomUUID()}.tmp`;
+  try {
+    let isDir = false;
+    try {
+      isDir = (await stat(variantDir)).isDirectory();
+    } catch (error) {
+      if (!isMissing(error)) throw error;
+    }
+    if (!isDir) throw new HttpError(404, '原稿のフォルダが見つかりません。ボードを読み込み直してください');
+    if ((await modifiedAtOf(file)) !== baseModifiedAt) {
+      throw new HttpError(409, '開いたあとに原稿ファイルが書き換えられています。閉じて開き直してください');
+    }
+    await writeFile(temporary, text, { encoding: 'utf8', flag: 'wx' });
+    if ((await modifiedAtOf(file)) !== baseModifiedAt) {
+      throw new HttpError(409, '開いたあとに原稿ファイルが書き換えられています。閉じて開き直してください');
+    }
+    await rename(temporary, file);
+    return await modifiedAtOf(file);
+  } finally {
+    writingArticles.delete(file);
+    await rm(temporary, { force: true });
   }
 }
 
@@ -204,9 +277,15 @@ export function createHandler(root) {
       if (req.method === 'GET' && head === 'articles' && rest.length === 0) {
         return send(res, 200, { drafts: await scanArticles(dirs.articles) });
       }
-      if (req.method === 'GET' && head === 'articles' && rest.length === 3) {
+      if (head === 'articles' && rest.length === 3) {
         const [folderName, disclosure, part] = rest;
-        return send(res, 200, await readArticlePart(dirs.articles, folderName, disclosure, part));
+        if (req.method === 'GET') return send(res, 200, await readArticlePart(dirs.articles, folderName, disclosure, part));
+        if (req.method === 'PUT') {
+          const base = Number(req.headers['x-base-modified-at']);
+          if (!Number.isFinite(base)) throw new HttpError(400, '読んだときの更新時刻がありません');
+          const modifiedAt = await writeArticlePart(dirs.articles, folderName, disclosure, part, await readBody(req), base);
+          return send(res, 200, { modifiedAt });
+        }
       }
       if (head === 'checks' && rest.length === 1) {
         const [name] = rest;
@@ -245,6 +324,9 @@ export function localDataPlugin(root) {
   return {
     name: 'local-data',
     config(_config, { command }) {
+      if (command === 'build') {
+        return { define: { 'import.meta.env.VITE_ARTICLE_DIR': JSON.stringify('') } };
+      }
       if (command === 'serve' && process.env['VITEST'] === undefined) {
         // .env.local の古い設定より、PJ内の data/articles を優先する
         process.env['VITE_ARTICLE_DIR'] = dataDirs(root).articles;

@@ -6,7 +6,8 @@ import { esc } from '../ui/widgets';
 import { isPublished } from '../prompt/publication';
 import type { Attention, Card } from './cards';
 import { ANGLES, STAGES, disclosureOfAngle, type ArticleKind, type ArticleAngle, type Stage } from './state';
-import { ARTICLE_PARTS } from '../prompt/article-files';
+import { POST_PARTS, partSpec } from '../prompt/article-files';
+import { hasSource, markupState, type DraftVariant } from './articles';
 import { DISCLOSURE_LABELS, type NameDisclosure } from '../prompt/style-profile';
 
 export const STAGE_LABELS: Readonly<Record<Stage, string>> = {
@@ -68,6 +69,26 @@ function stamp(ms: number): string {
   return `${date.getMonth() + 1}/${date.getDate()} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
+/**
+ * 投稿画面へ貼る順のコピーボタン。本文はHTMLができてから出し、
+ * それまでは同じ場所に「マークアップ」を出す。直した文章がHTMLに入っていないときも同じ
+ */
+function draftPartButtons(variant: DraftVariant): string {
+  const name = DISCLOSURE_LABELS[variant.disclosure];
+  const state = markupState(variant);
+  const copy = (id: (typeof POST_PARTS)[number]): string => `
+    <button type="button" data-act="copy-part" data-disclosure="${variant.disclosure}" data-part="${id}"
+      aria-label="${esc(name)}の${partSpec(id).label}をコピー">${partSpec(id).short}</button>`;
+  const heads = POST_PARTS.filter((id) => (id === 'title' || id === 'tags') && variant.parts.includes(id)).map(copy).join('');
+  if (state === 'ready') {
+    return heads + POST_PARTS.filter((id) => (id === 'freeHtml' || id === 'paidHtml') && variant.parts.includes(id)).map(copy).join('');
+  }
+  if (!hasSource(variant)) return heads;
+  const label = state === 'stale' ? `${esc(name)}の直した文章をマークアップし直す` : `${esc(name)}をマークアップする`;
+  return `${heads}
+    <button type="button" class="markup" data-act="markup" data-disclosure="${variant.disclosure}" aria-label="${label}">マークアップ</button>`;
+}
+
 function draftHtml(card: Card): string {
   if (card.draft === null) return '';
   // 販売型を選んでいれば、対応する側の原稿を先に並べる。もう一方も残す
@@ -76,14 +97,15 @@ function draftHtml(card: Card): string {
     ? card.draft.variants
     : [...card.draft.variants].sort((a, b) => Number(b.disclosure === preferred) - Number(a.disclosure === preferred));
   const rows = variants.map((variant) => {
-    const buttons = ARTICLE_PARTS.filter((part) => variant.parts.includes(part.id)).map((part) => `
-      <button type="button" data-act="copy-part" data-disclosure="${variant.disclosure}" data-part="${part.id}"
-        aria-label="${esc(DISCLOSURE_LABELS[variant.disclosure])}の${part.label}をコピー">${part.short}</button>`).join('');
+    const name = DISCLOSURE_LABELS[variant.disclosure];
     return `
-      <div class="draft-row">
-        <span class="draft-name">${DISCLOSURE_LABELS[variant.disclosure]}</span>
+      <div class="draft-row" data-disclosure="${variant.disclosure}" data-markup="${markupState(variant)}">
+        <span class="draft-name">${name}</span>
         <time datetime="${new Date(variant.updatedAt).toISOString()}">${stamp(variant.updatedAt)}</time>
-        <div class="draft-parts">${buttons}</div>
+        ${hasSource(variant)
+          ? `<button type="button" class="draft-read" data-act="read" data-disclosure="${variant.disclosure}" aria-label="${esc(name)}を読む">読む</button>`
+          : ''}
+        <div class="draft-parts">${draftPartButtons(variant)}</div>
       </div>`;
   }).join('');
   return `<div class="draft">${rows}</div>`;
