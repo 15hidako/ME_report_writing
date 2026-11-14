@@ -11,6 +11,10 @@ import { recordBase, recordEdit } from './article-history.mjs';
 export const API_PREFIX = '/__local';
 const MAX_ANSWER_BYTES = 1024 * 1024;
 const MAX_BODY_BYTES = 2 * 1024 * 1024;
+const MAX_THUMBNAIL_BYTES = 10 * 1024 * 1024;
+/** サムネは回答フォルダの直下にこの名前で置く。保存し直すと上書きする */
+export const THUMBNAIL_FILE = 'thumb.png';
+const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 /** ボードが書く2つと、週次確認のスクリプトが書く1つ */
 const CHECK_FILES = ['targets.json', 'checks.json', 'board-backup.json'];
 const WRITABLE_CHECK_FILES = ['targets.json', 'board-backup.json'];
@@ -180,6 +184,31 @@ export async function writeArticlePart(dir, folderName, disclosure, partId, text
   }
 }
 
+/**
+ * サムネのPNGを回答フォルダの直下に書く。原稿をまだ書き出していない回答でも、フォルダを作って置く。
+ * @param {Buffer} bytes
+ * @returns {Promise<string>} 書いたファイルの絶対パス
+ */
+export async function writeThumbnail(dir, folderName, bytes) {
+  if (recordIdOfFolder(folderName) === null || /[\\/]|^\.\.?$/.test(folderName)) {
+    throw new HttpError(400, '回答フォルダの指定が正しくありません');
+  }
+  if (bytes.length < PNG_SIGNATURE.length || !bytes.subarray(0, PNG_SIGNATURE.length).equals(PNG_SIGNATURE)) {
+    throw new HttpError(400, 'PNGの画像ではありません');
+  }
+  const folder = path.join(dir, folderName);
+  const file = path.join(folder, THUMBNAIL_FILE);
+  const temporary = `${file}.${randomUUID()}.tmp`;
+  try {
+    await mkdir(folder, { recursive: true });
+    await writeFile(temporary, bytes, { flag: 'wx' });
+    await rename(temporary, file);
+    return file;
+  } finally {
+    await rm(temporary, { force: true });
+  }
+}
+
 /** 週次確認の受け渡しファイル。まだなければ null */
 export async function readCheckFile(dir, name) {
   if (!CHECK_FILES.includes(name)) throw new HttpError(400, `読めないファイルです: ${name}`);
@@ -261,19 +290,24 @@ export function isTrustedRequest(req) {
 }
 
 function readBody(req) {
+  return readRawBody(req, MAX_BODY_BYTES).then((buffer) => buffer.toString('utf8'));
+}
+
+/** @returns {Promise<Buffer>} */
+function readRawBody(req, maxBytes) {
   return new Promise((resolve, reject) => {
     let size = 0;
     const chunks = [];
     req.on('data', (chunk) => {
       size += chunk.length;
-      if (size > MAX_BODY_BYTES) {
+      if (size > maxBytes) {
         reject(new HttpError(413, '送られた内容が大きすぎます'));
         req.destroy();
         return;
       }
       chunks.push(chunk);
     });
-    req.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
+    req.on('end', () => resolve(Buffer.concat(chunks)));
     req.on('error', reject);
   });
 }
@@ -315,6 +349,10 @@ export function createHandler(root) {
           const modifiedAt = await writeArticlePart(dirs.articles, folderName, disclosure, part, await readBody(req), base);
           return send(res, 200, { modifiedAt });
         }
+      }
+      if (req.method === 'PUT' && head === 'thumbnails' && rest.length === 1) {
+        const file = await writeThumbnail(dirs.articles, rest[0], await readRawBody(req, MAX_THUMBNAIL_BYTES));
+        return send(res, 200, { path: file });
       }
       if (head === 'checks' && rest.length === 1) {
         const [name] = rest;

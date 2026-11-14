@@ -1,9 +1,11 @@
 import type { VisitRecord } from '../types';
 import { esc, toast } from './widgets';
 import { publicSpecSummary } from '../prompt/serialize';
-import { drawThumbnail, downloadCanvasPng, LAYOUTS, PALETTES } from '../thumbnail';
+import { canvasPng, drawThumbnail, downloadCanvasPng, LAYOUTS, PALETTES } from '../thumbnail';
 import type { ThumbnailLayout } from '../thumbnail';
 import { errText } from '../guards';
+import { articleFolderName } from '../prompt/article-files';
+import { localDataAvailable, putThumbnail } from '../board/local-api';
 
 /**
  * サムネタブを描く。records は新しい順。
@@ -106,12 +108,27 @@ export function renderThumbTab(
     redraw();
   });
   document.getElementById('t-draw')?.addEventListener('click', redraw);
-  document.getElementById('t-download')?.addEventListener('click', () => {
+  const selectedRecord = (): VisitRecord | undefined => {
+    const id = (document.getElementById('t-record') as HTMLSelectElement | null)?.value;
+    return records.find((record) => record.id === id);
+  };
+  const saveButton = document.getElementById('t-download') as HTMLButtonElement;
+  /** start.bat で開いていれば回答フォルダへ書き、API がない環境(GitHub Pages など)ではダウンロードする */
+  saveButton.addEventListener('click', async () => {
+    saveButton.disabled = true;
     try {
       redraw();
-      downloadCanvasPng(canvas, `thumb-${Date.now()}.png`);
+      const record = selectedRecord();
+      const folder = record === undefined ? null : articleFolderName(record);
+      if (folder !== null && await localDataAvailable()) {
+        toast(`保存しました: ${await putThumbnail(folder, await canvasPng(canvas))}`);
+      } else {
+        downloadCanvasPng(canvas, folder === null ? `thumb-${Date.now()}.png` : `${folder}-thumb.png`);
+      }
     } catch (err) {
       toast(errText(err));
+    } finally {
+      saveButton.disabled = false;
     }
   });
   redraw();

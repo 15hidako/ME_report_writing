@@ -153,3 +153,14 @@ export async function runWeeklyCheck(targets: string): Promise<string> {
   if (typeof checks !== 'string') throw new Error('週次確認の結果が読めません');
   return checks;
 }
+
+/** サムネのPNGを回答フォルダの直下(thumb.png)へ書き、書いたファイルの場所を返す */
+export async function putThumbnail(folderName: string, png: Blob): Promise<string> {
+  const { path } = await json(`thumbnails/${encodeURIComponent(folderName)}`, {
+    method: 'PUT',
+    body: png,
+    headers: { 'content-type': 'image/png' },
+  });
+  if (typeof path !== 'string') throw new Error('サムネの保存の結果が読めません');
+  return path;
+}

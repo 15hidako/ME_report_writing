@@ -599,6 +599,15 @@ export function mixHex(from: string, to: string, t: number): string {
   return `rgb(${ch(0)}, ${ch(1)}, ${ch(2)})`;
 }
 
+export function canvasPng(canvas: HTMLCanvasElement): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (blob === null) reject(new Error('サムネをPNGにできませんでした'));
+      else resolve(blob);
+    }, 'image/png');
+  });
+}
+
 export function downloadCanvasPng(canvas: HTMLCanvasElement, filename: string): void {
   const a = document.createElement('a');
   a.href = canvas.toDataURL('image/png');

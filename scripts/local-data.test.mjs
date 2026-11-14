@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-  createHandler, HttpError, isTrustedRequest, listAnswers, localDataPlugin, readArticlePart, readCheckFile, scanArticles, writeArticlePart, writeCheckFile,
+  createHandler, HttpError, isTrustedRequest, listAnswers, localDataPlugin, readArticlePart, readCheckFile, scanArticles, writeArticlePart, writeCheckFile, writeThumbnail,
 } from './local-data.mjs';
 
 let dir;
@@ -278,5 +278,38 @@ describe('APIのURL解析', () => {
       expect(await get('/__local/%ZZ')).toBe(400);
       expect(await get('/__local/status')).toBe(200);
     } finally { await new Promise((resolve) => server.close(resolve)); }
+  });
+});
+
+describe('サムネの保存', () => {
+  const png = Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), Buffer.from('body')]);
+
+  it('回答フォルダがなければ作って thumb.png に書き、保存し直すと上書きする', async () => {
+    const articles = path.join(dir, 'articles');
+    const file = await writeThumbnail(articles, '0005-rec-1', png);
+    expect(file).toBe(path.join(articles, '0005-rec-1', 'thumb.png'));
+    const next = Buffer.concat([png, Buffer.from('2')]);
+    await writeThumbnail(articles, '0005-rec-1', next);
+    expect(await readFile(file)).toEqual(next);
+    expect(await readdir(path.join(articles, '0005-rec-1'))).toEqual(['thumb.png']);
+  });
+
+  it('PNGでない内容と、規則に合わないフォルダ名には書かない', async () => {
+    const articles = path.join(dir, 'articles');
+    await expect(writeThumbnail(articles, '0005-rec-1', Buffer.from('not png'))).rejects.toMatchObject({ status: 400 });
+    for (const name of ['memo', '0005-a/b', '0005-a\\b', '..']) {
+      await expect(writeThumbnail(articles, name, png)).rejects.toMatchObject({ status: 400 });
+    }
+    expect(await readdir(dir)).toEqual([]);
+  });
+
+  it('APIからPUTでき、書いた場所を返す', async () => {
+    const handler = createHandler(dir);
+    const response = await callHandler(handler, '/__local/thumbnails/0001-%E5%90%88%E6%88%90', 'PUT', png);
+    expect(response.statusCode).toBe(200);
+    const file = path.join(dir, 'data', 'articles', '0001-合成', 'thumb.png');
+    expect(JSON.parse(response.body)).toEqual({ path: file });
+    expect(await readFile(file)).toEqual(png);
+    expect((await callHandler(handler, '/__local/thumbnails/%2e%2e%2fsecret', 'PUT', png)).statusCode).toBe(400);
   });
 });
