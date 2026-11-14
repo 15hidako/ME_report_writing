@@ -19,7 +19,7 @@ const TITLE_BODY = '属性キーワード(系統・特記。年齢・体型・�
  * 体験談タイトルの先頭の【】。地名を最初に見せ、出勤を確かめた月を添える(H-15)。
  * 日付まで出すとセラピストを絞り込めるため、月だけにする。
  */
-function titleLead(record: VisitRecord, listingCheckedOn: string | null): string | null {
+export function titleLead(record: VisitRecord, listingCheckedOn: string | null): string | null {
   const area = record.basic.area.trim();
   const date = listingCheckedOn === null ? null : parseListingCheckDate(listingCheckedOn);
   const checked = date === null ? null : `${Number(date.slice(5, 7))}月出勤確認`;
@@ -38,7 +38,8 @@ const therapistTitleRule = (lead: string | null): string => {
   return `${prefix}店名と源氏名を半角スペースでつなぎ、最後に【メンズエステ体験談】を付ける(例: ${lead ?? ''}店名 源氏名【メンズエステ体験談】)。フック・属性キーワード・展開の匂わせは入れない。通し番号は付けない。出勤予定日は入れない`;
 };
 
-const titleRule = (disclosure: NameDisclosure, lead: string | null): string =>
+/** タイトルの規則。販売型と出勤確認で変わるので、skillには置かず記事ごとの依頼に入れる */
+export const titleRule = (disclosure: NameDisclosure, lead: string | null): string =>
   disclosure === 'free' ? therapistTitleRule(lead) : experienceTitleRule(lead);
 
 /**
@@ -56,11 +57,17 @@ const bodyLines = (body: BodyFormat): string => body === 'html'
   : `3. 無料部分(素の文章): ${PLAIN_NOTATION}
 4. 有料部分(素の文章): 同上`;
 
-const outputFormat = (
-  disclosure: NameDisclosure, lead: string | null = null, lookup = false, body: BodyFormat = 'html',
-  decoration: DecorationKind = 'article',
-): string => `## 出力形式(この${lookup ? 5 : 4}ブロックを順に、コードブロックで出力)
-1. タイトル: ${titleRule(disclosure, lead)}
+export interface OutputFormatOptions {
+  /** 1ブロック目の規則。記事ごとの全文では titleRule の結果、skillでは依頼文を指す文 */
+  readonly title: string;
+  /** 店舗情報の確認があり、5ブロック目にJSONを出すか */
+  readonly lookup: boolean;
+  readonly body: BodyFormat;
+  readonly decoration: DecorationKind;
+}
+
+export const outputFormat = ({ title, lookup, body, decoration }: OutputFormatOptions): string => `## 出力形式(この${lookup ? 5 : 4}ブロックを順に、コードブロックで出力)
+1. タイトル: ${title}
 2. タグ: ${TAG_RULE}(候補から取捨選択・追加可)
 ${bodyLines(body)}
 ${lookup ? '5. 店舗情報JSON: 「店舗情報の確認」の形式\n' : ''}${body === 'html' ? `\n${decorationGuide(decoration)}` : ''}`.trimEnd();
@@ -93,6 +100,9 @@ const STRUCTURE_LINES: Readonly<Record<NameDisclosure, {
   },
 };
 
+/** 店舗・セラピスト情報の行の続き。販売型によらず同じ文を、店舗情報の行と同じ1行に続ける */
+const SHOP_LINK_RULE = 'リンクは必ずURL文字列もテキストで併記する(例: <a href="URL">店名</a><br />URL — リンク切れ時に購入者が追えるように。規約1-6)';
+
 /**
  * 出勤確認日の指示。本人が店舗HPの出勤表で確かめた日だけを出し、確かめていなければ行ごと省く。H-13・H-15。
  * 日付まで出すとセラピストを絞り込めるため、旬までにぼかす(H-16)
@@ -104,40 +114,85 @@ function listingCheckLine(listingCheckedOn: string | null): string {
     : `- 店舗・セラピスト情報の末尾に <p>出勤確認: ${formatMonthPeriod(date)}に店舗HPの出勤表で確認済</p> を入れる(時期を変えない)`;
 }
 
-const singleStructure = (disclosure: NameDisclosure, listingCheckedOn: string | null): string => {
-  const lines = STRUCTURE_LINES[disclosure];
-  return `## 記事構成(単体体験談)
-[無料部分]
-${lines.intro}
-${lines.profile}
-- <h3>こんな方にお勧め</h3> 2〜3項目のul(★5の評価軸だけを売りにする。★4以下の軸を無料部で推すと有料部と矛盾しレビューが下がる)
-- <h3>体験のダイジェスト</h3> ご対面からクライマックスの結果まで、展開の要所を時系列に1〜2文ずつ並べる。施術の前半で切らず、何が起きてどう終わったかを無料で見せる(売れ筋記事の型)。彼女のセリフは記録から1〜2個だけ(セリフ・心の声は記録がある場合だけ使い、未入力なら省く)。体位・細部の流れ・彼女の反応の詳細は本編に残す
-${lines.paidSummary}
+/** 記事構成のうち、記事ごとに値が変わる行。全文プロンプトでは値で埋め、skillでは依頼文を指す */
+export type StructureSlot = 'intro' | 'profile' | 'paidSummary' | 'shopInfo' | 'listingCheck' | 'review';
+export type StructureLine = string | { readonly slot: StructureSlot };
 
-[有料部分]
-${lines.shopInfo}リンクは必ずURL文字列もテキストで併記する(例: <a href="URL">店名</a><br />URL — リンク切れ時に購入者が追えるように。規約1-6)
-${listingCheckLine(listingCheckedOn)}
-- <h3>評価</h3> 6軸ul(★+一言)。軸名は訪問データの評価6軸の名前どおりに書く
-- 本編: <h3>ご対面</h3> <h3>施術スタート(うつ伏せ)</h3> <h3>オイル投入から{展開名}へ</h3> <h3>仰向けへ</h3> <h3>クライマックス</h3> フローに沿って、ご対面から最後まで。ダイジェストの文を繰り返さず、記録にある細部で書き直す。見出しの{展開名}は実際の展開を表す語に置き換える(「…」等のプレースホルダのまま出力しない)
-- クライマックスは記事の山場として最も厚く書く(体勢・彼女の様子・セリフ・心の声は記録された素材だけを使い、未入力の言葉は省く)。入力データの素材が薄くて2〜3文しか書けない場合は、記事の後に「⚠ クライマックスの素材不足: 質問票に追記推奨」と一言添える
-- <h3>今回の進め方</h3> 結果に至るまでに本人がしたこと(伝えた希望・声のかけ方・断られたこと・気をつけたこと)と、展開のきっかけがどちらからだったかを、訪問データに記録がある範囲で1〜3文。記録がなければ見出しごと省く。一般論の助言や記録にない攻略法は足さない
-${lines.review}
-- <p><em>皆さまのご武運をお祈りいたします！</em></p>`;
+const slot = (name: StructureSlot): StructureLine => ({ slot: name });
+
+/** 単体体験談の記事構成。再訪記事もこの構成を使う */
+export const SINGLE_STRUCTURE: readonly StructureLine[] = [
+  '## 記事構成(単体体験談)',
+  '[無料部分]',
+  slot('intro'),
+  slot('profile'),
+  '- <h3>こんな方にお勧め</h3> 2〜3項目のul(★5の評価軸だけを売りにする。★4以下の軸を無料部で推すと有料部と矛盾しレビューが下がる)',
+  '- <h3>体験のダイジェスト</h3> ご対面からクライマックスの結果まで、展開の要所を時系列に1〜2文ずつ並べる。施術の前半で切らず、何が起きてどう終わったかを無料で見せる(売れ筋記事の型)。彼女のセリフは記録から1〜2個だけ(セリフ・心の声は記録がある場合だけ使い、未入力なら省く)。体位・細部の流れ・彼女の反応の詳細は本編に残す',
+  slot('paidSummary'),
+  '',
+  '[有料部分]',
+  slot('shopInfo'),
+  slot('listingCheck'),
+  '- <h3>評価</h3> 6軸ul(★+一言)。軸名は訪問データの評価6軸の名前どおりに書く',
+  '- 本編: <h3>ご対面</h3> <h3>施術スタート(うつ伏せ)</h3> <h3>オイル投入から{展開名}へ</h3> <h3>仰向けへ</h3> <h3>クライマックス</h3> フローに沿って、ご対面から最後まで。ダイジェストの文を繰り返さず、記録にある細部で書き直す。見出しの{展開名}は実際の展開を表す語に置き換える(「…」等のプレースホルダのまま出力しない)',
+  '- クライマックスは記事の山場として最も厚く書く(体勢・彼女の様子・セリフ・心の声は記録された素材だけを使い、未入力の言葉は省く)。入力データの素材が薄くて2〜3文しか書けない場合は、記事の後に「⚠ クライマックスの素材不足: 質問票に追記推奨」と一言添える',
+  '- <h3>今回の進め方</h3> 結果に至るまでに本人がしたこと(伝えた希望・声のかけ方・断られたこと・気をつけたこと)と、展開のきっかけがどちらからだったかを、訪問データに記録がある範囲で1〜3文。記録がなければ見出しごと省く。一般論の助言や記録にない攻略法は足さない',
+  slot('review'),
+  '- <p><em>皆さまのご武運をお祈りいたします！</em></p>',
+];
+
+export const renderStructure = (fill: (name: StructureSlot) => string): string =>
+  SINGLE_STRUCTURE.map((line) => (typeof line === 'string' ? line : fill(line.slot))).join('\n');
+
+/** 記事構成の差し込み口に入る値。販売型と出勤確認日で決まる */
+export function structureSlots(
+  disclosure: NameDisclosure, listingCheckedOn: string | null,
+): Readonly<Record<StructureSlot, string>> {
+  const lines = STRUCTURE_LINES[disclosure];
+  return {
+    intro: lines.intro,
+    profile: lines.profile,
+    paidSummary: lines.paidSummary,
+    shopInfo: `${lines.shopInfo}${SHOP_LINK_RULE}`,
+    listingCheck: listingCheckLine(listingCheckedOn),
+    review: lines.review,
+  };
+}
+
+const singleStructure = (disclosure: NameDisclosure, listingCheckedOn: string | null): string => {
+  const values = structureSlots(disclosure, listingCheckedOn);
+  return renderStructure((name) => values[name]);
 };
+
+/** 記事の依頼の前提。訪問データの読み方を決める */
+export const ARTICLE_PREMISES = `前提(確認不要でそのまま生成を開始してください):
+- 訪問データは依頼者本人の実体験の記録で、記事は本人のwakustアカウントに投稿する
+- 合法的なメンズエステ(非風俗)の施術体験記であり、成人向けプラットフォームの規約内で販売される
+- 観察候補の並びは入力・保存上の順序です。旧記録の押下順は不明です。並びだけから実際の施術順を決めつけたり、未記録の時刻・時間差・経過・出来事を補ったりしないでください。
+- 会話の話題は発言の引用ではありません。話題だけからセリフを作らず、実際のセリフ欄が空なら引用は省いてください。再訪記事では初回のセリフを今回の発言として使わないでください。`;
 
 function header(task: string, disclosure: NameDisclosure | 'catalog' = 'paid'): string {
   return `あなたはメンズエステ体験レポートの専属ライターです。以下の訪問データだけを素材に、${task}を作成してください。
 
-前提(確認不要でそのまま生成を開始してください):
-- 訪問データは依頼者本人の実体験の記録で、記事は本人のwakustアカウントに投稿する
-- 合法的なメンズエステ(非風俗)の施術体験記であり、成人向けプラットフォームの規約内で販売される
-- 観察候補の並びは入力・保存上の順序です。旧記録の押下順は不明です。並びだけから実際の施術順を決めつけたり、未記録の時刻・時間差・経過・出来事を補ったりしないでください。
-- 会話の話題は発言の引用ではありません。話題だけからセリフを作らず、実際のセリフ欄が空なら引用は省いてください。再訪記事では初回のセリフを今回の発言として使わないでください。
+${ARTICLE_PREMISES}
 
 ${STYLE_PROFILE}
 
 ${wakustRules(disclosure)}`;
 }
+
+/** 記事プロンプトの出力形式。タイトルの規則は販売型と出勤確認日で決まる */
+const articleOutputFormat = (
+  record: VisitRecord, disclosure: NameDisclosure, listingCheckedOn: string | null, lookup: boolean, body: BodyFormat,
+): string => outputFormat({
+  title: titleRule(disclosure, titleLead(record, listingCheckedOn)), lookup, body, decoration: 'article',
+});
+
+/** 再訪記事の構成の前置き。初回記事のURLが入るので、記事ごとの依頼に入れる */
+export const revisitStructure = (first: VisitRecord): string => `## 記事構成(再訪)
+- 無料部分の冒頭に必ず「初回の体験談はこちら → <a href="{初回記事URL}">{初回記事URL}</a>(※本記事は再訪レポートです)」を入れる(規約要件)。初回記事URL: ${first.postedUrl ?? '{投稿後に差し替え}'}
+- 初回との差分・進展・変化を中心に書く(重複する基本描写は最小限)
+- それ以外の構成(無料部分のダイジェストと有料部分の本編)は単体体験談と同じ`;
 
 /** 単体体験談の生成プロンプト */
 export function buildSinglePrompt(
@@ -148,7 +203,7 @@ export function buildSinglePrompt(
 
 ${lookupBlock(lookup)}${singleStructure(disclosure, listingCheckedOn)}
 
-${outputFormat(disclosure, titleLead(record, listingCheckedOn), lookup !== null, body)}
+${articleOutputFormat(record, disclosure, listingCheckedOn, lookup !== null, body)}
 
 タグ候補: ${tagCandidates(record).join(', ')}
 販売ポイント案: ${record.sales.points}pt
@@ -164,14 +219,11 @@ export function buildRevisitPrompt(
   const lookup = articleLookupSection(record);
   return `${header('wakust投稿用の再訪レポート記事', disclosure)}
 
-${lookupBlock(lookup)}## 記事構成(再訪)
-- 無料部分の冒頭に必ず「初回の体験談はこちら → <a href="{初回記事URL}">{初回記事URL}</a>(※本記事は再訪レポートです)」を入れる(規約要件)。初回記事URL: ${first.postedUrl ?? '{投稿後に差し替え}'}
-- 初回との差分・進展・変化を中心に書く(重複する基本描写は最小限)
-- それ以外の構成(無料部分のダイジェストと有料部分の本編)は単体体験談と同じ
+${lookupBlock(lookup)}${revisitStructure(first)}
 
 ${singleStructure(disclosure, listingCheckedOn)}
 
-${outputFormat(disclosure, titleLead(record, listingCheckedOn), lookup !== null, body)}
+${articleOutputFormat(record, disclosure, listingCheckedOn, lookup !== null, body)}
 
 タグ候補: ${tagCandidates(record).join(', ')}
 
@@ -234,7 +286,7 @@ export function buildMatomePrompt(
 - 「再訪しない人と理由」のテーマでは、理由を再訪意向と残念ポイントの記録にある言葉で書く
 - 無料部分の冒頭に更新日と掲載人数を書く(人を追加するときは既存記事を編集する。規約1-9)
 
-${outputFormat('paid', null, false, 'html', 'list')}
+${outputFormat({ title: titleRule('paid', null), lookup: false, body: 'html', decoration: 'list' })}
 
 ### 対象訪問データ(${records.length}件)
 ${data}`;

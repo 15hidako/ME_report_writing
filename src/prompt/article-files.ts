@@ -67,10 +67,17 @@ export function variantDir(baseDir: string, folderName: string, disclosure: Name
 
 /** 単体・再訪の記事プロンプトの末尾に付ける、保存先の指示 */
 export function articleSaveSection(baseDir: string, record: VisitRecord, disclosure: NameDisclosure): string {
-  const dir = variantDir(baseDir, articleFolderName(record), disclosure);
-  const files = SOURCE_PARTS.map((id) => partSpec(id))
-    .map((part) => `- ${part.label}: ${joinPath(dir, part.file)}`).join('\n');
   return `## 保存(Claude Code)
-出力形式の1〜4を、コードブロックの中身だけ(\`\`\`は含めない)で次のファイルにUTF-8で保存する。フォルダがなければ作り、既存のファイルは上書きする。チャットへの出力も省かない。
-${files}`;
+${ARTICLE_SAVE_RULE}
+${articleSaveFileLines(baseDir, record, disclosure)}`;
+}
+
+/** 原稿の保存の規則。この文はskillに置き、保存先のパスは記事ごとの依頼に入れる */
+export const ARTICLE_SAVE_RULE = '出力形式の1〜4を、コードブロックの中身だけ(```は含めない)で次のファイルにUTF-8で保存する。フォルダがなければ作り、既存のファイルは上書きする。チャットへの出力も省かない。';
+
+/** 素の文章4ファイルの保存先。1ファイルを1行にする */
+export function articleSaveFileLines(baseDir: string, record: VisitRecord, disclosure: NameDisclosure): string {
+  const dir = variantDir(baseDir, articleFolderName(record), disclosure);
+  return SOURCE_PARTS.map((id) => partSpec(id))
+    .map((part) => `- ${part.label}: ${joinPath(dir, part.file)}`).join('\n');
 }

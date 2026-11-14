@@ -6,18 +6,32 @@ import { PLAIN_NOTATION } from './build-prompt';
 import { decorationGuide } from './decoration';
 import type { NameDisclosure } from './style-profile';
 
-export function buildMarkupPrompt(baseDir: string, folderName: string, disclosure: NameDisclosure): string {
+/** マークアップの依頼の冒頭。何を頼むか */
+export const MARKUP_TASK = `wakustに投稿する記事の素の文章を、投稿欄のソースエディタへそのまま貼れるHTMLにマークアップしてください。
+文章は本人が推敲を終えたものです。言葉は一切変えず、タグを付けることだけを行ってください。`;
+
+/** ファイルの読み書きの規則。この文はskillに置き、読むファイルと保存先は記事ごとの依頼に入れる */
+export const MARKUP_FILE_RULE = '次の素の文章を読み、矢印の先のファイルへHTMLをUTF-8で保存する。既存のファイルは上書きする。素の文章のファイルは書き換えない。';
+
+/** 素の文章のファイルと、HTMLの保存先の組。1組を1行にする */
+export function markupFileLines(baseDir: string, folderName: string, disclosure: NameDisclosure): string {
   const dir = variantDir(baseDir, folderName, disclosure);
-  const files = MARKUP_PAIRS.map(({ text, html }) =>
+  return MARKUP_PAIRS.map(({ text, html }) =>
     `- ${partSpec(text).label}: ${joinPath(dir, partSpec(text).file)} → ${joinPath(dir, partSpec(html).file)}`).join('\n');
-  return `wakustに投稿する記事の素の文章を、投稿欄のソースエディタへそのまま貼れるHTMLにマークアップしてください。
-文章は本人が推敲を終えたものです。言葉は一切変えず、タグを付けることだけを行ってください。
+}
+
+export function buildMarkupPrompt(baseDir: string, folderName: string, disclosure: NameDisclosure): string {
+  return `${MARKUP_TASK}
 
 ## ファイル(Claude Code)
-次の素の文章を読み、矢印の先のファイルへHTMLをUTF-8で保存する。既存のファイルは上書きする。素の文章のファイルは書き換えない。
-${files}
+${MARKUP_FILE_RULE}
+${markupFileLines(baseDir, folderName, disclosure)}
 
-## 素の文章の記法
+${MARKUP_RULES}`;
+}
+
+/** 記法・マークアップの規則・装飾・守ること。記事によらず同じ */
+export const MARKUP_RULES = `## 素の文章の記法
 ${PLAIN_NOTATION}
 
 ## マークアップの規則
@@ -35,4 +49,3 @@ ${decorationGuide()}
 - 文字、語順、句読点、改行の位置を変えない。言葉を足さず、削らない。誤字や事実の誤りに気づいても直さず、保存のあとにチャットで指摘する
 - 記法の記号(「### 」「- 」)はタグに置き換え、本文に残さない
 - 保存したら、タグを除いた文字の並びが素の文章(記法の記号と空行、表にしたときに省いた「:」「：」、セリフの丸の「彼女」を除く)と一致するか確かめ、結果を一言で報告する`;
-}

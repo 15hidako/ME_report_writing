@@ -47,10 +47,19 @@ const NAME_RULES: Readonly<Record<NameDisclosure, string>> = {
   free: '- 店名・源氏名は無料部分とタイトルで開示する。店・セラピストのリンク、年齢・体型、評価6軸、ご対面からの本編は有料部分に置く',
 };
 
+const CATALOG_NAME_RULE = '- 店名・源氏名は伏せる。店・セラピストのプロフィールリンクは載せない。本人の投稿済み記事へのリンクは同じ都道府県内だけにする';
+
+/** 名前の開示規則の1行。販売型で変わるので、skillには置かず記事ごとの依頼に入れる */
+export const nameRule = (disclosure: NameDisclosure | 'catalog'): string =>
+  disclosure === 'catalog' ? CATALOG_NAME_RULE : NAME_RULES[disclosure];
+
 /** wakust規約の節。名前の開示ルールを従来どおり先頭に置く */
 export const wakustRules = (disclosure: NameDisclosure | 'catalog'): string => `## wakust規約の遵守(生成時必須)
-${disclosure === 'catalog' ? '- 店名・源氏名は伏せる。店・セラピストのプロフィールリンクは載せない。本人の投稿済み記事へのリンクは同じ都道府県内だけにする' : NAME_RULES[disclosure]}
-- 無料部分(タイトル・タグを含む)に年齢・身長・体型・カップ数を書かない。${disclosure === 'catalog' ? 'カタログには載せない' : 'これだけでセラピストが推測できてしまうため、有料部分に回す'}
+${nameRule(disclosure)}
+${wakustCommonRules(disclosure === 'catalog' ? 'catalog' : 'article')}`;
+
+/** wakust規約のうち、販売型によらない行。article は単体記事・再訪記事・まとめ記事 */
+export const wakustCommonRules = (disclosure: 'article' | 'catalog'): string => `- 無料部分(タイトル・タグを含む)に年齢・身長・体型・カップ数を書かない。${disclosure === 'catalog' ? 'カタログには載せない' : 'これだけでセラピストが推測できてしまうため、有料部分に回す'}
 - タトゥーは無料部分(タイトル・タグを含む)に出さない。${disclosure === 'catalog' ? 'カタログには載せない' : '触れるなら有料部分の評価や総評で'}
 - マンション名・階数・部屋番号は書かない
 - 通し番号(#N)は本人の管理用。タイトル・本文・リンク文に書かない
