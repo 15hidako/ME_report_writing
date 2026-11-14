@@ -171,7 +171,6 @@ describe('店名・セラピスト名の開示先', () => {
   it('名前公開型では無料部分とタイトルで店名・源氏名を出し、有料部分は詳細レビューにする', () => {
     const p = buildSinglePrompt(fixtureRecord(), 'free');
     expect(p).toContain('店名・源氏名は無料部分とタイトルで開示する');
-    expect(p).toContain('タイトルに店名と源氏名を入れる');
     expect(p).toContain('<h3>今回のセラピスト</h3> 店名/源氏名/エリア');
     expect(p).not.toContain('有料部分でのみ開示');
     expect(p).not.toContain('店名は出さない');
@@ -416,6 +415,36 @@ describe('タイトル先頭の【エリア｜出勤確認】(H-15)', () => {
   it('再訪記事も同じ先頭にする', () => {
     const p = buildRevisitPrompt(fixtureRecord({ id: 'r2', seriesNo: 2 }), fixtureRecord(), 'paid', '2026-12-01');
     expect(titleLine(p)).toContain('先頭は必ず【恵比寿・中目黒｜12月出勤確認】');
+  });
+});
+
+describe('セラピスト起点(名前公開型)のタイトルは店名と源氏名だけ', () => {
+  const titleLine = (p: string): string => p.split('\n').find((l) => l.startsWith('1. タイトル')) ?? '';
+
+  it('先頭の【】の後に店名と源氏名だけを置き、フックや属性は入れない', () => {
+    const line = titleLine(buildSinglePrompt(fixtureRecord(), 'free', '2026-11-11'));
+    expect(line).toContain('先頭は必ず【恵比寿・中目黒｜11月出勤確認】');
+    expect(line).toContain('例: 【恵比寿・中目黒｜11月出勤確認】店名 源氏名【メンズエステ体験談】');
+    expect(line).toContain('フック・属性キーワード・展開の匂わせは入れない');
+    expect(line).toContain('出勤予定日は入れない');
+    expect(line).not.toContain('フックは【】で囲まず');
+    expect(line).not.toContain('属性キーワード(');
+  });
+
+  it('出勤確認日がなくても名前だけの型にする', () => {
+    const line = titleLine(buildSinglePrompt(fixtureRecord(), 'free'));
+    expect(line).toContain('例: 【恵比寿・中目黒】店名 源氏名【メンズエステ体験談】');
+  });
+
+  it('再訪記事の名前公開型も同じ型にする', () => {
+    const p = buildRevisitPrompt(fixtureRecord({ id: 'r2', seriesNo: 2 }), fixtureRecord(), 'free', '2026-12-01');
+    expect(titleLine(p)).toContain('例: 【恵比寿・中目黒｜12月出勤確認】店名 源氏名【メンズエステ体験談】');
+  });
+
+  it('体験内容起点のタイトルは従来の公式のまま', () => {
+    const line = titleLine(buildSinglePrompt(fixtureRecord(), 'paid', '2026-11-11'));
+    expect(line).toContain('属性キーワード(');
+    expect(line).not.toContain('店名 源氏名');
   });
 });
 

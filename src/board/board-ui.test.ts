@@ -934,7 +934,7 @@ describe('回答カードの記事プロンプト', () => {
     cardButton(record.id, '名前公開版').click();
     answerInput('');
     await vi.waitFor(() => expect(copy).toHaveBeenCalledOnce());
-    expect(copy.mock.calls[0]![0]).toContain('タイトルに店名と源氏名を入れる');
+    expect(copy.mock.calls[0]![0]).toContain('店名と源氏名を半角スペースでつなぎ');
   });
 
   it('出勤確認日を取り消すと、コピーも段階の変更もしない', async () => {

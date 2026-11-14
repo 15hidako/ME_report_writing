@@ -10,11 +10,6 @@ import { countPublishedTherapists, isPublished, SUMMARY_MIN_THERAPISTS, therapis
 import { articleLookupSection } from '../identity-lookup';
 import { DECORATION_TAGS, decorationGuide, type DecorationKind } from './decoration';
 
-const TITLE_NAME_RULE: Readonly<Record<NameDisclosure, string>> = {
-  paid: '店名・源氏名は入れない',
-  free: 'タイトルに店名と源氏名を入れる',
-};
-
 /** wakustのタグ規則(上限6個、NGタグ)。H-07 */
 const TAG_RULE = '半角コンマ区切りで6個以内。都道府県は「東京」「神奈川」のように都・府・県を省いた地域名にする。「東京都」「神奈川県」などの正式名と「メンエス」はNGタグなので使わない。本文と関係のないタグは付けない';
 
@@ -32,9 +27,19 @@ function titleLead(record: VisitRecord, listingCheckedOn: string | null): string
   return parts.length === 0 ? null : `【${parts.join('｜')}】`;
 }
 
-const titleRule = (disclosure: NameDisclosure, lead: string | null): string => lead === null
-  ? `【フック】+${TITLE_BODY}。${TITLE_NAME_RULE[disclosure]}`
-  : `先頭は必ず${lead}。フックは【】で囲まず、先頭の直後に短く置く。続けて${TITLE_BODY}。出勤予定日は入れない。${TITLE_NAME_RULE[disclosure]}`;
+/** 体験内容起点のタイトル。体験で釣り、店名・源氏名は入れない */
+const experienceTitleRule = (lead: string | null): string => lead === null
+  ? `【フック】+${TITLE_BODY}。店名・源氏名は入れない`
+  : `先頭は必ず${lead}。フックは【】で囲まず、先頭の直後に短く置く。続けて${TITLE_BODY}。出勤予定日は入れない。店名・源氏名は入れない`;
+
+/** セラピスト起点のタイトル。名前そのものを売りにするため、店名と源氏名だけを置く(2026-11-14 本人指示) */
+const therapistTitleRule = (lead: string | null): string => {
+  const prefix = lead === null ? '' : `先頭は必ず${lead}。続けて`;
+  return `${prefix}店名と源氏名を半角スペースでつなぎ、最後に【メンズエステ体験談】を付ける(例: ${lead ?? ''}店名 源氏名【メンズエステ体験談】)。フック・属性キーワード・展開の匂わせは入れない。通し番号は付けない。出勤予定日は入れない`;
+};
+
+const titleRule = (disclosure: NameDisclosure, lead: string | null): string =>
+  disclosure === 'free' ? therapistTitleRule(lead) : experienceTitleRule(lead);
 
 /**
  * 本文の書き方。html は投稿欄へそのまま貼るHTML、plain はボードで直してから別の依頼でマークアップする素の文章(U-23)。
