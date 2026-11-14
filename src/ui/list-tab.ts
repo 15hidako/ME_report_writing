@@ -4,7 +4,7 @@ import { specSummary } from '../prompt/serialize';
 import { isPublished } from '../prompt/publication';
 import { boardLinkHtml } from '../links';
 import { dataButtonsHtml } from './data-buttons';
-import type { NameDisclosure } from '../prompt/style-profile';
+import { DISCLOSURE_LABELS, type NameDisclosure } from '../prompt/style-profile';
 
 export interface ListTabHandlers {
   readonly onNew: () => void;
@@ -25,10 +25,21 @@ export interface ListTabView {
   readonly canRestore: boolean;
 }
 
+const PROMPT_ACTS: Readonly<Record<NameDisclosure, string>> = { free: 'prompt-names', paid: 'prompt' };
+
+/**
+ * 記事プロンプトのボタン(U-25)。単体記事はボードで販売型を選ぶまで出さず、選んだ型のボタンだけを出す。
+ * 販売型を選べない再訪は、両方の型を名前で並べる
+ */
+function promptButtonsHtml(r: VisitRecord, preferred: NameDisclosure | undefined): string {
+  if (r.revisitOf !== null) {
+    return (['free', 'paid'] as const)
+      .map((disclosure) => `<button data-act="${PROMPT_ACTS[disclosure]}">${DISCLOSURE_LABELS[disclosure]}</button>`).join('');
+  }
+  return preferred === undefined ? '' : `<button data-act="${PROMPT_ACTS[preferred]}" class="primary">プロンプト</button>`;
+}
+
 function cardHtml(r: VisitRecord, preferred: NameDisclosure | undefined): string {
-  // 販売型を選べるのは単体記事だけ。再訪はボタンの見た目を変えない
-  const primary = (disclosure: NameDisclosure): string =>
-    r.revisitOf === null && preferred === disclosure ? ' class="primary"' : '';
   return `
     <div class="card" data-id="${esc(r.id)}">
       <div class="card-head">
@@ -39,8 +50,7 @@ function cardHtml(r: VisitRecord, preferred: NameDisclosure | undefined): string
       <div class="card-body">${esc(r.basic.shopName)} — ${esc(r.basic.therapistName)}<br />
         <small>${esc(specSummary(r))}</small></div>
       <div class="card-actions">
-        <button data-act="prompt"${primary('paid')}>プロンプト</button>
-        <button data-act="prompt-names"${primary('free')}>名前公開版</button>
+        ${promptButtonsHtml(r, preferred)}
         <button data-act="edit">編集</button>
         <details class="more-actions">
           <summary aria-label="その他の操作">⋯</summary>

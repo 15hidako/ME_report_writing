@@ -515,10 +515,20 @@ describe('data/ の原稿', () => {
     const record = fixtureRecord();
     local.fetchDrafts.mockResolvedValue(draftFor(record));
     await start([record]);
-    await vi.waitFor(() => expect(draftNames(record.id)).toEqual(['通常版']));
+    await vi.waitFor(() => expect(draftNames(record.id)).toEqual(['体験内容起点']));
     expect(card(record.id).querySelectorAll('[data-act="copy-part"]')).toHaveLength(2);
     expect(stageOf(record.id)).toBe('editing');
     expect(savedBoard().stages).toEqual({ [record.id]: 'editing' });
+  });
+
+  it('原稿ができても、販売型のプロンプトのボタンを控えめにして残す', async () => {
+    const record = fixtureRecord();
+    local.fetchDrafts.mockResolvedValue(draftFor(record));
+    await start([record], emptyBoard({ angles: { [record.id]: 'experience' } }));
+    await vi.waitFor(() => expect(draftNames(record.id)).toEqual(['体験内容起点']));
+    const prompts = [...card(record.id).querySelectorAll<HTMLButtonElement>('.prompt-actions button')];
+    expect(prompts.map((item) => item.textContent?.trim())).toEqual(['プロンプト']);
+    expect(prompts[0]!.classList.contains('primary')).toBe(false);
   });
 
   it('ボードへ戻ったときに読み直し、新しく書き出された原稿を出す', async () => {
@@ -528,7 +538,7 @@ describe('data/ の原稿', () => {
     expect(card(record.id).querySelector('.draft')).toBeNull();
     local.fetchDrafts.mockResolvedValue(draftFor(record));
     window.dispatchEvent(new Event('focus'));
-    await vi.waitFor(() => expect(draftNames(record.id)).toEqual(['通常版']));
+    await vi.waitFor(() => expect(draftNames(record.id)).toEqual(['体験内容起点']));
   });
 
   it('部分のボタンでその原稿ファイルの中身をコピーする', async () => {
@@ -537,7 +547,7 @@ describe('data/ の原稿', () => {
     local.fetchArticlePart.mockResolvedValue({ text: '<p>本文</p>', modifiedAt: 2 });
     const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
     await start([record]);
-    await vi.waitFor(() => expect(draftNames(record.id)).toEqual(['通常版']));
+    await vi.waitFor(() => expect(draftNames(record.id)).toEqual(['体験内容起点']));
     cardButton(record.id, '無料').click();
     await vi.waitFor(() => expect(copy).toHaveBeenCalledWith('<p>本文</p>'));
     expect(local.fetchArticlePart).toHaveBeenCalledWith(expect.objectContaining({ recordId: record.id }), 'paid', 'freeHtml');
@@ -914,10 +924,15 @@ describe('data/ の回答', () => {
 });
 
 describe('回答カードの記事プロンプト', () => {
+  const promptButtons = (id: string): { label: string; disclosure: string; primary: boolean }[] =>
+    [...card(id).querySelectorAll<HTMLButtonElement>('.prompt-actions button')].map((item) => ({
+      label: item.textContent?.trim() ?? '', disclosure: item.dataset['disclosure'] ?? '', primary: item.classList.contains('primary'),
+    }));
+
   it('出勤確認日を尋ねてコピーし、「プロンプト出力」へ進める', async () => {
     const record = fixtureRecord();
     const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
-    await start([record]);
+    await start([record], emptyBoard({ angles: { [record.id]: 'experience' } }));
     cardButton(record.id, 'プロンプト').click();
     answerInput('2026-11-13');
     await vi.waitFor(() => expect(copy).toHaveBeenCalledOnce());
@@ -925,22 +940,46 @@ describe('回答カードの記事プロンプト', () => {
     await vi.waitFor(() => expect(stageOf(record.id)).toBe('prompted'));
   });
 
-  it('販売型に合う側を主ボタンにし、名前公開版も出せる', async () => {
+  it('販売型を選ぶまでプロンプトのボタンを出さない', async () => {
+    const record = fixtureRecord();
+    await start([record]);
+    expect(card(record.id).querySelector('.prompt-actions')).toBeNull();
+  });
+
+  it('販売型を選ぶと、その型のプロンプトのボタンを1つだけ出す', async () => {
     const record = fixtureRecord();
     const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
     await start([record], emptyBoard({ angles: { [record.id]: 'therapist' } }));
-    expect(cardButton(record.id, '名前公開版').classList.contains('primary')).toBe(true);
-    expect(cardButton(record.id, 'プロンプト').classList.contains('primary')).toBe(false);
-    cardButton(record.id, '名前公開版').click();
+    expect(promptButtons(record.id)).toEqual([{ label: 'プロンプト', disclosure: 'free', primary: true }]);
+    cardButton(record.id, 'プロンプト').click();
     answerInput('');
     await vi.waitFor(() => expect(copy).toHaveBeenCalledOnce());
     expect(copy.mock.calls[0]![0]).toContain('店名と源氏名を半角スペースでつなぎ');
   });
 
+  it('販売型を切り替えると、プロンプトのボタンも切り替わる', async () => {
+    const record = fixtureRecord();
+    await start([record], emptyBoard({ angles: { [record.id]: 'therapist' } }));
+    cardButton(record.id, '体験内容起点').click();
+    expect(promptButtons(record.id)).toEqual([{ label: 'プロンプト', disclosure: 'paid', primary: true }]);
+    cardButton(record.id, '体験内容起点').click();
+    expect(card(record.id).querySelector('.prompt-actions')).toBeNull();
+  });
+
+  it('再訪のカードは販売型を選べないので、両方の型を名前で出す', async () => {
+    const first = fixtureRecord({ postedUrl: WAKUST_URL });
+    const revisit = fixtureRecord({ id: 'revisit', seriesNo: 2, revisitOf: first.id, sales: { points: 100, articleType: 'revisit' } });
+    await start([first, revisit]);
+    expect(promptButtons(revisit.id)).toEqual([
+      { label: 'セラピスト起点', disclosure: 'free', primary: false },
+      { label: '体験内容起点', disclosure: 'paid', primary: false },
+    ]);
+  });
+
   it('出勤確認日を取り消すと、コピーも段階の変更もしない', async () => {
     const record = fixtureRecord();
     const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
-    await start([record]);
+    await start([record], emptyBoard({ angles: { [record.id]: 'experience' } }));
     cardButton(record.id, 'プロンプト').click();
     answerInput(null);
     await settle();

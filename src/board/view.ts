@@ -111,14 +111,21 @@ function draftHtml(card: Card): string {
   return `<div class="draft">${rows}</div>`;
 }
 
-/** 回答カードから記事プロンプトを出す。販売型に合う側を主ボタンにし、原稿ができたあとは控えめにする */
+/**
+ * 回答カードから記事プロンプトを出す(U-25)。単体記事は販売型を選ぶまで出さず、選んだ型のボタンだけを出す。
+ * 販売型を選べない再訪は、両方の型を名前で並べる。原稿ができたあとは控えめにする
+ */
 function promptHtml(card: Card): string {
   if (card.source !== 'record' || card.stage === 'posted') return '';
-  const preferred = card.draft !== null ? null : card.angle === null ? 'paid' : disclosureOfAngle(card.angle);
-  const buttons = (Object.keys(DISCLOSURE_LABELS) as NameDisclosure[]).map((disclosure) => `
-    <button type="button" data-act="prompt" data-disclosure="${disclosure}"${disclosure === preferred ? ' class="primary"' : ''}>${
-      disclosure === 'paid' ? 'プロンプト' : DISCLOSURE_LABELS[disclosure]}</button>`).join('');
-  return `<div class="prompt-actions" role="group" aria-label="${esc(card.title)} の記事プロンプト">${buttons}</div>`;
+  const button = (disclosure: NameDisclosure, label: string): string => `
+    <button type="button" data-act="prompt" data-disclosure="${disclosure}"${
+      card.kind === 'single' && card.draft === null ? ' class="primary"' : ''}>${label}</button>`;
+  const buttons = card.kind !== 'single'
+    ? ANGLES.map((angle) => button(disclosureOfAngle(angle), ANGLE_LABELS[angle])).join('')
+    : card.angle === null ? '' : button(disclosureOfAngle(card.angle), 'プロンプト');
+  return buttons === ''
+    ? ''
+    : `<div class="prompt-actions" data-count="${card.kind === 'single' ? 1 : ANGLES.length}" role="group" aria-label="${esc(card.title)} の記事プロンプト">${buttons}</div>`;
 }
 
 /** data/answers に届いて、まだボードにない回答 */

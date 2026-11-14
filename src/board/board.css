@@ -480,17 +480,20 @@
 
 /* ── 記事プロンプト(回答カード) ───────────────────────────── */
 .prompt-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 10px; }
+/* 単体記事は選んだ販売型のボタン1つだけ。上の販売型の切り替えと同じ幅にそろえる */
+.prompt-actions[data-count="1"] { grid-template-columns: 1fr; }
+/* 押すとプロンプトが出る操作。中立色の販売型の切り替えと見分けられるよう、主ボタンでなくてもピンクの枠と文字にする */
 .board-card .prompt-actions button {
   min-width: 0;
   padding: 5px 4px;
-  border: 1px solid var(--b-line);
+  border: 1px solid color-mix(in srgb, var(--b-primary) 55%, transparent);
   background: transparent;
-  color: var(--b-muted);
+  color: color-mix(in srgb, var(--b-primary) 75%, var(--text));
   font-weight: 700;
   white-space: nowrap;
 }
-.board-card .prompt-actions button:hover { background: var(--b-bg-card-hover); color: var(--text); }
-/* 販売型に合う側。原稿ができたあとは主ボタンを置かない */
+.board-card .prompt-actions button:hover { background: color-mix(in srgb, var(--b-primary) 14%, transparent); color: var(--text); }
+/* 単体記事の、選んだ販売型のボタン。原稿ができたあとは主ボタンにしない */
 .board-card .prompt-actions button.primary { border-color: var(--b-primary); background: var(--b-primary); color: #fff; }
 .board-card .prompt-actions button.primary:hover { background: #e0357a; }
 

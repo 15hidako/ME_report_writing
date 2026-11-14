@@ -39,8 +39,8 @@ OPI・HJ・KP等の定番まで毎回説明するとテンポが死に、初心�
  */
 export type NameDisclosure = 'paid' | 'free';
 
-/** 名前の出し方の表示名。入力画面のボタン(「プロンプト」「名前公開版」)は文言を変えずに残す */
-export const DISCLOSURE_LABELS: Readonly<Record<NameDisclosure, string>> = { paid: '通常版', free: '名前公開版' };
+/** 名前の出し方の表示名。ボードの販売型と同じ呼び名にそろえる(U-25) */
+export const DISCLOSURE_LABELS: Readonly<Record<NameDisclosure, string>> = { paid: '体験内容起点', free: 'セラピスト起点' };
 
 const NAME_RULES: Readonly<Record<NameDisclosure, string>> = {
   paid: '- 店名・源氏名と店・セラピストのリンクは有料部分でのみ開示。無料部分とタイトルには出さない(エリアは可)',

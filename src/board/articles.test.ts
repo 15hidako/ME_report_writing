@@ -119,9 +119,9 @@ describe('カードの原稿表示', () => {
       const html = boardHtml(buildCards([record], state, new Date(), new Map([[record.id, both]])), 'all');
       return [...html.matchAll(/class="draft-name">([^<]+)</g)].map((match) => match[1]!);
     };
-    expect(order(EMPTY_BOARD)).toEqual(['通常版', '名前公開版']);
-    expect(order(setArticleAngle(EMPTY_BOARD, record.id, 'therapist'))).toEqual(['名前公開版', '通常版']);
-    expect(order(setArticleAngle(EMPTY_BOARD, record.id, 'experience'))).toEqual(['通常版', '名前公開版']);
+    expect(order(EMPTY_BOARD)).toEqual(['体験内容起点', 'セラピスト起点']);
+    expect(order(setArticleAngle(EMPTY_BOARD, record.id, 'therapist'))).toEqual(['セラピスト起点', '体験内容起点']);
+    expect(order(setArticleAngle(EMPTY_BOARD, record.id, 'experience'))).toEqual(['体験内容起点', 'セラピスト起点']);
   });
 
   it('原稿がなければ何も出さない', () => {

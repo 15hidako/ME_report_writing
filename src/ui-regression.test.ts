@@ -60,6 +60,13 @@ function answerInput(value: string | null): HTMLDialogElement {
 /** ダイアログに出た誤りの文 */
 const dialogError = (): string => document.querySelector('dialog.input-dialog [role="alert"]')?.textContent ?? '';
 
+/** ボードで単体記事の販売型を選んだ状態にする。販売型のない単体記事にはプロンプトのボタンが出ない */
+function chooseAngle(angles: Record<string, 'therapist' | 'experience'>, stages: Record<string, string> = {}): void {
+  window.localStorage.setItem('me-report-writer/board/v1', JSON.stringify({
+    version: 1, stages, angles, bundles: [], scheduleUrls: {}, checks: [], acknowledged: {},
+  }));
+}
+
 async function start(records: unknown[] = []): Promise<void> {
   window.localStorage.setItem('me-report-writer/visits/v1', JSON.stringify(records));
   await import('./main');
@@ -601,7 +608,7 @@ describe('起動からの画面操作', () => {
     const third = { ...revisit, id: 'third-visit', seriesNo: 3, revisitOf: revisit.id, postedUrl: null };
     await start([first, revisit, third]);
     const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
-    button('プロンプト').click();
+    button('体験内容起点').click();
     answerInput('');
     await vi.waitFor(() => expect(copy).toHaveBeenCalledOnce());
     expect(copy.mock.calls[0]![0]).toContain('https://wakust.com/u/100/');
@@ -614,6 +621,7 @@ describe('起動からの画面操作', () => {
       // 取得日は利用者の現地日付で扱う。実行環境のタイムゾーンに依らないよう現地時刻から作る
       sourceUrl: base.basic.therapistProfileUrl, checkedAt: new Date(2026, 10, 11, 12, 0).toISOString(), filled: ['shopUrl'],
     } } });
+    chooseAngle({ [record.id]: 'experience' });
     await start([record]);
     const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
     button('プロンプト').click();
@@ -624,6 +632,7 @@ describe('起動からの画面操作', () => {
   });
 
   it('出勤確認日の入力を取り消すと、プロンプトをコピーしない', async () => {
+    chooseAngle({ [fixtureRecord().id]: 'experience' });
     await start([fixtureRecord()]);
     const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
     button('プロンプト').click();
@@ -633,6 +642,7 @@ describe('起動からの画面操作', () => {
   });
 
   it('不正な出勤確認日は理由を表示し、プロンプトをコピーしない', async () => {
+    chooseAngle({ [fixtureRecord().id]: 'experience' });
     await start([fixtureRecord()]);
     const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
     button('プロンプト').click();
@@ -644,10 +654,11 @@ describe('起動からの画面操作', () => {
     expect(copy).not.toHaveBeenCalled();
   });
 
-  it('名前公開版のボタンは店名・源氏名を無料部分で出すプロンプトをコピーする', async () => {
+  it('セラピスト起点の回答のプロンプトは、店名・源氏名を無料部分で出す', async () => {
+    chooseAngle({ [fixtureRecord().id]: 'therapist' });
     await start([fixtureRecord()]);
     const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
-    button('名前公開版').click();
+    button('プロンプト').click();
     answerInput('');
     await vi.waitFor(() => expect(copy).toHaveBeenCalledOnce());
     expect(copy.mock.calls[0]![0]).toContain('店名・源氏名は無料部分とタイトルで開示する');
@@ -660,14 +671,16 @@ describe('起動からの画面操作', () => {
       const raw = window.localStorage.getItem(BOARD_KEY);
       return raw === null ? null : (JSON.parse(raw) as { stages: unknown }).stages;
     };
+    const angles = { [fixtureRecord().id]: 'experience' as const };
     const boardWith = (stages: Record<string, string>): string =>
-      JSON.stringify({ version: 1, stages, angles: {}, bundles: [], scheduleUrls: {}, checks: [], acknowledged: {} });
+      JSON.stringify({ version: 1, stages, angles, bundles: [], scheduleUrls: {}, checks: [], acknowledged: {} });
 
-    it.each(['プロンプト', '名前公開版'])('「%s」をコピーできたら、回答を「プロンプト出力」へ進める', async (name) => {
+    it.each(['experience', 'therapist'] as const)('販売型が%sの回答をコピーできたら、「プロンプト出力」へ進める', async (angle) => {
       const record = fixtureRecord();
+      chooseAngle({ [record.id]: angle });
       await start([record]);
       const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
-      button(name).click();
+      button('プロンプト').click();
       answerInput('');
       await vi.waitFor(() => expect(boardStages()).toEqual({ [record.id]: 'prompted' }));
       expect(copy).toHaveBeenCalledOnce();
@@ -687,38 +700,43 @@ describe('起動からの画面操作', () => {
     });
 
     it('投稿済みの回答では段階を入れない', async () => {
+      chooseAngle(angles);
       await start([fixtureRecord({ postedUrl: 'https://wakust.com/u/100/' })]);
       const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
       button('プロンプト').click();
       answerInput('');
       await vi.waitFor(() => expect(document.querySelector('.toast')?.textContent).toBe('コピーしました'));
       expect(copy).toHaveBeenCalledOnce();
-      expect(boardStages()).toBeNull();
+      expect(boardStages()).toEqual({});
     });
 
     it('出勤確認日の入力を取り消したときは段階を入れない', async () => {
+      chooseAngle(angles);
       await start([fixtureRecord()]);
       vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
       button('プロンプト').click();
       answerInput(null);
       await new Promise((resolve) => setTimeout(resolve, 0));
-      expect(boardStages()).toBeNull();
+      expect(boardStages()).toEqual({});
     });
 
     it('コピーに失敗したときは段階を入れない', async () => {
+      chooseAngle(angles);
       await start([fixtureRecord()]);
       vi.spyOn(navigator.clipboard, 'writeText').mockRejectedValue(new Error('denied'));
       button('プロンプト').click();
       answerInput('');
       await vi.waitFor(() => expect(document.querySelector('.toast')?.textContent).toBe('コピーに失敗しました'));
-      expect(boardStages()).toBeNull();
+      expect(boardStages()).toEqual({});
     });
 
     it('ボードの状態を読めないときも、コピーは成功のまま理由を知らせる', async () => {
       window.localStorage.setItem(BOARD_KEY, '{');
-      await start([fixtureRecord()]);
+      const first = fixtureRecord({ postedUrl: 'https://wakust.com/u/100/' });
+      const revisit = fixtureRecord({ id: 'revisit', seriesNo: 2, revisitOf: first.id, sales: { points: 100, articleType: 'revisit' } });
+      await start([first, revisit]);
       const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
-      button('プロンプト').click();
+      button('体験内容起点').click();
       answerInput('');
       await vi.waitFor(() => expect(document.querySelectorAll('.toast')).toHaveLength(2));
       const messages = [...document.querySelectorAll('.toast')].map((item) => item.textContent);
@@ -990,51 +1008,59 @@ describe('ボードで選んだ販売型', () => {
   };
   const cardButton = (id: string, act: string): HTMLButtonElement =>
     document.querySelector<HTMLButtonElement>(`.card[data-id="${id}"] button[data-act="${act}"]`)!;
-  const isPrimary = (id: string, act: string): boolean => cardButton(id, act).classList.contains('primary');
 
-  it('セラピスト起点の回答では「名前公開版」を主ボタンにし、「プロンプト」も押せる', async () => {
+  const promptButtons = (id: string): { act: string; label: string; primary: boolean }[] =>
+    [...document.querySelectorAll<HTMLButtonElement>(`.card[data-id="${id}"] button[data-act^="prompt"]`)].map((item) => ({
+      act: item.dataset['act'] ?? '', label: item.textContent?.trim() ?? '', primary: item.classList.contains('primary'),
+    }));
+
+  it('セラピスト起点の回答は、名前公開のプロンプトのボタンだけを出す', async () => {
     const record = fixtureRecord();
     withAngles({ [record.id]: 'therapist' });
     await start([record]);
-    expect(isPrimary(record.id, 'prompt-names')).toBe(true);
-    expect(isPrimary(record.id, 'prompt')).toBe(false);
-    cardButton(record.id, 'prompt').click();
+    expect(promptButtons(record.id)).toEqual([{ act: 'prompt-names', label: 'プロンプト', primary: true }]);
+    cardButton(record.id, 'prompt-names').click();
     expect(document.querySelector('dialog.input-dialog')).not.toBeNull();
   });
 
-  it('体験内容起点の回答では「プロンプト」を主ボタンにする', async () => {
+  it('体験内容起点の回答は、通常のプロンプトのボタンだけを出す', async () => {
     const record = fixtureRecord();
     withAngles({ [record.id]: 'experience' });
     await start([record]);
-    expect(isPrimary(record.id, 'prompt')).toBe(true);
-    expect(isPrimary(record.id, 'prompt-names')).toBe(false);
+    expect(promptButtons(record.id)).toEqual([{ act: 'prompt', label: 'プロンプト', primary: true }]);
   });
 
-  it('販売型が未選択の回答と再訪の回答は見た目を変えない', async () => {
+  it('販売型が未選択の単体記事にはプロンプトのボタンを出さない', async () => {
+    const record = fixtureRecord();
+    await start([record]);
+    expect(promptButtons(record.id)).toEqual([]);
+  });
+
+  it('再訪の回答は販売型を選べないので、両方の型を名前で出す', async () => {
     const single = fixtureRecord();
     const revisit = fixtureRecord({ id: 'revisit', seriesNo: 2, revisitOf: single.id, sales: { points: 100, articleType: 'revisit' } });
     withAngles({ [revisit.id]: 'therapist' });
     await start([single, revisit]);
-    for (const id of [single.id, revisit.id]) {
-      expect(isPrimary(id, 'prompt')).toBe(false);
-      expect(isPrimary(id, 'prompt-names')).toBe(false);
-    }
+    expect(promptButtons(revisit.id)).toEqual([
+      { act: 'prompt-names', label: 'セラピスト起点', primary: false },
+      { act: 'prompt', label: '体験内容起点', primary: false },
+    ]);
   });
 
   it('ボードの状態が壊れていても履歴を出す', async () => {
     window.localStorage.setItem(BOARD_KEY, '{');
     const record = fixtureRecord();
     await start([record]);
-    expect(cardButton(record.id, 'prompt')).not.toBeNull();
-    expect(isPrimary(record.id, 'prompt-names')).toBe(false);
+    expect(document.querySelector(`.card[data-id="${record.id}"]`)).not.toBeNull();
+    expect(promptButtons(record.id)).toEqual([]);
   });
 
-  it('ボードで販売型を変えると、履歴の主ボタンが入れ替わる', async () => {
+  it('ボードで販売型を選ぶと、履歴にその型のプロンプトのボタンが出る', async () => {
     const record = fixtureRecord();
     await start([record]);
     withAngles({ [record.id]: 'therapist' });
     window.dispatchEvent(new Event('storage'));
-    expect(isPrimary(record.id, 'prompt-names')).toBe(true);
+    expect(promptButtons(record.id)).toEqual([{ act: 'prompt-names', label: 'プロンプト', primary: true }]);
   });
 
   it('サムネタブでは、選んだ回答の販売型に対応するレイアウトを初期選択にする', async () => {
