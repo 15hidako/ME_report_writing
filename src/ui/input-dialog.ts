@@ -50,6 +50,8 @@ function textField(field: TextField): { node: HTMLElement; focusable: HTMLInputE
   input.value = field.value ?? '';
   if (field.placeholder !== undefined) input.placeholder = field.placeholder;
   if (field.type === 'url') input.inputMode = 'url';
+  // 上限がないと Chrome は年を6桁まで受け付け、4桁入れても月へ移らない
+  if (field.type === 'date') input.max = '9999-12-31';
   input.autocomplete = 'off';
   label.append(element('span', '', field.label), input);
   return { node: label, focusable: input };

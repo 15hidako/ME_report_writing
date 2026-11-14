@@ -87,6 +87,12 @@ afterEach(() => {
 });
 
 describe('起動からの画面操作', () => {
+  it('訪問日の欄は年を4桁までにし、4桁で月へ移れるようにする', async () => {
+    await start([]);
+    button('入力').click();
+    expect(field('visitDate').getAttribute('max')).toBe('9999-12-31');
+  });
+
   it.each([
     ['prefecture', '神奈川県'],
     ['area', '新宿'],

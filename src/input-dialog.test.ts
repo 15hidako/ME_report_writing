@@ -32,6 +32,11 @@ describe('入力ダイアログ', () => {
     expect(document.activeElement).toBe(input);
   });
 
+  it('日付欄は年を4桁までにし、4桁で月へ移れるようにする', () => {
+    openInputDialog({ title: '出勤確認日', fields: [{ name: 'day', label: '日付', type: 'date' }], onSubmit: vi.fn() });
+    expect(dialog()!.querySelector<HTMLInputElement>('input[name="day"]')!.max).toBe('9999-12-31');
+  });
+
   it('「決定」で入力値を渡して閉じ、開いた要素へフォーカスを戻す', () => {
     const opener = document.createElement('button');
     document.body.append(opener);

@@ -26,7 +26,9 @@ type LocationField = keyof typeof LOCATION_OPTIONS;
 function input(name: string, label: string, value = '', placeholder = '', type = 'text'): string {
   const attributes = type === 'url'
     ? ' inputmode="url" autocapitalize="none" spellcheck="false"'
-    : type === 'number' ? ` min="0" max="${name === 'age' ? 150 : Number.MAX_SAFE_INTEGER}" step="1" inputmode="numeric"` : '';
+    : type === 'number' ? ` min="0" max="${name === 'age' ? 150 : Number.MAX_SAFE_INTEGER}" step="1" inputmode="numeric"`
+    // 上限がないと Chrome は年を6桁まで受け付け、4桁入れても月へ移らない
+    : type === 'date' ? ' max="9999-12-31"' : '';
   return `<label class="field"><span>${label}</span>
     <input name="${name}" type="${type}"${attributes} value="${esc(value)}" placeholder="${esc(placeholder)}" /></label>`;
 }
