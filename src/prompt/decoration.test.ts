@@ -28,6 +28,15 @@ describe('装飾の部品(wakustで確かめた書き方だけ)', () => {
     expect(MARKUP_RULES).not.toContain('段落の中の改行は <br /> にする');
   });
 
+  it('段落の切れ目には空白行を入れて見分けられるようにする(2026-11-14 本人指示)', () => {
+    const blank = DECORATION_PARTS.find((part) => part.name === '空白行');
+    expect(blank?.html).toBe('<p>&nbsp;</p>');
+    expect(blank?.list).toBe(true);
+    expect(decorationGuide()).toContain('段落と段落の間には空白行の部品を1つ入れる');
+    expect(MARKUP_RULES).toContain('段落どうしの間には、空白行の部品を1つ入れて');
+    expect(MARKUP_RULES).toContain('空白行の &nbsp;');
+  });
+
   it('評価のカードは ul を使わず、セリフは左に丸のアイコンを置く', () => {
     const byName = (name: string): string => DECORATION_PARTS.find((part) => part.name === name)?.html ?? '';
     expect(byName('評価のカード')).not.toMatch(/<ul|<li/);
