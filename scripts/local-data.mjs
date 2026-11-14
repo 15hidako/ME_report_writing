@@ -5,8 +5,10 @@ import { spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { mkdir, open, readdir, readFile, rename, rm, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import os from 'node:os';
 import { ARTICLE_PARTS, VARIANT_DIRS, isSourcePart, recordIdOfFolder } from '../src/prompt/article-files.ts';
 import { recordBase, recordEdit } from './article-history.mjs';
+import { fileAnswers } from './file-answers.mjs';
 
 export const API_PREFIX = '/__local';
 const MAX_ANSWER_BYTES = 1024 * 1024;
@@ -321,8 +323,9 @@ function send(res, status, body) {
 }
 
 /** API の中身。Vite の開発サーバーとプレビューサーバーの両方に付ける */
-export function createHandler(root) {
+export function createHandler(root, { downloadsDir } = {}) {
   const dirs = dataDirs(root);
+  let filing = null;
 
   return async (req, res, next) => {
     try {
@@ -335,7 +338,19 @@ export function createHandler(root) {
         return send(res, 200, { articleDir: dirs.articles });
       }
       if (req.method === 'GET' && head === 'answers' && rest.length === 0) {
-        return send(res, 200, { files: await listAnswers(dirs.answers) });
+        let filingError = null;
+        if (downloadsDir !== undefined) {
+          // Multiple tabs must not move the same downloaded file at once.
+          if (filing === null) {
+            filing = fileAnswers(dirs.answers, downloadsDir).finally(() => { filing = null; });
+          }
+          try {
+            await filing;
+          } catch (error) {
+            filingError = `ダウンロードした回答を移せませんでした: ${error instanceof Error ? error.message : String(error)}`;
+          }
+        }
+        return send(res, 200, { files: await listAnswers(dirs.answers), filingError });
       }
       if (req.method === 'GET' && head === 'articles' && rest.length === 0) {
         return send(res, 200, { drafts: await scanArticles(dirs.articles) });
@@ -409,10 +424,10 @@ export function localDataPlugin(root) {
       }
     },
     configureServer(server) {
-      server.middlewares.use(createHandler(root));
+      server.middlewares.use(createHandler(root, { downloadsDir: path.join(os.homedir(), 'Downloads') }));
     },
     configurePreviewServer(server) {
-      server.middlewares.use(createHandler(root));
+      server.middlewares.use(createHandler(root, { downloadsDir: path.join(os.homedir(), 'Downloads') }));
     },
   };
 }

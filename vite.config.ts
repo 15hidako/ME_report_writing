@@ -6,19 +6,35 @@ import { localDataPlugin } from './scripts/local-data.mjs';
 const buildId = process.env.GITHUB_SHA ?? String(Date.now());
 
 // GitHub Pages(サブパス配信)対応のため相対ベースにする
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   base: './',
-  define: { __BUILD_ID__: JSON.stringify(buildId) },
+  define: {
+    __BUILD_ID__: JSON.stringify(buildId),
+    'import.meta.env.VITE_PUBLIC_QUESTIONNAIRE': JSON.stringify(command === 'build' ? 'true' : 'false'),
+  },
+  server: {
+    host: 'localhost',
+    port: 5173,
+    strictPort: true,
+    fs: { deny: ['.env', '.env.*', '*.{crt,pem}', '**/.git/**', '**/data/**'] },
+  },
   build: {
     rollupOptions: {
-      // 記事ボードはPC専用の別ページ。スマホの入力画面には読み込ませない
-      input: { main: 'index.html', board: 'board.html' },
+      input: { main: 'index.html' },
     },
   },
   plugins: [{
+    name: 'public-questionnaire-entry',
+    apply: 'build',
+    transformIndexHtml(html) {
+      return html
+        .replace(/\s*<button data-tab="thumb">[^<]*<\/button>/, '')
+        .replace(/\s*<a class="board-link"[^>]*>[^<]*<\/a>/, '');
+    },
+  }, {
     name: 'emit-version-json',
     generateBundle() {
       this.emitFile({ type: 'asset', fileName: 'version.json', source: JSON.stringify({ buildId }) });
     },
   }, localDataPlugin(fileURLToPath(new URL('.', import.meta.url)))],
-});
+}));

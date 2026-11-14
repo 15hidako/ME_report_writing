@@ -7,6 +7,7 @@ import { createHash } from 'node:crypto';
 import { copyFile, mkdir, readdir, readFile, realpath, rename, unlink } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { isAnswerFileName, looksLikeVisitRecords, planFiling } from '../src/answers/files.ts';
 
 const sha256 =(bytes) => createHash('sha256').update(bytes).digest('hex');
@@ -42,9 +43,13 @@ function resolveDestDir() {
   return path.join(import.meta.dirname, '..', 'data', 'answers');
 }
 
-async function main() {
-  const destDir = resolveDestDir();
-  const sourceDir = process.argv[3] ?? path.join(os.homedir(), 'Downloads');
+export async function fileAnswers(destDir, sourceDir) {
+  try {
+    await realpath(sourceDir);
+  } catch (error) {
+    if (error?.code === 'ENOENT') return;
+    throw error;
+  }
   await mkdir(destDir, { recursive: true });
   // 同じフォルダだと全件が「重複」になり消えるので、実体のパスで比べる。Windows は大文字小文字を区別しない
   const canonical = async (dir) => {
@@ -70,7 +75,6 @@ async function main() {
 
   const actions = planFiling(sources, stored);
   if (actions.length === 0) {
-    console.log(`${sourceDir} に回答JSONはありません。`);
     return;
   }
   for (const action of actions) {
@@ -87,7 +91,9 @@ async function main() {
   }
 }
 
-main().catch((error) => {
-  console.error(error instanceof Error ? error.message : error);
-  process.exitCode = 1;
-});
+if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
+  fileAnswers(resolveDestDir(), process.argv[3] ?? path.join(os.homedir(), 'Downloads')).catch((error) => {
+    console.error(error instanceof Error ? error.message : error);
+    process.exitCode = 1;
+  });
+}

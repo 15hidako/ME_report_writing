@@ -18,7 +18,7 @@ import { bindDataButtons as bindDataButtonsWith, canRestoreBackup, dataButtonsHt
 import { renderListTab as renderListTabInto } from './ui/list-tab';
 import { renderThumbTab as renderThumbTabInto } from './ui/thumb-tab';
 import { openInputDialog } from './ui/input-dialog';
-import { INPUT_WINDOW, bindPageSwitch, boardLinkHtml, takeParam } from './links';
+import { INPUT_WINDOW, PUBLIC_QUESTIONNAIRE, bindPageSwitch, boardLinkHtml, takeParam } from './links';
 import { REVISIT_CYCLE, buildArticlePrompt } from './prompt/article-prompt';
 import { ARTICLE_DIR, ARTICLE_DIR_ERROR, openClaudeApp } from './local-setup';
 import { BoardStore, disclosureOfAngle, layoutOfAngle, markPrompted, type ArticleAngle } from './board/state';
@@ -286,7 +286,8 @@ function mountForm(): void {
   app.replaceChildren(node);
 }
 
-function switchTab(tab: Tab): void {
+function switchTab(requested: Tab): void {
+  const tab: Tab = PUBLIC_QUESTIONNAIRE && requested === 'thumb' ? 'list' : requested;
   currentTab = tab;
   document.querySelectorAll('nav button').forEach((b) => {
     b.classList.toggle('active', b.getAttribute('data-tab') === tab);
@@ -338,12 +339,13 @@ function boardAngles(): Readonly<Record<string, ArticleAngle>> {
 function renderListTab(): void {
   const records = [...getStore().loadAll()].sort((a, b) => b.seriesNo - a.seriesNo);
   const pendingLookups = lookupTargets(records);
-  const angles = boardAngles();
+  const angles = PUBLIC_QUESTIONNAIRE ? {} : boardAngles();
   renderListTabInto(app, {
     records,
     preferred: new Map(Object.entries(angles).map(([id, angle]) => [id, disclosureOfAngle(angle)])),
     pendingLookups: pendingLookups.length,
     canRestore: canRestoreBackup(getStore),
+    articleTools: !PUBLIC_QUESTIONNAIRE,
   }, {
     onNew: () => openContext(null, null, true),
     onLookup: () => {
@@ -417,7 +419,10 @@ function findOriginalRecord(start: VisitRecord): VisitRecord | 'missing' | 'cycl
   return findOriginalIn(start, (id) => getStore().get(id));
 }
 
+const ARTICLE_ACTS: ReadonlySet<string> = new Set(['prompt', 'prompt-names', 'url']);
+
 function handleCardAction(act: string, record: VisitRecord): void {
+  if (PUBLIC_QUESTIONNAIRE && ARTICLE_ACTS.has(act)) return;
   switch (act) {
     case 'prompt':
       copyPrompt(record, 'paid');
@@ -523,7 +528,7 @@ let leaveConfirmed = false;
 function openFromUrl(): void {
   const edit = takeParam(location.href, 'edit');
   const thumb = takeParam(edit.rest, 'thumb');
-  const value = edit.value ?? thumb.value;
+  const value = edit.value ?? (PUBLIC_QUESTIONNAIRE ? null : thumb.value);
   if (value === null) {
     switchTab('list');
     return;
@@ -550,6 +555,10 @@ function openFromUrl(): void {
   toast('指定された回答が見つかりません。削除されたか、別の端末の回答です');
 }
 
+// 公開ビルドにはボードとサムネがないため、その入口を外す
+if (PUBLIC_QUESTIONNAIRE) {
+  document.querySelectorAll('nav [data-tab="thumb"], nav .board-link').forEach((node) => node.remove());
+}
 // ボードからのリンクがこのタブを使い回せるようにする
 window.name = INPUT_WINDOW;
 bindPageSwitch(document);

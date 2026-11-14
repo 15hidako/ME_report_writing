@@ -278,8 +278,10 @@ async function refreshLocal(): Promise<void> {
   const before = localSnapshot();
   try {
     if (await localDataAvailable()) {
-      const [nextDrafts, files] = await Promise.all([fetchDrafts(), fetchAnswerFiles()]);
       localError = null;
+      const [nextDrafts, files] = await Promise.all([
+        fetchDrafts(), fetchAnswerFiles((message) => { localError = message; }),
+      ]);
       drafts = nextDrafts;
       answers = scanAnswerFiles(visits.loadAll(), files);
       advanceWithDrafts();

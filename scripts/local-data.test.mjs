@@ -34,6 +34,35 @@ async function put(relative, text = '') {
 }
 
 describe('回答データの一覧', () => {
+  it('常駐中に届いた回答も一覧取得時に移し、同時要求で取り合わない', async () => {
+    const downloadsDir = path.join(dir, 'downloads');
+    const text = JSON.stringify([{ id: 'synthetic', seriesNo: 1 }]);
+    await put('downloads/me-report-1.json', text);
+    await put('downloads/untouched.json', '{}');
+    const handler = createHandler(dir, { downloadsDir });
+    const responses = await Promise.all([
+      callHandler(handler, '/__local/answers'), callHandler(handler, '/__local/answers'),
+    ]);
+    for (const response of responses) {
+      expect(response.statusCode).toBe(200);
+      expect(JSON.parse(response.body).files.map((file) => file.text)).toEqual([text]);
+    }
+    expect(await readdir(downloadsDir)).toEqual(['untouched.json']);
+    await put('downloads/me-report-2.json', JSON.stringify([{ id: 'second', seriesNo: 2 }]));
+    const later = await callHandler(handler, '/__local/answers');
+    expect(JSON.parse(later.body).files).toHaveLength(2);
+  });
+
+  it('移動に失敗しても回答は読み出し、取り込みの失敗を知らせる', async () => {
+    await put('data/answers/me-report-1.json', '[{"id":"synthetic","seriesNo":1}]');
+    const handler = createHandler(dir, { downloadsDir: path.join(dir, 'data/answers') });
+    const response = await callHandler(handler, '/__local/answers');
+    expect(response.statusCode).toBe(200);
+    expect(JSON.parse(response.body).files).toHaveLength(1);
+    expect(JSON.parse(response.body).filingError).toContain('移せませんでした');
+    expect(await readdir(path.join(dir, 'data/answers'))).toEqual(['me-report-1.json']);
+  });
+
   it('JSONだけを古い順に中身ごと返し、フォルダがなければ空にする', async () => {
     const older = await put('answers/b.json', '[1]');
     const newer = await put('answers/a.json', '[2]');

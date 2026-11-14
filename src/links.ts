@@ -2,6 +2,9 @@
 export const INPUT_WINDOW = 'me-input';
 export const BOARD_WINDOW = 'me-board';
 
+/** GitHub Pages の公開ビルド。アンケートの回答だけを置き、ボード・サムネ・記事の機能を出さない */
+export const PUBLIC_QUESTIONNAIRE: boolean = import.meta.env.VITE_PUBLIC_QUESTIONNAIRE === 'true';
+
 export function editHref(recordId: string): string {
   return `./?edit=${encodeURIComponent(recordId)}`;
 }
@@ -17,6 +20,7 @@ export function boardCardHref(recordId: string): string {
 
 /** 入力画面に置く、ボードの該当カードへのリンク。ボードはPC専用なので、狭い画面では styles.css で隠す */
 export function boardLinkHtml(recordId: string): string {
+  if (PUBLIC_QUESTIONNAIRE) return '';
   return `<a class="to-board" href="${boardCardHref(recordId)}" target="${BOARD_WINDOW}">ボード</a>`;
 }
 

@@ -60,8 +60,9 @@ export async function localDataAvailable(): Promise<boolean> {
   }
 }
 
-export async function fetchAnswerFiles(): Promise<AnswerFile[]> {
-  const { files } = await json('answers');
+export async function fetchAnswerFiles(onWarning?: (message: string) => void): Promise<AnswerFile[]> {
+  const { files, filingError } = await json('answers');
+  if (typeof filingError === 'string') onWarning?.(filingError);
   if (!Array.isArray(files)) throw new Error('回答データの一覧が読めません');
   return files.map((file: unknown): AnswerFile => {
     if (!isObject(file) || typeof file['name'] !== 'string' || typeof file['modifiedAt'] !== 'number' || typeof file['text'] !== 'string') {
