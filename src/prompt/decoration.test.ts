@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DECORATION_PARTS, DECORATION_TAGS, decorationGuide } from './decoration';
+import { PLAIN_NOTATION } from './build-prompt';
 import { MARKUP_RULES } from './markup-prompt';
 import { STYLE_PROFILE } from './style-profile';
 
@@ -26,6 +27,14 @@ describe('装飾の部品(wakustで確かめた書き方だけ)', () => {
     expect(STYLE_PROFILE).toContain('<br />で改行しない');
     expect(MARKUP_RULES).toContain('段落の中で改行された行も、それぞれ1つの <p> にする');
     expect(MARKUP_RULES).not.toContain('段落の中の改行は <br /> にする');
+  });
+
+  it('素の文章は段落の中を改行で、段落の間を空行で区切らせる(2026-11-14 本人指示 U-30)', () => {
+    expect(PLAIN_NOTATION).toContain('同じ段落の中は1文ごとなど区切りたいところで改行し');
+    expect(PLAIN_NOTATION).toContain('段落と段落の間に空行を1つ入れる');
+    expect(PLAIN_NOTATION).not.toContain('区切りたいところは空行で段落を分ける');
+    expect(STYLE_PROFILE).toContain('同じ段落の中は区切りたいところで改行し');
+    expect(MARKUP_RULES).toContain('段落の中で改行された行も、それぞれ1つの <p> にする(<br /> でつながない');
   });
 
   it('段落の切れ目には空白行を入れて見分けられるようにする(2026-11-14 本人指示)', () => {

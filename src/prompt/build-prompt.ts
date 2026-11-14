@@ -49,7 +49,7 @@ export const titleRule = (disclosure: NameDisclosure, lead: string | null): stri
 export type BodyFormat = 'html' | 'plain';
 
 /** 素の文章の記法。マークアップの依頼(markup-prompt.ts)はこの記法をHTMLへ戻す */
-export const PLAIN_NOTATION = '記事構成の<h3>見出し</h3>は「### 見出し」の1行、<ul><li>の項目は「- 項目」の行、<p>は空行で区切った段落で書く。区切りたいところは空行で段落を分ける。<a><strong><em><small><span>などのタグと**などの記号は付けない。リンクはURLの文字列だけを書く(マークアップは別の依頼で行う)';
+export const PLAIN_NOTATION = '記事構成の<h3>見出し</h3>は「### 見出し」の1行、<ul><li>の項目は「- 項目」の行、<p>は段落で書く。同じ段落の中は1文ごとなど区切りたいところで改行し、話の区切りで段落を分けて、段落と段落の間に空行を1つ入れる。空行は段落の切れ目と、見出し・箇条書きの前後だけに使う。<a><strong><em><small><span>などのタグと**などの記号は付けない。リンクはURLの文字列だけを書く(マークアップは別の依頼で行う)';
 
 /**
  * 素の文章で書くときの、文体ルールと記事構成に出てくるタグの読み替え。
