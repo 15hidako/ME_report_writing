@@ -3,22 +3,22 @@
  * 色は意味のあるところにだけ使う: rose は主操作と選択、star は評価、ok/warn/alert は状態。
  */
 :root {
-  --desk: #141312;
-  --sheet: #1c1b19;
-  --sheet-raised: #252321;
-  --sheet-hover: #2c2a27;
-  --well: #100f0e;
-  --rule: rgb(255 255 255 / 0.08);
-  --rule-strong: rgb(255 255 255 / 0.15);
-  --ink: #ece9e4;
-  --ink-dim: #a9a49c;
-  --ink-faint: #8a857d;
+  --desk: #121110;
+  --sheet: #23211f;
+  --sheet-raised: #2e2c29;
+  --sheet-hover: #383532;
+  --well: #151413;
+  --rule: rgb(255 255 255 / 0.11);
+  --rule-strong: rgb(255 255 255 / 0.22);
+  --ink: #eeebe6;
+  --ink-dim: #b8b3ab;
+  --ink-faint: #9c978f;
   --rose: #c8436b;
   --rose-hover: #d4517a;
   --rose-ink: #f09ab2;
   --rose-wash: rgb(200 67 107 / 0.16);
   --star: #e3b04b;
-  --star-off: #3a3733;
+  --star-off: #48443f;
   --ok: #86c595;
   --warn: #d8a650;
   --alert: #e57b72;

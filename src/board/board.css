@@ -1,7 +1,9 @@
 /* 記事ボード(PC専用)。styles.css のトークンを土台に、ボード固有の値をここで定義する */
 .board-page {
-  --b-column: #181715;
-  --b-tray: #171614;
+  --b-column: #191816;
+  --b-card: #2b2926;
+  --b-card-edge: rgb(255 255 255 / 0.14);
+  --b-tray: #1d1c1a;
   --b-fast: 120ms;
 
   display: flex;
@@ -25,7 +27,7 @@
 }
 .board-header h1 { margin: 0; color: var(--ink); font-size: 15px; font-weight: 700; }
 /* 記事タイプの絞り込み。選んだものは面の明るさで示し、アクセント色は使わない */
-.board-header .chips { margin: 0; gap: 2px; padding: 2px; border-radius: var(--r-card); background: var(--well); }
+.board-header .chips { margin: 0; gap: 2px; padding: 2px; border-radius: var(--r-card); background: var(--sheet); }
 .board-header .chip {
   min-height: 0;
   padding: 5px 12px;
@@ -34,7 +36,7 @@
   font-size: 13px;
   cursor: pointer;
 }
-.board-header .chip:hover { background: var(--sheet); color: var(--ink); }
+.board-header .chip:hover { background: var(--sheet-raised); color: var(--ink); }
 .board-header .chip.on { background: var(--sheet-hover); color: var(--ink); font-weight: 600; }
 
 .board-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-left: auto; }
@@ -277,9 +279,9 @@
 .board-card {
   flex: none;
   padding: 10px 12px 12px;
-  border: 1px solid var(--rule);
+  border: 1px solid var(--b-card-edge);
   border-radius: var(--r-card);
-  background: var(--sheet);
+  background: var(--b-card);
   cursor: grab;
   transition: border-color var(--b-fast) var(--ease-out);
 }
@@ -357,7 +359,7 @@
 /* 入力画面から開いたカード。輪郭を2回だけ点けて場所を示す */
 .board-card.revealed { animation: board-card-reveal 700ms var(--ease-out) 2; }
 @keyframes board-card-reveal {
-  0%, 100% { border-color: var(--rule); }
+  0%, 100% { border-color: var(--b-card-edge); }
   40% { border-color: var(--rose); }
 }
 
@@ -458,7 +460,7 @@
   padding: 8px 10px 10px;
   border: 1px solid color-mix(in srgb, var(--att) 35%, transparent);
   border-radius: var(--r-control);
-  background: color-mix(in srgb, var(--att) 7%, var(--sheet));
+  background: color-mix(in srgb, var(--att) 8%, var(--b-card));
 }
 .track[data-attention="absent"] { --att: var(--alert); }
 
