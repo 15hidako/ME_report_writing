@@ -8,6 +8,7 @@ import { RATING_LABELS } from '../types';
 import { prefectureTag, publicSpecSummary, serializeRecord, tagCandidates } from './serialize';
 import { countPublishedTherapists, isPublished, SUMMARY_MIN_THERAPISTS, therapistIdentity } from './publication';
 import { articleLookupSection } from '../identity-lookup';
+import { DECORATION_TAGS, decorationGuide, type DecorationKind } from './decoration';
 
 const TITLE_NAME_RULE: Readonly<Record<NameDisclosure, string>> = {
   paid: '店名・源氏名は入れない',
@@ -16,9 +17,6 @@ const TITLE_NAME_RULE: Readonly<Record<NameDisclosure, string>> = {
 
 /** wakustのタグ規則(上限6個、NGタグ)。H-07 */
 const TAG_RULE = '半角コンマ区切りで6個以内。都道府県は「東京」「神奈川」のように都・府・県を省いた地域名にする。「東京都」「神奈川県」などの正式名と「メンエス」はNGタグなので使わない。本文と関係のないタグは付けない';
-
-/** wakustの投稿欄で保存後も残ることを確かめた装飾(C3)。色や強調の標準は固定しない。H-01 */
-export const SPAN_STYLE_RULE = '- <span style> は強調したい一言にだけ使う。style属性は color と font-weight だけにし、記事の大半を装飾しない';
 
 const TITLE_BODY = '属性キーワード(系統・特記。年齢・体型・カップ数は入れない)+展開の匂わせ+【メンズエステ体験談】(通し番号は付けない)';
 
@@ -48,18 +46,19 @@ export type BodyFormat = 'html' | 'plain';
 export const PLAIN_NOTATION = '記事構成の<h3>見出し</h3>は「### 見出し」の1行、<ul><li>の項目は「- 項目」の行、<p>は空行で区切った段落、<br />は段落の中の改行で書く。<a><strong><em><small><span>などのタグと**などの記号は付けない。リンクはURLの文字列だけを書く(マークアップは別の依頼で行う)';
 
 const bodyLines = (body: BodyFormat): string => body === 'html'
-  ? `3. 無料部分HTML: <h3><p><ul><li><a><strong><em><small><span style><br />のみ使用
+  ? `3. 無料部分HTML: ${DECORATION_TAGS}のみ使用。記事構成の<h3>は見出しの目印として読み、「装飾」の部品で書く
 4. 有料部分HTML: 同上`
   : `3. 無料部分(素の文章): ${PLAIN_NOTATION}
 4. 有料部分(素の文章): 同上`;
 
 const outputFormat = (
   disclosure: NameDisclosure, lead: string | null = null, lookup = false, body: BodyFormat = 'html',
+  decoration: DecorationKind = 'article',
 ): string => `## 出力形式(この${lookup ? 5 : 4}ブロックを順に、コードブロックで出力)
 1. タイトル: ${titleRule(disclosure, lead)}
 2. タグ: ${TAG_RULE}(候補から取捨選択・追加可)
 ${bodyLines(body)}
-${lookup ? '5. 店舗情報JSON: 「店舗情報の確認」の形式\n' : ''}${body === 'html' ? SPAN_STYLE_RULE : ''}`.trimEnd();
+${lookup ? '5. 店舗情報JSON: 「店舗情報の確認」の形式\n' : ''}${body === 'html' ? `\n${decorationGuide(decoration)}` : ''}`.trimEnd();
 
 /** 店舗情報の確認指示を、記事構成の前に差し込む */
 const lookupBlock = (section: string | null): string => section === null ? '' : `${section}\n\n`;
@@ -74,16 +73,16 @@ const STRUCTURE_LINES: Readonly<Record<NameDisclosure, {
 }>> = {
   paid: {
     intro: '- 導入フック1〜2文(エリア+系統+展開で釣る。店名は出さない)',
-    profile: `- <h3>今回のセラピスト</h3> エリア/系統/料金のul。${PROFILE_DETAIL}(年齢・体型・カップ数・タトゥーは書かない)`,
-    paidSummary: '- <h3>有料部分の内容</h3> 店名・源氏名開示/年齢・体型/実額/評価6軸/ご対面からの全展開/今回の進め方(記録がある場合) と免責のsmall',
+    profile: `- <h3>今回のセラピスト</h3> エリア/系統/料金のul(HTMLではセラピストの表の部品で書く)。${PROFILE_DETAIL}(年齢・体型・カップ数・タトゥーは書かない)`,
+    paidSummary: '- <h3>有料部分の内容</h3> 店名・源氏名開示/年齢・体型/実額/評価6軸/ご対面からの全展開/今回の進め方(記録がある場合) と免責の一文',
     shopInfo: '- <h3>店舗・セラピスト情報</h3> 店名/URL/源氏名/profile/X/年齢・体型・カップ数/コース/オプション。',
     // 体験内容起点は体験の魅力で売るため、残念な点は短く添えるだけにする。最後の加減は本人がボードで直す(H-16)
     review: '- <h3>総評</h3> 良かった点を中心に書く。残念ポイントは記録がある場合だけ短く(1〜2文)添え、強い否定や繰り返しは避ける。リピート意向は書かない',
   },
   free: {
     intro: '- 導入フック1〜2文(エリア+店名+源氏名+系統+展開で釣る)',
-    profile: `- <h3>今回のセラピスト</h3> 店名/源氏名/エリア/系統/料金のul。${PROFILE_DETAIL}(リンクは付けない。年齢・体型・カップ数・タトゥーは書かない)`,
-    paidSummary: '- <h3>有料部分の内容</h3> 店・セラピストのリンク/年齢・体型/実額/評価6軸/ご対面からの全展開/今回の進め方(記録がある場合) と免責のsmall',
+    profile: `- <h3>今回のセラピスト</h3> 店名/源氏名/エリア/系統/料金のul(HTMLではセラピストの表の部品で書く)。${PROFILE_DETAIL}(リンクは付けない。年齢・体型・カップ数・タトゥーは書かない)`,
+    paidSummary: '- <h3>有料部分の内容</h3> 店・セラピストのリンク/年齢・体型/実額/評価6軸/ご対面からの全展開/今回の進め方(記録がある場合) と免責の一文',
     shopInfo: '- <h3>店舗・セラピスト情報</h3> 店URL/profile/X/年齢・体型・カップ数/コース/オプション(店名・源氏名は無料部分で既出)。',
     review: '- <h3>総評</h3> リピート意向+残念ポイントも正直に',
   },
@@ -189,7 +188,7 @@ export function buildCatalogPrompt(records: readonly VisitRecord[], prefecture: 
 
 ## 記事構成(カタログ無料記事)
 - 導入1〜2文(実際に行った店だけを載せている旨)
-- エリア(駅)ごとに<h3>で区切り、各訪問を<li>で列挙
+- エリア(駅)ごとに見出しで区切り、各訪問を<li>で列挙
 - 各項目: スペック+評価の一部(${RATING_LABELS.ero}・${RATING_LABELS.tolerance}の★)+体験談へのリンク
 - 店名・源氏名は伏せる。スペックと評価で興味を引き、詳細は有料記事へ誘導
 - リンクは同カテゴリー(同都道府県)内の自分の記事のみ
@@ -197,8 +196,9 @@ export function buildCatalogPrompt(records: readonly VisitRecord[], prefecture: 
 ## 出力形式
 1. タイトル(例: 【${prefectureTag(prefecture)}】実際に行ったメンズエステ体験談まとめ【随時更新】。タグへ流用しても入力できるよう、都道府県の正式名と「メンエス」は使わない)
 2. タグ: ${TAG_RULE}
-3. 記事HTML(無料記事なので1本)
-${SPAN_STYLE_RULE}
+3. 記事HTML(無料記事なので1本。${DECORATION_TAGS}のみ使用)
+
+${decorationGuide('list')}
 
 ### 対象訪問データ(${targets.length}件)
 ${data}`;
@@ -229,7 +229,7 @@ export function buildMatomePrompt(
 - 「再訪しない人と理由」のテーマでは、理由を再訪意向と残念ポイントの記録にある言葉で書く
 - 無料部分の冒頭に更新日と掲載人数を書く(人を追加するときは既存記事を編集する。規約1-9)
 
-${outputFormat('paid')}
+${outputFormat('paid', null, false, 'html', 'list')}
 
 ### 対象訪問データ(${records.length}件)
 ${data}`;

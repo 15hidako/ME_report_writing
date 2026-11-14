@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { fixtureRecord } from '../test-fixtures';
 import { buildArticlePrompt } from './article-prompt';
 import { buildMarkupPrompt } from './markup-prompt';
+import { decorationGuide } from './decoration';
 
 /** 「## 出力形式」から次の見出しまで */
 const outputSection = (text: string): string => {
@@ -18,15 +19,15 @@ describe('記事プロンプトの本文の書き方', () => {
     const format = outputSection(text);
     expect(format).toContain('3. 無料部分(素の文章): 記事構成の<h3>見出し</h3>は「### 見出し」の1行');
     expect(format).toContain('4. 有料部分(素の文章): 同上');
-    expect(format).not.toContain('<span style> は強調したい一言にだけ使う');
+    expect(format).not.toContain('## 装飾');
     expect(text).toContain('C:\\repo\\data\\articles\\0005-rec-1\\standard\\free-part.txt');
   });
 
   it('保存先がない公開版では、これまでどおり投稿欄へ貼るHTMLで書かせる', () => {
     const format = outputSection(buildArticlePrompt(record, [record], 'paid', '', null).text);
-    expect(format).toContain('3. 無料部分HTML: <h3><p><ul><li><a><strong><em><small><span style><br />のみ使用');
-    expect(format).toContain('<span style> は強調したい一言にだけ使う');
+    expect(format).toContain('3. 無料部分HTML: <p><div><ul><li><table><tbody><tr><th><td><a><strong><em><small><span><br />のみ使用');
     expect(format).not.toContain('素の文章');
+    expect(buildArticlePrompt(record, [record], 'paid', '', null).text).toContain('## 装飾');
   });
 });
 
@@ -41,9 +42,13 @@ describe('マークアップの依頼', () => {
 
   it('言葉を変えさせず、使えるタグと装飾は記事プロンプトと同じに限る', () => {
     expect(prompt).toContain('言葉は一切変えず');
-    expect(prompt).toContain('<h3><p><ul><li><a><strong><em><small><span style><br /> だけ');
-    expect(prompt).toContain('<span style> は強調したい一言にだけ使う');
+    expect(prompt).toContain(decorationGuide());
     expect(prompt).toContain('URLの文字列も次の行にテキストで残す');
+  });
+
+  it('装飾のために本文にない文字を足させない', () => {
+    expect(prompt).toContain('本文にない文字を足さない');
+    expect(prompt).toContain('表にしたときに省いた「:」「：」を除く');
   });
 });
 

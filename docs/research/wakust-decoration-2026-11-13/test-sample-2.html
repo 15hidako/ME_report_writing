@@ -1,0 +1,43 @@
+<p><span style="font-size: 10pt; color: #888888;">装飾テスト2。h3の下線、色付きの区切り線、影を試します。</span></p>
+
+<p><span style="font-size: 12pt; font-weight: bold; color: #333333;">H. h3の下線を消す</span></p>
+
+<h3 style="border-left: 5px solid #d6336c; border-bottom: none; padding: 4px 0 4px 12px; margin: 24px 0 12px; font-size: 18px; color: #222222; line-height: 1.5;">31 左線＋border-bottom:none</h3>
+<p><span style="font-size: 10pt; color: #888888;">【期待】青い下線が消え、左のピンク線だけ</span></p>
+
+<h3 style="border-left: 5px solid #d6336c; background-image: none; padding: 4px 0 4px 12px; margin: 24px 0 12px; font-size: 18px; color: #222222; line-height: 1.5;">32 左線＋background-image:none</h3>
+<p><span style="font-size: 10pt; color: #888888;">【期待】青い下線が消え、左のピンク線だけ（下線が背景画像で描かれている場合）</span></p>
+
+<h3 style="border-left: 5px solid #d6336c; border-bottom: none; background: none; box-shadow: none; text-decoration: none; padding: 4px 0 4px 12px; margin: 24px 0 12px; font-size: 18px; color: #222222; line-height: 1.5;">33 左線＋下線系をまとめて打ち消し</h3>
+<p><span style="font-size: 10pt; color: #888888;">【期待】青い下線が消える。31〜33が全部消えないなら、線は擬似要素で描かれている</span></p>
+
+<p style="border-left: 5px solid #d6336c; padding: 4px 0 4px 12px; margin: 24px 0 12px; font-size: 18px; font-weight: bold; color: #222222; line-height: 1.5;">34 pタグで組んだ左線見出し</p>
+<p><span style="font-size: 10pt; color: #888888;">【期待】01と同じ見た目で、青い下線なし（h3が使えないときの代わり）</span></p>
+
+<p style="border-left: 5px solid #d6336c; background-color: #fdf0f4; padding: 8px 12px; margin: 24px 0 12px; font-size: 18px; font-weight: bold; color: #222222; line-height: 1.5;">35 pタグで組んだ左線＋淡い背景の見出し</p>
+<p><span style="font-size: 10pt; color: #888888;">【期待】02と同じ見た目で、青い下線なし</span></p>
+
+<p><span style="font-size: 12pt; font-weight: bold; color: #333333;">I. 色付きの区切り線</span></p>
+
+<div style="border-top: 1px dashed #d6336c; height: 0; margin: 24px 0;"></div>
+<p><span style="font-size: 10pt; color: #888888;">【期待】36 上にピンクの破線（空のdivで描画）</span></p>
+
+<div style="border-top: 2px solid #d6336c; width: 40%; height: 0; margin: 24px auto;"></div>
+<p><span style="font-size: 10pt; color: #888888;">【期待】37 上に中央寄せの短いピンク線</span></p>
+
+<hr style="border: 0; border-top: 1px dashed #d6336c; border-top-color: #d6336c; color: #d6336c; background: none; height: 0; margin: 24px 0;">
+<p><span style="font-size: 10pt; color: #888888;">【期待】38 上にピンクの破線（hrで色の指定を重ねた版）</span></p>
+
+<p style="text-align: center; color: #d6336c; letter-spacing: 0.5em; margin: 24px 0;">◆ ◆ ◆</p>
+<p><span style="font-size: 10pt; color: #888888;">【期待】39 記号で組んだ区切り（線が使えないときの代わり）</span></p>
+
+<p><span style="font-size: 12pt; font-weight: bold; color: #333333;">J. 影</span></p>
+
+<div style="box-shadow: 0 2px 8px #cccccc; border-radius: 8px; padding: 14px; margin: 16px 0; background-color: #ffffff;">40 影の色を16進で指定したカード</div>
+<p><span style="font-size: 10pt; color: #888888;">【期待】周りにうっすら灰色の影</span></p>
+
+<div style="box-shadow: 4px 4px 0 #d6336c; border: 2px solid #222222; padding: 14px; margin: 16px 8px 16px 0; background-color: #ffffff;">41 ずらした影のカード</div>
+<p><span style="font-size: 10pt; color: #888888;">【期待】黒い枠の右下にピンクのずれた影</span></p>
+
+<div style="border: 1px solid #dddddd; border-radius: 8px; padding: 14px; margin: 16px 0; background-color: #ffffff;">42 枠線だけのカード</div>
+<p><span style="font-size: 10pt; color: #888888;">【期待】薄い灰色の枠で角が丸い（影が使えないときの代わり）</span></p>

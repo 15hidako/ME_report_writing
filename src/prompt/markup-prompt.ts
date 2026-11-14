@@ -2,7 +2,8 @@
 // 文章は本人が決めたものなので、Claude にはタグを付けることだけを頼み、言葉は変えさせない(U-23)。
 
 import { MARKUP_PAIRS, joinPath, partSpec, variantDir } from './article-files';
-import { PLAIN_NOTATION, SPAN_STYLE_RULE } from './build-prompt';
+import { PLAIN_NOTATION } from './build-prompt';
+import { decorationGuide } from './decoration';
 import type { NameDisclosure } from './style-profile';
 
 export function buildMarkupPrompt(baseDir: string, folderName: string, disclosure: NameDisclosure): string {
@@ -20,15 +21,17 @@ ${files}
 ${PLAIN_NOTATION}
 
 ## マークアップの規則
-- 使うタグは <h3><p><ul><li><a><strong><em><small><span style><br /> だけ
-- 「### 」の行は <h3>、続けて並んだ「- 」の行は <ul><li>、空行で区切った段落は <p>、段落の中の改行は <br /> にする
-- URLは <a href="URL"> にする。直前の行が店名・源氏名・プロフィールなどの名前なら、その名前をリンクの文字にし、URLの文字列も次の行にテキストで残す(例: <a href="URL">店名</a><br />URL)。名前の行がなければURLの文字列をそのままリンクの文字にする
-- 有料部分の内容の説明に続く免責の一文は <small>、記事の締めの「皆さまのご武運をお祈りいたします！」は <em> にする
+- 「### 」の行は見出しの部品、続けて並んだ「- 」の行は <ul><li>、空行で区切った段落は <p>、段落の中の改行は <br /> にする。どの部品を使うかは見出しの言葉と「装飾」の使う場所で決め、当てはまらない見出しは「見出し」の部品にする
+- 装飾は style 属性とタグだけで付け、✓・◆・ラベルの語など本文にない文字を足さない
+- 今回のセラピストを表にするときは、各項目の最初の「:」「：」で項目と値に分け、その記号だけは書かなくてよい
+- URLはリンクの部品にする。直前の行が店名・源氏名・プロフィールなどの名前なら、その名前をリンクの文字にし、URLの文字列も次の行にテキストで残す(例: <a href="URL">店名</a><br />URL)。名前の行がなければURLの文字列をそのままリンクの文字にする
+- 有料部分の内容の説明に続く免責の一文は補足の小さな字、記事の締めの「皆さまのご武運をお祈りいたします！」は締めの一文の部品にする
 - 強調は記事の読みどころになる短い一言にだけ <strong> を付ける。付けすぎない
-${SPAN_STYLE_RULE}
+
+${decorationGuide()}
 
 ## 守ること
 - 文字、語順、句読点、改行の位置を変えない。言葉を足さず、削らない。誤字や事実の誤りに気づいても直さず、保存のあとにチャットで指摘する
 - 記法の記号(「### 」「- 」)はタグに置き換え、本文に残さない
-- 保存したら、タグを除いた文字の並びが素の文章(記法の記号と空行を除く)と一致するか確かめ、結果を一言で報告する`;
+- 保存したら、タグを除いた文字の並びが素の文章(記法の記号と空行、表にしたときに省いた「:」「：」を除く)と一致するか確かめ、結果を一言で報告する`;
 }

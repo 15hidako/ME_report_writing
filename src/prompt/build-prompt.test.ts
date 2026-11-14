@@ -372,13 +372,22 @@ describe('カタログ記事のタイトル例(C2)', () => {
   });
 });
 
-describe('span style の装飾(H-01)', () => {
-  it('許可タグに span style を含め、文字色と太字に限って使う指示を入れる', () => {
+describe('投稿用HTMLの装飾(H-01)', () => {
+  it('HTMLで書かせるときは、確かめた部品の見本と使えない書き方を入れる', () => {
     const p = buildSinglePrompt(fixtureRecord());
     const line = p.split('\n').find((l) => l.startsWith('3. 無料部分HTML')) ?? '';
-    expect(line).toContain('<span style>');
-    expect(p).toContain('style属性は color と font-weight だけ');
+    expect(line).toContain('<p><div><ul><li><table>');
+    expect(line).toContain('「装飾」の部品で書く');
+    expect(p).toContain('## 装飾');
+    expect(p).toContain('border-left: 5px solid #2b4a86');
+    expect(p).toContain('<h3> と <hr> は使わない');
+    expect(p).toContain('letter-spacing は指定しない');
     expect(p).toContain('記事の大半を装飾しない');
+  });
+
+  it('素の文章で書かせるときは装飾の指示を入れない', () => {
+    const p = buildSinglePrompt(fixtureRecord(), 'paid', null, 'plain');
+    expect(p).not.toContain('## 装飾');
   });
 });
 
@@ -449,7 +458,7 @@ describe('カタログと有料記事の指示を分ける', () => {
     expect(prompt).not.toContain('有料部分はリンクだけにせず');
     expect(prompt).not.toContain('無料部分の末尾に「有料部分の内容」の説明を必ず');
     expect(prompt).not.toContain('有料部分でのみ開示');
-    expect(prompt).toContain('color と font-weight');
+    expect(prompt).toContain('## 装飾');
     expect(prompt).toContain('年齢・身長・体型・カップ数');
     expect(prompt).toContain('店名・源氏名は伏せる');
   });
