@@ -2,6 +2,7 @@
 // 文章は本人が決めたものなので、Claude にはタグを付けることだけを頼み、言葉は変えさせない(U-23)。
 
 import { MARKUP_PAIRS, joinPath, partSpec, variantDir } from './article-files';
+import { BRIEF_LABELS, MARKUP_SKILL_NAME } from './brief-labels';
 import { PLAIN_NOTATION } from './build-prompt';
 import { decorationGuide } from './decoration';
 import type { NameDisclosure } from './style-profile';
@@ -20,6 +21,18 @@ export function markupFileLines(baseDir: string, folderName: string, disclosure:
     `- ${partSpec(text).label}: ${joinPath(dir, partSpec(text).file)} → ${joinPath(dir, partSpec(html).file)}`).join('\n');
 }
 
+/** Claude Code に me-markup の skill でマークアップさせる依頼文。規則は skill に置き、ファイルの組だけを渡す(docs/19) */
+export function buildMarkupBrief(baseDir: string, folderName: string, disclosure: NameDisclosure): string {
+  return `/${MARKUP_SKILL_NAME}
+
+## ${BRIEF_LABELS.save}
+${markupFileLines(baseDir, folderName, disclosure)}`;
+}
+
+/**
+ * マークアップの依頼の全文。ボードは buildMarkupBrief を使うのでここは呼ばない。
+ * me-markup の skill と依頼文がこの全文の指示を欠かさず持つかを、テストで照らし合わせる基準として残す(docs/19 WP3)
+ */
 export function buildMarkupPrompt(baseDir: string, folderName: string, disclosure: NameDisclosure): string {
   return `${MARKUP_TASK}
 

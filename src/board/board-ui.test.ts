@@ -796,7 +796,8 @@ describe('原稿を読む・直す', () => {
     expect(local.putArticlePart).toHaveBeenCalledOnce();
     const prompt = copy.mock.calls[0]![0];
     expect(prompt).toContain(`C:\\repo\\data\\articles\\0001-${record.id}\\standard\\free-part.txt → C:\\repo\\data\\articles\\0001-${record.id}\\standard\\free-part.html`);
-    expect(prompt).toContain('言葉は一切変えず');
+    // 言葉を変えない規則は me-markup の skill にあり、依頼文はその skill を呼ぶ(docs/19)
+    expect(prompt.startsWith('/me-markup\n')).toBe(true);
   });
 
   it('保存に失敗したら、直す前の文章でマークアップを頼まない', async () => {
@@ -937,6 +938,23 @@ describe('回答カードの記事プロンプト', () => {
     answerInput('2026-11-13');
     await vi.waitFor(() => expect(copy).toHaveBeenCalledOnce());
     expect(copy.mock.calls[0]![0]).toContain('出勤確認: 2026年11月中旬に店舗HPの出勤表で確認済');
+    await vi.waitFor(() => expect(stageOf(record.id)).toBe('prompted'));
+  });
+
+  it('start.bat で開いたボードでは、me-article の skill を呼ぶ短い依頼文をコピーする', async () => {
+    vi.stubEnv('VITE_ARTICLE_DIR', 'C:\\repo\\data\\articles');
+    const record = fixtureRecord();
+    const copy = vi.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
+    await start([record], emptyBoard({ angles: { [record.id]: 'therapist' } }));
+    cardButton(record.id, 'プロンプト').click();
+    answerInput('2026-11-13');
+    await vi.waitFor(() => expect(copy).toHaveBeenCalledOnce());
+    const brief = copy.mock.calls[0]![0];
+    expect(brief.startsWith('/me-article\n')).toBe(true);
+    expect(brief).toContain('セラピスト起点(保存先のフォルダは names)');
+    expect(brief).toContain(`C:\\repo\\data\\articles\\0001-${record.id}\\names\\free-part.txt`);
+    expect(brief).toContain('出勤確認: 2026年11月中旬に店舗HPの出勤表で確認済');
+    expect(brief).not.toContain('## 文体ルール');
     await vi.waitFor(() => expect(stageOf(record.id)).toBe('prompted'));
   });
 

@@ -4,8 +4,9 @@ import { ARTICLE_PREMISES, PLAIN_NOTATION, SINGLE_STRUCTURE } from './build-prom
 import { decorationGuide } from './decoration';
 import { MARKUP_RULES } from './markup-prompt';
 import {
-  ARTICLE_SKILL_NAME, BRIEF_LABELS, MARKUP_SKILL_NAME, STRUCTURE_SLOT_LABELS, articleSkill, markupSkill,
-} from './skill-files';
+  ARTICLE_SKILL_NAME, BRIEF_LABELS, MARKUP_SKILL_NAME, STRUCTURE_SLOT_LABELS,
+} from './brief-labels';
+import { articleSkill, markupSkill } from './skill-files';
 import { STYLE_PROFILE, nameRule, wakustCommonRules } from './style-profile';
 
 // SKILL.md は規則の TS から作る。ずれていれば失敗するので、`npx vitest run -u` で書き直す(docs/19 WP2)

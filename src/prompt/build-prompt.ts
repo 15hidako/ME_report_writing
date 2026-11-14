@@ -206,6 +206,20 @@ export const revisitStructure = (first: VisitRecord): string => `## 記事構成
 - 初回との差分・進展・変化を中心に書く(重複する基本描写は最小限)
 - それ以外の構成(無料部分のダイジェストと有料部分の本編)は単体体験談と同じ`;
 
+/** タグ候補の行 */
+export const tagHint = (record: VisitRecord): string => `タグ候補: ${tagCandidates(record).join(', ')}`;
+
+/** 単体記事のタグ候補と販売ポイント案。再訪記事には販売ポイント案を出さない */
+export const singleHints = (record: VisitRecord): string => `${tagHint(record)}
+販売ポイント案: ${record.sales.points}pt`;
+
+/** 再訪記事の訪問データ。初回は参照用に、今回を記事にする */
+export const revisitVisitData = (record: VisitRecord, first: VisitRecord): string => `### 初回訪問データ(参照用・重複記述を避けるため)
+${serializeRecord(first)}
+
+### 今回(再訪)の訪問データ ← こちらを記事化
+${serializeRecord(record)}`;
+
 /** 単体体験談の生成プロンプト */
 export function buildSinglePrompt(
   record: VisitRecord, disclosure: NameDisclosure = 'paid', listingCheckedOn: string | null = null, body: BodyFormat = 'html',
@@ -217,8 +231,7 @@ ${lookupBlock(lookup)}${singleStructure(disclosure, listingCheckedOn)}
 
 ${articleOutputFormat(record, disclosure, listingCheckedOn, lookup !== null, body)}
 
-タグ候補: ${tagCandidates(record).join(', ')}
-販売ポイント案: ${record.sales.points}pt
+${singleHints(record)}
 
 ${serializeRecord(record)}`;
 }
@@ -237,13 +250,9 @@ ${singleStructure(disclosure, listingCheckedOn)}
 
 ${articleOutputFormat(record, disclosure, listingCheckedOn, lookup !== null, body)}
 
-タグ候補: ${tagCandidates(record).join(', ')}
+${tagHint(record)}
 
-### 初回訪問データ(参照用・重複記述を避けるため)
-${serializeRecord(first)}
-
-### 今回(再訪)の訪問データ ← こちらを記事化
-${serializeRecord(record)}`;
+${revisitVisitData(record, first)}`;
 }
 
 /** カタログ無料記事(エリア別インデックス)の生成プロンプト */

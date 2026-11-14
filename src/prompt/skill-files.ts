@@ -4,33 +4,13 @@
 
 import { ARTICLE_SAVE_RULE } from './article-files';
 import {
-  ARTICLE_PREMISES, outputFormat, renderStructure, type StructureSlot,
+  ARTICLE_PREMISES, outputFormat, renderStructure,
 } from './build-prompt';
 import { MARKUP_FILE_RULE, MARKUP_RULES, MARKUP_TASK } from './markup-prompt';
 import { STYLE_PROFILE, wakustCommonRules } from './style-profile';
-
-/** 依頼文の見出し。skillはこの名前で依頼文の項目を指すので、依頼文(WP3)も同じ名前で書く */
-export const BRIEF_LABELS = {
-  disclosure: '販売型',
-  nameRule: '名前の開示',
-  title: 'タイトル',
-  revisit: '記事構成(再訪)',
-  lookup: '店舗情報の確認',
-  save: '保存先',
-} as const;
-
-/** 記事構成の差し込み口の見出し。依頼文では販売型ごとの値をこの名前で並べる */
-export const STRUCTURE_SLOT_LABELS: Readonly<Record<StructureSlot, string>> = {
-  intro: '導入',
-  profile: '今回のセラピスト',
-  paidSummary: '有料部分の内容',
-  shopInfo: '店舗・セラピスト情報',
-  listingCheck: '出勤確認',
-  review: '総評',
-};
-
-export const ARTICLE_SKILL_NAME = 'me-article';
-export const MARKUP_SKILL_NAME = 'me-markup';
+import {
+  ARTICLE_SKILL_NAME, BRIEF_LABELS, MARKUP_SKILL_NAME, STRUCTURE_SLOT_LABELS,
+} from './brief-labels';
 
 const GENERATED_NOTE = '<!-- src/prompt/skill-files.ts から生成。直接編集しない。規則の TS を直して `npx vitest run -u` で作り直す -->';
 
@@ -60,7 +40,7 @@ ${GENERATED_NOTE}
 1. 書く前に、${briefItem(BRIEF_LABELS.disclosure)}と「${BRIEF_LABELS.save}」のフォルダを一言で確かめる(体験内容起点は standard、セラピスト起点は names)。食い違っていたら書かずに知らせる
 2. ${briefItem(BRIEF_LABELS.lookup)}があれば、記事を書く前に行う
 3. ${briefItem(BRIEF_LABELS.revisit)}があれば再訪記事として、その指示を下の記事構成より先に読む
-4. 下の規則と依頼文の行で記事を書き、「保存」に従って保存する
+4. ${briefItem(BRIEF_LABELS.structure)}を下の記事構成の同じ名前の行に置き、下の規則で記事を書いて、「保存」に従って保存する
 
 ${ARTICLE_PREMISES}
 

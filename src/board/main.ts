@@ -5,7 +5,7 @@ import { ARTICLE_DIR, openClaudeApp } from '../local-setup';
 import { BOARD_WINDOW, bindPageSwitch, takeParam } from '../links';
 import { isPublished, parsePostedUrlInput } from '../prompt/publication';
 import { buildMatomePrompt } from '../prompt/build-prompt';
-import { REVISIT_CYCLE, buildArticlePrompt } from '../prompt/article-prompt';
+import { REVISIT_CYCLE, buildArticleBrief, buildArticlePrompt } from '../prompt/article-prompt';
 import { defaultListingCheckDate, needsLookup } from '../identity-lookup';
 import type { VisitRecord } from '../types';
 import { toast, tryCopyText } from '../ui/widgets';
@@ -15,7 +15,7 @@ import { openInputDialog } from '../ui/input-dialog';
 import { openHandoffUpdate } from '../ui/handoff-import';
 import { watchForUpdate } from '../update-watch';
 import { ARTICLE_PARTS, VARIANT_DIRS } from '../prompt/article-files';
-import { buildMarkupPrompt } from '../prompt/markup-prompt';
+import { buildMarkupBrief } from '../prompt/markup-prompt';
 import { DISCLOSURE_LABELS, type NameDisclosure } from '../prompt/style-profile';
 import { advanceDrafted, markupState, type ArticleDraft } from './articles';
 import { openArticleEditor } from './article-editor';
@@ -163,11 +163,11 @@ async function copyDraftPart(card: Card, button: HTMLElement): Promise<void> {
   button.classList.toggle('copied', copied);
 }
 
-/** マークアップの依頼をコピーして Claude を開く。Claude Code が素の文章を読み、HTMLを書き出す */
+/** マークアップの依頼をコピーして Claude を開く。Claude Code が me-markup の skill で素の文章を読み、HTMLを書き出す */
 async function requestMarkup(draft: ArticleDraft, disclosure: NameDisclosure): Promise<void> {
   if (ARTICLE_DIR === null) throw new Error('start.bat で開いたボードから使ってください');
   const copied = await tryCopyText(
-    buildMarkupPrompt(ARTICLE_DIR, draft.folderName, disclosure), 'マークアップの依頼をコピーしました。Claude に貼ってください');
+    buildMarkupBrief(ARTICLE_DIR, draft.folderName, disclosure), 'マークアップの依頼をコピーしました。Claude Code に貼ってください');
   if (copied) openClaudeApp();
 }
 
@@ -197,7 +197,10 @@ async function openEditor(card: Card, disclosure: NameDisclosure): Promise<void>
   }
 }
 
-/** 出勤確認日を尋ねて記事プロンプトをコピーする。Claude Code は原稿を data/articles へ書き出す */
+/**
+ * 出勤確認日を尋ねて記事の依頼をコピーする。start.bat で開いたボードでは、規則を me-article の skill に任せた短い依頼文にし、
+ * Claude Code が原稿を data/articles へ書き出す。保存先がないときは全文プロンプトにする(docs/19)
+ */
 function copyArticlePrompt(card: Card, disclosure: NameDisclosure): void {
   const record = visits.get(card.id);
   if (record === undefined) throw new Error('回答が見つかりません。画面を読み込み直してください');
@@ -207,7 +210,10 @@ function copyArticlePrompt(card: Card, disclosure: NameDisclosure): void {
     onSubmit: (values) => {
       let prompt;
       try {
-        prompt = buildArticlePrompt(record, visits.loadAll(), disclosure, values.text('listingCheckedOn'), ARTICLE_DIR);
+        const listingCheckedOn = values.text('listingCheckedOn');
+        prompt = ARTICLE_DIR === null
+          ? buildArticlePrompt(record, visits.loadAll(), disclosure, listingCheckedOn, null)
+          : buildArticleBrief(record, visits.loadAll(), disclosure, listingCheckedOn, ARTICLE_DIR);
       } catch (error) {
         // 日付の誤りはダイアログに残して直せるようにし、再訪の循環はトーストで知らせる
         if (error instanceof Error && error.message === REVISIT_CYCLE) {
