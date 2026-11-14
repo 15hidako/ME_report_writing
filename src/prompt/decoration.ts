@@ -61,14 +61,14 @@ export const DECORATION_PARTS: readonly DecorationPart[] = [
   {
     name: '評価のカード',
     list: false,
-    use: '評価6軸の箇条書き。★は黄、☆は灰にする。最後の項目は下線を付けない',
-    html: '<div style="border: 1px solid #e9ecef; border-radius: 8px; padding: 4px 14px; margin: 0 0 8px;"><ul style="list-style: none; margin: 0; padding: 0;"><li style="padding: 8px 0; border-bottom: 1px solid #f1f3f5;">軸名 <span style="color: #f59f00;">★★★★</span><span style="color: #dee2e6;">☆</span> 一言</li></ul></div>',
+    use: '評価6軸の箇条書き。ul と li は使わず、1軸を1つの div にする(wakustでは list-style が効かず行頭の点が残る)。★は黄、☆は灰にする。最後の軸は下線を付けない',
+    html: '<div style="border: 1px solid #e9ecef; border-radius: 8px; padding: 4px 14px; margin: 0 0 8px;"><div style="padding: 8px 0; border-bottom: 1px solid #f1f3f5;">軸名:<span style="color: #f59f00;">★★★★</span><span style="color: #dee2e6;">☆</span><br />一言</div><div style="padding: 8px 0;">最後の軸名:<span style="color: #f59f00;">★★★★★</span><br />一言</div></div>',
   },
   {
     name: '彼女のセリフ',
     list: false,
-    use: '「」で囲まれたセリフだけの段落',
-    html: '<div style="background-color: #fdf0f4; border-radius: 10px; padding: 10px 12px; margin: 14px 0;">「セリフ」</div>',
+    use: '「」で囲まれたセリフだけの段落。左の丸に「彼女」と入れる',
+    html: '<div style="display: flex; align-items: flex-start; gap: 10px; margin: 14px 0;"><div style="flex: 0 0 40px; width: 40px; height: 40px; border-radius: 50%; background-color: #ffc9dc; color: #c2255c; font-size: 13px; font-weight: bold; text-align: center; line-height: 40px;">彼女</div><div style="flex: 1 1 auto; background-color: #fdf0f4; border-radius: 10px; padding: 10px 12px;">「セリフ」</div></div>',
   },
   {
     name: '心の声',

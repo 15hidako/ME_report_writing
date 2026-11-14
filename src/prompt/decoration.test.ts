@@ -17,6 +17,14 @@ describe('装飾の部品(wakustで確かめた書き方だけ)', () => {
     expect(decorationGuide()).toContain('文中の強調はマーカーだけで付ける');
   });
 
+  it('評価のカードは ul を使わず、セリフは左に丸のアイコンを置く', () => {
+    const byName = (name: string): string => DECORATION_PARTS.find((part) => part.name === name)?.html ?? '';
+    expect(byName('評価のカード')).not.toMatch(/<ul|<li/);
+    expect(byName('彼女のセリフ')).toContain('display: flex');
+    expect(byName('彼女のセリフ')).toContain('border-radius: 50%');
+    expect(byName('彼女のセリフ')).toContain('>彼女</div>');
+  });
+
   it('削られる書き方とサイトのCSSに負ける書き方を使わない', () => {
     expect(html).not.toMatch(/<h3|<hr|<style|class=|rgba\(|letter-spacing/);
   });

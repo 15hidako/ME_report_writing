@@ -48,7 +48,8 @@ describe('マークアップの依頼', () => {
 
   it('装飾のために本文にない文字を足させない', () => {
     expect(prompt).toContain('本文にない文字を足さない');
-    expect(prompt).toContain('表にしたときに省いた「:」「：」を除く');
+    expect(prompt).toContain('表にしたときに省いた「:」「：」、セリフの丸の「彼女」を除く');
+    expect(prompt).toContain('例外は、彼女のセリフの丸に入れる「彼女」だけ');
   });
 });
 
