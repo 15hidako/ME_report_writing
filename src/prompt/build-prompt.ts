@@ -60,17 +60,29 @@ const bodyLines = (body: BodyFormat): string => body === 'html'
 export interface OutputFormatOptions {
   /** 1ブロック目の規則。記事ごとの全文では titleRule の結果、skillでは依頼文を指す文 */
   readonly title: string;
-  /** 店舗情報の確認があり、5ブロック目にJSONを出すか */
-  readonly lookup: boolean;
+  /**
+   * 店舗情報の確認があり、5ブロック目にJSONを出すか。
+   * 'brief' は skill 用で、依頼文に店舗情報の確認があるときだけ5ブロック目を出させる
+   */
+  readonly lookup: boolean | 'brief';
   readonly body: BodyFormat;
   readonly decoration: DecorationKind;
 }
 
-export const outputFormat = ({ title, lookup, body, decoration }: OutputFormatOptions): string => `## 出力形式(この${lookup ? 5 : 4}ブロックを順に、コードブロックで出力)
+const LOOKUP_BLOCK = '5. 店舗情報JSON: 「店舗情報の確認」の形式';
+const BRIEF_LOOKUP_CONDITION = '依頼文に「店舗情報の確認」があるとき';
+
+const blockCount = (lookup: boolean | 'brief'): string =>
+  lookup === 'brief' ? `この4ブロック(${BRIEF_LOOKUP_CONDITION}は5ブロック)` : `この${lookup ? 5 : 4}ブロック`;
+
+const lookupBlockLine = (lookup: boolean | 'brief'): string =>
+  lookup === 'brief' ? `${LOOKUP_BLOCK}(${BRIEF_LOOKUP_CONDITION}だけ)\n` : lookup ? `${LOOKUP_BLOCK}\n` : '';
+
+export const outputFormat = ({ title, lookup, body, decoration }: OutputFormatOptions): string => `## 出力形式(${blockCount(lookup)}を順に、コードブロックで出力)
 1. タイトル: ${title}
 2. タグ: ${TAG_RULE}(候補から取捨選択・追加可)
 ${bodyLines(body)}
-${lookup ? '5. 店舗情報JSON: 「店舗情報の確認」の形式\n' : ''}${body === 'html' ? `\n${decorationGuide(decoration)}` : ''}`.trimEnd();
+${lookupBlockLine(lookup)}${body === 'html' ? `\n${decorationGuide(decoration)}` : ''}`.trimEnd();
 
 /** 店舗情報の確認指示を、記事構成の前に差し込む */
 const lookupBlock = (section: string | null): string => section === null ? '' : `${section}\n\n`;
