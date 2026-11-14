@@ -21,6 +21,7 @@ export const BRIEF_LABELS = {
 export const STRUCTURE_SLOT_LABELS: Readonly<Record<StructureSlot, string>> = {
   intro: '導入',
   profile: '今回のセラピスト',
+  teaser: '無料部分の体験',
   paidSummary: '有料部分の内容',
   shopInfo: '店舗・セラピスト情報',
   listingCheck: '出勤確認',

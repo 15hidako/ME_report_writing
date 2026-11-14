@@ -96,22 +96,31 @@ const lookupBlock = (section: string | null): string => section === null ? '' : 
 /** 今回のセラピストの系統と料金の行(H-16)。特記は系統の行へまとめ、料金は合計だけを出す */
 const PROFILE_DETAIL = '系統の行には特記を「、」でつなぐ(例: 系統: ナチュラル系、黒髪ショート)。料金の行はコース代・指名料・今回のオプション代のうち金額の記録がある分の合計を「料金: 計X円」で書き、コース代が未確認なら行ごと省く';
 
-// 開示先(体験内容起点 = paid、セラピスト起点 = free)で変わるのは、導入・セラピスト紹介・有料部分の説明・店舗情報・総評の5行だけ
+/** 体験内容起点の無料部分で、体験を見せる2行。セラピスト起点では使わない(U-28) */
+const EXPERIENCE_TEASER = [
+  '- <h3>こんな方にお勧め</h3> 2〜3項目のul(★5の評価軸だけを売りにする。★4以下の軸を無料部で推すと有料部と矛盾しレビューが下がる)',
+  '- <h3>体験のダイジェスト</h3> ご対面からクライマックスの結果まで、展開の要所を時系列に1〜2文ずつ並べる。施術の前半で切らず、何が起きてどう終わったかを無料で見せる(売れ筋記事の型)。彼女のセリフは記録から1〜2個だけ(セリフ・心の声は記録がある場合だけ使い、未入力なら省く)。体位・細部の流れ・彼女の反応の詳細は本編に残す',
+].join('\n');
+
+// 開示先(体験内容起点 = paid、セラピスト起点 = free)で変わるのは、導入・セラピスト紹介・無料部分の体験・有料部分の説明・店舗情報・総評の6行だけ
 const STRUCTURE_LINES: Readonly<Record<NameDisclosure, {
-  readonly intro: string; readonly profile: string; readonly paidSummary: string; readonly shopInfo: string;
-  readonly review: string;
+  readonly intro: string; readonly profile: string; readonly teaser: string; readonly paidSummary: string;
+  readonly shopInfo: string; readonly review: string;
 }>> = {
   paid: {
     intro: '- 導入フック1〜2文(エリア+系統+展開で釣る。店名は出さない)',
     profile: `- <h3>今回のセラピスト</h3> エリア/系統/料金のul(HTMLではセラピストの表の部品で書く)。${PROFILE_DETAIL}(年齢・体型・カップ数・タトゥーは書かない)`,
+    teaser: EXPERIENCE_TEASER,
     paidSummary: '- <h3>有料部分の内容</h3> 店名・源氏名開示/年齢・体型/実額/評価6軸/ご対面からの全展開/今回の進め方(記録がある場合) と免責の一文',
     shopInfo: '- <h3>店舗・セラピスト情報</h3> 店名/URL/源氏名/profile/X/年齢・体型・カップ数/コース/オプション。',
     // 体験内容起点は体験の魅力で売るため、残念な点は短く添えるだけにする。最後の加減は本人がボードで直す(H-16)
     review: '- <h3>総評</h3> 良かった点を中心に書く。残念ポイントは記録がある場合だけ短く(1〜2文)添え、強い否定や繰り返しは避ける。リピート意向は書かない',
   },
   free: {
-    intro: '- 導入フック1〜2文(エリア+店名+源氏名+系統+展開で釣る)',
+    // セラピスト起点は名前で売るため、無料部分は店舗・セラピストの情報だけの定型にし、体験の内容は一切書かない(U-28)
+    intro: '- 導入1〜2文。エリア・店名・源氏名・系統で、誰の体験談かを示す定型文にする(体験の内容・展開・評価・感想には触れない)',
     profile: `- <h3>今回のセラピスト</h3> 店名/源氏名/エリア/系統/料金のul(HTMLではセラピストの表の部品で書く)。${PROFILE_DETAIL}(リンクは付けない。年齢・体型・カップ数・タトゥーは書かない)`,
+    teaser: '- 無料部分には体験の内容を書かない。「こんな方にお勧め」「体験のダイジェスト」の見出しも置かず、今回のセラピストの次は有料部分の内容にする',
     paidSummary: '- <h3>有料部分の内容</h3> 店・セラピストのリンク/年齢・体型/実額/評価6軸/ご対面からの全展開/今回の進め方(記録がある場合) と免責の一文',
     shopInfo: '- <h3>店舗・セラピスト情報</h3> 店URL/profile/X/年齢・体型・カップ数/コース/オプション(店名・源氏名は無料部分で既出)。',
     review: '- <h3>総評</h3> リピート意向+残念ポイントも正直に',
@@ -133,7 +142,7 @@ function listingCheckLine(listingCheckedOn: string | null): string {
 }
 
 /** 記事構成のうち、記事ごとに値が変わる行。全文プロンプトでは値で埋め、skillでは依頼文を指す */
-export type StructureSlot = 'intro' | 'profile' | 'paidSummary' | 'shopInfo' | 'listingCheck' | 'review';
+export type StructureSlot = 'intro' | 'profile' | 'teaser' | 'paidSummary' | 'shopInfo' | 'listingCheck' | 'review';
 export type StructureLine = string | { readonly slot: StructureSlot };
 
 const slot = (name: StructureSlot): StructureLine => ({ slot: name });
@@ -144,15 +153,14 @@ export const SINGLE_STRUCTURE: readonly StructureLine[] = [
   '[無料部分]',
   slot('intro'),
   slot('profile'),
-  '- <h3>こんな方にお勧め</h3> 2〜3項目のul(★5の評価軸だけを売りにする。★4以下の軸を無料部で推すと有料部と矛盾しレビューが下がる)',
-  '- <h3>体験のダイジェスト</h3> ご対面からクライマックスの結果まで、展開の要所を時系列に1〜2文ずつ並べる。施術の前半で切らず、何が起きてどう終わったかを無料で見せる(売れ筋記事の型)。彼女のセリフは記録から1〜2個だけ(セリフ・心の声は記録がある場合だけ使い、未入力なら省く)。体位・細部の流れ・彼女の反応の詳細は本編に残す',
+  slot('teaser'),
   slot('paidSummary'),
   '',
   '[有料部分]',
   slot('shopInfo'),
   slot('listingCheck'),
   '- <h3>評価</h3> 6軸ul(★+一言)。軸名は訪問データの評価6軸の名前どおりに書く',
-  '- 本編: <h3>ご対面</h3> <h3>施術スタート(うつ伏せ)</h3> <h3>オイル投入から{展開名}へ</h3> <h3>仰向けへ</h3> <h3>クライマックス</h3> フローに沿って、ご対面から最後まで。ダイジェストの文を繰り返さず、記録にある細部で書き直す。見出しの{展開名}は実際の展開を表す語に置き換える(「…」等のプレースホルダのまま出力しない)',
+  '- 本編: <h3>ご対面</h3> <h3>施術スタート(うつ伏せ)</h3> <h3>オイル投入から{展開名}へ</h3> <h3>仰向けへ</h3> <h3>クライマックス</h3> フローに沿って、ご対面から最後まで。無料部分にダイジェストがあればその文を繰り返さず、記録にある細部で書き直す。見出しの{展開名}は実際の展開を表す語に置き換える(「…」等のプレースホルダのまま出力しない)',
   '- クライマックスは記事の山場として最も厚く書く(体勢・彼女の様子・セリフ・心の声は記録された素材だけを使い、未入力の言葉は省く)。入力データの素材が薄くて2〜3文しか書けない場合は、記事の後に「⚠ クライマックスの素材不足: 質問票に追記推奨」と一言添える',
   '- <h3>今回の進め方</h3> 結果に至るまでに本人がしたこと(伝えた希望・声のかけ方・断られたこと・気をつけたこと)と、展開のきっかけがどちらからだったかを、訪問データに記録がある範囲で1〜3文。記録がなければ見出しごと省く。一般論の助言や記録にない攻略法は足さない',
   slot('review'),
@@ -170,6 +178,7 @@ export function structureSlots(
   return {
     intro: lines.intro,
     profile: lines.profile,
+    teaser: lines.teaser,
     paidSummary: lines.paidSummary,
     shopInfo: `${lines.shopInfo}${SHOP_LINK_RULE}`,
     listingCheck: listingCheckLine(listingCheckedOn),
@@ -210,7 +219,7 @@ const articleOutputFormat = (
 export const revisitStructure = (first: VisitRecord): string => `## 記事構成(再訪)
 - 無料部分の冒頭に必ず「初回の体験談はこちら → <a href="{初回記事URL}">{初回記事URL}</a>(※本記事は再訪レポートです)」を入れる(規約要件)。初回記事URL: ${first.postedUrl ?? '{投稿後に差し替え}'}
 - 初回との差分・進展・変化を中心に書く(重複する基本描写は最小限)
-- それ以外の構成(無料部分のダイジェストと有料部分の本編)は単体体験談と同じ`;
+- それ以外の構成(無料部分と有料部分の本編)は単体体験談と同じ`;
 
 /** タグ候補の行 */
 export const tagHint = (record: VisitRecord): string => `タグ候補: ${tagCandidates(record).join(', ')}`;

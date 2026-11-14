@@ -85,14 +85,29 @@ describe('publicSpecSummary', () => {
 });
 
 describe('無料部分に年齢・体型を出さない', () => {
-  it('無料部分は展開のダイジェスト、有料部分はご対面からの本編と年齢・体型にする', () => {
+  it('有料部分はどちらの販売型でもご対面からの本編と年齢・体型にする', () => {
     for (const disclosure of ['paid', 'free'] as const) {
       const prompt = buildSinglePrompt(fixtureRecord(), disclosure);
       const paidPart = prompt.slice(prompt.indexOf('[有料部分]'));
-      expect(prompt).toContain('クライマックスの結果まで');
       expect(paidPart).toContain('<h3>ご対面</h3>');
       expect(paidPart).toContain('年齢');
     }
+  });
+
+  it('体験内容起点の無料部分は、お勧めとクライマックスの結果までのダイジェストを置く', () => {
+    const freePart = (p: string): string => p.slice(p.indexOf('[無料部分]'), p.indexOf('[有料部分]'));
+    const prompt = freePart(buildSinglePrompt(fixtureRecord(), 'paid'));
+    expect(prompt).toContain('<h3>こんな方にお勧め</h3>');
+    expect(prompt).toContain('クライマックスの結果まで');
+  });
+
+  it('セラピスト起点の無料部分は店舗・セラピストの情報だけにし、体験の内容を書かせない', () => {
+    const p = buildSinglePrompt(fixtureRecord(), 'free');
+    const freePart = p.slice(p.indexOf('[無料部分]'), p.indexOf('[有料部分]'));
+    expect(freePart).not.toContain('<h3>こんな方にお勧め</h3>');
+    expect(freePart).not.toContain('<h3>体験のダイジェスト</h3>');
+    expect(freePart).not.toContain('展開で釣る');
+    expect(freePart).toContain('無料部分には体験の内容を書かない');
   });
 
   it('名前公開版でも、展開を有料部分だけに置くという旧ルールを残さない', () => {
