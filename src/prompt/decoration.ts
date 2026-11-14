@@ -2,7 +2,7 @@
 // 紺をサイトのトーンに合わせた主色にし、彼女のセリフとクライマックスだけピンクにする。
 
 /** 投稿用HTMLで使うタグ。装飾はすべてインラインの style 属性で書く */
-export const DECORATION_TAGS = '<p><div><ul><li><table><tbody><tr><th><td><a><strong><em><small><span><br />';
+export const DECORATION_TAGS = '<p><div><ul><li><table><tbody><tr><th><td><a><em><small><span><br />';
 
 const HEADING_BASE = 'margin: 32px 0 14px; font-size: 17px; font-weight: bold; color: #222222; line-height: 1.5;';
 const BOX_LIST = '<ul style="margin: 8px 0; padding-left: 1.2em;"><li style="margin: 4px 0;">項目</li></ul>';
@@ -121,7 +121,7 @@ const DECORATION_RULES = [
   '<style> タグ、class 属性、rgba() は使わない(投稿時に削られる)。色は #rrggbb で書く',
   'letter-spacing は指定しない。文字の間隔は既定のままにする',
   '見本にない色や部品を足さない。本文の段落は style なしの <p> にし、記事の大半を装飾しない',
-  '強調の <strong> は短い一言にだけ付け、マーカーと合わせて付けすぎない',
+  '文中の強調はマーカーだけで付ける。サイトの文字が太いので、<strong> や font-weight の太字は文中に使わない(見出しなどの部品の太字はそのまま)',
 ] as const;
 
 /** 記事プロンプトとマークアップの依頼に入れる装飾の指示 */

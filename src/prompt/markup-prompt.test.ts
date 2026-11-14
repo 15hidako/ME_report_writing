@@ -25,7 +25,7 @@ describe('記事プロンプトの本文の書き方', () => {
 
   it('保存先がない公開版では、これまでどおり投稿欄へ貼るHTMLで書かせる', () => {
     const format = outputSection(buildArticlePrompt(record, [record], 'paid', '', null).text);
-    expect(format).toContain('3. 無料部分HTML: <p><div><ul><li><table><tbody><tr><th><td><a><strong><em><small><span><br />のみ使用');
+    expect(format).toContain('3. 無料部分HTML: <p><div><ul><li><table><tbody><tr><th><td><a><em><small><span><br />のみ使用');
     expect(format).not.toContain('素の文章');
     expect(buildArticlePrompt(record, [record], 'paid', '', null).text).toContain('## 装飾');
   });

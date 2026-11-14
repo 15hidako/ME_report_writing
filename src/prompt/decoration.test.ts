@@ -11,6 +11,12 @@ describe('装飾の部品(wakustで確かめた書き方だけ)', () => {
     expect(used.filter((tag) => !allowedTags.has(tag))).toEqual([]);
   });
 
+  it('文中の強調はマーカーだけにし、strong を許可しない', () => {
+    expect(DECORATION_TAGS).not.toContain('<strong>');
+    expect(html).not.toContain('<strong');
+    expect(decorationGuide()).toContain('文中の強調はマーカーだけで付ける');
+  });
+
   it('削られる書き方とサイトのCSSに負ける書き方を使わない', () => {
     expect(html).not.toMatch(/<h3|<hr|<style|class=|rgba\(|letter-spacing/);
   });
