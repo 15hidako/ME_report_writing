@@ -49,12 +49,18 @@ export const titleRule = (disclosure: NameDisclosure, lead: string | null): stri
 export type BodyFormat = 'html' | 'plain';
 
 /** 素の文章の記法。マークアップの依頼(markup-prompt.ts)はこの記法をHTMLへ戻す */
-export const PLAIN_NOTATION = '記事構成の<h3>見出し</h3>は「### 見出し」の1行、<ul><li>の項目は「- 項目」の行、<p>は空行で区切った段落、<br />は段落の中の改行で書く。<a><strong><em><small><span>などのタグと**などの記号は付けない。リンクはURLの文字列だけを書く(マークアップは別の依頼で行う)';
+export const PLAIN_NOTATION = '記事構成の<h3>見出し</h3>は「### 見出し」の1行、<ul><li>の項目は「- 項目」の行、<p>は空行で区切った段落で書く。区切りたいところは空行で段落を分ける。<a><strong><em><small><span>などのタグと**などの記号は付けない。リンクはURLの文字列だけを書く(マークアップは別の依頼で行う)';
+
+/**
+ * 素の文章で書くときの、文体ルールと記事構成に出てくるタグの読み替え。
+ * 規則は投稿用HTMLと共通の文で書いてあるため、読み替えを言わないとタグを残したまま書くことがある(2026-11-14 WP4)
+ */
+export const PLAIN_READING = '文体ルールと記事構成に出てくるタグも、書き方の目印として同じように読み替える。<a href="URL">店名</a><br />URL は店名の行とURLの行、<p>出勤確認: …</p> と締めの <p><em>…</em></p> はタグを外した1段落にする。素の文章にタグを残さない';
 
 const bodyLines = (body: BodyFormat): string => body === 'html'
   ? `3. 無料部分HTML: ${DECORATION_TAGS}のみ使用。記事構成の<h3>は見出しの目印として読み、「装飾」の部品で書く
 4. 有料部分HTML: 同上`
-  : `3. 無料部分(素の文章): ${PLAIN_NOTATION}
+  : `3. 無料部分(素の文章): ${PLAIN_NOTATION}。${PLAIN_READING}
 4. 有料部分(素の文章): 同上`;
 
 export interface OutputFormatOptions {

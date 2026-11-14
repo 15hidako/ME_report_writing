@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { DECORATION_PARTS, DECORATION_TAGS, decorationGuide } from './decoration';
+import { MARKUP_RULES } from './markup-prompt';
+import { STYLE_PROFILE } from './style-profile';
 
 const allowedTags = new Set([...DECORATION_TAGS.matchAll(/<([a-z0-9]+)/g)].map((match) => match[1]));
 
@@ -15,6 +17,15 @@ describe('装飾の部品(wakustで確かめた書き方だけ)', () => {
     expect(DECORATION_TAGS).not.toContain('<strong>');
     expect(html).not.toContain('<strong');
     expect(decorationGuide()).toContain('文中の強調はマーカーだけで付ける');
+  });
+
+  it('文章の改行に <br /> を使わせず、段落を分けさせる(2026-11-14 本人指示)', () => {
+    expect(decorationGuide()).toContain('文章の改行に <br /> を使わない');
+    expect(decorationGuide('list')).toContain('文章の改行に <br /> を使わない');
+    expect(STYLE_PROFILE).not.toContain('<br />で細かく改行');
+    expect(STYLE_PROFILE).toContain('<br />で改行しない');
+    expect(MARKUP_RULES).toContain('段落の中で改行された行も、それぞれ1つの <p> にする');
+    expect(MARKUP_RULES).not.toContain('段落の中の改行は <br /> にする');
   });
 
   it('評価のカードは ul を使わず、セリフは左に丸のアイコンを置く', () => {

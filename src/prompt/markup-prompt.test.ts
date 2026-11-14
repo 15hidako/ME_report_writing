@@ -3,6 +3,8 @@ import { fixtureRecord } from '../test-fixtures';
 import { buildArticlePrompt } from './article-prompt';
 import { buildMarkupPrompt } from './markup-prompt';
 import { decorationGuide } from './decoration';
+import { PLAIN_READING } from './build-prompt';
+import { articleSkill } from './skill-files';
 
 /** 「## 出力形式」から次の見出しまで */
 const outputSection = (text: string): string => {
@@ -21,6 +23,13 @@ describe('記事プロンプトの本文の書き方', () => {
     expect(format).toContain('4. 有料部分(素の文章): 同上');
     expect(format).not.toContain('## 装飾');
     expect(text).toContain('C:\\repo\\data\\articles\\0005-rec-1\\standard\\free-part.txt');
+  });
+
+  it('素の文章では、文体ルールと記事構成に出てくるタグも読み替えさせる', () => {
+    const format = outputSection(buildArticlePrompt(record, [record], 'paid', '', 'C:\\repo\\data\\articles').text);
+    expect(format).toContain(PLAIN_READING);
+    expect(outputSection(buildArticlePrompt(record, [record], 'paid', '', null).text)).not.toContain(PLAIN_READING);
+    expect(articleSkill()).toContain(PLAIN_READING);
   });
 
   it('保存先がない公開版では、これまでどおり投稿欄へ貼るHTMLで書かせる', () => {
