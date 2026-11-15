@@ -5,7 +5,6 @@ export interface ThumbnailInput {
   readonly area: string;          // 例: 恵比寿・中目黒
   readonly shopName: string;      // 名前公開型だけで使う
   readonly therapistName: string; // 名前公開型だけで使う
-  readonly specLine: string;      // 例: 元メンエス経験者 / ギャル(年齢・体型は載せない)
   readonly hook: string;          // 例: 圧強KWKWテクでSKR不可避(概要型だけで使う)
 }
 
@@ -31,7 +30,7 @@ export interface Palette {
 export const PALETTES: readonly Palette[] = [
   { name: 'ナイトネオン', bgFrom: '#12081f', bgTo: '#3b1060', accent: '#ff4d8d', text: '#ffffff' },
   { name: 'ディープブルー', bgFrom: '#071630', bgTo: '#0e3a68', accent: '#ffc93c', text: '#ffffff' },
-  { name: 'ワインレッド', bgFrom: '#2a0710', bgTo: '#6e1030', accent: '#ffd7e0', text: '#ffffff' },
+  { name: 'ワインレッド', bgFrom: '#2a0710', bgTo: '#6e1030', accent: '#ffb454', text: '#ffffff' },
   { name: 'モノトーン', bgFrom: '#101010', bgTo: '#2e2e2e', accent: '#e8c66a', text: '#ffffff' },
 ];
 
@@ -266,9 +265,7 @@ export function drawThumbnail(
   try {
     drawBackground(ctx, palette);
     drawFrame(ctx, palette);
-    // 一覧カードはエリアをカテゴリーとして文字で出すため、概要型ではエリアを小さく扱う。
-    // 名前公開型は地域・店名・セラピスト名を一続きで読ませるため、エリアを大きめにする
-    const header = drawHeader(ctx, input.area, palette, layout === 'names' ? 66 : 54);
+    const header = drawHeader(ctx, palette);
     if (layout === 'names') drawNamesBody(ctx, input, palette, header);
     else drawSummaryBody(ctx, input, palette, header);
   } finally {
@@ -287,8 +284,17 @@ function drawWithShadow(ctx: CanvasRenderingContext2D, draw: () => void): void {
 
 // 縦の配置規則: 位置は行ボックスではなく字面(ascent/descent)で測る。
 // 下端の要素と短い線は、先頭行と二重線を上下反転した位置に置く。
-// 本体の要素は BODY_GAP の等間隔で積み、二重線と下端の線の間で上下中央に置く。
-const BODY_GAP = 40;
+// 本体の要素は指定の間隔で積み、二重線と下端の線の間で上下中央に置く。
+const BODY_GAP = 64;
+// 地域と、その下の店名・フックは一続きに読ませるため間を詰める
+const AREA_GAP = 36;
+const AREA_PX = 80;
+const AREA_MIN_PX = 44;
+// 長い店名で文字が縮んでも、地域名が店名より大きくならないようにする比率
+const AREA_TO_SHOP = 0.8;
+// 名前公開型の下端の定型文。地域名はこれより小さくしない
+const TEASER_PX = 50;
+const AREA_FLOOR_PX = TEASER_PX + 4;
 const ACCENT_RULE_W = 120;
 const ACCENT_RULE_H = 3;
 
@@ -337,15 +343,33 @@ function textVBlock(
   };
 }
 
-/** 要素を等間隔で積み、[from, to] の間で上下中央に置く */
-function drawCentered(blocks: readonly VBlock[], from: number, to: number): void {
-  const visible = blocks.filter((b) => b.height > 0);
-  const total = visible.reduce((sum, b) => sum + b.height, 0) + BODY_GAP * Math.max(0, visible.length - 1);
+/** 本体に積む要素と、次の要素までの間隔 */
+interface Stacked {
+  readonly block: VBlock;
+  readonly gapAfter: number;
+}
+
+/** 要素を指定の間隔で積み、[from, to] の間で上下中央に置く */
+function drawCentered(items: readonly Stacked[], from: number, to: number): void {
+  const visible = items.filter((item) => item.block.height > 0);
+  const total = visible.reduce(
+    (sum, item, i) => sum + item.block.height + (i < visible.length - 1 ? item.gapAfter : 0), 0,
+  );
   let y = from + Math.max(0, (to - from - total) / 2);
-  for (const b of visible) {
-    b.draw(y);
-    y += b.height + BODY_GAP;
+  for (const item of visible) {
+    item.block.draw(y);
+    y += item.block.height + item.gapAfter;
   }
+}
+
+/** 本体の先頭に置く地域。アクセント色で、下の店名・フックの見出しとして読ませる */
+function areaVBlock(ctx: CanvasRenderingContext2D, area: string, palette: Palette, maxPx = AREA_PX): VBlock {
+  if (area === '') return EMPTY_BLOCK;
+  const basePx = Math.min(AREA_PX, maxPx);
+  const block = fitBlock(ctx, area, GOTHIC, 'bold', {
+    basePx, minPx: Math.min(AREA_MIN_PX, basePx - 4), maxLines: 1, lineRatio: 1.2,
+  });
+  return textVBlock(ctx, block, 'bold', palette.accent);
 }
 
 /** 下端の要素を先頭行と上下対称の位置に描き、短い線の上端のy座標を返す */
@@ -407,50 +431,61 @@ function therapistVBlock(ctx: CanvasRenderingContext2D, raw: string, palette: Pa
   };
 }
 
-/** 名前公開型: セラピスト名(最大) > 地域・店名 > 人物像 > 定型文。詳細レビューは有料部分で読ませる */
+/** 名前公開型: 地域 → 店名 → セラピスト名(最大) → 定型文の順に上から読ませる。詳細レビューは有料部分で読ませる */
 function drawNamesBody(
   ctx: CanvasRenderingContext2D, input: ThumbnailInput, palette: Palette, header: HeaderMetrics,
 ): void {
-  const teaser = fitBlock(ctx, NAMES_TEASER, GOTHIC, '900', {
-    basePx: 72, minPx: 44, maxLines: 1, lineRatio: 1.28,
+  // 定型文は地域・店名・セラピスト名より優先度が低いため、小さく控えめな色にする
+  const teaser = fitBlock(ctx, NAMES_TEASER, GOTHIC, 'bold', {
+    basePx: TEASER_PX, minPx: 36, maxLines: 1, lineRatio: 1.28,
   });
-  const bottomRule = drawBottomAccent(ctx, textVBlock(ctx, teaser, '900', palette.accent), header, palette);
+  const bottomRule = drawBottomAccent(
+    ctx, textVBlock(ctx, teaser, 'bold', withAlpha(palette.text, 0.72)), header, palette,
+  );
 
   const shop = input.shopName === '' ? undefined : fitBlock(ctx, input.shopName, GOTHIC, '900', {
     basePx: 100, minPx: 56, maxLines: 1, lineRatio: 1.2,
   });
-  const spec = input.specLine === '' ? undefined : fitBlock(ctx, input.specLine, GOTHIC, 'bold', {
-    basePx: 54, minPx: 36, maxLines: 1, lineRatio: 1.3,
-  });
   drawCentered([
-    shop === undefined ? EMPTY_BLOCK : textVBlock(ctx, shop, '900', withAlpha(palette.text, 0.92)),
-    therapistVBlock(ctx, input.therapistName, palette),
-    spec === undefined ? EMPTY_BLOCK : textVBlock(ctx, spec, 'bold', withAlpha(palette.text, 0.8)),
+    {
+      block: areaVBlock(
+        ctx, input.area, palette,
+        shop === undefined ? AREA_PX : Math.max(AREA_FLOOR_PX, Math.round(shop.size * AREA_TO_SHOP)),
+      ),
+      gapAfter: AREA_GAP,
+    },
+    {
+      block: shop === undefined ? EMPTY_BLOCK : textVBlock(ctx, shop, '900', withAlpha(palette.text, 0.92)),
+      gapAfter: BODY_GAP,
+    },
+    { block: therapistVBlock(ctx, input.therapistName, palette), gapAfter: 0 },
   ], header.ruleBottom, bottomRule);
 }
 
-/** 概要型: フック(最大) > 人物像。店名とセラピスト名は有料部分で明かす */
+/** 概要型: 地域 → フック(最大)。店名とセラピスト名は有料部分で明かす */
 function drawSummaryBody(
   ctx: CanvasRenderingContext2D, input: ThumbnailInput, palette: Palette, header: HeaderMetrics,
 ): void {
-  const spec = input.specLine === '' ? undefined : fitBlock(ctx, input.specLine, GOTHIC, 'bold', {
-    basePx: 66, minPx: 40, maxLines: 2, lineRatio: 1.32,
-  });
-  const bottomRule = drawBottomAccent(
-    ctx, spec === undefined ? EMPTY_BLOCK : textVBlock(ctx, spec, 'bold', palette.accent), header, palette,
-  );
-  if (input.hook === '') return;
-  // 上下に BODY_GAP 以上の余白を残せる高さに収める
+  const bottom = THUMB_H - header.textTop;
+  const area = areaVBlock(ctx, input.area, palette);
+  if (input.hook === '') {
+    drawCentered([{ block: area, gapAfter: 0 }], header.ruleBottom, bottom);
+    return;
+  }
+  // 地域の分を除き、上下に BODY_GAP 以上の余白を残せる高さに収める
+  const areaSpace = area.height === 0 ? 0 : area.height + AREA_GAP;
   const hook = fitBlock(ctx, manualLineBreaks(input.hook), GOTHIC, '900', {
-    basePx: 150, minPx: 64, maxLines: 3, maxHeight: bottomRule - header.ruleBottom - BODY_GAP * 2, lineRatio: 1.18,
+    basePx: 150, minPx: 64, maxLines: 3, lineRatio: 1.3,
+    maxHeight: bottom - header.ruleBottom - BODY_GAP * 2 - areaSpace,
   });
-  drawCentered([textVBlock(ctx, hook, '900', palette.text, true)], header.ruleBottom, bottomRule);
+  drawCentered([
+    { block: area, gapAfter: AREA_GAP },
+    { block: textVBlock(ctx, hook, '900', palette.text, true), gapAfter: 0 },
+  ], header.ruleBottom, bottom);
 }
 
-/** 先頭行: 明朝のシリーズ名 | エリア。下に二重線を引く */
-function drawHeader(
-  ctx: CanvasRenderingContext2D, area: string, palette: Palette, areaPx: number,
-): HeaderMetrics {
+/** 先頭行: 明朝のシリーズ名。下に二重線を引く */
+function drawHeader(ctx: CanvasRenderingContext2D, palette: Palette): HeaderMetrics {
   const baseline = TOP_MARGIN + 60;
   ctx.save();
   ctx.textBaseline = 'alphabetic';
@@ -458,25 +493,9 @@ function drawHeader(
   ctx.font = `700 60px ${MINCHO}`;
   ctx.letterSpacing = '6px';
   ctx.fillText(SERIES_NAME, MARGIN_X, baseline);
-  const seriesW = ctx.measureText(SERIES_NAME).width;
-  let textTop = baseline - ascentOf(ctx, SERIES_NAME);
-  let textBottom = baseline + descentOf(ctx, SERIES_NAME);
+  const textTop = baseline - ascentOf(ctx, SERIES_NAME);
+  const textBottom = baseline + descentOf(ctx, SERIES_NAME);
   ctx.restore();
-
-  const barX = MARGIN_X + seriesW + 36;
-  const areaX = barX + 38;
-  if (area !== '' && areaX < MARGIN_X + TEXT_W) {
-    ctx.fillStyle = withAlpha(palette.accent, 0.6);
-    ctx.fillRect(barX, baseline - 50, 3, 58);
-    const block = fitBlock(ctx, area, GOTHIC, 'bold', {
-      basePx: areaPx, minPx: 36, maxLines: 1, lineRatio: 1.2,
-    }, MARGIN_X + TEXT_W - areaX);
-    ctx.fillStyle = palette.text;
-    drawBlock(ctx, block, GOTHIC, 'bold', baseline - block.size, areaX);
-    const line = block.lines[0] ?? '';
-    textTop = Math.min(textTop, baseline - ascentOf(ctx, line));
-    textBottom = Math.max(textBottom, baseline + descentOf(ctx, line));
-  }
 
   const ruleY = baseline + 34;
   ctx.fillStyle = withAlpha(palette.accent, 0.9);

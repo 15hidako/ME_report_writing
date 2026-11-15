@@ -1,6 +1,5 @@
 import type { VisitRecord } from '../types';
 import { esc, toast } from './widgets';
-import { publicSpecSummary } from '../prompt/serialize';
 import { canvasPng, drawThumbnail, downloadCanvasPng, LAYOUTS, PALETTES } from '../thumbnail';
 import type { ThumbnailLayout } from '../thumbnail';
 import { errText } from '../guards';
@@ -35,7 +34,6 @@ export function renderThumbTab(
       <label class="field"><span>エリア</span><input id="t-area" placeholder="恵比寿・中目黒" /></label>
       <label class="field" data-for="names"><span>店名</span><input id="t-shop" /></label>
       <label class="field" data-for="names"><span>セラピスト名</span><input id="t-therapist" /></label>
-      <label class="field"><span>スペック行</span><input id="t-spec" placeholder="元メンエス経験者ギャル" /></label>
       <label class="field" data-for="summary"><span>フック</span><input id="t-hook" placeholder="圧強KWKWテクで/SKR不可避" /></label>
       <div class="chips" id="palette-chips">${paletteBtns}</div>
       <div class="actions">
@@ -52,7 +50,6 @@ export function renderThumbTab(
     input('t-area').value = record?.basic.area ?? '';
     input('t-shop').value = record?.basic.shopName ?? '';
     input('t-therapist').value = record?.basic.therapistName ?? '';
-    input('t-spec').value = record === undefined ? '' : publicSpecSummary(record);
     input('t-hook').value = record?.voice.titleHook ?? '';
   };
   fill(initial);
@@ -79,7 +76,6 @@ export function renderThumbTab(
       area: get('t-area') || 'エリア未入力',
       shopName: get('t-shop'),
       therapistName: get('t-therapist'),
-      specLine: get('t-spec'),
       hook: get('t-hook'),
     }, PALETTES[paletteIdx] ?? PALETTES[0]!, layout);
   };

@@ -945,14 +945,12 @@ describe('サムネの対象回答', () => {
     layout.click();
     palette.click();
     const form = document.querySelector('.thumb-form');
-    const specOfSecond = value('t-spec');
 
     recordSelect().value = base.id;
     recordSelect().dispatchEvent(new Event('change', { bubbles: true }));
 
     expect(shown()).toEqual([base.basic.area, base.basic.shopName, base.basic.therapistName, base.voice.titleHook]);
-    expect(value('t-spec')).not.toBe('');
-    expect(value('t-spec')).not.toBe(specOfSecond);
+    expect(document.getElementById('t-spec')).toBeNull();
     expect(document.querySelector('.thumb-form')).toBe(form);
     expect(onChip('layout-chips')).toBe(layout.textContent);
     expect(onChip('palette-chips')).toBe(palette.textContent);
