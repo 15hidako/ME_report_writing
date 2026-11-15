@@ -186,12 +186,24 @@ describe('店名・セラピスト名の開示先', () => {
   it('名前公開型では無料部分とタイトルで店名・源氏名を出し、有料部分は詳細レビューにする', () => {
     const p = buildSinglePrompt(fixtureRecord(), 'free');
     expect(p).toContain('店名・源氏名は無料部分とタイトルで開示する');
-    expect(p).toContain('<h3>今回のセラピスト</h3> 店名/源氏名/エリア');
+    expect(p).toContain('<h3>今回のセラピスト</h3> 店名/店URL/源氏名');
     expect(p).not.toContain('有料部分でのみ開示');
     expect(p).not.toContain('店名は出さない');
     expect(p).not.toContain('店名・源氏名開示');
-    // リンクと詳細は有料部分に残す
-    expect(p).toContain('<h3>店舗・セラピスト情報</h3> 店URL/profile/X');
+    // 店とセラピストのURLは無料部分で見せ、詳細は有料部分に残す
+    const freePart = p.slice(p.indexOf('[無料部分]'), p.indexOf('[有料部分]'));
+    expect(freePart).toContain('店名/店URL/源氏名/セラピストURL(profile)');
+    expect(freePart).toContain('URL文字列もテキストで併記');
+    expect(freePart).not.toContain('リンクは付けない');
+    expect(p).toContain('<h3>店舗・セラピスト情報</h3> X/年齢・体型・カップ数');
+    expect(p).not.toContain('店・セラピストのリンク、年齢・体型');
+  });
+
+  it('有料部分の内容では、評価6軸の中身を軸名で示す', () => {
+    for (const disclosure of ['paid', 'free'] as const) {
+      const p = buildSinglePrompt(fixtureRecord(), disclosure);
+      expect(p).toContain('評価6軸(顔/スタイル/接客/マッサージ技術/過激施術/寛容度)');
+    }
   });
 
   it('再訪記事でも名前公開型を選べる', () => {

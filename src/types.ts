@@ -153,6 +153,9 @@ export const RATING_LABELS: Record<keyof Ratings, string> = {
   tolerance: '寛容度',
 };
 
+/** 記事の「有料部分の内容」などで6軸の中身を示す定型の呼び名 */
+export const RATING_AXES_SUMMARY = `評価6軸(${Object.values(RATING_LABELS).join('/')})`;
+
 export const GENRE_LABELS: Record<Genre, string> = {
   gal: 'ギャル', seiso: '清楚', oneesan: 'お姉さん', imouto: '妹系',
   jukujo: '熟女', model: 'モデル系', genki: '元気系', cool: 'クール',

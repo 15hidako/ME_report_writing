@@ -4,7 +4,7 @@ import { STYLE_PROFILE, wakustRules } from './style-profile';
 import type { NameDisclosure } from './style-profile';
 
 export type { NameDisclosure } from './style-profile';
-import { RATING_LABELS } from '../types';
+import { RATING_AXES_SUMMARY, RATING_LABELS } from '../types';
 import { prefectureTag, publicSpecSummary, serializeRecord, tagCandidates } from './serialize';
 import { countPublishedTherapists, isPublished, SUMMARY_MIN_THERAPISTS, therapistIdentity } from './publication';
 import { articleLookupSection } from '../identity-lookup';
@@ -96,6 +96,9 @@ const lookupBlock = (section: string | null): string => section === null ? '' : 
 /** 今回のセラピストの系統と料金の行(H-16)。特記は系統の行へまとめ、料金は合計だけを出す */
 const PROFILE_DETAIL = '系統の行には特記を「、」でつなぐ(例: 系統: ナチュラル系、黒髪ショート)。料金の行はコース代・指名料・今回のオプション代のうち金額の記録がある分の合計を「料金: 計X円」で書き、コース代が未確認なら行ごと省く';
 
+/** 店舗・セラピスト情報の行の続き。販売型によらず同じ文を、店舗情報の行と同じ1行に続ける */
+const SHOP_LINK_RULE = 'リンクは必ずURL文字列もテキストで併記する(例: <a href="URL">店名</a><br />URL — リンク切れ時に購入者が追えるように。規約1-6)';
+
 /** 体験内容起点の無料部分で、体験を見せる2行。セラピスト起点では使わない(U-28) */
 const EXPERIENCE_TEASER = [
   '- <h3>こんな方にお勧め</h3> 2〜3項目のul(★5の評価軸だけを売りにする。★4以下の軸を無料部で推すと有料部と矛盾しレビューが下がる)',
@@ -111,7 +114,7 @@ const STRUCTURE_LINES: Readonly<Record<NameDisclosure, {
     intro: '- 導入フック1〜2文(エリア+系統+展開で釣る。店名は出さない)',
     profile: `- <h3>今回のセラピスト</h3> エリア/系統/料金のul(HTMLではセラピストの表の部品で書く)。${PROFILE_DETAIL}(年齢・体型・カップ数・タトゥーは書かない)`,
     teaser: EXPERIENCE_TEASER,
-    paidSummary: '- <h3>有料部分の内容</h3> 店名・源氏名開示/年齢・体型/実額/評価6軸/ご対面からの全展開/今回の進め方(記録がある場合) と免責の一文',
+    paidSummary: `- <h3>有料部分の内容</h3> 店名・源氏名開示/年齢・体型/実額/${RATING_AXES_SUMMARY}/ご対面からの全展開/今回の進め方(記録がある場合) と免責の一文`,
     shopInfo: '- <h3>店舗・セラピスト情報</h3> 店名/URL/源氏名/profile/X/年齢・体型・カップ数/コース/オプション。',
     // 体験内容起点は体験の魅力で売るため、残念な点は短く添えるだけにする。最後の加減は本人がボードで直す(H-16)
     review: '- <h3>総評</h3> 良かった点を中心に書く。残念ポイントは記録がある場合だけ短く(1〜2文)添え、強い否定や繰り返しは避ける。リピート意向は書かない',
@@ -119,16 +122,14 @@ const STRUCTURE_LINES: Readonly<Record<NameDisclosure, {
   free: {
     // セラピスト起点は名前で売るため、無料部分は店舗・セラピストの情報だけの定型にし、体験の内容は一切書かない(U-28)
     intro: '- 導入1〜2文。エリア・店名・源氏名・系統で、誰の体験談かを示す定型文にする(体験の内容・展開・評価・感想には触れない)',
-    profile: `- <h3>今回のセラピスト</h3> 店名/源氏名/エリア/系統/料金のul(HTMLではセラピストの表の部品で書く)。${PROFILE_DETAIL}(リンクは付けない。年齢・体型・カップ数・タトゥーは書かない)`,
+    // セラピスト起点は名前で売るため、店とセラピストのURLも無料部分で見せる(2026-11-15 本人指示)
+    profile: `- <h3>今回のセラピスト</h3> 店名/店URL/源氏名/セラピストURL(profile)/エリア/系統/料金のul(HTMLではセラピストの表の部品で書く)。${PROFILE_DETAIL}。URLは記録がある分だけ書き、${SHOP_LINK_RULE}(年齢・体型・カップ数・タトゥーは書かない)`,
     teaser: '- 無料部分には体験の内容を書かない。「こんな方にお勧め」「体験のダイジェスト」の見出しも置かず、今回のセラピストの次は有料部分の内容にする',
-    paidSummary: '- <h3>有料部分の内容</h3> 店・セラピストのリンク/年齢・体型/実額/評価6軸/ご対面からの全展開/今回の進め方(記録がある場合) と免責の一文',
-    shopInfo: '- <h3>店舗・セラピスト情報</h3> 店URL/profile/X/年齢・体型・カップ数/コース/オプション(店名・源氏名は無料部分で既出)。',
+    paidSummary: `- <h3>有料部分の内容</h3> 年齢・体型/実額/${RATING_AXES_SUMMARY}/ご対面からの全展開/今回の進め方(記録がある場合) と免責の一文`,
+    shopInfo: '- <h3>店舗・セラピスト情報</h3> X/年齢・体型・カップ数/コース/オプション(店名・源氏名・店URL・セラピストURLは無料部分で既出)。',
     review: '- <h3>総評</h3> リピート意向+残念ポイントも正直に',
   },
 };
-
-/** 店舗・セラピスト情報の行の続き。販売型によらず同じ文を、店舗情報の行と同じ1行に続ける */
-const SHOP_LINK_RULE = 'リンクは必ずURL文字列もテキストで併記する(例: <a href="URL">店名</a><br />URL — リンク切れ時に購入者が追えるように。規約1-6)';
 
 /**
  * 出勤確認日の指示。本人が店舗HPの出勤表で確かめた日だけを出し、確かめていなければ行ごと省く。H-13・H-15。

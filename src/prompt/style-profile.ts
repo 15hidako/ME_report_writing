@@ -44,7 +44,7 @@ export const DISCLOSURE_LABELS: Readonly<Record<NameDisclosure, string>> = { pai
 
 const NAME_RULES: Readonly<Record<NameDisclosure, string>> = {
   paid: '- 店名・源氏名と店・セラピストのリンクは有料部分でのみ開示。無料部分とタイトルには出さない(エリアは可)',
-  free: '- 店名・源氏名は無料部分とタイトルで開示する。店・セラピストのリンク、年齢・体型、評価6軸、ご対面からの本編は有料部分に置く',
+  free: '- 店名・源氏名は無料部分とタイトルで開示する。店とセラピストのURLも無料部分に置く(タイトルには入れない)。年齢・体型、評価6軸、ご対面からの本編は有料部分に置く',
 };
 
 const CATALOG_NAME_RULE = '- 店名・源氏名は伏せる。店・セラピストのプロフィールリンクは載せない。本人の投稿済み記事へのリンクは同じ都道府県内だけにする';
