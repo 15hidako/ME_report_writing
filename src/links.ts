@@ -46,11 +46,29 @@ function hrefOf(target: WindowProxy): string | null {
 
 type OpenWindow = (url: string, target: string) => WindowProxy | null;
 
+const APP_WINDOWS: ReadonlySet<string> = new Set([INPUT_WINDOW, BOARD_WINDOW]);
+
+/** インストールしたアプリの窓では名前付きtargetが新しいブラウザ窓を開くため、同じ窓で移動させる */
+function isStandalone(): boolean {
+  return window.matchMedia('(display-mode: standalone)').matches;
+}
+
 /** 通常のtargetリンクは既存タブも再読込してしまうため、単純な画面切替だけはフォーカスで済ませる。 */
-export function bindPageSwitch(root: Document, open: OpenWindow = (url, target) => window.open(url, target)): void {
+export function bindPageSwitch(
+  root: Document,
+  open: OpenWindow = (url, target) => window.open(url, target),
+  standalone: () => boolean = isStandalone,
+): void {
   root.addEventListener('click', (event) => {
     if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-    const link = event.target instanceof Element ? event.target.closest<HTMLAnchorElement>('a[data-switch]') : null;
+    const element = event.target;
+    if (!(element instanceof Element)) return;
+    if (standalone()) {
+      const appLink = element.closest<HTMLAnchorElement>('a[target]');
+      if (appLink !== null && APP_WINDOWS.has(appLink.target)) appLink.target = '_self';
+      return;
+    }
+    const link = element.closest<HTMLAnchorElement>('a[data-switch]');
     if (link === null || link.target === '') return;
     const other = open('', link.target);
     if (other === null) return;

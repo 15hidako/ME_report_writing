@@ -3,14 +3,14 @@ import { describe, expect, it, vi } from 'vitest';
 import { bindPageSwitch, samePage } from './links';
 
 describe('画面切替で開いているタブを保持する', () => {
-  function setup(href: string | null = 'https://example.test/app/') {
+  function setup(href: string | null = 'https://example.test/app/', standalone = false) {
     const doc = document.implementation.createHTMLDocument();
     doc.body.innerHTML = '<a href="https://example.test/app/" target="me-input" data-switch><span>入力画面</span></a>';
     const location = { href };
     const focus = vi.fn();
     const other = { location, focus } as unknown as WindowProxy;
     const open = vi.fn((): WindowProxy | null => other);
-    bindPageSwitch(doc, open);
+    bindPageSwitch(doc, open, () => standalone);
     const click = (options: MouseEventInit = {}) => {
       // happy-dom のリンク先取得を起こさず、クリックの判定と伝播を確かめる。
       const event = Object.assign(new Event('click', { bubbles: true, cancelable: true }), { button: 0, ...options });
@@ -55,6 +55,7 @@ describe('画面切替で開いているタブを保持する', () => {
     link.href = 'https://example.test/app/?edit=test';
     expect(click().defaultPrevented).toBe(false);
     expect(open).not.toHaveBeenCalled();
+    expect(link.target).toBe('me-input');
   });
 
   it('別オリジンへ移ったタブにも目的の画面を開ける', () => {
@@ -73,4 +74,46 @@ describe('画面切替で開いているタブを保持する', () => {
       expect(samePage(href, 'https://example.test/app/')).toBe(false);
     },
   );
+
+  it('アプリの窓では切替リンクを同じ窓で開く', () => {
+    const { doc, open, click } = setup(undefined, true);
+    expect(click().defaultPrevented).toBe(false);
+    expect(open).not.toHaveBeenCalled();
+    expect(doc.querySelector('a')!.target).toBe('_self');
+  });
+
+  it.each([
+    ['me-input', 'https://example.test/app/?edit=test'],
+    ['me-input', 'https://example.test/app/?thumb=test'],
+    ['me-board', 'https://example.test/app/board.html?card=test'],
+  ])('アプリの窓では回答を開くリンクも同じ窓で開く: %s %s', (target, href) => {
+    const { doc, open, click } = setup(undefined, true);
+    const link = doc.querySelector('a')!;
+    link.removeAttribute('data-switch');
+    link.target = target;
+    link.href = href;
+    expect(click().defaultPrevented).toBe(false);
+    expect(open).not.toHaveBeenCalled();
+    expect(link.target).toBe('_self');
+    expect(link.href).toBe(href);
+  });
+
+  it.each([{ ctrlKey: true }, { metaKey: true }, { shiftKey: true }, { altKey: true }, { button: 1 }])(
+    'アプリの窓でも修飾キーと中クリックは変えない: %j', (options) => {
+      const { doc, open, click } = setup(undefined, true);
+      expect(click(options).defaultPrevented).toBe(false);
+      expect(open).not.toHaveBeenCalled();
+      expect(doc.querySelector('a')!.target).toBe('me-input');
+    },
+  );
+
+  it('アプリの窓でも外部リンクは変えない', () => {
+    const { doc, click } = setup(undefined, true);
+    const link = doc.querySelector('a')!;
+    link.removeAttribute('data-switch');
+    link.target = '_blank';
+    link.href = 'https://other.test/';
+    expect(click().defaultPrevented).toBe(false);
+    expect(link.target).toBe('_blank');
+  });
 });
