@@ -16,15 +16,15 @@ const TAG_RULE = '半角コンマ区切りで6個以内。都道府県は「東�
 const TITLE_BODY = '属性キーワード(系統・特記。年齢・体型・カップ数は入れない)+展開の匂わせ+【メンズエステ体験談】(通し番号は付けない)';
 
 /**
- * 体験談タイトルの先頭の【】。地名を最初に見せ、出勤を確かめた月を添える(H-15)。
+ * 体験談タイトルの先頭。出勤を確かめた月を「11月出勤◎」で最初に置き、続けて【地域】を置く(H-15、2026-11-25 本人指示で順序と表記を変更)。
  * 日付まで出すとセラピストを絞り込めるため、月だけにする。
  */
 export function titleLead(record: VisitRecord, listingCheckedOn: string | null): string | null {
   const area = record.basic.area.trim();
   const date = listingCheckedOn === null ? null : parseListingCheckDate(listingCheckedOn);
-  const checked = date === null ? null : `${Number(date.slice(5, 7))}月出勤確認`;
-  const parts = [area, checked].filter((part): part is string => part !== null && part !== '');
-  return parts.length === 0 ? null : `【${parts.join('｜')}】`;
+  const checked = date === null ? '' : `${Number(date.slice(5, 7))}月出勤◎`;
+  const lead = `${checked}${area === '' ? '' : `【${area}】`}`;
+  return lead === '' ? null : lead;
 }
 
 /** 体験内容起点のタイトル。体験で釣り、店名・源氏名は入れない */
@@ -32,10 +32,16 @@ const experienceTitleRule = (lead: string | null): string => lead === null
   ? `【フック】+${TITLE_BODY}。店名・源氏名は入れない`
   : `先頭は必ず${lead}。フックは【】で囲まず、先頭の直後に短く置く。続けて${TITLE_BODY}。出勤予定日は入れない。店名・源氏名は入れない`;
 
+/**
+ * 英語表記の店名に添えるカタカナの読み。読みはHPの表記に従い、推測で作らない。
+ * 源氏名はHPの表記のままにする(2026-11-25 本人指示)
+ */
+const SHOP_READING_RULE = '店名が英語表記なら、店のHPでカタカナの読みを調べ、店名の直後に半角の括弧で添える(例: SUPERNOVA(スーパーノヴァ))。HPに読みが見つからなければ店名だけにし、読みを推測で作らない。源氏名はHPの表記のままにし、フリガナを付けない';
+
 /** セラピスト起点のタイトル。名前そのものを売りにするため、店名と源氏名だけを置く(2026-11-14 本人指示) */
 const therapistTitleRule = (lead: string | null): string => {
   const prefix = lead === null ? '' : `先頭は必ず${lead}。続けて`;
-  return `${prefix}店名と源氏名を半角スペースでつなぎ、最後に【メンズエステ体験談】を付ける(例: ${lead ?? ''}店名 源氏名【メンズエステ体験談】)。フック・属性キーワード・展開の匂わせは入れない。通し番号は付けない。出勤予定日は入れない`;
+  return `${prefix}店名と源氏名を半角スペースでつなぎ、最後に【メンズエステ体験談】を付ける(例: ${lead ?? ''}店名 源氏名【メンズエステ体験談】)。${SHOP_READING_RULE}。フック・属性キーワード・展開の匂わせは入れない。通し番号は付けない。出勤予定日は入れない`;
 };
 
 /** タイトルの規則。販売型と出勤確認で変わるので、skillには置かず記事ごとの依頼に入れる */
