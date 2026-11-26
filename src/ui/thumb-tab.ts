@@ -1,10 +1,10 @@
 import type { VisitRecord } from '../types';
 import { esc, toast } from './widgets';
 import { canvasPng, drawThumbnail, downloadCanvasPng, LAYOUTS, PALETTES } from '../thumbnail';
-import type { ThumbnailLayout } from '../thumbnail';
+import type { ThumbnailLayout, WatermarkImage } from '../thumbnail';
 import { errText } from '../guards';
 import { articleFolderName } from '../prompt/article-files';
-import { localDataAvailable, putThumbnail } from '../board/local-api';
+import { fetchWatermark, localDataAvailable, putThumbnail } from '../board/local-api';
 
 /**
  * サムネタブを描く。records は新しい順。
@@ -55,6 +55,7 @@ export function renderThumbTab(
   fill(initial);
   let paletteIdx = 0;
   let layout: ThumbnailLayout = LAYOUTS[0]!.id;
+  let watermark: WatermarkImage | null = null;
   const showFields = (): void => {
     document.querySelectorAll<HTMLElement>('.thumb-form [data-for]').forEach((el) => {
       el.hidden = el.dataset['for'] !== layout;
@@ -77,7 +78,7 @@ export function renderThumbTab(
       shopName: get('t-shop'),
       therapistName: get('t-therapist'),
       hook: get('t-hook'),
-    }, PALETTES[paletteIdx] ?? PALETTES[0]!, layout);
+    }, PALETTES[paletteIdx] ?? PALETTES[0]!, layout, watermark);
   };
   document.getElementById('layout-chips')?.addEventListener('click', (event) => {
     const chip = (event.target as HTMLElement).closest<HTMLElement>('button[data-layout]');
@@ -128,4 +129,20 @@ export function renderThumbTab(
     }
   });
   redraw();
+  void loadWatermark().then((image) => {
+    if (image === null || !canvas.isConnected) return;
+    watermark = image;
+    redraw();
+  });
+}
+
+/** data/ の透かしの写真を読む。置いていなければ写真なしで描く */
+async function loadWatermark(): Promise<WatermarkImage | null> {
+  try {
+    const blob = await fetchWatermark();
+    return blob === null ? null : await createImageBitmap(blob);
+  } catch (err) {
+    toast(`透かしの写真を読めませんでした: ${errText(err)}`);
+    return null;
+  }
 }

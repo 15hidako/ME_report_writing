@@ -342,3 +342,30 @@ describe('サムネの保存', () => {
     expect((await callHandler(handler, '/__local/thumbnails/%2e%2e%2fsecret', 'PUT', png)).statusCode).toBe(400);
   });
 });
+
+describe('透かしの写真', () => {
+  it('data/ に写真がなければ404を返す', async () => {
+    const response = await callHandler(createHandler(dir), '/__local/watermark');
+    expect(response.statusCode).toBe(404);
+  });
+
+  it('data/ 直下の写真を種類に合わせて返し、webpを優先する', async () => {
+    await put('data/thumb-watermark.jpg', 'jpg');
+    const headers = {};
+    const handler = createHandler(dir);
+    const read = async () => {
+      const req = Readable.from([]);
+      Object.assign(req, { url: '/__local/watermark', method: 'GET', headers: { host: 'localhost:5183' } });
+      const res = { statusCode: 0, setHeader(name, value) { headers[name] = value; }, end(body) { this.body = body; } };
+      await handler(req, res, () => { res.statusCode = 299; });
+      return res;
+    };
+    const jpg = await read();
+    expect(jpg.statusCode).toBe(200);
+    expect(headers['content-type']).toBe('image/jpeg');
+    expect(Buffer.from(jpg.body).toString()).toBe('jpg');
+    await put('data/thumb-watermark.webp', 'webp');
+    expect(Buffer.from((await read()).body).toString()).toBe('webp');
+    expect(headers['content-type']).toBe('image/webp');
+  });
+});

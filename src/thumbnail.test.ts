@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  fitLines, manualLineBreaks, mixHex, splitHonorific, THUMB_H, THUMB_W, withAlpha, wrapText,
+  brighten, coverCrop, fitLines, manualLineBreaks, mixHex, splitHonorific, THUMB_H, THUMB_W, toneWatermark, withAlpha, wrapText,
 } from './thumbnail';
 import type { BlockSpec } from './thumbnail';
 
@@ -155,5 +155,34 @@ describe('fitLines', () => {
 
   it('高さの余地がないときは行を返さない', () => {
     expect(fitLines('渋谷', 200, { ...spec, maxHeight: -30 }, measureAt).lines).toEqual([]);
+  });
+});
+
+describe('透かしの写真', () => {
+  it('横長の写真は左右を、縦長の写真は上下を切り、中央を残す', () => {
+    expect(coverCrop(2000, 1000, 300, 200)).toEqual({ sx: 250, sy: 0, sw: 1500, sh: 1000 });
+    expect(coverCrop(600, 1200, 300, 200)).toEqual({ sx: 0, sy: 400, sw: 600, sh: 400 });
+  });
+
+  it('暗い所は黒にし、明るい所だけを光の色で残す。左端は右端より弱い', () => {
+    const white = [255, 255, 255, 255];
+    const black = [0, 0, 0, 255];
+    const out = toneWatermark(new Uint8ClampedArray([...white, ...black, ...white]), 3, [200, 100, 50]);
+    expect([...out.slice(4, 8)]).toEqual([0, 0, 0, 255]);
+    expect([...out.slice(8, 12)]).toEqual([200, 100, 50, 255]);
+    expect(out[0]).toBeGreaterThan(0);
+    expect(out[0]).toBeLessThan(out[8]!);
+  });
+
+  it('暗めの所も消さずに持ち上げる', () => {
+    const out = toneWatermark(new Uint8ClampedArray([40, 40, 40, 255]), 1, [200, 200, 200]);
+    expect(out[0]).toBeGreaterThan(200 * 40 / 255);
+  });
+});
+
+describe('brighten', () => {
+  it('色味を保って明るくし、255を超えない', () => {
+    expect(brighten('#102040', 2)).toBe('rgb(32, 64, 128)');
+    expect(brighten('#c0ff80', 1.5)).toBe('rgb(255, 255, 192)');
   });
 });

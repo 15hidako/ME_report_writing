@@ -252,8 +252,12 @@ function drawBlock(
   return top + block.lines.length * block.lineHeight;
 }
 
+/** 背景に薄く敷く写真。読み込めた画像を渡す */
+export type WatermarkImage = ImageBitmap | HTMLImageElement;
+
 export function drawThumbnail(
   canvas: HTMLCanvasElement, input: ThumbnailInput, palette: Palette, layout: ThumbnailLayout,
+  watermark: WatermarkImage | null = null,
 ): void {
   canvas.width = THUMB_W;
   canvas.height = THUMB_H;
@@ -263,7 +267,7 @@ export function drawThumbnail(
   // 同じcanvasへ再描画しても前回の描画状態を持ち越さない
   ctx.save();
   try {
-    drawBackground(ctx, palette);
+    drawBackground(ctx, palette, watermark);
     drawFrame(ctx, palette);
     const header = drawHeader(ctx, palette);
     if (layout === 'names') drawNamesBody(ctx, input, palette, header);
@@ -505,17 +509,97 @@ function drawHeader(ctx: CanvasRenderingContext2D, palette: Palette): HeaderMetr
   return { textTop, ruleGap: ruleY - textBottom, ruleBottom: ruleY + 11.5 };
 }
 
-/** 縦グラデーション + 上からのスポット光 + 周辺減光 + 粒子 */
-function drawBackground(ctx: CanvasRenderingContext2D, palette: Palette): void {
+// 透かしの写真。縮めてから引き伸ばしてぼかし、明るさを配色の色に置き換えて浮かせる
+const WATERMARK_W = 300;
+const WATERMARK_H = Math.round(WATERMARK_W * THUMB_H / THUMB_W);
+const WATERMARK_ALPHA = 0.4;
+// 明るさを何乗するか。1より大きいと暗い所が消えて光だけが残り、1より小さいと暗い所(ベッドや床)も持ち上がる
+const WATERMARK_GAMMA = 0.8;
+// 文字を置く左端の強さ。右端を1として左から右へ強める
+const WATERMARK_LEFT = 0.3;
+// 写真の光の色。アクセント色を白へ寄せる割合
+const WATERMARK_TINT_TO_WHITE = 0.45;
+
+export interface CropRect {
+  readonly sx: number;
+  readonly sy: number;
+  readonly sw: number;
+  readonly sh: number;
+}
+
+/** 縦横比を保って描き先を覆う、写真の中央の切り出し範囲 */
+export function coverCrop(srcW: number, srcH: number, dstW: number, dstH: number): CropRect {
+  const scale = Math.max(dstW / srcW, dstH / srcH);
+  const sw = dstW / scale;
+  const sh = dstH / scale;
+  return { sx: (srcW - sw) / 2, sy: (srcH - sh) / 2, sw, sh };
+}
+
+/**
+ * 写真の画素を、明るさだけを残した単色に置き換える。
+ * 明るさを WATERMARK_GAMMA 乗し、左端ほど弱める。不透明のまま返す
+ */
+export function toneWatermark(
+  pixels: Uint8ClampedArray, width: number, tint: readonly [number, number, number],
+): Uint8ClampedArray<ArrayBuffer> {
+  const out = new Uint8ClampedArray(pixels.length);
+  for (let i = 0; i < pixels.length; i += 4) {
+    const x = (i / 4) % width;
+    const fade = WATERMARK_LEFT + (1 - WATERMARK_LEFT) * (width === 1 ? 1 : x / (width - 1));
+    const luma = (0.2126 * pixels[i]! + 0.7152 * pixels[i + 1]! + 0.0722 * pixels[i + 2]!) / 255;
+    const v = luma ** WATERMARK_GAMMA * fade;
+    out[i] = tint[0] * v;
+    out[i + 1] = tint[1] * v;
+    out[i + 2] = tint[2] * v;
+    out[i + 3] = 255;
+  }
+  return out;
+}
+
+/** 写真を縮めて単色にした画像。黒い所は加算しても変わらないので、そのまま重ねられる */
+function watermarkLayer(image: WatermarkImage, palette: Palette): HTMLCanvasElement {
+  const layer = document.createElement('canvas');
+  layer.width = WATERMARK_W;
+  layer.height = WATERMARK_H;
+  const lctx = layer.getContext('2d', { willReadFrequently: true });
+  if (lctx === null) throw new Error('透かしの写真を描くCanvasを用意できませんでした');
+  const { sx, sy, sw, sh } = coverCrop(image.width, image.height, WATERMARK_W, WATERMARK_H);
+  lctx.imageSmoothingQuality = 'high';
+  lctx.drawImage(image, sx, sy, sw, sh, 0, 0, WATERMARK_W, WATERMARK_H);
+  const data = lctx.getImageData(0, 0, WATERMARK_W, WATERMARK_H);
+  const accent = parseHex(palette.accent);
+  const tint = accent.map((c) => c + (255 - c) * WATERMARK_TINT_TO_WHITE) as [number, number, number];
+  lctx.putImageData(new ImageData(toneWatermark(data.data, WATERMARK_W, tint), WATERMARK_W, WATERMARK_H), 0, 0);
+  return layer;
+}
+
+function drawWatermark(ctx: CanvasRenderingContext2D, image: WatermarkImage, palette: Palette): void {
+  const layer = watermarkLayer(image, palette);
+  ctx.save();
+  ctx.globalCompositeOperation = 'screen';
+  ctx.globalAlpha = WATERMARK_ALPHA;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(layer, 0, 0, THUMB_W, THUMB_H);
+  ctx.restore();
+}
+
+// 縦グラデーションの上端の明るさ(色味を変えずに明るくする倍率)と、上からのスポット光の強さ
+const GRADIENT_TOP_BRIGHTEN = 1.5;
+const SPOT_ALPHA = 0.3;
+
+/** 縦グラデーション + 透かしの写真 + 上からのスポット光 + 周辺減光 + 粒子 */
+function drawBackground(ctx: CanvasRenderingContext2D, palette: Palette, watermark: WatermarkImage | null): void {
   const base = ctx.createLinearGradient(0, 0, 0, THUMB_H);
-  base.addColorStop(0, palette.bgTo);
+  base.addColorStop(0, brighten(palette.bgTo, GRADIENT_TOP_BRIGHTEN));
+  base.addColorStop(0.55, palette.bgTo);
   base.addColorStop(1, palette.bgFrom);
   ctx.fillStyle = base;
   ctx.fillRect(0, 0, THUMB_W, THUMB_H);
+  if (watermark !== null) drawWatermark(ctx, watermark, palette);
 
   const spotX = THUMB_W * 0.8;
   const spot = ctx.createRadialGradient(spotX, -80, 0, spotX, -80, THUMB_W * 0.9);
-  spot.addColorStop(0, withAlpha(palette.accent, 0.2));
+  spot.addColorStop(0, withAlpha(palette.accent, SPOT_ALPHA));
   spot.addColorStop(1, withAlpha(palette.accent, 0));
   ctx.fillStyle = spot;
   ctx.fillRect(0, 0, THUMB_W, THUMB_H);
@@ -609,6 +693,12 @@ function parseHex(hex: string): readonly [number, number, number] {
 export function withAlpha(hex: string, alpha: number): string {
   const [r, g, b] = parseHex(hex);
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+/** 色味を保ったまま各チャンネルを factor 倍に明るくする */
+export function brighten(hex: string, factor: number): string {
+  const [r, g, b] = parseHex(hex).map((c) => Math.min(255, Math.round(c * factor)));
+  return `rgb(${r}, ${g}, ${b})`;
 }
 
 export function mixHex(from: string, to: string, t: number): string {

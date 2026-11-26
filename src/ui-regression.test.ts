@@ -8,6 +8,11 @@ vi.mock('./thumbnail', async (importOriginal) => ({
   ...await importOriginal<typeof import('./thumbnail')>(),
   drawThumbnail: vi.fn(),
 }));
+// 開発サーバーがないので、透かしの写真は置いていない扱いにする
+vi.mock('./board/local-api', async (importOriginal) => ({
+  ...await importOriginal<typeof import('./board/local-api')>(),
+  fetchWatermark: vi.fn(async () => null),
+}));
 
 const button = (name: string): HTMLButtonElement => {
   const match = [...document.querySelectorAll('button')].find((item) => item.textContent?.trim() === name);

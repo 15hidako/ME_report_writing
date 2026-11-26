@@ -17,6 +17,12 @@ const MAX_THUMBNAIL_BYTES = 10 * 1024 * 1024;
 /** サムネは回答フォルダの直下にこの名前で置く。保存し直すと上書きする */
 export const THUMBNAIL_FILE = 'thumb.png';
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+/** サムネの背景に薄く敷く写真。data/ の直下に置き、リポジトリと公開ビルドには入れない。先に見つかった1枚を使う */
+export const WATERMARK_FILES = [
+  ['thumb-watermark.webp', 'image/webp'],
+  ['thumb-watermark.jpg', 'image/jpeg'],
+  ['thumb-watermark.png', 'image/png'],
+];
 /** ボードが書く2つと、週次確認のスクリプトが書く1つ */
 const CHECK_FILES = ['targets.json', 'checks.json', 'board-backup.json'];
 const WRITABLE_CHECK_FILES = ['targets.json', 'board-backup.json'];
@@ -211,6 +217,22 @@ export async function writeThumbnail(dir, folderName, bytes) {
   }
 }
 
+/**
+ * 透かしの写真を読む。置いていなければ null
+ * @param {string} dataDir data/ の絶対パス
+ * @returns {Promise<{ bytes: Buffer; type: string } | null>}
+ */
+export async function readWatermark(dataDir) {
+  for (const [name, type] of WATERMARK_FILES) {
+    try {
+      return { bytes: await readFile(path.join(dataDir, name)), type };
+    } catch (error) {
+      if (!isMissing(error)) throw error;
+    }
+  }
+  return null;
+}
+
 /** 週次確認の受け渡しファイル。まだなければ null */
 export async function readCheckFile(dir, name) {
   if (!CHECK_FILES.includes(name)) throw new HttpError(400, `読めないファイルです: ${name}`);
@@ -364,6 +386,14 @@ export function createHandler(root, { downloadsDir } = {}) {
           const modifiedAt = await writeArticlePart(dirs.articles, folderName, disclosure, part, await readBody(req), base);
           return send(res, 200, { modifiedAt });
         }
+      }
+      if (req.method === 'GET' && head === 'watermark' && rest.length === 0) {
+        const image = await readWatermark(path.join(root, 'data'));
+        if (image === null) return send(res, 404, { error: '透かしの写真がありません' });
+        res.statusCode = 200;
+        res.setHeader('content-type', image.type);
+        res.setHeader('cache-control', 'no-store');
+        return res.end(image.bytes);
       }
       if (req.method === 'PUT' && head === 'thumbnails' && rest.length === 1) {
         const file = await writeThumbnail(dirs.articles, rest[0], await readRawBody(req, MAX_THUMBNAIL_BYTES));

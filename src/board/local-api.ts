@@ -165,3 +165,16 @@ export async function putThumbnail(folderName: string, png: Blob): Promise<strin
   if (typeof path !== 'string') throw new Error('サムネの保存の結果が読めません');
   return path;
 }
+
+/** data/ に置いた透かしの写真。写真を置いていないときと、API がない環境では null */
+export async function fetchWatermark(): Promise<Blob | null> {
+  let response: Response;
+  try {
+    response = await fetch(`${PREFIX}/watermark`, { cache: 'no-store' });
+  } catch {
+    return null;
+  }
+  if (response.status === 404) return null;
+  if (!response.ok) throw await errorOf(response);
+  return response.blob();
+}
