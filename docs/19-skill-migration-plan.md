@@ -31,7 +31,7 @@ Claude Code に `data/answers/` の JSON を直接読ませる形は採らない
 
 次の値は今と同じくコードで決め、依頼文に入れる。skillには書かない。
 
-- タイトル先頭の【エリア｜○月出勤確認】(`titleLead`)
+- タイトル先頭の「M月出勤◎【エリア】」(`titleLead`)
 - 出勤確認を旬にぼかした行(`listingCheckLine`)
 - 店舗情報の確認の節(`articleLookupSection`)
 - 再訪の初回記事URLと初回の訪問データ
