@@ -178,7 +178,7 @@ describe('店名・セラピスト名の開示先', () => {
     const p = buildSinglePrompt(fixtureRecord());
     expect(p).toContain('店名・源氏名と店・セラピストのリンクは有料部分でのみ開示');
     expect(p).toContain('店名・源氏名は入れない');
-    expect(p).toContain('<h3>有料部分の内容</h3> 店名・源氏名開示');
+    expect(p).toContain('<h3>有料部分の内容</h3> 店名・セラピスト名開示');
     // 名前の開示ルールは従来どおり規約節の先頭に置く
     expect(p).toContain('## wakust規約の遵守(生成時必須)\n- 店名・源氏名と店・セラピストのリンクは有料部分でのみ開示');
   });
@@ -186,13 +186,13 @@ describe('店名・セラピスト名の開示先', () => {
   it('名前公開型では無料部分とタイトルで店名・源氏名を出し、有料部分は詳細レビューにする', () => {
     const p = buildSinglePrompt(fixtureRecord(), 'free');
     expect(p).toContain('店名・源氏名は無料部分とタイトルで開示する');
-    expect(p).toContain('<h3>今回のセラピスト</h3> 店名/店URL/源氏名');
+    expect(p).toContain('<h3>今回のセラピスト</h3> 店名/店URL/セラピスト名');
     expect(p).not.toContain('有料部分でのみ開示');
     expect(p).not.toContain('店名は出さない');
     expect(p).not.toContain('店名・源氏名開示');
     // 店とセラピストのURLは無料部分で見せ、詳細は有料部分に残す
     const freePart = p.slice(p.indexOf('[無料部分]'), p.indexOf('[有料部分]'));
-    expect(freePart).toContain('店名/店URL/源氏名/セラピストURL(profile)');
+    expect(freePart).toContain('店名/店URL/セラピスト名/セラピストURL(profile)');
     expect(freePart).toContain('URL文字列もテキストで併記');
     expect(freePart).not.toContain('リンクは付けない');
     expect(p).toContain('<h3>店舗・セラピスト情報</h3> X/年齢・体型・カップ数');
@@ -580,5 +580,64 @@ describe('記事5の手直しから統一した定型(H-16)', () => {
     const p = buildSinglePrompt(fixtureRecord(), 'free');
     const line = p.split('\n').find((l) => l.startsWith('- <h3>総評</h3>')) ?? '';
     expect(line).toBe('- <h3>総評</h3> リピート意向+残念ポイントも正直に');
+  });
+});
+
+describe('記事7の手直しから統一した書き方(2026-11-28 本人指示)', () => {
+  const prompts = (['paid', 'free'] as const).map((disclosure) => [disclosure, buildSinglePrompt(fixtureRecord(), disclosure)] as const);
+  const profileLine = (p: string) => p.split('\n').find((l) => l.startsWith('- <h3>今回のセラピスト</h3>')) ?? '';
+
+  it('無料部分の料金にはメニューにない追加料金を入れず、実額は有料部分に書かせる', () => {
+    for (const [, p] of prompts) {
+      const line = profileLine(p);
+      expect(line).toContain('メニューにない追加料金は入れない');
+      expect(line).toContain('有料部分の実額にだけ書く');
+      expect(line).toContain('訪問データに追加で払った額が書かれているときは、その額を除く');
+      expect(line).not.toContain('今回のオプション代合計を使う');
+    }
+  });
+
+  it('記事に出る項目名と文では「源氏名」でなく「セラピスト名」と書かせる', () => {
+    const paid = buildSinglePrompt(fixtureRecord(), 'paid');
+    const free = buildSinglePrompt(fixtureRecord(), 'free');
+    expect(paid).toContain('<h3>有料部分の内容</h3> 店名・セラピスト名開示');
+    expect(paid).not.toContain('店名・源氏名開示');
+    expect(paid).toContain('<h3>店舗・セラピスト情報</h3> 店名/URL/セラピスト名/');
+    expect(free).toContain('<h3>今回のセラピスト</h3> 店名/店URL/セラピスト名/セラピストURL(profile)');
+    for (const [, p] of prompts) expect(p).toContain('「源氏名」と書かず「セラピスト名」と書く');
+    expect(free).toContain('(店名・セラピスト名・店URL・セラピストURLは無料部分で既出)');
+    const records = publishedRecords();
+    const matome = buildMatomePrompt(records.slice(0, 3), 'theme', records);
+    expect(matome).toContain('- 有料部分: 各人の店名・セラピスト名・リンク');
+    expect(matome).toContain('「源氏名」と書かず「セラピスト名」と書く');
+  });
+
+  it('隠語に括弧の説明を付けさせない', () => {
+    for (const [, p] of prompts) {
+      expect(p).toContain('隠語に括弧の説明を付けない');
+      expect(p).not.toContain('括弧説明は「初出');
+    }
+  });
+
+  it('減点は評価の欄に書かせ、本文では★3以上の弱みを避けるか前向きに締めさせ、★の数に触れさせない', () => {
+    for (const [, p] of prompts) {
+      expect(p).toContain('評価6軸の弱み(減点)は<h3>評価</h3>の一言にだけ書く');
+      expect(p).toContain('★3以上の軸の弱みには基本的に触れず');
+      expect(p).toContain('語り手の前向きな反応で締める');
+      expect(p).toContain('本文で★の数に触れない');
+      expect(p).not.toContain('正直な減点も書く');
+      expect(p).not.toContain('正直ここは物足りない');
+    }
+  });
+
+  it('誰からの提案や仕掛けかを「私から」「彼女から」と書かせ、彼女の主導は「誘導」と書かせる', () => {
+    for (const [, p] of prompts) {
+      expect(p).toContain('「私から」「彼女から」');
+      expect(p).toContain('「指示」より「誘導」');
+    }
+  });
+
+  it('ご対面はシャワーを浴びてからKPを着ける順で書かせる', () => {
+    for (const [, p] of prompts) expect(p).toContain('シャワーを浴びてからKPを着ける順');
   });
 });

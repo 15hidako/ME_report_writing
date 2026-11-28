@@ -63,3 +63,11 @@ describe('markupSkill', () => {
     expect(skill.startsWith(`---\nname: ${MARKUP_SKILL_NAME}\ndescription: `)).toBe(true);
   });
 });
+
+describe('articleSkill の仕上げ', () => {
+  it('保存の前に stop-ai-slop-jp を適用させる(2026-11-28 本人指示)', () => {
+    const skill = articleSkill();
+    expect(skill).toContain('stop-ai-slop-jp');
+    expect(skill.indexOf('stop-ai-slop-jp')).toBeLessThan(skill.indexOf('## 保存(Claude Code)'));
+  });
+});

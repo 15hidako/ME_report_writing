@@ -40,7 +40,9 @@ ${GENERATED_NOTE}
 1. 書く前に、${briefItem(BRIEF_LABELS.disclosure)}と「${BRIEF_LABELS.save}」のフォルダを一言で確かめる(体験内容起点は standard、セラピスト起点は names)。食い違っていたら書かずに知らせる
 2. ${briefItem(BRIEF_LABELS.lookup)}があれば、記事を書く前に行う
 3. ${briefItem(BRIEF_LABELS.revisit)}があれば再訪記事として、その指示を下の記事構成より先に読む
-4. ${briefItem(BRIEF_LABELS.structure)}を下の記事構成の同じ名前の行に置き、下の規則で記事を書いて、「保存」に従って保存する
+4. ${briefItem(BRIEF_LABELS.structure)}を下の記事構成の同じ名前の行に置き、下の規則で記事を書く
+5. 保存の前に stop-ai-slop-jp を読み、タイトル・無料部分・有料部分に適用する。事実・数値・隠語・見出しは変えず、訪問データにない内容を足さない。原稿は外部のAIへ渡さない
+6. 「保存」に従って保存する
 
 ${ARTICLE_PREMISES}
 
